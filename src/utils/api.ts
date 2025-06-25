@@ -1,4 +1,4 @@
-import type { Collection, CollectionConfig, ProcessingResult, Config } from '@/types'
+import type { Collection, CollectionConfig, ProcessingResult, Config } from '../types'
 
 // Use relative URLs to work with Vite proxy in development
 const API_BASE = import.meta.env.VITE_API_BASE || ''
@@ -11,7 +11,9 @@ class ApiError extends Error {
 }
 
 async function apiRequest<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
-  const response = await fetch(`${API_BASE}${endpoint}`, {
+  const url = `${API_BASE}${endpoint}`
+  
+  const response = await fetch(url, {
     headers: {
       'Content-Type': 'application/json',
       ...options.headers,
@@ -28,21 +30,21 @@ async function apiRequest<T>(endpoint: string, options: RequestInit = {}): Promi
 
 export const collectionsApi = {
   async getCollections(): Promise<Collection[]> {
-    return apiRequest<Collection[]>('/api/collections')
+    return apiRequest<Collection[]>('/api/collections/')
   },
 
   async getCollection(name: string): Promise<CollectionConfig> {
-    return apiRequest<CollectionConfig>(`/api/collections/${name}`)
+    return apiRequest<CollectionConfig>(`/api/collections/${name}/`)
   },
 
   async processCollection(name: string): Promise<ProcessingResult[]> {
-    return apiRequest<ProcessingResult[]>(`/api/collections/${name}`, {
+    return apiRequest<ProcessingResult[]>(`/api/collections/${name}/`, {
       method: 'POST'
     })
   },
 
   async processAllCollections(): Promise<ProcessingResult[]> {
-    return apiRequest<ProcessingResult[]>('/api/collections', {
+    return apiRequest<ProcessingResult[]>('/api/collections/', {
       method: 'POST'
     })
   }
@@ -50,20 +52,20 @@ export const collectionsApi = {
 
 export const renderApi = {
   async renderJsonSchema(schemaName: string): Promise<any> {
-    return apiRequest(`/api/render/json_schema/${schemaName}`)
+    return apiRequest(`/api/render/json_schema/${schemaName}/`)
   },
 
   async renderBsonSchema(schemaName: string): Promise<any> {
-    return apiRequest(`/api/render/bson_schema/${schemaName}`)
+    return apiRequest(`/api/render/bson_schema/${schemaName}/`)
   },
 
   async renderOpenApi(schemaName: string): Promise<any> {
-    return apiRequest(`/api/render/openapi/${schemaName}`)
+    return apiRequest(`/api/render/openapi/${schemaName}/`)
   }
 }
 
 export const configApi = {
   async getConfig(): Promise<Config> {
-    return apiRequest<Config>('/api/config')
+    return apiRequest<Config>('/api/config/')
   }
 } 

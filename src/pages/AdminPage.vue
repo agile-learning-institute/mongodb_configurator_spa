@@ -75,7 +75,7 @@
 
 <script setup lang="ts">
 import { onMounted } from 'vue'
-import { useConfig } from '@/composables/useConfig'
+import { useConfig } from '../composables/useConfig'
 
 const { config, loading, fetchConfig } = useConfig()
 

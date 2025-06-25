@@ -33,6 +33,13 @@
         <v-card v-if="loading">
           <v-card-text>
             <v-progress-linear indeterminate />
+            <p class="mt-2">Loading collections...</p>
+          </v-card-text>
+        </v-card>
+
+        <v-card v-else-if="error">
+          <v-card-text>
+            <p class="text-center text-error">Error: {{ error }}</p>
           </v-card-text>
         </v-card>
 
@@ -61,13 +68,12 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { collectionsApi } from '@/utils/api'
-import { useCollections } from '@/composables/useCollections'
-import { useProcessing } from '@/composables/useProcessing'
-import type { Collection } from '@/types'
+import { collectionsApi } from '../utils/api'
+import { useCollections } from '../composables/useCollections'
+import { useProcessing } from '../composables/useProcessing'
 
 const router = useRouter()
-const { collections, loading, fetchCollections } = useCollections()
+const { collections, loading, error, fetchCollections } = useCollections()
 const { setProcessingResults } = useProcessing()
 const processing = ref(false)
 

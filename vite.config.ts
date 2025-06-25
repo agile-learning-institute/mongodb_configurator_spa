@@ -12,11 +12,16 @@ export default defineConfig({
   },
   server: {
     port: 8082,
+    strictPort: true,
     proxy: {
       '/api': {
         target: 'http://localhost:8081',
         changeOrigin: true,
+        secure: false,
       },
+    },
+    fs: {
+      strict: false,
     },
   },
   build: {

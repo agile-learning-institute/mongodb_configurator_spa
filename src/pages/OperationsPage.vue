@@ -80,8 +80,8 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useProcessing } from '@/composables/useProcessing'
-import type { ProcessingResult } from '@/types'
+import { useProcessing } from '../composables/useProcessing'
+import type { ProcessingResult } from '../types'
 
 const { processingResults } = useProcessing()
 const expandedDetails = ref<number[]>([])

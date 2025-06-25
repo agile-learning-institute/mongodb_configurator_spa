@@ -1,9 +1,9 @@
+import { useCollections } from '../../src/composables/useCollections'
+import { collectionsApi } from '../../src/utils/api'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { useCollections } from '@/composables/useCollections'
-import { collectionsApi } from '@/utils/api'
 
 // Mock the API
-vi.mock('@/utils/api', () => ({
+vi.mock('../../src/utils/api', () => ({
   collectionsApi: {
     getCollections: vi.fn()
   }

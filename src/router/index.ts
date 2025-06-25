@@ -1,8 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import CollectionsPage from '@/pages/CollectionsPage.vue'
-import CollectionPage from '@/pages/CollectionPage.vue'
-import AdminPage from '@/pages/AdminPage.vue'
-import OperationsPage from '@/pages/OperationsPage.vue'
+import CollectionsPage from '../pages/CollectionsPage.vue'
+import CollectionPage from '../pages/CollectionPage.vue'
+import AdminPage from '../pages/AdminPage.vue'
+import OperationsPage from '../pages/OperationsPage.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),

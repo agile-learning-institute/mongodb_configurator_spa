@@ -1,6 +1,6 @@
 import { ref, computed } from 'vue'
-import { configApi } from '@/utils/api'
-import type { Config } from '@/types'
+import { configApi } from '../utils/api'
+import type { Config } from '../types'
 
 const config = ref<Config | null>(null)
 const loading = ref(false)

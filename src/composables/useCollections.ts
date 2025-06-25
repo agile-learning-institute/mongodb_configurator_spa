@@ -1,6 +1,6 @@
 import { ref } from 'vue'
-import { collectionsApi } from '@/utils/api'
-import type { Collection } from '@/types'
+import { collectionsApi } from '../utils/api'
+import type { Collection } from '../types'
 
 // Singleton state
 const collections = ref<Collection[]>([])

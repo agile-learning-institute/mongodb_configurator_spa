@@ -1,5 +1,5 @@
 import { ref } from 'vue'
-import type { ProcessingResult } from '@/types'
+import type { ProcessingResult } from '../types'
 
 const processingResults = ref<ProcessingResult[]>([])
 

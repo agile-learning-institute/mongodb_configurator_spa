@@ -58,10 +58,10 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { collectionsApi } from '@/utils/api'
-import { useProcessing } from '@/composables/useProcessing'
-import VersionConfiguration from '@/components/VersionConfiguration.vue'
-import type { CollectionConfig } from '@/types'
+import { collectionsApi } from '../utils/api'
+import { useProcessing } from '../composables/useProcessing'
+import VersionConfiguration from '../components/VersionConfiguration.vue'
+import type { CollectionConfig } from '../types'
 
 const route = useRoute()
 const router = useRouter()
