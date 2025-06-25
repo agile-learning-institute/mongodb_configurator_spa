@@ -17,13 +17,10 @@ const processingResults = ref<ProcessingResponse | null>(null)
 
 export function useProcessing() {
   const setProcessingResults = (results: ProcessingResponse) => {
-    console.log('Setting processing results:', results)
     processingResults.value = results
-    console.log('Processing results after set:', processingResults.value)
   }
 
   const clearProcessingResults = () => {
-    console.log('Clearing processing results')
     processingResults.value = null
   }
 

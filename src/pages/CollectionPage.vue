@@ -90,11 +90,8 @@ const fetchCollection = async () => {
 const processCollection = async () => {
   processing.value = true
   try {
-    console.log('Processing collection:', collectionName.value)
     const results = await collectionsApi.processCollection(collectionName.value)
-    console.log('API returned results:', results)
     setProcessingResults(results)
-    console.log('About to navigate to operations page')
     router.push('/operations')
   } catch (error) {
     console.error('Error processing collection:', error)

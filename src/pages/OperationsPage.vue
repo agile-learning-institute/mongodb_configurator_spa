@@ -34,54 +34,60 @@
           </v-card>
 
           <!-- Operations List -->
-          <v-list v-if="processingResults.operations && processingResults.operations.length > 0">
-            <div
+          <div v-if="processingResults.operations && processingResults.operations.length > 0">
+            <v-card
               v-for="(operation, index) in processingResults.operations"
               :key="index"
-              class="mb-2"
+              class="mb-4"
+              elevation="2"
             >
-              <v-list-item>
-                <v-list-item-title>
-                  {{ operation.operation }}
-                  <v-chip
-                    :color="getStatusColor(operation.status)"
-                    size="small"
-                    class="ml-2"
-                  >
-                    {{ operation.status }}
-                  </v-chip>
-                </v-list-item-title>
-                
-                <v-list-item-subtitle v-if="operation.collection">
-                  Collection: {{ operation.collection }}
-                </v-list-item-subtitle>
-                
-                <v-list-item-subtitle v-if="operation.message">
-                  {{ operation.message }}
-                </v-list-item-subtitle>
+              <v-card-text>
+                <div class="d-flex align-start justify-space-between">
+                  <div class="flex-grow-1">
+                    <div class="d-flex align-center mb-2">
+                      <h4 class="mr-4">{{ operation.operation }}</h4>
+                      <v-chip
+                        :color="getStatusColor(operation.status)"
+                        size="small"
+                      >
+                        {{ operation.status }}
+                      </v-chip>
+                    </div>
+                    
+                    <div class="d-flex flex-wrap">
+                      <div v-if="operation.collection" class="mr-4">
+                        <strong>Collection:</strong> {{ operation.collection }}
+                      </div>
+                      <div v-if="operation.message" class="mr-4">
+                        <strong>Message:</strong> {{ operation.message }}
+                      </div>
+                      <div v-if="operation.details_type" class="mr-4">
+                        <strong>Type:</strong> {{ operation.details_type }}
+                      </div>
+                    </div>
 
-                <template v-slot:append>
-                  <v-btn
-                    v-if="operation.details"
-                    icon="mdi-chevron-down"
-                    variant="text"
-                    @click="toggleDetails(index)"
-                  />
-                </template>
-              </v-list-item>
-
-              <v-expand-transition>
-                <div v-show="expandedDetails.includes(index) && operation.details">
-                  <v-card class="ma-2">
-                    <v-card-text>
-                      <h4>Details ({{ operation.details_type }})</h4>
-                      <pre>{{ JSON.stringify(operation.details, null, 2) }}</pre>
-                    </v-card-text>
-                  </v-card>
+                    <!-- Expandable Details -->
+                    <v-expand-transition>
+                      <div v-show="expandedDetails.includes(index) && operation.details" class="mt-3">
+                        <v-divider class="mb-3"></v-divider>
+                        <h5>Details</h5>
+                        <pre class="mt-2">{{ JSON.stringify(operation.details, null, 2) }}</pre>
+                      </div>
+                    </v-expand-transition>
+                  </div>
+                  
+                  <div class="d-flex align-end ml-4">
+                    <v-btn
+                      v-if="operation.details"
+                      icon="mdi-chevron-down"
+                      variant="text"
+                      @click="toggleDetails(index)"
+                    />
+                  </div>
                 </div>
-              </v-expand-transition>
-            </div>
-          </v-list>
+              </v-card-text>
+            </v-card>
+          </div>
 
           <v-card v-else class="mb-4">
             <v-card-text>
@@ -101,15 +107,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref } from 'vue'
 import { useProcessing } from '../composables/useProcessing'
 
 const { processingResults } = useProcessing()
 const expandedDetails = ref<number[]>([])
-
-onMounted(() => {
-  console.log('OperationsPage mounted, processing results:', processingResults.value)
-})
 
 const getStatusColor = (status: string) => {
   switch (status) {
