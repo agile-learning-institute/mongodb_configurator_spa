@@ -13,15 +13,16 @@ interface ProcessingResponse {
   status: 'success' | 'error' | 'skipped'
 }
 
-const processingResults = ref<ProcessingResponse | null>(null)
+const processingResults = ref<ProcessingResponse[]>([])
 
 export function useProcessing() {
-  const setProcessingResults = (results: ProcessingResponse) => {
-    processingResults.value = results
+  const setProcessingResults = (results: ProcessingResponse | ProcessingResponse[]) => {
+    // Normalize to always be an array
+    processingResults.value = Array.isArray(results) ? results : [results]
   }
 
   const clearProcessingResults = () => {
-    processingResults.value = null
+    processingResults.value = []
   }
 
   return {

@@ -84,8 +84,11 @@ onMounted(async () => {
 const processAllCollections = async () => {
   processing.value = true
   try {
+    console.log('Processing all collections...')
     const results = await collectionsApi.processAllCollections()
+    console.log('API returned results:', results)
     setProcessingResults(results)
+    console.log('About to navigate to operations page')
     router.push('/operations')
   } catch (error) {
     console.error('Error processing collections:', error)
