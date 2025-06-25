@@ -98,6 +98,7 @@
                             icon="mdi-chevron-down"
                             variant="text"
                             size="small"
+                            :class="{ 'rotate-180': expandedDetails.includes(`${collectionIndex}-${operationIndex}`) }"
                             @click="toggleDetails(`${collectionIndex}-${operationIndex}`)"
                           />
                         </div>
@@ -163,4 +164,15 @@ const toggleDetails = (key: string) => {
     expandedDetails.value.push(key)
   }
 }
-</script> 
+</script>
+
+<style scoped>
+.rotate-180 {
+  transform: rotate(180deg);
+  transition: transform 0.2s ease-in-out;
+}
+
+.v-btn {
+  transition: transform 0.2s ease-in-out;
+}
+</style> 

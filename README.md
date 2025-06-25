@@ -1,110 +1,14 @@
-# Mongo Schema Manager SPA 
+# Stage0 MongoDB SPA
 
-The Mongo schema manager single page application allows data engineers to test and validate MongoDB configurations. Once these configurations have been validated, they can be packaged and deployed to manage the database configuration.
+A Vue 3 SPA for managing MongoDB schema configurations and processing operations.
 
-This application also allows software engineers to download BSON and JSON schemas as well as draft single-collection OpenAPI specifications. All data is read-only. Processing updates MongoDB configurations and returns information about processing operations success or failures.
+## Quick Start
 
-## Contribution
-
-### Pre-requisites
-- [stage0 developers edition](https://github.com/agile-learning-institute/stage0/blob/main/developer_edition/README.md)
-- Review stage0 [Contributing Guide](https://github.com/agile-learning-institute/stage0/blob/main/developer_edition/docs/contributing.md)
-- Review stage0 [SPA standards](https://github.com/agile-learning-institute/stage0/blob/main/developer_edition/docs/spa-standards.md)
-
-## Tech Stack
-- **Framework**: Vue.js 3 with TypeScript
-- **UI Library**: Vuetify 3 (Material Design)
-- **State Management**: Vue 3 Composables (simple API, read-only data)
-- **Build Tool**: Vite (modern, fast build tool with excellent Vue 3 support)
-- **Package Manager**: npm (standard for AKS deployment)
-- **Container**: Multi-stage Docker build with NGINX
-- **Deployment**: AKS with immutable container promotion
-
-### Build Tool Decision: Vite
-- **Vite** chosen over Webpack for:
-  - Faster development server startup
-  - Better Vue 3 + TypeScript support
-  - Modern ES modules approach
-  - Excellent hot module replacement
-  - Smaller bundle sizes
-  - Active development and Vue team backing
-
-### Container Architecture
-- **Multi-stage Docker build**:
-  - Stage 1: Build Vue application with Vite
-  - Stage 2: NGINX container serving static files
-  - Environment variable `BUILT_AT` for build timestamp
-  - NGINX configuration for API proxying
-
-### NGINX Configuration
-- **API Proxy**: Forward `/api/*` requests to `STAGE0_MONGODB_PORT` (8081)
-- **Static Files**: Serve Vue SPA from `/usr/share/nginx/html`
-- **Development**: Hard-coded API port for dev server
-- **Production**: Environment variable for API port
-
-### Authentication & RBAC
-- **Authentication**: Handled outside this application (deferred implementation)
-- **RBAC**: Based on `/api/config` endpoint response
-- **Admin Role**: Enables process buttons when `roles` contains "admin"
-- **Token Structure**: Uses existing OpenAPI spec token format
-
-## Project Structure / Separation of Concerns
-
-### Core Architecture
-- **Composables**: API-based integrations, data drives rendering
-- **Pages**: Route-based components
-- **Components**: Reusable UI components
-- **Router**: Vue Router for navigation
-
-### Routes
-- `/` → redirects to `/collections`
-- `/collections` → list of collections
-- `/collection/{name}` → collection configuration
-- `/admin` → configuration information
-- `/operations` → processing results view
-
-### Pages
-- **Collections Page** (`/collections`)
-  - Header: "Collections" with [Process All] and [Admin] buttons
-  - Process All: POST to `/api/collections`
-  - Processing output redirects to `/operations` page
-  - Each collection links to `/collection/{name}`
-  - Data source: GET `/api/collections`
-
-- **Collection Page** (`/collection/{name}`)
-  - Header: "Configuration" with [Process] button (top right)
-  - Process: POST to `/api/collections/{name}`
-  - Processing output redirects to `/operations` page
-  - Version configuration components (collapsible, one-only control)
-  - Data source: GET `/api/collections/{name}`
-
-- **Operations Page** (`/operations`)
-  - List of processing operations
-  - Collapsible JSON views for complex values (details)
-  - Data source: Processing results from POST endpoints
-  - Transient data (not persisted)
-
-- **Admin Page** (`/admin`)
-  - Configuration details from `/api/config` endpoint
-  - List of configuration items (CIs)
-  - Add `SPA_BUILT_AT` value to CIs
-  - Token values for RBAC (roles, user_id, from_ip)
-
-### Components
-- **Version Configuration Component**
-  - Version information display
-  - [Render JSON/BSON] buttons per version
-  - Collapsible JSON views for complex properties
-  - Schema, indexes, bulk load errors display
-
-## Development Workflow
-
-### Local Development
 ```bash
 # Install dependencies
 npm install
 
-# Start development server
+# Start development server (requires API on localhost:8081)
 npm run dev
 
 # Build for production
@@ -112,128 +16,155 @@ npm run build
 
 # Run tests
 npm run test
-
-# Lint code
-npm run lint
 ```
 
-### Container Development
+## Architecture
+
+### Tech Stack
+- **Vue 3** + TypeScript + Composition API
+- **Vuetify 3** for UI components
+- **Vite** for build tooling
+- **Vue Router** for navigation
+
+### Key Design Decisions
+
+#### 1. Composable-Based State Management
+- **Simple, read-only data**: No complex state management needed
+- **API-driven**: All data comes from REST endpoints
+- **Singleton composables**: Shared state across components
+- **Transient processing results**: Not persisted, cleared on navigation
+
+#### 2. Unified Data Structure
+- **Processing results**: Always normalized to `ProcessingResponse[]`
+- **Single vs multiple**: API returns different formats, frontend normalizes
+- **Consistent UI**: Same accordion layout for 1 or N collections
+
+#### 3. Component Architecture
+```
+src/
+├── composables/          # API integrations & shared state
+│   ├── useCollections.ts # Collection list & details
+│   ├── useConfig.ts      # Admin configuration
+│   └── useProcessing.ts  # Processing results (transient)
+├── pages/               # Route-based components
+│   ├── CollectionsPage.vue
+│   ├── CollectionPage.vue
+│   ├── OperationsPage.vue
+│   └── AdminPage.vue
+├── components/          # Reusable UI components
+├── utils/              # API utilities
+└── types/              # TypeScript definitions
+```
+
+## API Integration
+
+### Endpoints
+- `GET /api/collections` - List collections
+- `POST /api/collections` - Process all collections
+- `GET /api/collections/{name}` - Get collection config
+- `POST /api/collections/{name}` - Process single collection
+- `GET /api/config` - Admin configuration
+
+### Data Flow
+1. **Collections**: Load on page mount, refresh on demand
+2. **Processing**: Trigger via buttons, results stored in composable
+3. **Navigation**: Results page shows transient processing data
+4. **Admin**: Config loaded once, used for RBAC
+
+## Key Features
+
+### Collections Management
+- List all configured collections
+- View individual collection configurations
+- Process single collections or all collections
+- Version-based configuration display
+
+### Processing Operations
+- Real-time processing status
+- Accordion-based results display
+- Expandable operation details
+- Unified view for single/multiple collections
+
+### Admin Interface
+- Configuration overview
+- RBAC role display
+- System information
+
+## Development Notes
+
+### State Management
+- **No Vuex/Pinia**: Simple composables handle all state
+- **API-first**: All data comes from REST endpoints
+- **Transient processing**: Results not persisted, cleared on navigation
+
+### UI Patterns
+- **Card-based layouts**: Consistent visual hierarchy
+- **Accordion grouping**: Collections and operations
+- **Expandable details**: JSON data in collapsible sections
+- **Status indicators**: Color-coded chips for operation status
+
+### Error Handling
+- **Network errors**: Console logging + user feedback
+- **API errors**: Inline error display
+- **Processing errors**: Shown in operations results
+
+### Performance
+- **Lazy loading**: Components load on route change
+- **Minimal re-renders**: Reactive composables
+- **Efficient updates**: Vue 3 reactivity system
+
+## Deployment
+
+### Container Build
 ```bash
 # Build container
 npm run build:container
 
-# Run container locally
+# Run locally
 npm run container
-
-# Start with backing services
-stage0 start mongodb
 ```
 
-### CI/CD Pipeline
-- **Trigger**: Merge to main branch
-- **Build**: Multi-stage Docker build
-- **Test**: Unit tests, linting, build verification
-- **Publish**: Push to GitHub Container Registry
-- **Deploy**: Immutable container promotion to AKS environments
+### Environment Variables
+- `VITE_API_BASE`: API base URL (empty for dev proxy)
+- `STAGE0_MONGODB_PORT`: API port (8081)
 
-## API Integration
+### NGINX Configuration
+- API proxy to `/api/*` endpoints
+- Static file serving for SPA
+- Environment-based configuration
 
-### Endpoints Used
-- `GET /api/collections` - List all collections
-- `POST /api/collections` - Process all collections
-- `GET /api/collections/{name}` - Get collection configuration
-- `POST /api/collections/{name}` - Process single collection
-- `GET /api/render/json_schema/{schema_name}` - Get JSON schema
-- `GET /api/render/bson_schema/{schema_name}` - Get BSON schema
-- `GET /api/render/openapi/{schema_name}` - Get OpenAPI spec
-- `GET /api/config` - Get configuration and RBAC info
+## Testing
 
-### Error Handling
-- **Network Errors**: Toast notifications with retry options
-- **API Errors**: Inline error display with details
-- **Validation Errors**: Form validation with field-specific messages
-- **Processing Errors**: Dedicated error page with operation details
+```bash
+# Unit tests
+npm run test
 
-### State Management
-- **Collections State**: Reactive collection list and details
-- **Processing State**: Current processing operations and results
-- **UI State**: Collapsible sections, loading states, error states
-- **User State**: RBAC roles, authentication status
+# Test coverage
+npm run test:coverage
 
-## Missing Design Specifications
+# E2E tests (if configured)
+npm run test:e2e
+```
 
-### 1. Error Handling Strategy
-- **Question**: How should we handle different types of errors (network, API, validation)?
-- **Question**: Should we implement retry mechanisms for failed operations?
-- **Question**: How do we handle long-running processing operations?
+## Contributing
 
-### 2. Loading States
-- **Question**: What loading indicators should we show during API calls?
-- **Question**: How do we handle skeleton loading for collection lists?
+1. Follow Vue 3 Composition API patterns
+2. Use TypeScript for type safety
+3. Keep composables simple and focused
+4. Maintain consistent UI patterns
+5. Test API integrations thoroughly
 
-### 3. Responsive Design
-- **Question**: What are the target screen sizes and breakpoints?
-- **Question**: How should the layout adapt for mobile devices?
+## Dependencies
 
-### 4. Accessibility
-- **Question**: What accessibility standards should we follow (WCAG 2.1 AA)?
-- **Question**: How should we handle keyboard navigation and screen readers?
-
-### 5. Internationalization
-- **Question**: Do we need multi-language support?
-- **Question**: How should we handle date/time formatting?
-
-### 6. Performance Optimization
-- **Question**: Should we implement virtual scrolling for large collection lists?
-- **Question**: How should we handle caching of API responses?
-
-### 7. Testing Strategy
-- **Question**: What testing framework should we use (Vitest, Jest)?
-- **Question**: Do we need E2E testing (Playwright, Cypress)?
-- **Question**: How should we mock the API for testing?
-
-### 8. Development Experience
-- **Question**: Should we set up hot reloading for the API proxy?
-- **Question**: How should we handle CORS in development?
-
-### 9. Security Considerations
-- **Question**: How should we handle sensitive data in the UI?
-- **Question**: Should we implement Content Security Policy (CSP)?
-
-### 10. Monitoring and Observability
-- **Question**: How should we handle error tracking and analytics?
-- **Question**: Should we implement performance monitoring?
-
-## Environment Variables
+### Core
+- `vue@^3.4.0` - Framework
+- `vuetify@^3.4.0` - UI library
+- `vue-router@^4.2.0` - Routing
 
 ### Development
-```bash
-VITE_API_BASE_URL=http://localhost:8081
-VITE_APP_TITLE=MongoDB Schema Manager
-```
-
-### Production
-```bash
-STAGE0_MONGODB_PORT=8081
-SPA_BUILT_AT=20250101-120000
-```
-
-## NPM Scripts
-
-```json
-{
-  "scripts": {
-    "dev": "vite",
-    "build": "vue-tsc && vite build",
-    "preview": "vite preview",
-    "test": "vitest",
-    "test:ui": "vitest --ui",
-    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
-    "format": "prettier --write src/",
-    "build:container": "docker build -t stage0_mongodb_spa .",
-    "container": "docker run -p 8082:8082 stage0_mongodb_spa"
-  }
-}
-```
+- `vite@^5.0.0` - Build tool
+- `typescript@^5.2.0` - Type checking
+- `vitest@^1.0.0` - Testing
+- `@vue/test-utils@^2.4.0` - Component testing
 
 
