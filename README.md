@@ -115,14 +115,42 @@ src/
 
 ## Deployment
 
-### Container Build
+### Docker Build
+
 ```bash
-# Build container
+# Build the container (includes npm run build)
 npm run build:container
 
-# Run locally
+# Run container locally
 npm run container
 ```
+
+### Stage0 Deployment
+
+After building the container, deploy the complete stack:
+
+```bash
+# Deploy UI, API, and DB containers
+stage0 up mentorhub
+```
+
+This will start:
+- **MongoDB SPA**: Port 8082 (UI)
+- **MongoDB API**: Port 8081 (Backend)
+- **MongoDB**: Port 27017 (Database)
+
+### Container Architecture
+
+The Docker build uses a 2-stage process:
+1. **Build Stage**: Node.js environment to build the Vue application
+2. **Production Stage**: NGINX to serve the static files
+
+**Features:**
+- API proxying to `/api/*` endpoints
+- Vue Router history mode support
+- Static asset caching
+- Gzip compression
+- Health check endpoint
 
 ### Environment Variables
 - `VITE_API_BASE`: API base URL (empty for dev proxy)

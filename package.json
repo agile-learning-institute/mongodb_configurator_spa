@@ -12,7 +12,7 @@
     "test:run": "vitest run",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
     "format": "prettier --write src/",
-    "build:container": "docker build -t stage0_mongodb_spa .",
+    "build:container": "npm run build && docker build -t stage0_mongodb_spa .",
     "container": "docker run -p 8082:8082 stage0_mongodb_spa"
   },
   "repository": {
