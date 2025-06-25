@@ -37,14 +37,14 @@ export const collectionsApi = {
     return apiRequest<CollectionConfig>(`/api/collections/${name}/`)
   },
 
-  async processCollection(name: string): Promise<ProcessingResult[]> {
-    return apiRequest<ProcessingResult[]>(`/api/collections/${name}/`, {
+  async processCollection(name: string): Promise<any> {
+    return apiRequest<any>(`/api/collections/${name}/`, {
       method: 'POST'
     })
   },
 
-  async processAllCollections(): Promise<ProcessingResult[]> {
-    return apiRequest<ProcessingResult[]>('/api/collections/', {
+  async processAllCollections(): Promise<any> {
+    return apiRequest<any>('/api/collections/', {
       method: 'POST'
     })
   }
