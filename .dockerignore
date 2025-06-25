@@ -23,5 +23,4 @@ tests
 *.spec.js
 *.spec.ts
 jest.config.js
-vitest.config.ts
-tsconfig.node.json 
+vitest.config.ts 

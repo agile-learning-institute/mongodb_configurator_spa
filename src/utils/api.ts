@@ -1,4 +1,4 @@
-import type { Collection, CollectionConfig, ProcessingResult, Config } from '../types'
+import type { Collection, CollectionConfig, Config } from '../types'
 
 // Use relative URLs to work with Vite proxy in development
 const API_BASE = import.meta.env.VITE_API_BASE || ''

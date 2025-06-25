@@ -118,12 +118,28 @@ src/
 ### Docker Build
 
 ```bash
-# Build the container (includes npm run build)
-npm run build:container
-
-# Run container locally
+# Build for docker-compose (with API proxy)
 npm run container
+
+# Build standalone version (for independent testing)
+docker build -f Dockerfile.standalone -t stage0-spa-standalone:latest .
 ```
+
+The container is built with the tag `ghcr.io/agile-learning-institute/stage0_mongodb_spa:latest` to match stage0 CLI expectations. The Dockerfile handles the build process internally.
+
+### Docker Configurations
+
+#### Main Dockerfile (Docker Compose)
+- **Purpose**: Production deployment with full stack
+- **API Proxy**: Routes `/api/*` to `stage0_mongodb_api:8081`
+- **Usage**: `docker build -t stage0-spa:latest .`
+- **Dependencies**: Requires API container in same network
+
+#### Standalone Dockerfile (Independent Testing)
+- **Purpose**: Independent SPA testing without API
+- **No API Proxy**: Serves static files only
+- **Usage**: `docker build -f Dockerfile.standalone -t stage0-spa-standalone:latest .`
+- **Dependencies**: None (standalone)
 
 ### Stage0 Deployment
 
@@ -146,7 +162,7 @@ The Docker build uses a 2-stage process:
 2. **Production Stage**: NGINX to serve the static files
 
 **Features:**
-- API proxying to `/api/*` endpoints
+- API proxying to `/api/*` endpoints (main Dockerfile)
 - Vue Router history mode support
 - Static asset caching
 - Gzip compression
@@ -157,8 +173,8 @@ The Docker build uses a 2-stage process:
 - `STAGE0_MONGODB_PORT`: API port (8081)
 
 ### NGINX Configuration
-- API proxy to `/api/*` endpoints
-- Static file serving for SPA
+- **Main**: API proxy to `/api/*` endpoints + static file serving
+- **Standalone**: Static file serving only
 - Environment-based configuration
 
 ## Testing
