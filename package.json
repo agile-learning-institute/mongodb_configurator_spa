@@ -1,0 +1,58 @@
+{
+  "name": "stage0_mongodb_spa",
+  "version": "1.0.0",
+  "description": "The Mongo schema manager single page application allows data engineers to test and validate MongoDB configurations. Once these configurations have been validated, they can be packaged and deployed to manage the database configuration.",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc && vite build",
+    "preview": "vite preview",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:run": "vitest run",
+    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
+    "format": "prettier --write src/",
+    "build:container": "docker build -t stage0_mongodb_spa .",
+    "container": "docker run -p 8082:8082 stage0_mongodb_spa"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/agile-learning-institute/stage0_mongodb_spa.git"
+  },
+  "keywords": [
+    "vue",
+    "mongodb",
+    "schema",
+    "management",
+    "spa"
+  ],
+  "author": "Agile Learning Institute",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/agile-learning-institute/stage0_mongodb_spa/issues"
+  },
+  "homepage": "https://github.com/agile-learning-institute/stage0_mongodb_spa#readme",
+  "dependencies": {
+    "@mdi/font": "^7.4.47",
+    "axios": "^1.10.0",
+    "vue": "^3.5.17",
+    "vue-router": "^4.5.1",
+    "vuetify": "^3.8.11"
+  },
+  "devDependencies": {
+    "@types/jest": "^30.0.0",
+    "@types/node": "^24.0.4",
+    "@vitejs/plugin-vue": "^6.0.0",
+    "@vue/test-utils": "^2.4.6",
+    "@vue/vue3-jest": "^29.2.6",
+    "eslint": "^9.29.0",
+    "jest": "^29.7.0",
+    "jsdom": "^26.1.0",
+    "prettier": "^3.6.1",
+    "ts-jest": "^29.4.0",
+    "typescript": "^5.8.3",
+    "vite": "^7.0.0",
+    "vitest": "^3.2.4",
+    "vue-tsc": "^2.2.10"
+  }
+}
