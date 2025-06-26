@@ -68,6 +68,15 @@
                             >
                               {{ operation.status }}
                             </v-chip>
+                            <v-btn
+                              v-if="operation.details"
+                              icon="mdi-chevron-down"
+                              variant="text"
+                              size="small"
+                              class="ml-2"
+                              :class="{ 'rotate-180': expandedDetails.includes(`${collectionIndex}-${operationIndex}`) }"
+                              @click="toggleDetails(`${collectionIndex}-${operationIndex}`)"
+                            />
                           </div>
                           
                           <div class="d-flex flex-wrap">
@@ -90,17 +99,6 @@
                               <pre class="mt-2">{{ JSON.stringify(operation.details, null, 2) }}</pre>
                             </div>
                           </v-expand-transition>
-                        </div>
-                        
-                        <div class="d-flex align-end ml-4">
-                          <v-btn
-                            v-if="operation.details"
-                            icon="mdi-chevron-down"
-                            variant="text"
-                            size="small"
-                            :class="{ 'rotate-180': expandedDetails.includes(`${collectionIndex}-${operationIndex}`) }"
-                            @click="toggleDetails(`${collectionIndex}-${operationIndex}`)"
-                          />
                         </div>
                       </div>
                     </v-card-text>
