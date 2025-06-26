@@ -3,6 +3,7 @@ import CollectionsPage from '../pages/CollectionsPage.vue'
 import CollectionPage from '../pages/CollectionPage.vue'
 import AdminPage from '../pages/AdminPage.vue'
 import OperationsPage from '../pages/OperationsPage.vue'
+import ErrorsPage from '../pages/ErrorsPage.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -31,6 +32,11 @@ const router = createRouter({
       path: '/operations',
       name: 'operations',
       component: OperationsPage
+    },
+    {
+      path: '/errors',
+      name: 'errors',
+      component: ErrorsPage
     }
   ]
 })

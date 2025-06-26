@@ -128,5 +128,83 @@ describe('API Utils', () => {
       expect(result).toEqual(mockResponse)
       expect(fetch).toHaveBeenCalledWith('/api/config/', expect.any(Object))
     })
+
+    describe('validation error handling', () => {
+      it('should throw validation error when API returns validation errors array', async () => {
+        const mockValidationErrors = [
+          {
+            error: 'invalid_config_format',
+            error_id: 'CFG-101',
+            message: 'Configuration must be a dictionary',
+            file: 'test.yaml'
+          },
+          {
+            error: 'missing_required_field',
+            error_id: 'CFG-201',
+            message: 'Configuration must include name field',
+            file: 'test.yaml',
+            field: 'name'
+          }
+        ]
+
+        mockFetch.mockResolvedValueOnce({
+          ok: true,
+          json: async () => mockValidationErrors,
+        })
+
+        try {
+          await collectionsApi.getCollections()
+          expect.fail('Should have thrown validation error')
+        } catch (error: any) {
+          expect(error.message).toBe('Validation errors occurred')
+          expect(error.validationErrors).toEqual(mockValidationErrors)
+          expect(error.status).toBe(500)
+        }
+      })
+
+      it('should throw validation error when API returns 500 with validation errors', async () => {
+        const mockValidationErrors = [
+          {
+            error: 'invalid_config_format',
+            error_id: 'CFG-101',
+            message: 'Configuration must be a dictionary'
+          }
+        ]
+
+        mockFetch.mockResolvedValueOnce({
+          ok: false,
+          status: 500,
+          statusText: 'Internal Server Error',
+          json: async () => mockValidationErrors,
+        })
+
+        try {
+          await collectionsApi.getCollections()
+          expect.fail('Should have thrown validation error')
+        } catch (error: any) {
+          expect(error.message).toBe('Validation errors occurred')
+          expect(error.validationErrors).toEqual(mockValidationErrors)
+          expect(error.status).toBe(500)
+        }
+      })
+
+      it('should throw regular API error when response is not ok and not validation errors', async () => {
+        mockFetch.mockResolvedValueOnce({
+          ok: false,
+          status: 404,
+          statusText: 'Not Found',
+          json: async () => ({ message: 'Not found' }),
+        })
+
+        try {
+          await collectionsApi.getCollections()
+          expect.fail('Should have thrown API error')
+        } catch (error: any) {
+          expect(error.message).toBe('API Error: Not Found')
+          expect(error.status).toBe(404)
+          expect(error.validationErrors).toBeUndefined()
+        }
+      })
+    })
   })
 }) 

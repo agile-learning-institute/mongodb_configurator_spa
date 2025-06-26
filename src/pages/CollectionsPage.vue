@@ -39,7 +39,43 @@
 
         <v-card v-else-if="error">
           <v-card-text>
-            <p class="text-center text-error">Error: {{ error }}</p>
+            <div class="text-center">
+              <p class="text-error mb-3">{{ error }}</p>
+              <div v-if="validationErrors && validationErrors.length > 0">
+                <v-alert
+                  type="error"
+                  variant="tonal"
+                  class="mb-3"
+                >
+                  <strong>{{ validationErrors.length }} validation errors found</strong>
+                  <p class="mb-0 mt-1">Please review and fix these errors before proceeding.</p>
+                </v-alert>
+                <div class="d-flex justify-center">
+                  <v-btn
+                    color="error"
+                    variant="outlined"
+                    @click="$router.push('/errors')"
+                    class="mr-4"
+                  >
+                    View Errors ({{ validationErrors.length }})
+                  </v-btn>
+                  <v-btn
+                    variant="outlined"
+                    @click="fetchCollections"
+                  >
+                    Retry
+                  </v-btn>
+                </div>
+              </div>
+              <div v-else>
+                <v-btn
+                  variant="outlined"
+                  @click="fetchCollections"
+                >
+                  Retry
+                </v-btn>
+              </div>
+            </div>
           </v-card-text>
         </v-card>
 
@@ -51,7 +87,12 @@
             class="mb-2"
           >
             <v-list-item-title>{{ collection.collection_name }}</v-list-item-title>
-            <v-list-item-subtitle>Version: {{ collection.version }}</v-list-item-subtitle>
+            <v-list-item-subtitle>
+              Current: {{ collection.version }}
+              <span v-if="collection.targeted_version" class="ml-2">
+                | Target: {{ collection.targeted_version }}
+              </span>
+            </v-list-item-subtitle>
           </v-list-item>
         </v-list>
 
@@ -71,10 +112,12 @@ import { useRouter } from 'vue-router'
 import { collectionsApi } from '../utils/api'
 import { useCollections } from '../composables/useCollections'
 import { useProcessing } from '../composables/useProcessing'
+import { useValidationErrors } from '../composables/useValidationErrors'
 
 const router = useRouter()
 const { collections, loading, error, fetchCollections } = useCollections()
 const { setProcessingResults } = useProcessing()
+const { validationErrors } = useValidationErrors()
 const processing = ref(false)
 
 onMounted(async () => {

@@ -21,8 +21,8 @@ describe('useCollections', () => {
 
   it('should fetch collections successfully', async () => {
     const mockCollections = [
-      { collection_name: 'test1', version: '1.0.0' },
-      { collection_name: 'test2', version: '2.0.0' }
+      { collection_name: 'test1', version: '1.0.0', targeted_version: 'test1.2.0.0' },
+      { collection_name: 'test2', version: '2.0.0', targeted_version: 'test2.1.0.0' }
     ]
 
     vi.mocked(collectionsApi.getCollections).mockResolvedValue(mockCollections)

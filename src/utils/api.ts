@@ -1,10 +1,10 @@
-import type { Collection, CollectionConfig, Config } from '../types'
+import type { Collection, CollectionConfig, Config, ValidationError } from '../types'
 
 // Use relative URLs to work with Vite proxy in development
 const API_BASE = import.meta.env.VITE_API_BASE || ''
 
 class ApiError extends Error {
-  constructor(message: string, public status?: number) {
+  constructor(message: string, public status?: number, public validationErrors?: ValidationError[]) {
     super(message)
     this.name = 'ApiError'
   }
@@ -21,11 +21,23 @@ async function apiRequest<T>(endpoint: string, options: RequestInit = {}): Promi
     ...options,
   })
 
+  let data: any = undefined
+  try {
+    data = await response.json()
+  } catch (e) {
+    // If response is not JSON, ignore
+  }
+
+  // If the response is a validation error array, always throw as validation error
+  if (Array.isArray(data) && data.length > 0 && data[0].error_id) {
+    throw new ApiError('Validation errors occurred', response.status ?? 500, data)
+  }
+
   if (!response.ok) {
     throw new ApiError(`API Error: ${response.statusText}`, response.status)
   }
 
-  return response.json()
+  return data
 }
 
 export const collectionsApi = {
