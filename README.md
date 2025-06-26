@@ -3,13 +3,16 @@
 A Vue 3 SPA for managing MongoDB schema configurations and processing operations.
 
 ## Quick Start
+```bash
+# Start SPA, API and Backing Services in containers
+stage0 up mongodb
+```
+
+## Developer Commands
 
 ```bash
 # Install dependencies
 npm install
-
-# Start API and Backing Services
-stage0 up mongodb-api
 
 # Start development server (requires API on localhost:8081)
 npm run dev
@@ -19,6 +22,10 @@ npm run build
 
 # Run tests
 npm run test
+
+# Build Container
+npm run container
+
 ```
 
 ## Architecture
