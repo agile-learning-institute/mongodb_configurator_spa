@@ -51,7 +51,12 @@
             class="mb-2"
           >
             <v-list-item-title>{{ collection.collection_name }}</v-list-item-title>
-            <v-list-item-subtitle>Version: {{ collection.version }}</v-list-item-subtitle>
+            <v-list-item-subtitle>
+              Current: {{ collection.version }}
+              <span v-if="collection.targeted_version" class="ml-2">
+                | Target: {{ collection.targeted_version }}
+              </span>
+            </v-list-item-subtitle>
           </v-list-item>
         </v-list>
 

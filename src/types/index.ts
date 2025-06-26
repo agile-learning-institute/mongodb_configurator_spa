@@ -3,6 +3,7 @@
 export interface Collection {
   collection_name: string
   version: string
+  targeted_version?: string
 }
 
 export interface CollectionConfig {
