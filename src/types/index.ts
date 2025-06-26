@@ -50,4 +50,26 @@ export interface Token {
 export interface ApiError {
   message: string
   status?: number
+}
+
+export interface ValidationError {
+  error: string
+  error_id: string
+  message: string
+  file?: string
+  path?: string
+  field?: string
+  type?: string
+  version?: string
+  enumerator?: string
+  description?: string | string[]
+  enum?: string
+  schema_name?: string
+  version_config?: string
+  value?: string
+}
+
+export interface ValidationErrorResponse {
+  errors: ValidationError[]
+  message: string
 } 
