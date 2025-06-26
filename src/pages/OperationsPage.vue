@@ -130,7 +130,7 @@ onMounted(() => {
   // Component mounted
 })
 
-watch(processingResults, (newValue, oldValue) => {
+watch(processingResults, () => {
   // Processing results changed
 })
 

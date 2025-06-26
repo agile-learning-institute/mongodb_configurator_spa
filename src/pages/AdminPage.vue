@@ -105,7 +105,7 @@ import { onMounted } from 'vue'
 import { useConfig } from '../composables/useConfig'
 import { getSpaBuiltAt } from '../utils/buildInfo'
 
-const { config, loading, fetchConfig } = useConfig()
+const { config, fetchConfig } = useConfig()
 const spaBuiltAt = getSpaBuiltAt()
 
 onMounted(async () => {
