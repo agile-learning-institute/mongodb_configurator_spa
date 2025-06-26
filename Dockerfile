@@ -22,8 +22,13 @@ FROM nginx:alpine
 # Copy built application from build stage
 COPY --from=build /app/dist /usr/share/nginx/html
 
-# Copy nginx configuration
-COPY nginx.conf /etc/nginx/nginx.conf
+# Copy nginx configuration template
+COPY nginx.conf.template /etc/nginx/nginx.conf.template
+
+# Create startup script to substitute only our environment variables
+RUN echo '#!/bin/sh' > /docker-entrypoint.d/30-nginx-envsubst.sh && \
+    echo 'envsubst "\${MONGODB_API_HOST} \${MONGODB_API_PORT} \${MONGODB_SPA_PORT}" < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf' >> /docker-entrypoint.d/30-nginx-envsubst.sh && \
+    chmod +x /docker-entrypoint.d/30-nginx-envsubst.sh
 
 # Expose port
 EXPOSE 8082
