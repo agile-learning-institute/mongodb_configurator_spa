@@ -124,11 +124,9 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
 import { useValidationErrors } from '../composables/useValidationErrors'
 import type { ValidationError } from '../types'
 
-const router = useRouter()
 const { validationErrors, loading } = useValidationErrors()
 
 const expandedErrors = ref<Record<number, boolean>>({})

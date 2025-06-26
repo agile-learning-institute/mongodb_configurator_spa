@@ -1,6 +1,6 @@
 import { ref } from 'vue'
 import { collectionsApi } from '../utils/api'
-import type { Collection, ValidationError } from '../types'
+import type { Collection } from '../types'
 import { useValidationErrors } from './useValidationErrors'
 
 // Singleton state
