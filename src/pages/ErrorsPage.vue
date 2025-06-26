@@ -203,10 +203,6 @@ const getErrorDetails = (error: ValidationError): boolean => {
            error.enumerator || error.enum || error.schema_name || 
            error.value || error.path)
 }
-
-onMounted(() => {
-  // Component is ready
-})
 </script>
 
 <style scoped>
