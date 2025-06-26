@@ -10,6 +10,9 @@ export default defineConfig({
       '@': resolve(__dirname, 'src'),
     },
   },
+  define: {
+    __SPA_BUILT_AT__: JSON.stringify(process.env.SPA_BUILT_AT || 'LOCAL'),
+  },
   server: {
     port: 8082,
     strictPort: true,

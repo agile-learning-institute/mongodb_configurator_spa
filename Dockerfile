@@ -13,7 +13,9 @@ RUN npm ci
 # Copy source code
 COPY . .
 
-# Build the application
+# Set build timestamp and build the application
+ARG SPA_BUILT_AT
+ENV SPA_BUILT_AT=${SPA_BUILT_AT:-$(date -u +"%Y-%m-%dT%H:%M:%SZ")}
 RUN npm run build
 
 # Stage 2: Production stage
