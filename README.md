@@ -37,6 +37,7 @@ npm run down
 ## Architecture
 
 ### Tech Stack
+- **Material Design** design system
 - **Vue 3** + TypeScript + Composition API
 - **Vuetify 3** for UI components
 - **Vite** for build tooling
@@ -45,14 +46,14 @@ npm run down
 ## Instructions for Cursor
 Build a Single Page App with the above stack and the specifications below. 
 I want you to start by updating the read me with a plan that breaks building the MVP into stages. 
-I should review and approve each stage before we proceed to the next stage. 
-Your plan should break the stage down into steps that you will complete without any additional input from me
-after each step, you should update the readme with information about progress.
-You are free to make changes or adjustments to any file within this project other than docker configurations.
+I should review and approve the completion of each stage before we proceed to the next stage. 
+Your plan should break the stage down into steps that you will complete without any additional input from me.
+After each step, you should update the readme with information about progress.
+You are free to make changes or adjustments to any file within this project other than NGINX and docker configurations.
 We will be using the Mongo DB configurator API, it is live at port 8081.
 Review the open API specifications to understand end points and data structures.
-start by conducting a one step at a time interview with me to fill in any details that you will need to create this SPA
-part of interview should be compiling icons for the actions below.
+Start by conducting a one step at a time interview with me to fill in any details that you will need to create this SPA
+Part of interview should be compiling icons for the actions below.
 
 # startup
 - Load /api/config/ endpoint on startup
@@ -145,7 +146,12 @@ Pages
 - Enumerators - List of Enumerators Cards
 - Events - List of Event Cards (Modal Dialog, Processing Output or Exception Handling)
 
-# Additional Details
+# Plan
+
+
+# Progress
+
+
 - 
 ```
 
