@@ -58,9 +58,11 @@ Part of interview should be compiling icons for the actions below.
 # startup
 - Load /api/config/ endpoint on startup
 - Config Item BUILT_AT == "Local" enables editing, else it's read and render only.
- - Drop, Delete, and Unlock actions have warnings, and require confirmation. 
+- If get configurations only has sample.yaml show welcome page. 
+- Drop, Delete, and Unlock actions have warnings, and require confirmation. 
   - Confirmations with warning and type {file_name} to enable the button. 
   - Similar to GitHub Danger Zone operations. 
+
 
 ```
 Overall Layout
@@ -145,7 +147,7 @@ Pages
 - TestData/{file name} - List of Document cards.
 - Enumerators - List of Enumerators Cards
 - Events - List of Event Cards (Modal Dialog, Processing Output or Exception Handling)
-
+- Welcome - users guide
 # Plan
 
 
