@@ -44,14 +44,15 @@ Your plan should break the stage down into steps that you will complete without 
 after each step, you should update the readme with information about progress.
 You are free to make changes or adjustments to any file within this project other than docker configurations.
 We will be using the Mongo DB configurator API, it is live at port 8081.
-Review the open API specifications to understand end points and data structures
+Review the open API specifications to understand end points and data structures.
+start by conducting a one step at a time interview with me to fill in any details that you will need to create this SPA
+part of interview should be compiling icons for the actions below.
 
 # startup
 - Load /api/config/ endpoint on startup
-- Config Item BUILT_AT == "Local" enables editing, else it's read only.
-
-Delete and Unlock actions have warnings, and require confirmation. 
-  - Confirmations with warning and type {file_name} to click the button. 
+- Config Item BUILT_AT == "Local" enables editing, else it's read and render only.
+ - Drop, Delete, and Unlock actions have warnings, and require confirmation. 
+  - Confirmations with warning and type {file_name} to enable the button. 
   - Similar to GitHub Danger Zone operations. 
 
 ```
@@ -75,14 +76,14 @@ Card Component
 ```
 
 ## Actions
- - + Add to list on list containers 
- - x Delete Item on list items 
- - o Lock/unlock file
- - c Clean file
- - < collapse/expand card
- - d open page fron file
- - p process configuration 
- - rj Render JSON / BSON Schema from configuration version
+ - Add to list on list containers 
+ - Delete Item on list items 
+ - Lock/unlock file
+ - Clean file
+ - collapse/expand card
+ - open page fron file
+ - process configuration file
+ - Render JSON / BSON Schema from configuration version
  - required toggle on properties
  - additional properties toggle on object properties
 
@@ -93,16 +94,16 @@ Card Component
 - Configuration with Versions 
 - ConfigurationVersion
 - Enumerators list of enumerations
-- Enumeration list of named key value pairs
+- Enumeration dict of named key value pair strings
 - DictionaryProperty 
-  - Ref button for ref values else:
+  - Ref toggle for ref values else:
   - name, description and type are always visible and required
   - Object Type 
     - enable Actions Additional Props, Add Prop
-    - Property lists is +
+    - Property lists is collapsible
     - enable OneOf builder
   - List type 
-    - Items details are +
+    - Items details are collapsible
   - Enum and Enum_array types make enums field visible
   - Custom types need on additional props
 
@@ -133,7 +134,7 @@ Pages
 - Dictionary/{file_name} - Property Card(s)
 - Types - List of Type File cards
 - Type/{file_name} - TypeProperty Card(s)
-- TestDatum - List of test_data file cards
+- TestData - List of test_data file cards
 - TestData/{file name} - List of Document cards.
 - Enumerators - List of Enumerators Cards
 - Events - List of Event Cards (Modal Dialog, Processing Output or Exception Handling)
