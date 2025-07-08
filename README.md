@@ -149,7 +149,10 @@ Pages
 - Events - List of Event Cards (Modal Dialog, Processing Output or Exception Handling)
 - Welcome - users guide
 # Plan
-
+- phase one, 
+  - pear down to just hello world, you are done when npm build container successfully serves up the hello world page
+  - review @mentorhum-person-ui Dockerfile, and NGINX configs. Comapre with and improve our dockerfilr and configs.  
+  - phase is complete when the container image serves up the hello world page again
 
 # Progress
 
