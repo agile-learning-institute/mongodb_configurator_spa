@@ -37,10 +37,18 @@ npm run container
 - **Vue Router** for navigation
 
 ## Instructions for Cursor
-Build a Single Page App with the above stack and the following specifications. 
+Build a Single Page App with the above stack and the specifications below. 
+I want you to start by updating the read me with a plan that breaks building the MVP into stages. 
+I should review and approve each stage before we proceed to the next stage. 
+Your plan should break the stage down into steps that you will complete without any additional input from me
+You are free to make changes or adjustments to any file within this project other than docker configurations.
+We will be using the Mongo DB configurator API, review the open API specifications to understand end points and data structures
+
 - Load /api/config/ endpoint on startup
 - Config Item BUILT_AT == "Local" enables editing, else it's read only.
-- Delete and Unlock actions have warnings, and require confirmation. Confirmations with warning and type {file_name} to click the button. Similar to GitHub Danger Zone operations. 
+- Delete and Unlock actions have warnings, and require confirmation. 
+  - Confirmations with warning and type {file_name} to click the button. 
+  - Similar to GitHub Danger Zone operations. 
 
 ```
 Overall Layout
@@ -61,16 +69,27 @@ Card Component
 |   {details}       |
 +-------------------+
 
+# Actions
+ - + Add to list on list containers 
+ - x Delete Item on list items 
+ - o Lock/unlock file
+ - c Clean file
+ - < collapse/expand card
+ - d open page fron file
+ - p process configuration 
+ - rj Render JSON / BSON Schema from configuration version
+ - required toggle on properties
+ - additional properties toggle on object properties
+
 ```
-## Cards / Actions 
-(+ indicates collapse action)
-- File / Open, Lock/Unlock, Delete, Clean
-- Event / +(sub events)
-- Configuration / Process, Add Version
-- ConfigurationVersion / +, Render, Delete
-- Enumerators / Add enumerators
-- Enumeration / +, Delete
-- DictionaryProperty / Required, Delete
+## Cards
+- File 
+- Event with sub events
+- Configuration with Versions 
+- ConfigurationVersion
+- Enumerators list of enumerations
+- Enumeration list of key value pairs
+- DictionaryProperty 
   - Object Type 
     - enable Actions Additional Props, Add Prop
     - Property lists is +
