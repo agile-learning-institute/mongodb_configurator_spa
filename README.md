@@ -11,7 +11,7 @@ UI served at localhost:8082
 # Install dependencies
 npm install
 
-# start the API and a testing database in containers
+# start the API and a testing database in containers. 
 npm run api
 
 # Start development server (requires API on localhost:8081)
@@ -44,28 +44,21 @@ npm run down
 - **Vue Router** for navigation
 
 ## Instructions for Cursor
-Build a Single Page App with the above stack and the specifications below. 
-I want you to start by updating the read me with a plan that breaks building the MVP into stages. 
-I should review and approve the completion of each stage before we proceed to the next stage. 
-Your plan should break the stage down into steps that you will complete without any additional input from me.
-After each step, you should update the readme with information about progress.
-You are free to make changes or adjustments to any file within this project other than NGINX and docker configurations.
-We will be using the Mongo DB configurator API, it is live at port 8081.
-Review the open API specifications to understand end points and data structures.
-Start by conducting a one step at a time interview with me to fill in any details that you will need to create this SPA
-Part of interview should be compiling icons for the actions below.
+Build a Single Page App with the above stack and the specifications below. Review @README.md to get an overview of the MongoDB Configurator utility. This is a non-trivial SPA, so we should make sure we have good plans to implement effective componentization and project structure.
 
-# startup
+We will be using the Mongo DB configurator API, you will need to create a docker compose file that runs mongo, and the API with the /tests/input_folder mounted to /input. See @docker-compose.yaml for reference. 
+
+Review the @openapi.yaml to understand end points and data structures.
+
+# App Startup
 - Load /api/config/ endpoint on startup
 - Config Item BUILT_AT == "Local" enables editing, else it's read and render only.
 - If get configurations only has sample.yaml show welcome page. 
 - Drop, Delete, and Unlock actions have warnings, and require confirmation. 
-  - Confirmations with warning and type {file_name} to enable the button. 
-  - Similar to GitHub Danger Zone operations. 
+  - Confirmations with warning and instructions for user to **type {file_name} to confirm** that enables the button. 
 
-
+## Overall Layout
 ```
-Overall Layout
 +--------------------------------------------------+ 
 | [burger]     MongoDB Configurator       [admin]  |
 +--------------+-----------------------------------+
@@ -74,9 +67,10 @@ Overall Layout
 |              |                                   |
 |              |                                   |
 +--------------+-----------------------------------+
+```
 
-
-Card Component
+## Card Component
+```
 +-------------------+
 | {name}    actions |
 +-------------------+
@@ -84,7 +78,8 @@ Card Component
 +-------------------+
 ```
 
-## Actions
+## Actions 
+May be their own components that are added to views?
  - Add to list on list containers 
  - Delete Item on list items 
  - Lock/unlock file
@@ -95,16 +90,17 @@ Card Component
  - Render JSON / BSON Schema from configuration version
  - required toggle on properties
  - additional properties toggle on object properties
+ - one_of toggle on object properties shows one-of view
 
-```
 ## Cards
+100% components, and may contain sub-components
 - File 
 - Event with sub events
 - Configuration with Versions 
 - ConfigurationVersion
 - Enumerators list of enumerations
 - Enumeration dict of named key value pair strings
-- DictionaryProperty 
+- DictionaryProperty - Most complicated component
   - Ref toggle for ref values else:
   - name, description and type are always visible and required
   - Object Type 
@@ -116,18 +112,19 @@ Card Component
   - Enum and Enum_array types make enums field visible
   - Custom types need on additional props
 
-- TypeProperty 
+- TypeProperty - Second most complicated component
   - type properties take one of three forms
     - A complex property (object or list)
     - A universal primitive
     - A typed primitive
-  - complex types are similar to dictionary property, but do not support ref, enum, or one_of
+  - complex types are similar to dictionary property, but do not support ref, enum, or one_of.
   - universal primitives contain a simple schema dictionary
-  - typed primitives contain a json schema and bson schema dictionary
+  - typed primitives contain both a json schema and bson schema dictionary.
 - Documents (List of json documents)
 - Document (json doc)
 
-Pages
+## Pages
+Most pages are a list of one card or another. 
 - Navigation - a hamburger menu that shows or hides a list of Collapsible cards that show list of file names.
   = Big red "Drop Database" and green "Process All" buttons at the top 
   - Configurations
@@ -148,15 +145,24 @@ Pages
 - Enumerators - List of Enumerators Cards
 - Events - List of Event Cards (Modal Dialog, Processing Output or Exception Handling)
 - Welcome - users guide
+
 # Plan
-- phase one, 
-  - pear down to just hello world, you are done when npm build container successfully serves up the hello world page
-  - review @mentorhum-person-ui Dockerfile, and NGINX configs. Comapre with and improve our dockerfilr and configs.  
-  - phase is complete when the container image serves up the hello world page again
+You will build a plan that breaks our work into phases. 
+I should review and approve the completion of each phase before we proceed to the next phase. 
+Your plan should break the phase down into steps that you will complete without any additional input from me.
+After each step, you should update the readme with information about progress.
+You are free to make changes or adjustments to any file within this project.
+You will need to update the npm run scripts to function as documented above.
+
+## Phase 1.
+  - Step 1 - conduct a interview with me to fill in any details that you will need to create this SPA. One question at a time please.
+  - Compile icons for the actions identified above.
+  - Extend the plan with implementation phases. 
+
+## Phase 2. Teardown 
+  - tear down this repo to just hello world, you are done when ``npm run serve`` and ``npm build container`` successfully build and serves up the hello world page. 
+  - review @mentorHub-person-ui Dockerfile, and NGINX configs. Compare with and improve our Dockerfile and NGINX configs. Goal is simplicity without sacrificing any functionally. 
+  - Phase is complete when the npm run serve and npm run container work, and serve up the hello world page. 
 
 # Progress
-
-
-- 
-```
 
