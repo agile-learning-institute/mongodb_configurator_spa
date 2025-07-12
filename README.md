@@ -242,6 +242,7 @@ npm run down
 - ✅ **Step 2.3**: Verify `npm run dev` and `npm run container` work successfully
 - ✅ **Step 2.4**: Package.json scripts updated with api, service, and down commands
 - ✅ **Step 2.5**: API proxy already configured in vite.config.ts for /api/* requests
+- ✅ **Step 2.6**: NGINX config and environment variable substitution fixed; containerized SPA now serves hello world page successfully
 
 ### Phase 3: Core Infrastructure 🔄
 - 🔄 Ready to begin core infrastructure development
