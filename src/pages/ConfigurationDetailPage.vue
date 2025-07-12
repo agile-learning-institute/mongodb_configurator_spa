@@ -121,88 +121,86 @@
                 BSON Schema
               </v-btn>
             </div>
+
             <!-- Test Data Card -->
-            <v-card class="mb-4" variant="outlined">
-              <v-card-title class="text-h6 d-flex justify-space-between align-center">
-                <div class="d-flex align-center">
-                  <v-icon class="mr-2">mdi-database</v-icon>
-                  Test Data
-                </div>
-                <v-btn
-                  icon="mdi-plus"
-                  size="small"
-                  variant="text"
-                  @click="showTestDataChooser = true"
-                  :disabled="configuration._locked"
-                />
-              </v-card-title>
-              <v-card-text v-if="!showTestDataChooser">
-                <div v-if="getCurrentVersion().test_data" class="d-flex align-center">
-                  <v-chip color="primary" class="mr-2">
-                    {{ getCurrentVersion().test_data }}
-                  </v-chip>
+            <FileCard
+              :file="{ name: 'Test Data', created_at: '', updated_at: '', size: 0 }"
+              file-type="test-data"
+              :show-edit="false"
+              :show-delete="false"
+              :show-lock="false"
+              :show-actions="false"
+              :is-section-card="true"
+              :expanded="true"
+              class="mb-4"
+            >
+              <template #default>
+                <div v-if="!showTestDataChooser">
+                  <div v-if="getCurrentVersion().test_data" class="d-flex align-center">
+                    <v-chip color="primary" class="mr-2">
+                      {{ getCurrentVersion().test_data }}
+                    </v-chip>
+                    <v-btn
+                      icon="mdi-delete"
+                      size="small"
+                      variant="text"
+                      color="error"
+                      @click="removeTestData"
+                      :disabled="configuration._locked"
+                    />
+                  </div>
+                  <div v-else class="text-medium-emphasis">
+                    No test data file selected
+                  </div>
                   <v-btn
-                    icon="mdi-delete"
+                    color="primary"
                     size="small"
-                    variant="text"
-                    color="error"
-                    @click="removeTestData"
+                    @click="showTestDataChooser = true"
                     :disabled="configuration._locked"
+                    class="mt-2"
+                  >
+                    <v-icon start>mdi-plus</v-icon>
+                    Select Test Data
+                  </v-btn>
+                </div>
+                <div v-else>
+                  <v-select
+                    v-model="selectedTestData"
+                    :items="testDataFilesWithNew"
+                    label="Test Data File"
+                    :disabled="configuration._locked"
+                    :loading="loadingTestData"
+                    item-title="name"
+                    item-value="name"
+                    clearable
+                    @update:model-value="selectTestData"
                   />
+                  <div class="d-flex justify-end mt-2">
+                    <v-btn
+                      @click="showTestDataChooser = false"
+                      size="small"
+                      class="mr-2"
+                    >
+                      Cancel
+                    </v-btn>
+                  </div>
                 </div>
-                <div v-else class="text-medium-emphasis">
-                  No test data file selected
-                </div>
-              </v-card-text>
-              <v-card-text v-else>
-                <v-select
-                  v-model="selectedTestData"
-                  :items="testDataFilesWithNew"
-                  label="Test Data File"
-                  :disabled="configuration._locked"
-                  :loading="loadingTestData"
-                  item-title="name"
-                  item-value="name"
-                  clearable
-                  @update:model-value="selectTestData"
-                />
-              </v-card-text>
-            </v-card>
+              </template>
+            </FileCard>
 
             <!-- Add Indexes Card -->
-            <v-card class="mb-4" variant="outlined">
-              <v-card-title class="text-h6 d-flex justify-space-between align-center">
-                <div class="d-flex align-center">
-                  <v-icon class="mr-2">mdi-index</v-icon>
-                  Add Indexes
-                </div>
-                <v-btn
-                  icon="mdi-plus"
-                  size="small"
-                  variant="text"
-                  @click="showIndexesEditor = true"
-                  :disabled="configuration._locked"
-                />
-              </v-card-title>
-              <v-card-text v-if="!showIndexesEditor">
-                <div v-if="getCurrentVersion().add_indexes.length > 0" class="d-flex flex-wrap">
-                  <v-chip
-                    v-for="index in getCurrentVersion().add_indexes"
-                    :key="index.name"
-                    color="primary"
-                    class="mr-2 mb-2"
-                    closable
-                    @click:close="removeIndex(index)"
-                    :disabled="configuration._locked"
-                  >
-                    {{ index.name }}
-                  </v-chip>
-                </div>
-                <div v-else class="text-medium-emphasis">
-                  No indexes defined
-                </div>
-              </v-card-text>
-              <v-card-text v-else>
+            <FileCard
+              :file="{ name: 'Add Indexes', created_at: '', updated_at: '', size: 0 }"
+              file-type="configuration"
+              :show-edit="false"
+              :show-delete="false"
+              :show-lock="false"
+              :show-actions="false"
+              :is-section-card="true"
+              :expanded="false"
+              class="mb-4"
+            >
+              <template #default>
                 <v-textarea
                   v-model="indexesJson"
                   label="Indexes JSON"
@@ -234,25 +232,22 @@
                     Save
                   </v-btn>
                 </div>
-              </v-card-text>
-            </v-card>
+              </template>
+            </FileCard>
 
             <!-- Drop Indexes Card -->
-            <v-card class="mb-4" variant="outlined">
-              <v-card-title class="text-h6 d-flex justify-space-between align-center">
-                <div class="d-flex align-center">
-                  <v-icon class="mr-2">mdi-delete</v-icon>
-                  Drop Indexes
-                </div>
-                <v-btn
-                  icon="mdi-plus"
-                  size="small"
-                  variant="text"
-                  @click="showDropIndexInput = true"
-                  :disabled="configuration._locked"
-                />
-              </v-card-title>
-              <v-card-text>
+            <FileCard
+              :file="{ name: 'Drop Indexes', created_at: '', updated_at: '', size: 0 }"
+              file-type="configuration"
+              :show-edit="false"
+              :show-delete="false"
+              :show-lock="false"
+              :show-actions="false"
+              :is-section-card="true"
+              :expanded="true"
+              class="mb-4"
+            >
+              <template #default>
                 <div v-if="showDropIndexInput" class="d-flex align-center mb-2">
                   <v-text-field
                     v-model="newDropIndex"
@@ -292,59 +287,89 @@
                     {{ index.name }}
                   </v-chip>
                 </div>
-              </v-card-text>
-            </v-card>
+                <v-btn
+                  v-if="!showDropIndexInput"
+                  color="primary"
+                  size="small"
+                  @click="showDropIndexInput = true"
+                  :disabled="configuration._locked"
+                  class="mt-2"
+                >
+                  <v-icon start>mdi-plus</v-icon>
+                  Add Drop Index
+                </v-btn>
+              </template>
+            </FileCard>
 
             <!-- Migrations Card -->
-            <v-card class="mb-4" variant="outlined">
-              <v-card-title class="text-h6 d-flex justify-space-between align-center">
-                <div class="d-flex align-center">
-                  <v-icon class="mr-2">mdi-swap-horizontal</v-icon>
-                  Migrations
-                </div>
-                <v-btn
-                  icon="mdi-plus"
-                  size="small"
-                  variant="text"
-                  @click="showMigrationChooser = true"
-                  :disabled="configuration._locked"
-                />
-              </v-card-title>
-              <v-card-text v-if="!showMigrationChooser">
-                <div v-if="getCurrentVersion().migrations.length > 0" class="d-flex flex-wrap">
-                  <v-chip
-                    v-for="migration in getCurrentVersion().migrations"
-                    :key="migration"
-                    color="info"
-                    class="mr-2 mb-2"
-                    closable
-                    @click:close="removeMigration(migration)"
+            <FileCard
+              :file="{ name: 'Migrations', created_at: '', updated_at: '', size: 0 }"
+              file-type="migration"
+              :show-edit="false"
+              :show-delete="false"
+              :show-lock="false"
+              :show-actions="false"
+              :is-section-card="true"
+              :expanded="true"
+              class="mb-4"
+            >
+              <template #default>
+                <div v-if="!showMigrationChooser">
+                  <div v-if="getCurrentVersion().migrations.length > 0" class="d-flex flex-wrap">
+                    <v-chip
+                      v-for="migration in getCurrentVersion().migrations"
+                      :key="migration"
+                      color="info"
+                      class="mr-2 mb-2"
+                      closable
+                      @click:close="removeMigration(migration)"
+                      :disabled="configuration._locked"
+                    >
+                      {{ migration }}
+                    </v-chip>
+                  </div>
+                  <div v-else class="text-medium-emphasis">
+                    No migrations defined
+                  </div>
+                  <v-btn
+                    color="primary"
+                    size="small"
+                    @click="showMigrationChooser = true"
                     :disabled="configuration._locked"
+                    class="mt-2"
                   >
-                    {{ migration }}
-                  </v-chip>
+                    <v-icon start>mdi-plus</v-icon>
+                    Add Migration
+                  </v-btn>
                 </div>
-                <div v-else class="text-medium-emphasis">
-                  No migrations defined
+                <div v-else>
+                  <v-select
+                    v-model="selectedMigration"
+                    :items="migrationFilesWithNew"
+                    label="Migration File"
+                    :disabled="configuration._locked"
+                    :loading="loadingMigrations"
+                    item-title="name"
+                    item-value="name"
+                    clearable
+                    @update:model-value="selectMigration"
+                  />
+                  <div class="d-flex justify-end mt-2">
+                    <v-btn
+                      @click="showMigrationChooser = false"
+                      size="small"
+                      class="mr-2"
+                    >
+                      Cancel
+                    </v-btn>
+                  </div>
                 </div>
-              </v-card-text>
-              <v-card-text v-else>
-                <v-select
-                  v-model="selectedMigration"
-                  :items="migrationFilesWithNew"
-                  label="Migration File"
-                  :disabled="configuration._locked"
-                  :loading="loadingMigrations"
-                  item-title="name"
-                  item-value="name"
-                  clearable
-                  @update:model-value="selectMigration"
-                />
-              </v-card-text>
-            </v-card>
+              </template>
+            </FileCard>
           </template>
         </FileCard>
       </div>
+    </div>
 
     <!-- New Test Data Dialog -->
     <v-dialog v-model="showNewTestDataDialog" max-width="500px">
@@ -463,7 +488,6 @@ const processing = ref(false)
 // JSON editor states
 const indexesJson = ref('')
 const indexesError = ref<string | null>(null)
-const indexesExpanded = ref(true) // Default to expanded
 
 // File lists
 const testDataFiles = ref<FileInfo[]>([])
@@ -489,7 +513,6 @@ const creatingMigration = ref(false)
 
 // Chooser states
 const showTestDataChooser = ref(false)
-const showIndexesEditor = ref(false)
 const showDropIndexInput = ref(false)
 const showMigrationChooser = ref(false)
 
@@ -601,7 +624,6 @@ const saveIndexes = async () => {
   saving.value = true
   try {
     await apiService.saveConfiguration(configuration.value.file_name, configuration.value)
-    showIndexesEditor.value = false
     autoSave()
   } catch (err: any) {
     error.value = err.message || 'Failed to save indexes'
@@ -609,12 +631,6 @@ const saveIndexes = async () => {
   } finally {
     saving.value = false
   }
-}
-
-const removeIndex = (index: { name: string }) => {
-  const currentVersion = getCurrentVersion()
-  currentVersion.add_indexes = currentVersion.add_indexes.filter((i: { name: string }) => i.name !== index.name)
-  autoSave()
 }
 
 // Drop Indexes Management
