@@ -43,84 +43,6 @@ npm run down
 - **Vite** for build tooling
 - **Vue Router** for navigation
 
-## Implementation Plan
-
-### Phase 1: Foundation & Planning ✅
-- [x] **Step 1.1**: Conduct interview to gather requirements and clarify implementation details
-- [x] **Step 1.2**: Compile icons for all identified actions
-- [x] **Step 1.3**: Create comprehensive implementation plan with phases
-
-### Phase 2: Teardown & Reset 🔄
-- [ ] **Step 2.1**: Tear down current repo to hello world with no backing services
-- [ ] **Step 2.2**: Update docker-compose.yaml to mount ./tests/playground to /input folder
-- [ ] **Step 2.3**: Verify `npm run dev` and `npm run container` work successfully
-- [ ] **Step 2.4**: Update package.json scripts to match documented commands
-- [ ] **Step 2.5**: Configure API proxy for /api/* requests to API host/port
-
-### Phase 3: Core Infrastructure 🚧
-- [ ] **Step 3.1**: Set up API client with axios and environment-based configuration
-- [ ] **Step 3.2**: Implement BUILT_AT config-based read-only/read-write mode
-- [ ] **Step 3.3**: Create base layout with collapsible navigation and admin panel
-- [ ] **Step 3.4**: Implement routing structure for all pages
-- [ ] **Step 3.5**: Create base card components and action system
-- [ ] **Step 3.6**: Set up event-based error handling with popup dialogs
-
-### Phase 4: File Management System 🚧
-- [ ] **Step 4.1**: Implement file listing and management for all resource types
-- [ ] **Step 4.2**: Create file CRUD operations with auto-save on field changes
-- [ ] **Step 4.3**: Implement lock/unlock functionality
-- [ ] **Step 4.4**: Add GitHub-style confirmation dialogs for destructive actions
-- [ ] **Step 4.5**: Implement welcome page for empty configurations
-- [ ] **Step 4.6**: Add file naming validation (collection names, versioned names, etc.)
-
-### Phase 5: Configuration Management 🚧
-- [ ] **Step 5.1**: Build configuration file management with collection name validation
-- [ ] **Step 5.2**: Implement configuration version management
-- [ ] **Step 5.3**: Add schema download functionality (JSON/BSON as files)
-- [ ] **Step 5.4**: Create processing operations interface
-- [ ] **Step 5.5**: Implement "new collection" endpoint integration
-- [ ] **Step 5.6**: Add JSON editor for indexes property in ConfigurationVersion
-
-### Phase 6: Dictionary & Type System 🚧
-- [ ] **Step 6.1**: Build dictionary property editor with collapsible nested properties
-- [ ] **Step 6.2**: Implement type property editor for universal/typed primitives
-- [ ] **Step 6.3**: Add ref, enum, and one_of functionality
-- [ ] **Step 6.4**: Create object/array property management
-- [ ] **Step 6.5**: Implement required/additional properties toggles
-- [ ] **Step 6.6**: Add versioned naming validation for dictionary files
-
-### Phase 7: Data Management 🚧
-- [ ] **Step 7.1**: Build test data file management with simple JSON editor
-- [ ] **Step 7.2**: Implement document editor for test data
-- [ ] **Step 7.3**: Create migration file management with JSON editor
-- [ ] **Step 7.4**: Add enumerator management system
-- [ ] **Step 7.5**: Implement enumeration key-value editing
-- [ ] **Step 7.6**: Add type file naming validation
-
-### Phase 8: Processing & Events 🚧
-- [ ] **Step 8.1**: Create event monitoring system with popup dialogs
-- [ ] **Step 8.2**: Implement processing status tracking
-- [ ] **Step 8.3**: Build event modal dialogs for all 500 responses
-- [ ] **Step 8.4**: Add sub-event display functionality
-- [ ] **Step 8.5**: Implement error handling and display
-- [ ] **Step 8.6**: Add event-based processing output display
-
-### Phase 9: Database Operations 🚧
-- [ ] **Step 9.1**: Implement "Process All" functionality
-- [ ] **Step 9.2**: Add "Drop Database" with GitHub-style confirmation
-- [ ] **Step 9.3**: Create database health monitoring
-- [ ] **Step 9.4**: Implement configuration validation
-- [ ] **Step 9.5**: Add bulk operations (lock all, etc.)
-- [ ] **Step 9.6**: Add case-sensitive typing confirmations for destructive actions
-
-### Phase 10: Polish & Testing 🚧
-- [ ] **Step 10.1**: Implement comprehensive error handling with event popups
-- [ ] **Step 10.2**: Add auto-save functionality for all editor pages
-- [ ] **Step 10.3**: Create responsive design for mobile
-- [ ] **Step 10.4**: Implement Jest unit tests and Cypress E2E tests
-- [ ] **Step 10.5**: Performance optimization and final polish
-- [ ] **Step 10.6**: Configure live API testing with playground data
-
 ## Technical Specifications
 
 ### Authentication
@@ -244,6 +166,66 @@ npm run down
 - [x] **Step 2.5**: API proxy already configured in vite.config.ts for /api/* requests
 - [x] **Step 2.6**: NGINX config and environment variable substitution fixed; containerized SPA now serves hello world page successfully
 
-### Phase 3: Core Infrastructure 🔄
-- 🔄 Ready to begin core infrastructure development
+### Phase 3: Core Infrastructure 🚧
+- [x] **Step 3.1**: Set up API client with axios and environment-based configuration
+- [ ] **Step 3.2**: Implement BUILT_AT config-based read-only/read-write mode
+- [ ] **Step 3.3**: Create base layout with collapsible navigation and admin panel
+- [ ] **Step 3.4**: Implement routing structure for all pages
+- [ ] **Step 3.5**: Create base card components and action system
+- [ ] **Step 3.6**: Set up event-based error handling with popup dialogs
 
+### Phase 4: File Management System 🚧
+- [ ] **Step 4.1**: Implement file listing and management for all resource types
+- [ ] **Step 4.2**: Create file CRUD operations with auto-save on field changes
+- [ ] **Step 4.3**: Implement lock/unlock functionality
+- [ ] **Step 4.4**: Add GitHub-style confirmation dialogs for destructive actions
+- [ ] **Step 4.5**: Implement welcome page for empty configurations
+- [ ] **Step 4.6**: Add file naming validation (collection names, versioned names, etc.)
+
+### Phase 5: Configuration Management 🚧
+- [ ] **Step 5.1**: Build configuration file management with collection name validation
+- [ ] **Step 5.2**: Implement configuration version management
+- [ ] **Step 5.3**: Add schema download functionality (JSON/BSON as files)
+- [ ] **Step 5.4**: Create processing operations interface
+- [ ] **Step 5.5**: Implement "new collection" endpoint integration
+- [ ] **Step 5.6**: Add JSON editor for indexes property in ConfigurationVersion
+
+### Phase 6: Dictionary & Type System 🚧
+- [ ] **Step 6.1**: Build dictionary property editor with collapsible nested properties
+- [ ] **Step 6.2**: Implement type property editor for universal/typed primitives
+- [ ] **Step 6.3**: Add ref, enum, and one_of functionality
+- [ ] **Step 6.4**: Create object/array property management
+- [ ] **Step 6.5**: Implement required/additional properties toggles
+- [ ] **Step 6.6**: Add versioned naming validation for dictionary files
+
+### Phase 7: Data Management 🚧
+- [ ] **Step 7.1**: Build test data file management with simple JSON editor
+- [ ] **Step 7.2**: Implement document editor for test data
+- [ ] **Step 7.3**: Create migration file management with JSON editor
+- [ ] **Step 7.4**: Add enumerator management system
+- [ ] **Step 7.5**: Implement enumeration key-value editing
+- [ ] **Step 7.6**: Add type file naming validation
+
+### Phase 8: Processing & Events 🚧
+- [ ] **Step 8.1**: Create event monitoring system with popup dialogs
+- [ ] **Step 8.2**: Implement processing status tracking
+- [ ] **Step 8.3**: Build event modal dialogs for all 500 responses
+- [ ] **Step 8.4**: Add sub-event display functionality
+- [ ] **Step 8.5**: Implement error handling and display
+- [ ] **Step 8.6**: Add event-based processing output display
+
+### Phase 9: Database Operations 🚧
+- [ ] **Step 9.1**: Implement "Process All" functionality
+- [ ] **Step 9.2**: Add "Drop Database" with GitHub-style confirmation
+- [ ] **Step 9.3**: Create database health monitoring
+- [ ] **Step 9.4**: Implement configuration validation
+- [ ] **Step 9.5**: Add bulk operations (lock all, etc.)
+- [ ] **Step 9.6**: Add case-sensitive typing confirmations for destructive actions
+
+### Phase 10: Polish & Testing 🚧
+- [ ] **Step 10.1**: Implement comprehensive error handling with event popups
+- [ ] **Step 10.2**: Add auto-save functionality for all editor pages
+- [ ] **Step 10.3**: Create responsive design for mobile
+- [ ] **Step 10.4**: Implement Jest unit tests and Cypress E2E tests
+- [ ] **Step 10.5**: Performance optimization and final polish
+- [ ] **Step 10.6**: Configure live API testing with playground data
