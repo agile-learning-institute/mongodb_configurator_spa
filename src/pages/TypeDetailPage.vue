@@ -15,34 +15,34 @@
 
     <!-- Type detail -->
     <div v-else-if="type">
-      <!-- Header and Settings for non-object types -->
-      <div v-if="!isObject()">
-        <!-- Header -->
-        <div class="d-flex justify-space-between align-center mb-6">
-          <div>
-            <h1 class="text-h4">{{ type.description }}</h1>
-            <p class="text-body-2 text-medium-emphasis">{{ type.file_name }}</p>
-          </div>
-          <div class="d-flex align-center">
-            <v-chip
-              v-if="type._locked"
-              color="warning"
-              class="mr-2"
-            >
-              Locked
-            </v-chip>
-            <v-btn
-              color="primary"
-              @click="saveType"
-              :loading="saving"
-              :disabled="type._locked"
-            >
-              <v-icon start>mdi-content-save</v-icon>
-              Save
-            </v-btn>
-          </div>
+      <!-- Header -->
+      <div class="d-flex justify-space-between align-center mb-6">
+        <div>
+          <h1 class="text-h4">{{ type.description }}</h1>
+          <p class="text-body-2 text-medium-emphasis">{{ type.file_name }}</p>
         </div>
+        <div class="d-flex align-center">
+          <v-chip
+            v-if="type._locked"
+            color="warning"
+            class="mr-2"
+          >
+            Locked
+          </v-chip>
+          <v-btn
+            color="primary"
+            @click="saveType"
+            :loading="saving"
+            :disabled="type._locked"
+          >
+            <v-icon start>mdi-content-save</v-icon>
+            Save
+          </v-btn>
+        </div>
+      </div>
 
+      <!-- Type Settings for non-object types -->
+      <div v-if="!isObject()">
         <!-- Type Settings -->
         <v-card class="mb-6">
           <v-card-title>Type Settings</v-card-title>
@@ -143,35 +143,19 @@
 
       <!-- Object Editor -->
       <div v-if="isObject()" class="mb-6">
-        <div v-if="!type.properties || Object.keys(type.properties).length === 0" class="text-center pa-8">
-          <v-icon size="64" color="grey">mdi-cube-outline</v-icon>
-          <h3 class="text-h6 mt-4">No Properties</h3>
-          <p class="text-body-2 text-medium-emphasis">Add properties to define the object structure.</p>
-        </div>
-        
-        <div v-else>
-          <TypeProperty
-            v-for="(property, propertyName) in type.properties"
-            :key="propertyName"
-            :property-name="propertyName"
-            :property="property"
-            :disabled="type._locked"
-            @change="handlePropertyChange(propertyName, $event)"
-            @delete="deleteProperty(propertyName)"
-          />
-          
-          <div class="d-flex justify-center mt-4">
-            <v-btn
-              color="primary"
-              variant="outlined"
-              @click="addProperty"
-              :disabled="type._locked"
-            >
-              <v-icon start>mdi-plus</v-icon>
-              Add Property
-            </v-btn>
-          </div>
-        </div>
+        <!-- Treat the type itself as a property -->
+        <TypeProperty
+          :property-name="type.file_name.replace('.yaml', '')"
+          :property="{
+            description: type.description,
+            type: 'object',
+            required: type.required,
+            additionalProperties: type.additionalProperties || false,
+            properties: type.properties || {}
+          }"
+          :disabled="type._locked"
+          @change="handleTypePropertyChange"
+        />
       </div>
 
       <!-- Array Editor -->
@@ -229,6 +213,7 @@ interface Type {
   json_schema?: any
   bson_schema?: any
   properties?: Record<string, TypeProperty>
+  additionalProperties?: boolean
   items?: {
     type: string
     description: string
@@ -435,6 +420,18 @@ const deleteProperty = (propertyName: string) => {
   if (type.value.properties) {
     delete type.value.properties[propertyName]
   }
+  autoSave()
+}
+
+const handleTypePropertyChange = (updatedProperty: any) => {
+  if (!type.value || type.value._locked) return
+  
+  // Update the type with the property changes
+  type.value.description = updatedProperty.description
+  type.value.required = updatedProperty.required
+  type.value.additionalProperties = updatedProperty.additionalProperties
+  type.value.properties = updatedProperty.properties
+  
   autoSave()
 }
 
