@@ -100,50 +100,31 @@
           :expanded="true"
           class="mb-4"
         >
-          <template #default>
-            <!-- Schema Downloads Card -->
-            <FileCard
-              :file="{ name: 'Schema Downloads', created_at: '', updated_at: '', size: 0 }"
-              file-type="configuration"
-              :show-edit="false"
-              :show-delete="false"
-              :show-lock="false"
-              :show-actions="false"
-              :is-section-card="true"
-              :expanded="true"
-              class="mb-4"
+          <template #actions>
+            <v-btn
+              icon
+              size="small"
+              variant="text"
+              color="white"
+              @click="downloadJsonSchema"
+              :disabled="configuration._locked"
+              title="Download JSON Schema"
             >
-              <template #actions>
-                <v-btn
-                  icon
-                  size="small"
-                  variant="text"
-                  color="white"
-                  @click="downloadJsonSchema"
-                  :disabled="configuration._locked"
-                  title="Download JSON Schema"
-                >
-                  <v-icon size="18">mdi-download</v-icon>
-                </v-btn>
-                <v-btn
-                  icon
-                  size="small"
-                  variant="text"
-                  color="white"
-                  @click="downloadBsonSchema"
-                  :disabled="configuration._locked"
-                  title="Download BSON Schema"
-                >
-                  <v-icon size="18">mdi-download</v-icon>
-                </v-btn>
-              </template>
-              <template #default>
-                <div class="text-medium-emphasis">
-                  Download JSON or BSON schema for this version
-                </div>
-              </template>
-            </FileCard>
-
+              <v-icon size="18">mdi-download</v-icon>
+            </v-btn>
+            <v-btn
+              icon
+              size="small"
+              variant="text"
+              color="white"
+              @click="downloadBsonSchema"
+              :disabled="configuration._locked"
+              title="Download BSON Schema"
+            >
+              <v-icon size="18">mdi-download</v-icon>
+            </v-btn>
+          </template>
+          <template #default>
             <!-- Test Data Card -->
             <FileCard
               :file="{ name: 'Test Data', created_at: '', updated_at: '', size: 0 }"
