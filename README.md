@@ -169,8 +169,8 @@ npm run down
 ### Phase 3: Core Infrastructure 🚧
 - [x] **Step 3.1**: Set up API client with axios and environment-based configuration
 - [x] **Step 3.2**: Implement BUILT_AT config-based read-only/read-write mode
-- [ ] **Step 3.3**: Create base layout with collapsible navigation and admin panel
-- [ ] **Step 3.4**: Implement routing structure for all pages
+- [x] **Step 3.3**: Create base layout with collapsible navigation and admin panel
+- [x] **Step 3.4**: Implement routing structure for all pages
 - [ ] **Step 3.5**: Create base card components and action system
 - [ ] **Step 3.6**: Set up event-based error handling with popup dialogs
 
