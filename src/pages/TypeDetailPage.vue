@@ -18,8 +18,7 @@
       <!-- Header -->
       <div class="d-flex justify-space-between align-center mb-6">
         <div>
-          <h1 class="text-h4">{{ type.description }}</h1>
-          <p class="text-body-2 text-medium-emphasis">{{ type.file_name }}</p>
+          <h1 class="text-h4">Custom Type</h1>
         </div>
         <div class="d-flex align-center">
           <v-chip
@@ -29,15 +28,6 @@
           >
             Locked
           </v-chip>
-          <v-btn
-            color="primary"
-            @click="saveType"
-            :loading="saving"
-            :disabled="type._locked"
-          >
-            <v-icon start>mdi-content-save</v-icon>
-            Save
-          </v-btn>
         </div>
       </div>
 
@@ -143,19 +133,52 @@
 
       <!-- Object Editor -->
       <div v-if="isObject()" class="mb-6">
-        <!-- Treat the type itself as a property -->
-        <TypeProperty
-          :property-name="type.file_name.replace('.yaml', '')"
-          :property="{
-            description: type.description,
-            type: 'object',
-            required: type.required,
-            additionalProperties: type.additionalProperties || false,
-            properties: type.properties || {}
-          }"
-          :disabled="type._locked"
-          @change="handleTypePropertyChange"
-        />
+        <!-- Simple single line layout -->
+        <div class="d-flex align-center pa-3 border rounded">
+          <!-- Type name -->
+          <div class="mr-4">
+            <span class="text-subtitle-2 font-weight-medium">{{ type.file_name.replace('.yaml', '') }}</span>
+          </div>
+          
+          <!-- Description -->
+          <div class="flex-grow-1 mr-4">
+            <v-text-field
+              v-model="type.description"
+              density="compact"
+              variant="outlined"
+              hide-details
+              :disabled="type._locked"
+              @update:model-value="autoSave"
+            />
+          </div>
+          
+          <!-- Object bubble -->
+          <div class="mr-4">
+            <v-chip size="small" color="primary">object</v-chip>
+          </div>
+          
+          <!-- Required checkbox -->
+          <div class="mr-2">
+            <v-checkbox
+              v-model="type.required"
+              density="compact"
+              hide-details
+              :disabled="type._locked"
+              @update:model-value="autoSave"
+            />
+          </div>
+          
+          <!-- Additional Properties checkbox -->
+          <div class="mr-2">
+            <v-checkbox
+              v-model="type.additionalProperties"
+              density="compact"
+              hide-details
+              :disabled="type._locked"
+              @update:model-value="autoSave"
+            />
+          </div>
+        </div>
       </div>
 
       <!-- Array Editor -->
