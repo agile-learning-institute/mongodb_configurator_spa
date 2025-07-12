@@ -82,14 +82,14 @@ const emit = defineEmits<{
 const showPicker = ref(false)
 const searchQuery = ref('')
 const availableDictionaries = ref<string[]>([])
+const availableTypes = ref<string[]>([])
 const loading = ref(false)
 
 // Dictionary-specific types (no primitives)
 const structuralTypes = ['object', 'array']
-const referenceTypes = ['ref']
 const enumTypes = ['enum', 'enum_array']
 
-// Load available dictionaries from API
+// Load available dictionaries and types from API
 const loadDictionaries = async () => {
   loading.value = true
   try {
@@ -97,9 +97,15 @@ const loadDictionaries = async () => {
     // Extract dictionary names and remove .yaml extension
     const dictionaryNames = dictionaries.map((dict: any) => dict.file_name.replace('.yaml', ''))
     availableDictionaries.value = dictionaryNames
+    
+    const types = await apiService.getTypes()
+    // Extract type names and remove .yaml extension
+    const typeNames = types.map((type: any) => type.file_name.replace('.yaml', ''))
+    availableTypes.value = typeNames
   } catch (err) {
-    console.error('Failed to load dictionaries:', err)
+    console.error('Failed to load dictionaries and types:', err)
     availableDictionaries.value = []
+    availableTypes.value = []
   } finally {
     loading.value = false
   }
@@ -109,7 +115,7 @@ const loadDictionaries = async () => {
 const allTypes = computed(() => [
   ...structuralTypes, // Object and array first
   ...enumTypes,       // Enum types
-  ...referenceTypes,  // Ref type
+  ...availableTypes.value, // Custom types from API
   ...availableDictionaries.value
 ])
 
@@ -145,7 +151,10 @@ const getTypeColor = (type: string): string => {
   if (type === 'array') return 'green'
   if (type === 'enum') return 'purple'
   if (type === 'enum_array') return 'deep-purple'
-  if (type === 'ref') return 'orange'
+  // Custom types from API
+  if (availableTypes.value.includes(type)) return 'teal'
+  // Dictionary types
+  if (availableDictionaries.value.includes(type)) return 'orange'
   return 'primary'
 }
 

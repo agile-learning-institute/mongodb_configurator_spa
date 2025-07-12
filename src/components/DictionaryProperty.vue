@@ -176,9 +176,6 @@
     <div v-if="isEnumType()" class="enum-section ml-8 mb-2">
       <div class="d-flex align-center mb-3">
         <div class="text-h6 font-weight-bold mr-3">Enums</div>
-      </div>
-      
-      <div class="d-flex align-center">
         <EnumPicker
           v-model="property.enums"
           label="Select Enum"

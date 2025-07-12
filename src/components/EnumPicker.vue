@@ -33,38 +33,38 @@
             class="mb-3"
           />
           
-          <!-- Enumerator Versions Tabs -->
-          <v-tabs v-model="selectedVersion" class="mb-4">
+          <!-- Enumerator Files Tabs -->
+          <v-tabs v-model="selectedEnumeratorFile" class="mb-4">
             <v-tab
-              v-for="(enumerator, index) in filteredEnumerators"
-              :key="enumerator.file_name"
-              :value="index"
+              v-for="enumeratorFile in filteredEnumeratorFiles"
+              :key="enumeratorFile.file_name"
+              :value="enumeratorFile.file_name"
             >
-              {{ enumerator.name || enumerator.file_name.replace('.yaml', '') }}
+              {{ enumeratorFile.name || enumeratorFile.file_name.replace('.yaml', '') }}
             </v-tab>
           </v-tabs>
 
           <!-- Enum Values for Selected Version -->
-          <div v-if="selectedEnumerator && selectedEnumerator.enumerators" class="mb-4">
-            <h4 class="mb-3">Enum Values:</h4>
+          <div v-if="selectedEnumeratorData && selectedEnumeratorData.enumerators" class="mb-4">
+            <h4 class="mb-3">Select Enumerator:</h4>
             <div class="d-flex flex-wrap gap-2">
               <v-chip
-                v-for="(enumName, enumKey) in selectedEnumerator.enumerators"
-                :key="enumKey"
-                :color="modelValue === enumKey ? 'primary' : undefined"
+                v-for="(enumeratorDict, enumeratorName) in selectedEnumeratorData.enumerators"
+                :key="enumeratorName"
+                :color="modelValue === enumeratorName ? 'primary' : undefined"
                 variant="outlined"
                 size="default"
                 class="cursor-pointer pa-2"
-                @click="selectEnum(enumKey)"
+                @click="selectEnum(enumeratorName)"
               >
-                <v-icon start size="18">mdi-checkbox-blank-circle</v-icon>
-                {{ enumKey }}
+                <v-icon start size="18">mdi-format-list-checks</v-icon>
+                {{ enumeratorName }}
               </v-chip>
             </div>
           </div>
 
           <!-- No enumerators message -->
-          <div v-else-if="filteredEnumerators.length === 0" class="text-center pa-4">
+          <div v-else-if="filteredEnumeratorFiles.length === 0" class="text-center pa-4">
             <v-icon size="48" color="grey">mdi-format-list-checks</v-icon>
             <p class="text-grey mt-2">No enumerators found</p>
           </div>
@@ -99,56 +99,64 @@ const emit = defineEmits<{
 
 const showPicker = ref(false)
 const searchQuery = ref('')
-const availableEnumerators = ref<any[]>([])
-const selectedVersion = ref<number>(0)
+const availableEnumeratorFiles = ref<any[]>([])
+const selectedEnumeratorFile = ref<string>('')
+const selectedEnumeratorData = ref<any>(null)
 const loading = ref(false)
 
-// Load available enumerators from API
-const loadEnumerators = async () => {
+// Load available enumerator files from API
+const loadEnumeratorFiles = async () => {
   loading.value = true
   try {
-    const enumerators = await apiService.getEnumerators()
-    availableEnumerators.value = enumerators
-    // Set first enumerator as selected if available
-    if (enumerators.length > 0 && selectedVersion.value === 0) {
-      selectedVersion.value = 0
+    const enumeratorFiles = await apiService.getEnumerators()
+    availableEnumeratorFiles.value = enumeratorFiles
+    // Set first enumerator file as selected if available
+    if (enumeratorFiles.length > 0 && !selectedEnumeratorFile.value) {
+      selectedEnumeratorFile.value = enumeratorFiles[0].file_name
+      await loadSelectedEnumeratorData()
     }
   } catch (err) {
-    console.error('Failed to load enumerators:', err)
-    availableEnumerators.value = []
+    console.error('Failed to load enumerator files:', err)
+    availableEnumeratorFiles.value = []
   } finally {
     loading.value = false
   }
 }
 
-// Filter enumerators based on search query
-const filteredEnumerators = computed(() => {
-  return availableEnumerators.value.filter(enumerator => 
-    (enumerator.name || enumerator.file_name).toLowerCase().includes(searchQuery.value.toLowerCase())
+// Load data for selected enumerator file
+const loadSelectedEnumeratorData = async () => {
+  if (!selectedEnumeratorFile.value) return
+  
+  try {
+    const data = await apiService.getEnumerator(selectedEnumeratorFile.value)
+    selectedEnumeratorData.value = data
+  } catch (err) {
+    console.error('Failed to load enumerator data:', err)
+    selectedEnumeratorData.value = null
+  }
+}
+
+// Filter enumerator files based on search query
+const filteredEnumeratorFiles = computed(() => {
+  return availableEnumeratorFiles.value.filter(enumeratorFile => 
+    (enumeratorFile.name || enumeratorFile.file_name).toLowerCase().includes(searchQuery.value.toLowerCase())
   )
 })
 
-// Get selected enumerator data
-const selectedEnumerator = computed(() => {
-  return filteredEnumerators.value[selectedVersion.value]
-})
-
-const selectEnum = (enumKey: string) => {
-  emit('update:modelValue', enumKey)
+const selectEnum = (enumeratorName: string) => {
+  emit('update:modelValue', enumeratorName)
   showPicker.value = false
   searchQuery.value = ''
 }
 
-// Watch for changes in filtered enumerators to update selected version
-watch(filteredEnumerators, (newEnumerators) => {
-  if (newEnumerators.length > 0 && selectedVersion.value >= newEnumerators.length) {
-    selectedVersion.value = 0
-  }
+// Watch for changes in selected enumerator file
+watch(selectedEnumeratorFile, async () => {
+  await loadSelectedEnumeratorData()
 })
 
-// Load enumerators on mount
+// Load enumerator files on mount
 onMounted(() => {
-  loadEnumerators()
+  loadEnumeratorFiles()
 })
 </script>
 

@@ -12,7 +12,7 @@ properties:
     required: false
   status:
     description: The current status of the document
-    type: enum
+    type: enum_array
     required: true
     enums: default_status
 additionalProperties: false
