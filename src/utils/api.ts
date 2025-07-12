@@ -39,32 +39,32 @@ export const API_ENDPOINTS = {
   
   // Configurations
   CONFIGURATIONS: '/configurations/',
-  CONFIGURATION: (fileName: string) => `/configurations/${fileName}`,
-  NEW_COLLECTION: (name: string) => `/configurations/collection/${name}`,
+  CONFIGURATION: (fileName: string) => `/configurations/${fileName}/`,
+  NEW_COLLECTION: (name: string) => `/configurations/collection/${name}/`,
   JSON_SCHEMA: (fileName: string, version: string) => 
-    `/configurations/json_schema/${fileName}/${version}`,
+    `/configurations/json_schema/${fileName}/${version}/`,
   BSON_SCHEMA: (fileName: string, version: string) => 
-    `/configurations/bson_schema/${fileName}/${version}`,
+    `/configurations/bson_schema/${fileName}/${version}/`,
   
   // Dictionaries
   DICTIONARIES: '/dictionaries/',
-  DICTIONARY: (fileName: string) => `/dictionaries/${fileName}`,
+  DICTIONARY: (fileName: string) => `/dictionaries/${fileName}/`,
   
   // Types
   TYPES: '/types/',
-  TYPE: (fileName: string) => `/types/${fileName}`,
+  TYPE: (fileName: string) => `/types/${fileName}/`,
   
   // Test Data
   TEST_DATA: '/test_data/',
-  TEST_DATA_FILE: (fileName: string) => `/test_data/${fileName}`,
+  TEST_DATA_FILE: (fileName: string) => `/test_data/${fileName}/`,
   
   // Migrations
   MIGRATIONS: '/migrations/',
-  MIGRATION: (fileName: string) => `/migrations/${fileName}`,
+  MIGRATION: (fileName: string) => `/migrations/${fileName}/`,
   
   // Enumerators
   ENUMERATORS: '/enumerators/',
-  ENUMERATOR: (fileName: string) => `/enumerators/${fileName}`,
+  ENUMERATOR: (fileName: string) => `/enumerators/${fileName}/`,
   
   // Database
   DATABASE: '/database',
