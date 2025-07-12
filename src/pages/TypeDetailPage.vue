@@ -21,13 +21,26 @@
           <h1 class="text-h4">Custom Type</h1>
         </div>
         <div class="d-flex align-center">
-          <v-chip
+          <v-btn
             v-if="type._locked"
             color="warning"
             class="mr-2"
+            variant="text"
+            @click="showUnlockDialog = true"
           >
+            <v-icon start>mdi-lock</v-icon>
             Locked
-          </v-chip>
+          </v-btn>
+          <v-btn
+            v-else
+            color="warning"
+            class="mr-2"
+            variant="text"
+            @click="lockType"
+          >
+            <v-icon start>mdi-lock</v-icon>
+            Lock
+          </v-btn>
         </div>
       </div>
 
@@ -209,6 +222,7 @@
                 v-model="type.items!.type"
                 label="Item Type"
                 :disabled="type._locked"
+                :exclude-type="type.file_name"
                 @update:model-value="autoSave"
               />
             </v-col>
@@ -224,6 +238,19 @@
         </v-card-text>
       </v-card>
     </div>
+    <v-dialog v-model="showUnlockDialog" max-width="400">
+      <v-card>
+        <v-card-title>Unlock Type?</v-card-title>
+        <v-card-text>
+          Unlocking allows editing this type. Are you sure?
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer />
+          <v-btn @click="showUnlockDialog = false">Cancel</v-btn>
+          <v-btn color="primary" @click="unlockType">Unlock</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
@@ -473,6 +500,21 @@ const handleTypePropertyChange = (updatedProperty: any) => {
   type.value.additionalProperties = updatedProperty.additionalProperties
   type.value.properties = updatedProperty.properties
   
+  autoSave()
+}
+
+const showUnlockDialog = ref(false)
+
+const unlockType = () => {
+  if (!type.value) return
+  type.value._locked = false
+  showUnlockDialog.value = false
+  autoSave()
+}
+
+const lockType = () => {
+  if (!type.value) return
+  type.value._locked = true
   autoSave()
 }
 

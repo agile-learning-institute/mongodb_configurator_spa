@@ -27,6 +27,7 @@
           label="Type"
           density="compact"
           :disabled="disabled"
+          :exclude-type="excludeType"
           @update:model-value="handleTypeChange"
         />
       </div>
@@ -82,6 +83,7 @@
               label="Item Type"
               density="compact"
               :disabled="disabled"
+              :exclude-type="excludeType"
               @update:model-value="handleChange"
             />
           </v-col>
@@ -157,10 +159,12 @@ interface Props {
   propertyName: string
   property: Property
   disabled?: boolean
+  excludeType?: string
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  disabled: false
+  disabled: false,
+  excludeType: ''
 })
 
 const emit = defineEmits<{

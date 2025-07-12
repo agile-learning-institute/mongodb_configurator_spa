@@ -1,28 +1,94 @@
 <template>
-  <v-select
-    v-model="selectedType"
-    :label="label"
-    :items="availableTypes"
-    :disabled="disabled"
-    :density="density"
-    @update:model-value="handleTypeChange"
-    :error="!!error"
-    :error-messages="error"
-  >
-    <template v-slot:item="{ props, item }">
-      <v-list-item v-bind="props">
-        <template v-slot:prepend>
-          <v-icon :color="getTypeColor(item.raw)">
-            {{ getTypeIcon(item.raw) }}
-          </v-icon>
-        </template>
-        <v-list-item-title>{{ item.raw }}</v-list-item-title>
-        <v-list-item-subtitle v-if="getTypeDescription(item.raw)">
-          {{ getTypeDescription(item.raw) }}
-        </v-list-item-subtitle>
-      </v-list-item>
-    </template>
-  </v-select>
+  <div>
+    <!-- Display chip that opens the picker -->
+    <v-chip
+      :color="getTypeColor(modelValue || '')"
+      variant="outlined"
+      class="cursor-pointer"
+      :disabled="disabled"
+      @click="showPicker = true"
+    >
+      <v-icon start size="small">{{ getTypeIcon(modelValue || '') }}</v-icon>
+      {{ modelValue || 'Select Type' }}
+    </v-chip>
+
+    <!-- Type Picker Dialog -->
+    <v-dialog v-model="showPicker" max-width="600">
+      <v-card>
+        <v-card-title class="d-flex justify-space-between align-center">
+          <span>Select Type</span>
+          <v-btn icon @click="showPicker = false">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </v-card-title>
+        
+        <v-card-text>
+          <v-text-field
+            v-model="searchQuery"
+            prepend-inner-icon="mdi-magnify"
+            label="Search types..."
+            variant="outlined"
+            density="compact"
+            hide-details
+            class="mb-4"
+          />
+          
+          <v-list>
+            <!-- Built-in Primitive Types -->
+            <v-list-subheader>Primitive Types</v-list-subheader>
+            <v-list-item
+              v-for="type in filteredPrimitiveTypes"
+              :key="type"
+              @click="selectType(type)"
+              :active="modelValue === type"
+            >
+              <template v-slot:prepend>
+                <v-icon :color="getTypeColor(type)">
+                  {{ getTypeIcon(type) }}
+                </v-icon>
+              </template>
+              <v-list-item-title>{{ type }}</v-list-item-title>
+              <v-list-item-subtitle>{{ getTypeDescription(type) }}</v-list-item-subtitle>
+            </v-list-item>
+
+            <!-- Structural Types -->
+            <v-list-subheader class="mt-4">Structural Types</v-list-subheader>
+            <v-list-item
+              v-for="type in structuralTypes"
+              :key="type"
+              @click="selectType(type)"
+              :active="modelValue === type"
+            >
+              <template v-slot:prepend>
+                <v-icon :color="getTypeColor(type)">
+                  {{ getTypeIcon(type) }}
+                </v-icon>
+              </template>
+              <v-list-item-title>{{ type }}</v-list-item-title>
+              <v-list-item-subtitle>{{ getTypeDescription(type) }}</v-list-item-subtitle>
+            </v-list-item>
+
+            <!-- Custom Types -->
+            <v-list-subheader v-if="filteredCustomTypes.length > 0" class="mt-4">Custom Types</v-list-subheader>
+            <v-list-item
+              v-for="type in filteredCustomTypes"
+              :key="type"
+              @click="selectType(type)"
+              :active="modelValue === type"
+            >
+              <template v-slot:prepend>
+                <v-icon :color="getTypeColor(type)">
+                  {{ getTypeIcon(type) }}
+                </v-icon>
+              </template>
+              <v-list-item-title>{{ type }}</v-list-item-title>
+              <v-list-item-subtitle>Custom type</v-list-item-subtitle>
+            </v-list-item>
+          </v-list>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -35,74 +101,73 @@ interface Props {
   disabled?: boolean
   error?: string
   density?: 'default' | 'compact' | 'comfortable'
+  excludeType?: string // Current type file name to exclude
 }
 
 const props = withDefaults(defineProps<Props>(), {
   label: 'Type',
   disabled: false,
   error: '',
-  density: 'default'
+  density: 'default',
+  excludeType: ''
 })
 
 const emit = defineEmits<{
   'update:modelValue': [value: string]
 }>()
 
-const selectedType = ref(props.modelValue || '')
+const showPicker = ref(false)
+const searchQuery = ref('')
 const availableTypes = ref<string[]>([])
 const loading = ref(false)
+
+// Built-in primitive types
+const primitiveTypes = [
+  'string', 'number', 'boolean', 'integer', 'null',
+  'identity', 'word', 'sentence', 'email', 'url', 
+  'ip_address', 'us_phone', 'date_time', 'markdown',
+  'street_address', 'state_code', 'count', 'identifier',
+  'breadcrumb', 'appointment'
+]
+
+// Structural types
+const structuralTypes = ['object', 'array']
 
 // Load available types from API
 const loadTypes = async () => {
   loading.value = true
   try {
     const types = await apiService.getTypes()
-    // Extract type names and add built-in types
-    const typeNames = types.map((type: any) => type.file_name)
-    availableTypes.value = [
-      // Built-in primitive types
-      'string',
-      'number', 
-      'boolean',
-      'integer',
-      'null',
-      // Complex primitive types
-      'identity',
-      'word',
-      'sentence',
-      'email',
-      'url',
-      'ip_address',
-      'us_phone',
-      'date_time',
-      'markdown',
-      'street_address',
-      'state_code',
-      'count',
-      'identifier',
-      'breadcrumb',
-      'appointment',
-      // Structural types
-      'object',
-      'array',
-      // Custom types
-      ...typeNames
-    ]
+    // Extract type names and remove .yaml extension
+    const typeNames = types.map((type: any) => type.file_name.replace('.yaml', ''))
+    availableTypes.value = typeNames
   } catch (err) {
     console.error('Failed to load types:', err)
-    // Fallback to basic types
-    availableTypes.value = [
-      'string', 'number', 'boolean', 'integer', 'null',
-      'object', 'array'
-    ]
+    availableTypes.value = []
   } finally {
     loading.value = false
   }
 }
 
-const handleTypeChange = (value: string) => {
-  selectedType.value = value
-  emit('update:modelValue', value)
+// Filter types based on search query and exclude current type
+const filteredPrimitiveTypes = computed(() => {
+  return primitiveTypes.filter(type => 
+    type.toLowerCase().includes(searchQuery.value.toLowerCase())
+  )
+})
+
+const filteredCustomTypes = computed(() => {
+  const excludeName = props.excludeType.replace('.yaml', '')
+  return availableTypes.value.filter(type => 
+    type !== excludeName && 
+    type.toLowerCase().includes(searchQuery.value.toLowerCase())
+  )
+})
+
+const selectType = (type: string) => {
+  emit('update:modelValue', type)
+  showPicker.value = false
+  searchQuery.value = ''
 }
 
 const getTypeIcon = (type: string): string => {
@@ -166,17 +231,14 @@ const getTypeDescription = (type: string): string => {
   return 'Custom type'
 }
 
-// Watch for modelValue changes
-const updateSelectedType = () => {
-  selectedType.value = props.modelValue || ''
-}
-
 // Load types on mount
 onMounted(() => {
   loadTypes()
-  updateSelectedType()
 })
+</script>
 
-// Watch for prop changes
-watch(() => props.modelValue, updateSelectedType)
-</script> 
+<style scoped>
+.cursor-pointer {
+  cursor: pointer;
+}
+</style> 
