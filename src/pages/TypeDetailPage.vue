@@ -15,7 +15,6 @@
 
     <!-- Type detail -->
     <div v-else-if="type">
-      <!-- Header -->
       <div class="d-flex justify-space-between align-center mb-6">
         <div>
           <h1 class="text-h4">Custom Type</h1>
@@ -44,191 +43,14 @@
         </div>
       </div>
 
-      <!-- Type Settings for non-object types -->
-      <div v-if="!isObject()">
-        <!-- Type Settings -->
-        <v-card class="mb-6">
-          <v-card-title>Type Settings</v-card-title>
-          <v-card-text>
-            <v-row>
-              <v-col cols="12" md="6">
-                <v-text-field
-                  v-model="type.description"
-                  label="Description"
-                  :disabled="type._locked"
-                  @update:model-value="autoSave"
-                />
-              </v-col>
-              <v-col cols="12" md="6">
-                <v-switch
-                  v-model="type.required"
-                  label="Required"
-                  :disabled="type._locked"
-                  @update:model-value="autoSave"
-                />
-              </v-col>
-            </v-row>
-          </v-card-text>
-        </v-card>
-
-        <!-- Type Category Detection -->
-        <div class="mb-6">
-          <v-alert
-            :type="getTypeCategory() === 'unknown' ? 'warning' : 'info'"
-            :title="getTypeCategoryTitle()"
-            :text="getTypeCategoryDescription()"
-          />
-        </div>
-      </div>
-
-      <!-- Simple Primitive Editor -->
-      <v-card v-if="isSimplePrimitive()" class="mb-6">
-        <v-card-title>Simple Primitive Schema</v-card-title>
-        <v-card-text>
-          <v-textarea
-            v-model="schemaJson"
-            label="Schema JSON"
-            rows="8"
-            auto-grow
-            :disabled="type._locked"
-            @update:model-value="updateSchema"
-            :error="!!schemaError"
-            :error-messages="schemaError"
-            placeholder='{
-  "type": "string",
-  "minLength": 1,
-  "maxLength": 100
-}'
-          />
-        </v-card-text>
-      </v-card>
-
-      <!-- Complex Primitive Editor -->
-      <v-card v-if="isComplexPrimitive()" class="mb-6">
-        <v-card-title>Complex Primitive Schemas</v-card-title>
-        <v-card-text>
-          <v-row>
-            <v-col cols="12" md="6">
-              <v-textarea
-                v-model="jsonSchemaJson"
-                label="JSON Schema"
-                rows="8"
-                auto-grow
-                :disabled="type._locked"
-                @update:model-value="updateJsonSchema"
-                :error="!!jsonSchemaError"
-                :error-messages="jsonSchemaError"
-                placeholder='{
-  "type": "string",
-  "format": "email"
-}'
-              />
-            </v-col>
-            <v-col cols="12" md="6">
-              <v-textarea
-                v-model="bsonSchemaJson"
-                label="BSON Schema"
-                rows="8"
-                auto-grow
-                :disabled="type._locked"
-                @update:model-value="updateBsonSchema"
-                :error="!!bsonSchemaError"
-                :error-messages="bsonSchemaError"
-                placeholder='{
-  "bsonType": "string",
-  "pattern": "^[^@]+@[^@]+\\.[^@]+$"
-}'
-              />
-            </v-col>
-          </v-row>
-        </v-card-text>
-      </v-card>
-
-      <!-- Object Editor -->
-      <div v-if="isObject()" class="mb-6">
-        <!-- Simple single line layout -->
-        <div class="d-flex align-center">
-          <!-- Type name -->
-          <div class="mr-4">
-            <span class="text-h6 font-weight-bold">{{ type.file_name.replace('.yaml', '') }}</span>
-          </div>
-          
-          <!-- Description -->
-          <div class="flex-grow-1 mr-4">
-            <v-text-field
-              v-model="type.description"
-              density="compact"
-              variant="outlined"
-              hide-details
-              :disabled="type._locked"
-              @update:model-value="autoSave"
-            />
-          </div>
-          
-          <!-- Type Picker -->
-          <div class="mr-4">
-            <TypePicker
-              v-model="type.type"
-              label="Type"
-              density="compact"
-              :disabled="type._locked"
-              :exclude-type="type.file_name"
-              @update:model-value="autoSave"
-            />
-          </div>
-          
-          <!-- Required icon -->
-          <div class="mr-2">
-            <v-tooltip location="top">
-              <template v-slot:activator="{ props }">
-                <v-btn
-                  icon
-                  size="small"
-                  variant="text"
-                  :color="type.required ? 'primary' : 'grey'"
-                  :disabled="type._locked"
-                  @click="type.required = !type.required; autoSave()"
-                  v-bind="props"
-                >
-                  <v-icon size="18">mdi-star</v-icon>
-                </v-btn>
-              </template>
-              <span>Required</span>
-            </v-tooltip>
-          </div>
-          
-          <!-- Additional Properties icon -->
-          <div class="mr-2">
-            <v-tooltip location="top">
-              <template v-slot:activator="{ props }">
-                <v-btn
-                  icon
-                  size="small"
-                  variant="text"
-                  :color="type.additionalProperties ? 'primary' : 'grey'"
-                  :disabled="type._locked"
-                  @click="type.additionalProperties = !type.additionalProperties; autoSave()"
-                  v-bind="props"
-                >
-                  <v-icon size="18">mdi-plus-circle</v-icon>
-                </v-btn>
-              </template>
-              <span>Additional Properties</span>
-            </v-tooltip>
-          </div>
-        </div>
-      </div>
-
-      <!-- Array Editor -->
-      <div v-if="isArray()" class="mb-6">
-        <TypeProperty
-          property-name="items"
-          :property="type.items || { description: '', type: 'string', required: false, additionalProperties: false }"
-          :disabled="type._locked"
-          :exclude-type="type.file_name"
-          @change="handleItemsChange"
-        />
-      </div>
+      <!-- Always use containment layout -->
+      <TypeProperty
+        property-name="{{ type.file_name.replace('.yaml', '') }}"
+        :property="{ ...type, type: type.type || '' }"
+        :disabled="type._locked"
+        :exclude-type="type.file_name"
+        @change="handleTopLevelPropertyChange"
+      />
     </div>
     <v-dialog v-model="showUnlockDialog" max-width="400">
       <v-card>
@@ -519,6 +341,13 @@ const lockType = () => {
 const handleItemsChange = (updatedItems: any) => {
   if (!type.value) return
   type.value.items = updatedItems
+  autoSave()
+}
+
+const handleTopLevelPropertyChange = (updated: any) => {
+  if (!type.value) return
+  // Copy all top-level fields from updated to type.value
+  Object.assign(type.value, updated)
   autoSave()
 }
 
