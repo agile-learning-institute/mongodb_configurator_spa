@@ -12,7 +12,10 @@
     "test:run": "vitest run",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
     "format": "prettier --write src/",
-    "container": "docker build -t ghcr.io/agile-learning-institute/stage0_mongodb_spa:latest ."
+    "container": "docker build -t ghcr.io/agile-learning-institute/stage0_mongodb_spa:latest .",
+    "api": "docker-compose --profile configurator-api up -d",
+    "service": "docker-compose --profile configurator up -d",
+    "down": "docker-compose down"
   },
   "repository": {
     "type": "git",
