@@ -9,14 +9,14 @@
       @click="showPicker = true"
     >
       <v-icon v-if="hasIcon(modelValue || '')" start size="small">{{ getTypeIcon(modelValue || '') }}</v-icon>
-      {{ modelValue || 'Select Type' }}
+      {{ modelValue || 'Pick a type' }}
     </v-chip>
 
     <!-- Type Picker Dialog -->
     <v-dialog v-model="showPicker" max-width="600">
       <v-card>
         <v-card-title class="d-flex justify-space-between align-center pa-4">
-          <span>Select Type</span>
+          <span>Pick a Type</span>
           <v-btn icon size="small" @click="showPicker = false">
             <v-icon>mdi-close</v-icon>
           </v-btn>
@@ -121,6 +121,7 @@ const filteredTypes = computed(() => {
   const excludeName = props.excludeType.replace('.yaml', '')
   return allTypes.value.filter(type => 
     type !== excludeName && 
+    type !== 'pick a type' &&
     type.toLowerCase().includes(searchQuery.value.toLowerCase())
   )
 })

@@ -1,0 +1,35 @@
+file_name: paragraph.yaml
+_locked: false
+description: A list of sentences
+required: false
+type: array
+items:
+  description: A sentence
+  required: false
+  type: object
+  properties:
+    name:
+      description: adsf
+      required: false
+      type: pick a type
+    new_property_3:
+      description: ''
+      required: false
+      type: pick a type
+    property_5:
+      description: ''
+      required: false
+      type: pick a type
+    property_6:
+      description: ''
+      required: false
+      type: pick a type
+    property_7:
+      description: ''
+      required: false
+      type: pick a type
+    property_8:
+      description: ''
+      required: false
+      type: pick a type
+  additionalProperties: false

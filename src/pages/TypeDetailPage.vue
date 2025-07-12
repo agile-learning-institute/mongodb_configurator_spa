@@ -15,44 +15,45 @@
 
     <!-- Type detail -->
     <div v-else-if="type">
-      <div class="d-flex justify-space-between align-center mb-6">
-        <div>
-          <h1 class="text-h4">Custom Type</h1>
-        </div>
-        <div class="d-flex align-center">
-          <v-btn
-            v-if="type._locked"
-            color="warning"
-            class="mr-2"
-            variant="text"
-            @click="showUnlockDialog = true"
-          >
-            <v-icon start>mdi-lock</v-icon>
-            Locked
-          </v-btn>
-          <v-btn
-            v-else
-            color="warning"
-            class="mr-2"
-            variant="text"
-            @click="lockType"
-          >
-            <v-icon start>mdi-lock</v-icon>
-            Lock
-          </v-btn>
-        </div>
-      </div>
-
-      <!-- Always use containment layout -->
-      <TypeProperty
-        property-name="root"
-        :property="{ ...type, type: type.type || '' }"
-        :disabled="type._locked"
-        :exclude-type="type.file_name"
-        :top-level="true"
-        :top-level-name="type.file_name.replace('.yaml', '')"
-        @change="handleTopLevelPropertyChange"
-      />
+      <v-card class="mb-4">
+        <v-card-title class="d-flex justify-space-between align-center pa-4" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+          <div class="d-flex align-center">
+            <h2 class="text-h5 mb-0">Custom Type</h2>
+          </div>
+          <div class="d-flex align-center">
+            <v-btn
+              v-if="type._locked"
+              color="white"
+              variant="text"
+              @click="showUnlockDialog = true"
+            >
+              <v-icon start>mdi-lock</v-icon>
+              Locked
+            </v-btn>
+            <v-btn
+              v-else
+              color="white"
+              variant="text"
+              @click="lockType"
+            >
+              <v-icon start>mdi-lock</v-icon>
+              Lock
+            </v-btn>
+          </div>
+        </v-card-title>
+        
+        <v-card-text class="pa-4">
+          <TypeProperty
+            property-name="root"
+            :property="{ ...type, type: type.type || '' }"
+            :disabled="type._locked"
+            :exclude-type="type.file_name"
+            :top-level="true"
+            :top-level-name="type.file_name.replace('.yaml', '')"
+            @change="handleTopLevelPropertyChange"
+          />
+        </v-card-text>
+      </v-card>
     </div>
     <v-dialog v-model="showUnlockDialog" max-width="400">
       <v-card>

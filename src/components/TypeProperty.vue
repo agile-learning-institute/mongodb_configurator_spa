@@ -1,19 +1,31 @@
 <template>
   <div class="property-row">
     <!-- Compact Single Row Layout -->
-    <div class="d-flex align-center pa-3 border rounded mb-2">
+    <div class="d-flex align-center mb-2">
       <!-- Property Name (filename without .yaml) -->
       <div class="property-name mr-4">
-        <span v-if="topLevel" class="text-h6 font-weight-bold">{{ topLevelName }}</span>
-        <span v-else-if="propertyName === 'items'" class="text-subtitle-2 font-weight-bold">Items</span>
-        <span v-else class="text-subtitle-2 font-weight-medium">{{ getPropertyName() }}</span>
+        <span v-if="topLevel" class="text-h5 font-weight-bold">{{ topLevelName }}</span>
+        <v-text-field
+          v-else-if="propertyName !== 'items'"
+          v-model="editablePropertyName"
+          placeholder="name"
+          density="compact"
+          variant="outlined"
+          hide-details
+          :disabled="disabled"
+          class="property-name-input"
+          @update:model-value="handlePropertyNameChange"
+        />
+        <div v-else class="property-name mr-4 d-flex justify-end">
+          <span class="text-h6 font-weight-bold">Items</span>
+        </div>
       </div>
       
       <!-- Description -->
       <div class="property-description flex-grow-1 mr-4">
         <v-text-field
           v-model="property.description"
-          label="Description"
+          placeholder="Description"
           density="compact"
           variant="outlined"
           hide-details
@@ -22,146 +34,127 @@
         />
       </div>
       
-      <!-- Type Selector -->
-      <div class="property-type mr-4" style="min-width: 150px;">
-        <TypePicker
-          v-model="property.type"
-          label="Type"
-          density="compact"
-          :disabled="disabled"
-          :exclude-type="excludeType"
-          @update:model-value="handleTypeChange"
-        />
-      </div>
-      
-      <!-- Required Checkbox + Icon -->
-      <div class="property-required mr-2 d-flex align-center">
-        <v-checkbox
-          v-model="property.required"
-          label="Required"
-          density="compact"
-          hide-details
-          :disabled="disabled"
-          @update:model-value="handleChange"
-        />
+      <!-- Right-aligned controls -->
+      <div class="d-flex align-center">
+        <!-- Type Selector -->
+        <div class="property-type mr-2 d-flex justify-end" style="min-width: 120px;">
+          <TypePicker
+            v-model="property.type"
+            label="Type"
+            density="compact"
+            :disabled="disabled"
+            :exclude-type="excludeType"
+            @update:model-value="handleTypeChange"
+          />
+        </div>
+        
+        <!-- Required Icon -->
         <v-tooltip location="top">
           <template v-slot:activator="{ props }">
             <v-btn
               icon
-              size="small"
+              size="x-small"
               variant="text"
               :color="property.required ? 'primary' : 'grey'"
               :disabled="disabled"
               v-bind="props"
+              @click="property.required = !property.required; handleChange()"
+              class="pa-0 ma-0"
             >
-              <v-icon size="18">mdi-star</v-icon>
+              <v-icon size="16">mdi-star</v-icon>
             </v-btn>
           </template>
           <span>Required</span>
         </v-tooltip>
-      </div>
-      
-      <!-- Additional Properties (for objects) + Icon -->
-      <div v-if="isObjectType()" class="property-additional mr-2 d-flex align-center">
-        <v-checkbox
-          v-model="property.additionalProperties"
-          label="Additional"
-          density="compact"
-          hide-details
-          :disabled="disabled"
-          @update:model-value="handleChange"
-        />
-        <v-tooltip location="top">
+        
+        <!-- Additional Properties Icon (for objects) -->
+        <v-tooltip v-if="isObjectType()" location="top">
           <template v-slot:activator="{ props }">
             <v-btn
               icon
-              size="small"
+              size="x-small"
               variant="text"
               :color="property.additionalProperties ? 'primary' : 'grey'"
               :disabled="disabled"
               v-bind="props"
+              @click="property.additionalProperties = !property.additionalProperties; handleChange()"
+              class="pa-0 ma-0"
             >
-              <v-icon size="18">mdi-plus-circle</v-icon>
+              <v-icon size="16">mdi-plus-circle</v-icon>
             </v-btn>
           </template>
           <span>Additional Properties</span>
         </v-tooltip>
+        
+        <!-- Delete Button (for sub-properties only, not items) -->
+        <v-tooltip v-if="!topLevel && propertyName !== 'items'" location="top">
+          <template v-slot:activator="{ props }">
+            <v-btn
+              icon
+              size="x-small"
+              variant="text"
+              color="error"
+              :disabled="disabled"
+              v-bind="props"
+              @click="$emit('delete')"
+              class="pa-0 ma-0"
+            >
+              <v-icon size="16">mdi-delete</v-icon>
+            </v-btn>
+          </template>
+          <span>Delete Property</span>
+        </v-tooltip>
+        
+
       </div>
-      
-      <!-- Expand/Collapse Button -->
-      <div class="property-actions">
+    </div>
+
+    <!-- Array Items Section (compact layout for array types) -->
+    <div v-if="isListType()" class="array-items-section ml-8 mb-2">
+      <TypeProperty
+        property-name="items"
+        :property="property.items || { description: '', type: 'string', required: false }"
+        :disabled="disabled"
+        :exclude-type="excludeType"
+        @change="handleItemsChange"
+      />
+    </div>
+
+    <!-- Object Properties Section -->
+    <div v-if="isObjectType()" class="object-properties-section ml-8 mb-2">
+      <div class="d-flex align-center mb-3">
+        <div class="text-h6 font-weight-bold mr-3">Properties</div>
         <v-btn
-          v-if="hasExpandableContent()"
-          icon
+          color="primary"
+          variant="outlined"
           size="small"
-          variant="text"
-          @click="expanded = !expanded"
-          :title="expanded ? 'Collapse' : 'Expand'"
+          @click="addProperty"
+          :disabled="disabled"
         >
-          <v-icon size="18">{{ expanded ? 'mdi-chevron-up' : 'mdi-chevron-down' }}</v-icon>
+          <v-icon start size="small">mdi-plus</v-icon>
+          Add Property
         </v-btn>
       </div>
-    </div>
-
-    <!-- Array Items Section (special layout for array types) -->
-    <div v-if="isListType()" class="array-items-section ml-8 mb-2">
-      <!-- Items Row -->
-      <div class="d-flex align-center pa-3 border rounded">
-        <!-- Items Label -->
-        <div class="items-label mr-4">
-          <span class="text-subtitle-2 font-weight-bold">Items</span>
-        </div>
-        
-        <!-- Items Property Component -->
-        <div class="items-property flex-grow-1">
-          <TypeProperty
-            property-name="items"
-            :property="property.items || { description: '', type: 'string', required: false }"
-            :disabled="disabled"
-            :exclude-type="excludeType"
-            @change="handleItemsChange"
-          />
-        </div>
+      
+      <div v-if="!property.properties || Object.keys(property.properties).length === 0" class="text-center pa-4">
+        <v-icon size="32" color="grey">mdi-cube-outline</v-icon>
+        <div class="text-body-2 text-medium-emphasis mt-2">No properties defined</div>
+      </div>
+      
+      <div v-else>
+        <TypeProperty
+          v-for="(subProperty, subPropertyName) in property.properties"
+          :key="subPropertyName"
+          :property-name="subPropertyName"
+          :property="subProperty"
+          :disabled="disabled"
+          :exclude-type="excludeType"
+          @change="handlePropertyChange(subPropertyName, $event)"
+          @delete="deleteProperty(subPropertyName)"
+        />
       </div>
     </div>
 
-    <!-- Expanded Content (only for object types) -->
-    <div v-if="expanded && isObjectType()" class="expanded-content pa-3 border rounded mb-2">
-
-      <!-- Object Properties Editor -->
-      <div v-if="isObjectType()">
-        <div class="d-flex justify-space-between align-center mb-3">
-          <div class="text-subtitle-2">Properties</div>
-          <v-btn
-            color="primary"
-            variant="outlined"
-            size="small"
-            @click="addSubProperty"
-            :disabled="disabled"
-          >
-            <v-icon start size="small">mdi-plus</v-icon>
-            Add Property
-          </v-btn>
-        </div>
-        
-        <div v-if="!property.properties || Object.keys(property.properties).length === 0" class="text-center pa-4">
-          <v-icon size="32" color="grey">mdi-cube-outline</v-icon>
-          <div class="text-body-2 text-medium-emphasis mt-2">No properties defined</div>
-        </div>
-        
-        <div v-else>
-          <TypeProperty
-            v-for="(subProperty, subPropertyName) in property.properties"
-            :key="subPropertyName"
-            :property-name="subPropertyName"
-            :property="subProperty"
-            :disabled="disabled"
-            @change="handleSubPropertyChange(subPropertyName, $event)"
-            @delete="deleteSubProperty(subPropertyName)"
-          />
-        </div>
-      </div>
-    </div>
   </div>
 </template>
 
@@ -203,11 +196,12 @@ const emit = defineEmits<{
   delete: []
 }>()
 
-const expanded = ref(false)
+// Editable property name for non-top-level properties
+const editablePropertyName = ref(props.propertyName || '')
 
 // Property name formatting (remove .yaml extension)
 const getPropertyName = (): string => {
-  return props.propertyName.replace(/\.yaml$/, '')
+  return props.propertyName.replace(/\.yaml$/, '') || ''
 }
 
 // Property type detection
@@ -221,10 +215,6 @@ const isObjectType = (): boolean => {
 
 const isCustomType = (): boolean => {
   return !isListType() && !isObjectType()
-}
-
-const hasExpandableContent = (): boolean => {
-  return isListType() || isObjectType()
 }
 
 // Event handlers
@@ -254,25 +244,41 @@ const handleTypeChange = () => {
     props.property.properties = {}
   }
   
-  // Auto-expand if switching to expandable type
-  if (hasExpandableContent()) {
-    expanded.value = true
-  } else {
-    expanded.value = false
-  }
-  
   emit('change', props.property)
 }
 
-const addSubProperty = () => {
+
+
+const handleItemsChange = (updatedItems: Property) => {
+  props.property.items = updatedItems
+  emit('change', props.property)
+}
+
+const handlePropertyNameChange = (newName: string) => {
+  // Remove spaces and validate
+  const cleanName = newName.replace(/\s+/g, '')
+  if (cleanName === '') {
+    return
+  }
+  
+  // Update the property name
+  editablePropertyName.value = cleanName
+  
+  // Emit the change to parent component
+  emit('change', props.property)
+}
+
+const addProperty = () => {
   if (!props.property.properties) {
     props.property.properties = {}
   }
   
-  const propertyName = `new_property_${Object.keys(props.property.properties).length + 1}`
+  // Generate a default property name
+  const propertyName = `property_${Object.keys(props.property.properties).length + 1}`
+  
   props.property.properties[propertyName] = {
     description: '',
-    type: 'string',
+    type: 'pick a type',
     required: false,
     additionalProperties: false
   }
@@ -280,23 +286,18 @@ const addSubProperty = () => {
   emit('change', props.property)
 }
 
-const deleteSubProperty = (propertyName: string) => {
+const deleteProperty = (propertyName: string) => {
   if (props.property.properties) {
     delete props.property.properties[propertyName]
     emit('change', props.property)
   }
 }
 
-const handleSubPropertyChange = (propertyName: string, updatedProperty: Property) => {
+const handlePropertyChange = (propertyName: string, updatedProperty: Property) => {
   if (props.property.properties) {
     props.property.properties[propertyName] = updatedProperty
     emit('change', props.property)
   }
-}
-
-const handleItemsChange = (updatedItems: Property) => {
-  props.property.items = updatedItems
-  emit('change', props.property)
 }
 </script>
 
@@ -334,4 +335,16 @@ const handleItemsChange = (updatedItems: Property) => {
   background-color: rgba(0, 0, 0, 0.02);
   border-left: 4px solid #667eea;
 }
+
+.property-name-input {
+  min-width: 120px;
+  max-width: 200px;
+}
+
+.property-name-input :deep(.v-field__input) {
+  font-weight: bold;
+  font-size: 0.875rem;
+}
+
+
 </style> 
