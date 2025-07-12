@@ -140,19 +140,6 @@
 
       <!-- Object Editor -->
       <div v-if="isObject()" class="mb-6">
-        <div class="d-flex justify-space-between align-center mb-4">
-          <h3 class="text-h6">Properties</h3>
-          <v-btn
-            color="primary"
-            variant="outlined"
-            @click="addProperty"
-            :disabled="type._locked"
-          >
-            <v-icon start>mdi-plus</v-icon>
-            Add Property
-          </v-btn>
-        </div>
-        
         <div v-if="!type.properties || Object.keys(type.properties).length === 0" class="text-center pa-8">
           <v-icon size="64" color="grey">mdi-cube-outline</v-icon>
           <h3 class="text-h6 mt-4">No Properties</h3>
@@ -169,6 +156,18 @@
             @change="handlePropertyChange(propertyName, $event)"
             @delete="deleteProperty(propertyName)"
           />
+          
+          <div class="d-flex justify-center mt-4">
+            <v-btn
+              color="primary"
+              variant="outlined"
+              @click="addProperty"
+              :disabled="type._locked"
+            >
+              <v-icon start>mdi-plus</v-icon>
+              Add Property
+            </v-btn>
+          </div>
         </div>
       </div>
 
