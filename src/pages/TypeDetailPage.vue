@@ -165,9 +165,16 @@
             />
           </div>
           
-          <!-- Object bubble -->
+          <!-- Type Picker -->
           <div class="mr-4">
-            <v-chip size="small" color="primary">object</v-chip>
+            <TypePicker
+              v-model="type.type"
+              label="Type"
+              density="compact"
+              :disabled="type._locked"
+              :exclude-type="type.file_name"
+              @update:model-value="autoSave"
+            />
           </div>
           
           <!-- Required icon -->
@@ -277,6 +284,7 @@ interface Type {
   description: string
   file_name: string
   required: boolean
+  type?: string
   schema?: any
   json_schema?: any
   bson_schema?: any
