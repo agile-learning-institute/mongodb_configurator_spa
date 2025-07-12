@@ -372,39 +372,48 @@ const saveType = async () => {
   }
 }
 
-// Type category detection
+const primitiveTypes = [
+  'identity', 'word', 'sentence', 'email', 'url', 
+  'ip_address', 'us_phone', 'date_time', 'markdown',
+  'street_address', 'state_code', 'count', 'identifier',
+  'breadcrumb', 'appointment'
+];
+
 const getTypeCategory = (): string => {
-  if (!type.value) return 'unknown'
-  
-  if (type.value.schema) return 'simple_primitive'
-  if (type.value.json_schema || type.value.bson_schema) return 'complex_primitive'
-  if (type.value.properties) return 'object'
-  if (type.value.items) return 'array'
-  
-  return 'unknown'
-}
+  if (!type.value) return 'unknown';
+
+  if (type.value.schema) return 'simple_primitive';
+  if (type.value.json_schema || type.value.bson_schema) return 'complex_primitive';
+  if (type.value.properties) return 'object';
+  if (type.value.items) return 'array';
+  if (primitiveTypes.includes(type.value.type || '')) return 'property_primitive';
+
+  return 'unknown';
+};
 
 const getTypeCategoryTitle = (): string => {
-  const category = getTypeCategory()
+  const category = getTypeCategory();
   switch (category) {
-    case 'simple_primitive': return 'Simple Primitive Type'
-    case 'complex_primitive': return 'Complex Primitive Type'
-    case 'object': return 'Object Type'
-    case 'array': return 'Array Type'
-    default: return 'Unknown Type Category'
+    case 'simple_primitive': return 'Simple Primitive Type';
+    case 'complex_primitive': return 'Complex Primitive Type';
+    case 'object': return 'Object Type';
+    case 'array': return 'Array Type';
+    case 'property_primitive': return 'Primitive Property Type';
+    default: return 'Unknown Type Category';
   }
-}
+};
 
 const getTypeCategoryDescription = (): string => {
-  const category = getTypeCategory()
+  const category = getTypeCategory();
   switch (category) {
-    case 'simple_primitive': return 'This type has a simple schema definition with basic JSON schema properties.'
-    case 'complex_primitive': return 'This type has both JSON and BSON schema definitions for complex validation.'
-    case 'object': return 'This type defines an object structure with named properties.'
-    case 'array': return 'This type defines an array structure with a specific item type.'
-    default: return 'Unable to determine the type category. Please ensure the type has proper structure.'
+    case 'simple_primitive': return 'This type has a simple schema definition with basic JSON schema properties.';
+    case 'complex_primitive': return 'This type has both JSON and BSON schema definitions for complex validation.';
+    case 'object': return 'This type defines an object structure with named properties.';
+    case 'array': return 'This type defines an array structure with a specific item type.';
+    case 'property_primitive': return 'This type is a primitive property (e.g., word, count, email, etc.).';
+    default: return 'Unable to determine the type category. Please ensure the type has proper structure.';
   }
-}
+};
 
 const isSimplePrimitive = (): boolean => {
   return getTypeCategory() === 'simple_primitive'
