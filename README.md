@@ -196,13 +196,13 @@ npm run down
 - ✅ **Step 5.8**: Improved schema download buttons with text labels
 - ✅ **Step 5.9**: Added collapsed state summary for Add Indexes card
 
-### Phase 6: Dictionary & Type System 🚧
-- [ ] **Step 6.1**: Build dictionary property editor with collapsible nested properties
-- [ ] **Step 6.2**: Implement type property editor for universal/typed primitives
-- [ ] **Step 6.3**: Add ref, enum, and one_of functionality
-- [ ] **Step 6.4**: Create object/array property management
-- [ ] **Step 6.5**: Implement required/additional properties toggles
-- [ ] **Step 6.6**: Add versioned naming validation for dictionary files
+### Phase 6: Dictionary & Type System ✅
+- ✅ **Step 6.1**: Build dictionary property editor with collapsible nested properties
+- ✅ **Step 6.2**: Implement type property editor for universal/typed primitives
+- ✅ **Step 6.3**: Add ref, enum, and one_of functionality
+- ✅ **Step 6.4**: Create object/array property management
+- ✅ **Step 6.5**: Implement required/additional properties toggles
+- ✅ **Step 6.6**: Add versioned naming validation for dictionary files
 
 ### Phase 7: Data Management 🚧
 - [ ] **Step 7.1**: Build test data file management with simple JSON editor

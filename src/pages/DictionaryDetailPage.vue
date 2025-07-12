@@ -13,179 +13,61 @@
       </v-alert>
     </div>
 
-    <!-- Dictionary detail -->
-    <div v-else-if="dictionary">
-      <!-- Header -->
-      <div class="d-flex justify-space-between align-center mb-6">
-        <div>
-          <h1 class="text-h4">{{ dictionary.description }}</h1>
-          <p class="text-body-2 text-medium-emphasis">{{ dictionary.file_name }}</p>
-        </div>
-        <div class="d-flex align-center">
-          <v-chip
-            v-if="dictionary._locked"
-            color="warning"
-            class="mr-2"
-          >
-            Locked
-          </v-chip>
-          <v-btn
-            color="primary"
-            @click="saveDictionary"
-            :loading="saving"
-            :disabled="dictionary._locked"
-          >
-            <v-icon start>mdi-content-save</v-icon>
-            Save
-          </v-btn>
-        </div>
-      </div>
-
-      <!-- Dictionary settings -->
-      <v-card class="mb-6">
-        <v-card-title>Dictionary Settings</v-card-title>
-        <v-card-text>
-          <v-row>
-            <v-col cols="12" md="6">
-              <v-text-field
-                v-model="dictionary.description"
-                label="Description"
-                :disabled="dictionary._locked"
-                @update:model-value="autoSave"
-              />
-            </v-col>
-            <v-col cols="12" md="6">
-              <v-select
-                v-model="dictionary.type"
-                label="Type"
-                :items="['object', 'array']"
-                :disabled="dictionary._locked"
-                @update:model-value="autoSave"
-              />
-            </v-col>
-            <v-col cols="12" md="6">
-              <v-switch
-                v-model="dictionary.additionalProperties"
-                label="Additional Properties"
-                :disabled="dictionary._locked"
-                @update:model-value="autoSave"
-              />
-            </v-col>
-            <v-col cols="12" md="6">
-              <v-switch
-                v-model="dictionary.required"
-                label="Required"
-                :disabled="dictionary._locked"
-                @update:model-value="autoSave"
-              />
-            </v-col>
-          </v-row>
-        </v-card-text>
-      </v-card>
-
-      <!-- Properties -->
-      <v-card>
-        <v-card-title class="d-flex justify-space-between align-center">
-          <span>Properties</span>
-          <v-btn
-            color="primary"
-            variant="outlined"
-            @click="addProperty"
-            :disabled="dictionary._locked"
-          >
-            <v-icon start>mdi-plus</v-icon>
-            Add Property
-          </v-btn>
-        </v-card-title>
-        <v-card-text>
-          <div v-if="!dictionary.properties || Object.keys(dictionary.properties).length === 0" class="text-center pa-8">
-            <v-icon size="64" color="grey">mdi-file-document-outline</v-icon>
-            <h3 class="text-h6 mt-4">No Properties</h3>
-            <p class="text-body-2 text-medium-emphasis">Add properties to define the dictionary structure.</p>
-          </div>
-          
-          <div v-else>
-            <v-expansion-panels>
-              <v-expansion-panel
-                v-for="(property, propertyName) in dictionary.properties"
-                :key="propertyName"
+          <!-- Dictionary detail -->
+      <div v-else-if="dictionary">
+        <v-card class="mb-4">
+          <v-card-title class="d-flex justify-space-between align-center pa-4" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+            <div class="d-flex align-center">
+              <h2 class="text-h5 mb-0">Dictionary</h2>
+            </div>
+            <div class="d-flex align-center">
+              <v-btn
+                v-if="dictionary._locked"
+                color="white"
+                variant="text"
+                @click="showUnlockDialog = true"
               >
-                <v-expansion-panel-title>
-                  <div class="d-flex justify-space-between align-center w-100">
-                    <span>{{ propertyName }}</span>
-                    <div class="d-flex align-center">
-                      <v-chip
-                        v-if="property.required"
-                        color="primary"
-                        size="small"
-                        class="mr-2"
-                      >
-                        Required
-                      </v-chip>
-                      <v-btn
-                        icon
-                        size="small"
-                        variant="text"
-                        color="error"
-                        @click.stop="deleteProperty(propertyName)"
-                        :disabled="dictionary._locked"
-                      >
-                        <v-icon size="18">mdi-delete</v-icon>
-                      </v-btn>
-                    </div>
-                  </div>
-                </v-expansion-panel-title>
-                <v-expansion-panel-text>
-                  <v-row>
-                    <v-col cols="12" md="6">
-                      <v-text-field
-                        v-model="property.description"
-                        label="Description"
-                        :disabled="dictionary._locked"
-                        @update:model-value="autoSave"
-                      />
-                    </v-col>
-                    <v-col cols="12" md="6">
-                      <v-select
-                        v-model="property.type"
-                        label="Type"
-                        :items="propertyTypes"
-                        :disabled="dictionary._locked"
-                        @update:model-value="autoSave"
-                      />
-                    </v-col>
-                    <v-col cols="12" md="6">
-                      <v-switch
-                        v-model="property.required"
-                        label="Required"
-                        :disabled="dictionary._locked"
-                        @update:model-value="autoSave"
-                      />
-                    </v-col>
-                    <v-col cols="12" md="6" v-if="property.type === 'enum'">
-                      <v-text-field
-                        v-model="property.enums"
-                        label="Enum Reference"
-                        :disabled="dictionary._locked"
-                        @update:model-value="autoSave"
-                      />
-                    </v-col>
-                    <v-col cols="12" md="6" v-if="property.type === 'ref'">
-                      <v-text-field
-                        v-model="property.ref"
-                        label="Reference"
-                        :disabled="dictionary._locked"
-                        @update:model-value="autoSave"
-                      />
-                    </v-col>
-                  </v-row>
-                </v-expansion-panel-text>
-              </v-expansion-panel>
-            </v-expansion-panels>
-          </div>
+                <v-icon start>mdi-lock</v-icon>
+                Locked
+              </v-btn>
+              <v-btn
+                v-else
+                color="white"
+                variant="text"
+                @click="lockDictionary"
+              >
+                <v-icon start>mdi-lock</v-icon>
+                Lock
+              </v-btn>
+            </div>
+          </v-card-title>
+          
+          <v-card-text class="pa-4">
+            <DictionaryProperty
+              property-name="root"
+              :property="{ ...dictionary, type: dictionary.type || '' }"
+              :disabled="dictionary._locked"
+              :exclude-type="dictionary.file_name"
+              :top-level="true"
+              :top-level-name="dictionary.file_name.replace('.yaml', '')"
+              @change="handleTopLevelPropertyChange"
+            />
+          </v-card-text>
+        </v-card>
+      </div>
+    <v-dialog v-model="showUnlockDialog" max-width="400">
+      <v-card>
+        <v-card-title>Unlock Dictionary?</v-card-title>
+        <v-card-text>
+          Unlocking allows editing this dictionary. Are you sure?
         </v-card-text>
+        <v-card-actions>
+          <v-spacer />
+          <v-btn @click="showUnlockDialog = false">Cancel</v-btn>
+          <v-btn color="primary" @click="unlockDictionary">Unlock</v-btn>
+        </v-card-actions>
       </v-card>
-    </div>
+    </v-dialog>
   </v-container>
 </template>
 
@@ -193,6 +75,7 @@
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { apiService } from '@/utils/api'
+import DictionaryProperty from '@/components/DictionaryProperty.vue'
 
 interface DictionaryProperty {
   description: string
@@ -311,4 +194,27 @@ const deleteProperty = (propertyName: string) => {
 onMounted(() => {
   loadDictionary()
 })
+
+// Lock/unlock functionality
+const showUnlockDialog = ref(false)
+
+const unlockDictionary = () => {
+  if (!dictionary.value) return
+  dictionary.value._locked = false
+  showUnlockDialog.value = false
+  autoSave()
+}
+
+const lockDictionary = () => {
+  if (!dictionary.value) return
+  dictionary.value._locked = true
+  autoSave()
+}
+
+const handleTopLevelPropertyChange = (updated: any) => {
+  if (!dictionary.value) return
+  // Copy all top-level fields from updated to dictionary.value
+  Object.assign(dictionary.value, updated)
+  autoSave()
+}
 </script> 
