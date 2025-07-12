@@ -4,6 +4,7 @@
     :label="label"
     :items="availableTypes"
     :disabled="disabled"
+    :density="density"
     @update:model-value="handleTypeChange"
     :error="!!error"
     :error-messages="error"
@@ -33,12 +34,14 @@ interface Props {
   label?: string
   disabled?: boolean
   error?: string
+  density?: 'default' | 'compact' | 'comfortable'
 }
 
 const props = withDefaults(defineProps<Props>(), {
   label: 'Type',
   disabled: false,
-  error: ''
+  error: '',
+  density: 'default'
 })
 
 const emit = defineEmits<{
