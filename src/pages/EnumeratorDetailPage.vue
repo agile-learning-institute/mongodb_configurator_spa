@@ -90,7 +90,7 @@
           </v-btn>
         </v-card-title>
         <v-card-text>
-          <div v-if="Object.keys(enumerator.enumerators).length === 0" class="text-center pa-8">
+          <div v-if="!enumerator.enumerators || Object.keys(enumerator.enumerators).length === 0" class="text-center pa-8">
             <v-icon size="64" color="grey">mdi-format-list-bulleted</v-icon>
             <h3 class="text-h6 mt-4">No Enumerations</h3>
             <p class="text-body-2 text-medium-emphasis">Add enumerations to define key-value pairs.</p>

@@ -98,7 +98,7 @@
           </v-btn>
         </v-card-title>
         <v-card-text>
-          <div v-if="Object.keys(dictionary.properties).length === 0" class="text-center pa-8">
+          <div v-if="!dictionary.properties || Object.keys(dictionary.properties).length === 0" class="text-center pa-8">
             <v-icon size="64" color="grey">mdi-file-document-outline</v-icon>
             <h3 class="text-h6 mt-4">No Properties</h3>
             <p class="text-body-2 text-medium-emphasis">Add properties to define the dictionary structure.</p>
