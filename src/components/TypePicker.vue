@@ -13,16 +13,16 @@
     </v-chip>
 
     <!-- Type Picker Dialog -->
-    <v-dialog v-model="showPicker" max-width="600">
+    <v-dialog v-model="showPicker" max-width="500">
       <v-card>
-        <v-card-title class="d-flex justify-space-between align-center">
+        <v-card-title class="d-flex justify-space-between align-center pa-4">
           <span>Select Type</span>
-          <v-btn icon @click="showPicker = false">
+          <v-btn icon size="small" @click="showPicker = false">
             <v-icon>mdi-close</v-icon>
           </v-btn>
         </v-card-title>
         
-        <v-card-text>
+        <v-card-text class="pa-4">
           <v-text-field
             v-model="searchQuery"
             prepend-inner-icon="mdi-magnify"
@@ -30,61 +30,65 @@
             variant="outlined"
             density="compact"
             hide-details
-            class="mb-4"
+            class="mb-3"
           />
           
-          <v-list>
-            <!-- Built-in Primitive Types -->
-            <v-list-subheader>Primitive Types</v-list-subheader>
-            <v-list-item
-              v-for="type in filteredPrimitiveTypes"
-              :key="type"
-              @click="selectType(type)"
-              :active="modelValue === type"
-            >
-              <template v-slot:prepend>
-                <v-icon :color="getTypeColor(type)">
-                  {{ getTypeIcon(type) }}
-                </v-icon>
-              </template>
-              <v-list-item-title>{{ type }}</v-list-item-title>
-              <v-list-item-subtitle>{{ getTypeDescription(type) }}</v-list-item-subtitle>
-            </v-list-item>
+          <!-- Primitive Types -->
+          <div class="mb-4">
+            <div class="text-caption text-medium-emphasis mb-2">Primitive Types</div>
+            <div class="d-flex flex-wrap gap-1">
+              <v-chip
+                v-for="type in filteredPrimitiveTypes"
+                :key="type"
+                :color="modelValue === type ? 'primary' : undefined"
+                variant="outlined"
+                size="small"
+                class="cursor-pointer"
+                @click="selectType(type)"
+              >
+                <v-icon start size="16">{{ getTypeIcon(type) }}</v-icon>
+                {{ type }}
+              </v-chip>
+            </div>
+          </div>
 
-            <!-- Structural Types -->
-            <v-list-subheader class="mt-4">Structural Types</v-list-subheader>
-            <v-list-item
-              v-for="type in structuralTypes"
-              :key="type"
-              @click="selectType(type)"
-              :active="modelValue === type"
-            >
-              <template v-slot:prepend>
-                <v-icon :color="getTypeColor(type)">
-                  {{ getTypeIcon(type) }}
-                </v-icon>
-              </template>
-              <v-list-item-title>{{ type }}</v-list-item-title>
-              <v-list-item-subtitle>{{ getTypeDescription(type) }}</v-list-item-subtitle>
-            </v-list-item>
+          <!-- Structural Types -->
+          <div class="mb-4">
+            <div class="text-caption text-medium-emphasis mb-2">Structural Types</div>
+            <div class="d-flex flex-wrap gap-1">
+              <v-chip
+                v-for="type in structuralTypes"
+                :key="type"
+                :color="modelValue === type ? 'primary' : undefined"
+                variant="outlined"
+                size="small"
+                class="cursor-pointer"
+                @click="selectType(type)"
+              >
+                <v-icon start size="16">{{ getTypeIcon(type) }}</v-icon>
+                {{ type }}
+              </v-chip>
+            </div>
+          </div>
 
-            <!-- Custom Types -->
-            <v-list-subheader v-if="filteredCustomTypes.length > 0" class="mt-4">Custom Types</v-list-subheader>
-            <v-list-item
-              v-for="type in filteredCustomTypes"
-              :key="type"
-              @click="selectType(type)"
-              :active="modelValue === type"
-            >
-              <template v-slot:prepend>
-                <v-icon :color="getTypeColor(type)">
-                  {{ getTypeIcon(type) }}
-                </v-icon>
-              </template>
-              <v-list-item-title>{{ type }}</v-list-item-title>
-              <v-list-item-subtitle>Custom type</v-list-item-subtitle>
-            </v-list-item>
-          </v-list>
+          <!-- Custom Types -->
+          <div v-if="filteredCustomTypes.length > 0">
+            <div class="text-caption text-medium-emphasis mb-2">Custom Types</div>
+            <div class="d-flex flex-wrap gap-1">
+              <v-chip
+                v-for="type in filteredCustomTypes"
+                :key="type"
+                :color="modelValue === type ? 'primary' : undefined"
+                variant="outlined"
+                size="small"
+                class="cursor-pointer"
+                @click="selectType(type)"
+              >
+                <v-icon start size="16">{{ getTypeIcon(type) }}</v-icon>
+                {{ type }}
+              </v-chip>
+            </div>
+          </div>
         </v-card-text>
       </v-card>
     </v-dialog>
@@ -92,7 +96,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { apiService } from '@/utils/api'
 
 interface Props {
@@ -121,9 +125,8 @@ const searchQuery = ref('')
 const availableTypes = ref<string[]>([])
 const loading = ref(false)
 
-// Built-in primitive types
+// User-friendly primitive types only
 const primitiveTypes = [
-  'string', 'number', 'boolean', 'integer', 'null',
   'identity', 'word', 'sentence', 'email', 'url', 
   'ip_address', 'us_phone', 'date_time', 'markdown',
   'street_address', 'state_code', 'count', 'identifier',
@@ -173,10 +176,6 @@ const selectType = (type: string) => {
 const getTypeIcon = (type: string): string => {
   if (type === 'object') return 'mdi-cube-outline'
   if (type === 'array') return 'mdi-format-list-bulleted'
-  if (type === 'string') return 'mdi-text'
-  if (type === 'number' || type === 'integer') return 'mdi-numeric'
-  if (type === 'boolean') return 'mdi-checkbox-marked-outline'
-  if (type === 'null') return 'mdi-null'
   if (type === 'email') return 'mdi-email'
   if (type === 'url') return 'mdi-link'
   if (type === 'ip_address') return 'mdi-web'
@@ -198,37 +197,7 @@ const getTypeIcon = (type: string): string => {
 const getTypeColor = (type: string): string => {
   if (type === 'object') return 'blue'
   if (type === 'array') return 'green'
-  if (type === 'string') return 'orange'
-  if (type === 'number' || type === 'integer') return 'purple'
-  if (type === 'boolean') return 'red'
-  if (type === 'null') return 'grey'
   return 'primary'
-}
-
-const getTypeDescription = (type: string): string => {
-  if (type === 'object') return 'Complex object with properties'
-  if (type === 'array') return 'List of items'
-  if (type === 'string') return 'Text value'
-  if (type === 'number') return 'Numeric value'
-  if (type === 'integer') return 'Whole number'
-  if (type === 'boolean') return 'True/false value'
-  if (type === 'null') return 'Null value'
-  if (type === 'email') return 'Email address'
-  if (type === 'url') return 'Web URL'
-  if (type === 'ip_address') return 'IP address'
-  if (type === 'us_phone') return 'US phone number'
-  if (type === 'date_time') return 'Date and time'
-  if (type === 'markdown') return 'Markdown text'
-  if (type === 'identity') return 'User identity'
-  if (type === 'word') return 'Single word'
-  if (type === 'sentence') return 'Text sentence'
-  if (type === 'street_address') return 'Street address'
-  if (type === 'state_code') return 'US state code'
-  if (type === 'count') return 'Numeric count'
-  if (type === 'identifier') return 'Unique identifier'
-  if (type === 'breadcrumb') return 'Navigation breadcrumb'
-  if (type === 'appointment') return 'Calendar appointment'
-  return 'Custom type'
 }
 
 // Load types on mount
