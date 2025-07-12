@@ -70,6 +70,9 @@
         >
           <v-icon size="18">{{ expanded ? 'mdi-chevron-up' : 'mdi-chevron-down' }}</v-icon>
         </v-btn>
+
+        <!-- Custom action buttons slot -->
+        <slot name="actions" />
       </div>
     </div>
 

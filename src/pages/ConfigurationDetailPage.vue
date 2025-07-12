@@ -134,56 +134,58 @@
               :expanded="true"
               class="mb-4"
             >
-              <template #default>
-                <div v-if="!showTestDataChooser">
-                  <div v-if="getCurrentVersion().test_data" class="d-flex align-center">
-                    <v-chip color="primary" class="mr-2">
-                      {{ getCurrentVersion().test_data }}
-                    </v-chip>
+              <template #actions>
+                <v-menu
+                  v-model="showTestDataMenu"
+                  :close-on-content-click="false"
+                  location="bottom end"
+                >
+                  <template v-slot:activator="{ props }">
                     <v-btn
-                      icon="mdi-delete"
+                      icon
                       size="small"
                       variant="text"
-                      color="error"
-                      @click="removeTestData"
+                      color="white"
+                      v-bind="props"
                       :disabled="configuration._locked"
-                    />
-                  </div>
-                  <div v-else class="text-medium-emphasis">
-                    No test data file selected
-                  </div>
-                  <v-btn
-                    color="primary"
-                    size="small"
-                    @click="showTestDataChooser = true"
-                    :disabled="configuration._locked"
-                    class="mt-2"
-                  >
-                    <v-icon start>mdi-plus</v-icon>
-                    Select Test Data
-                  </v-btn>
-                </div>
-                <div v-else>
-                  <v-select
-                    v-model="selectedTestData"
-                    :items="testDataFilesWithNew"
-                    label="Test Data File"
-                    :disabled="configuration._locked"
-                    :loading="loadingTestData"
-                    item-title="name"
-                    item-value="name"
-                    clearable
-                    @update:model-value="selectTestData"
-                  />
-                  <div class="d-flex justify-end mt-2">
-                    <v-btn
-                      @click="showTestDataChooser = false"
-                      size="small"
-                      class="mr-2"
+                      title="Select Test Data"
                     >
-                      Cancel
+                      <v-icon size="18">mdi-plus</v-icon>
                     </v-btn>
-                  </div>
+                  </template>
+                  <v-card min-width="300">
+                    <v-card-text>
+                      <v-select
+                        v-model="selectedTestData"
+                        :items="testDataFilesWithNew"
+                        label="Test Data File"
+                        :disabled="configuration._locked"
+                        :loading="loadingTestData"
+                        item-title="name"
+                        item-value="name"
+                        clearable
+                        @update:model-value="selectTestData"
+                      />
+                    </v-card-text>
+                  </v-card>
+                </v-menu>
+              </template>
+              <template #default>
+                <div v-if="getCurrentVersion().test_data" class="d-flex align-center">
+                  <v-chip color="primary" class="mr-2">
+                    {{ getCurrentVersion().test_data }}
+                  </v-chip>
+                  <v-btn
+                    icon="mdi-delete"
+                    size="small"
+                    variant="text"
+                    color="error"
+                    @click="removeTestData"
+                    :disabled="configuration._locked"
+                  />
+                </div>
+                <div v-else class="text-medium-emphasis">
+                  No test data file selected
                 </div>
               </template>
             </FileCard>
@@ -247,33 +249,49 @@
               :expanded="true"
               class="mb-4"
             >
+              <template #actions>
+                <v-menu
+                  v-model="showDropIndexMenu"
+                  :close-on-content-click="false"
+                  location="bottom end"
+                >
+                  <template v-slot:activator="{ props }">
+                    <v-btn
+                      icon
+                      size="small"
+                      variant="text"
+                      color="white"
+                      v-bind="props"
+                      :disabled="configuration._locked"
+                      title="Add Drop Index"
+                    >
+                      <v-icon size="18">mdi-plus</v-icon>
+                    </v-btn>
+                  </template>
+                  <v-card min-width="300">
+                    <v-card-text>
+                      <v-text-field
+                        v-model="newDropIndex"
+                        label="Index Name"
+                        placeholder="idx_old_field"
+                        :disabled="configuration._locked"
+                        @keyup.enter="addDropIndex"
+                      />
+                      <div class="d-flex justify-end mt-2">
+                        <v-btn
+                          color="primary"
+                          @click="addDropIndex"
+                          :disabled="!newDropIndex.trim() || configuration._locked"
+                          size="small"
+                        >
+                          Add
+                        </v-btn>
+                      </div>
+                    </v-card-text>
+                  </v-card>
+                </v-menu>
+              </template>
               <template #default>
-                <div v-if="showDropIndexInput" class="d-flex align-center mb-2">
-                  <v-text-field
-                    v-model="newDropIndex"
-                    label="Index Name"
-                    placeholder="idx_old_field"
-                    :disabled="configuration._locked"
-                    @keyup.enter="addDropIndex"
-                    class="mr-2"
-                    style="max-width: 300px;"
-                  />
-                  <v-btn
-                    color="primary"
-                    @click="addDropIndex"
-                    :disabled="!newDropIndex.trim() || configuration._locked"
-                    size="small"
-                  >
-                    Add
-                  </v-btn>
-                  <v-btn
-                    @click="cancelDropIndex"
-                    size="small"
-                    class="ml-2"
-                  >
-                    Cancel
-                  </v-btn>
-                </div>
                 <div class="d-flex flex-wrap">
                   <v-chip
                     v-for="index in getCurrentVersion().drop_indexes"
@@ -287,17 +305,6 @@
                     {{ index.name }}
                   </v-chip>
                 </div>
-                <v-btn
-                  v-if="!showDropIndexInput"
-                  color="primary"
-                  size="small"
-                  @click="showDropIndexInput = true"
-                  :disabled="configuration._locked"
-                  class="mt-2"
-                >
-                  <v-icon start>mdi-plus</v-icon>
-                  Add Drop Index
-                </v-btn>
               </template>
             </FileCard>
 
@@ -313,56 +320,58 @@
               :expanded="true"
               class="mb-4"
             >
-              <template #default>
-                <div v-if="!showMigrationChooser">
-                  <div v-if="getCurrentVersion().migrations.length > 0" class="d-flex flex-wrap">
-                    <v-chip
-                      v-for="migration in getCurrentVersion().migrations"
-                      :key="migration"
-                      color="info"
-                      class="mr-2 mb-2"
-                      closable
-                      @click:close="removeMigration(migration)"
-                      :disabled="configuration._locked"
-                    >
-                      {{ migration }}
-                    </v-chip>
-                  </div>
-                  <div v-else class="text-medium-emphasis">
-                    No migrations defined
-                  </div>
-                  <v-btn
-                    color="primary"
-                    size="small"
-                    @click="showMigrationChooser = true"
-                    :disabled="configuration._locked"
-                    class="mt-2"
-                  >
-                    <v-icon start>mdi-plus</v-icon>
-                    Add Migration
-                  </v-btn>
-                </div>
-                <div v-else>
-                  <v-select
-                    v-model="selectedMigration"
-                    :items="migrationFilesWithNew"
-                    label="Migration File"
-                    :disabled="configuration._locked"
-                    :loading="loadingMigrations"
-                    item-title="name"
-                    item-value="name"
-                    clearable
-                    @update:model-value="selectMigration"
-                  />
-                  <div class="d-flex justify-end mt-2">
+              <template #actions>
+                <v-menu
+                  v-model="showMigrationMenu"
+                  :close-on-content-click="false"
+                  location="bottom end"
+                >
+                  <template v-slot:activator="{ props }">
                     <v-btn
-                      @click="showMigrationChooser = false"
+                      icon
                       size="small"
-                      class="mr-2"
+                      variant="text"
+                      color="white"
+                      v-bind="props"
+                      :disabled="configuration._locked"
+                      title="Add Migration"
                     >
-                      Cancel
+                      <v-icon size="18">mdi-plus</v-icon>
                     </v-btn>
-                  </div>
+                  </template>
+                  <v-card min-width="300">
+                    <v-card-text>
+                      <v-select
+                        v-model="selectedMigration"
+                        :items="migrationFilesWithNew"
+                        label="Migration File"
+                        :disabled="configuration._locked"
+                        :loading="loadingMigrations"
+                        item-title="name"
+                        item-value="name"
+                        clearable
+                        @update:model-value="selectMigration"
+                      />
+                    </v-card-text>
+                  </v-card>
+                </v-menu>
+              </template>
+              <template #default>
+                <div v-if="getCurrentVersion().migrations.length > 0" class="d-flex flex-wrap">
+                  <v-chip
+                    v-for="migration in getCurrentVersion().migrations"
+                    :key="migration"
+                    color="info"
+                    class="mr-2 mb-2"
+                    closable
+                    @click:close="removeMigration(migration)"
+                    :disabled="configuration._locked"
+                  >
+                    {{ migration }}
+                  </v-chip>
+                </div>
+                <div v-else class="text-medium-emphasis">
+                  No migrations defined
                 </div>
               </template>
             </FileCard>
@@ -511,10 +520,10 @@ const newMigrationError = ref<string | null>(null)
 const creatingTestData = ref(false)
 const creatingMigration = ref(false)
 
-// Chooser states
-const showTestDataChooser = ref(false)
-const showDropIndexInput = ref(false)
-const showMigrationChooser = ref(false)
+// Menu states
+const showTestDataMenu = ref(false)
+const showDropIndexMenu = ref(false)
+const showMigrationMenu = ref(false)
 
 // Selected items for choosers
 const selectedTestData = ref<string | null>(null)
@@ -589,10 +598,11 @@ const selectTestData = (name: string) => {
     showNewTestDataDialog.value = true
     newTestDataFileName.value = ''
     newTestDataError.value = null
+    showTestDataMenu.value = false
   } else {
     getCurrentVersion().test_data = name
     selectedTestData.value = name
-    showTestDataChooser.value = false
+    showTestDataMenu.value = false
     autoSave()
   }
 }
@@ -642,7 +652,7 @@ const addDropIndex = () => {
   if (!currentVersion.drop_indexes.find((idx: { name: string }) => idx.name === name)) {
     currentVersion.drop_indexes.push({ name })
     newDropIndex.value = ''
-    showDropIndexInput.value = false
+    showDropIndexMenu.value = false
     autoSave()
   }
 }
@@ -700,12 +710,13 @@ const selectMigration = (name: string) => {
     showNewMigrationDialog.value = true
     newMigrationFileName.value = ''
     newMigrationError.value = null
+    showMigrationMenu.value = false
   } else {
     const currentVersion = getCurrentVersion()
     if (!currentVersion.migrations.includes(name)) {
       currentVersion.migrations.push(name)
       selectedMigration.value = name
-      showMigrationChooser.value = false
+      showMigrationMenu.value = false
       autoSave()
     }
   }
@@ -856,11 +867,7 @@ const downloadBsonSchema = async () => {
   }
 }
 
-// Cancel Drop Index Input
-const cancelDropIndex = () => {
-  showDropIndexInput.value = false
-  newDropIndex.value = ''
-}
+
 
 // Load configuration on mount
 onMounted(() => {
