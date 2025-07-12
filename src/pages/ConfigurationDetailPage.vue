@@ -456,6 +456,7 @@ import { useRoute } from 'vue-router'
 import { apiService } from '@/utils/api'
 import FileCard from '@/components/FileCard.vue'
 import JsonArrayEditor from '@/components/JsonArrayEditor.vue'
+import { useEvents } from '@/composables/useEvents'
 
 interface ConfigurationVersion {
   version: string
@@ -731,8 +732,21 @@ const autoSave = async () => {
   try {
     await apiService.saveConfiguration(configuration.value.file_name, configuration.value)
   } catch (err: any) {
-    error.value = err.message || 'Failed to save configuration'
     console.error('Failed to save configuration:', err)
+    
+    // Handle API errors with event data
+    if (err.type === 'API_ERROR' && err.data) {
+      if (err.data.id && err.data.type && err.data.status) {
+        const { showEvent } = useEvents()
+        showEvent(err.data, 'Save Error', 'Configuration save failed')
+      } else {
+        const { showError } = useEvents()
+        showError(err.message || 'Failed to save configuration', 'Save Error', 'Configuration save failed')
+      }
+    } else {
+      const { showError } = useEvents()
+      showError(err.message || 'Failed to save configuration', 'Save Error', 'Configuration save failed')
+    }
   } finally {
     saving.value = false
   }
@@ -747,8 +761,21 @@ const saveConfiguration = async () => {
     await apiService.saveConfiguration(configuration.value.file_name, configuration.value)
     // Could add success notification here
   } catch (err: any) {
-    error.value = err.message || 'Failed to save configuration'
     console.error('Failed to save configuration:', err)
+    
+    // Handle API errors with event data
+    if (err.type === 'API_ERROR' && err.data) {
+      if (err.data.id && err.data.type && err.data.status) {
+        const { showEvent } = useEvents()
+        showEvent(err.data, 'Save Error', 'Configuration save failed')
+      } else {
+        const { showError } = useEvents()
+        showError(err.message || 'Failed to save configuration', 'Save Error', 'Configuration save failed')
+      }
+    } else {
+      const { showError } = useEvents()
+      showError(err.message || 'Failed to save configuration', 'Save Error', 'Configuration save failed')
+    }
   } finally {
     saving.value = false
   }
@@ -763,8 +790,25 @@ const processConfiguration = async () => {
     await apiService.processConfiguration(configuration.value.file_name)
     // Could add success notification here
   } catch (err: any) {
-    error.value = err.message || 'Failed to process configuration'
     console.error('Failed to process configuration:', err)
+    
+    // Handle API errors with event data
+    if (err.type === 'API_ERROR' && err.data) {
+      // Check if the error data contains an event
+      if (err.data.id && err.data.type && err.data.status) {
+        // This is a ConfiguratorEvent
+        const { showEvent } = useEvents()
+        showEvent(err.data, 'Processing Error', 'Configuration processing failed')
+      } else {
+        // Generic error
+        const { showError } = useEvents()
+        showError(err.message || 'Failed to process configuration', 'Processing Error', 'Configuration processing failed')
+      }
+    } else {
+      // Generic error
+      const { showError } = useEvents()
+      showError(err.message || 'Failed to process configuration', 'Processing Error', 'Configuration processing failed')
+    }
   } finally {
     processing.value = false
   }
