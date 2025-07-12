@@ -186,12 +186,12 @@ npm run down
 - ✅ **Step 4.8**: Implement Admin page with configuration items display
 
 ### Phase 5: Detail Pages & Editing 🚧
-- [ ] **Step 5.1**: Build configuration detail page with version management
-- [ ] **Step 5.2**: Implement configuration editing with auto-save
-- [ ] **Step 5.3**: Add schema download functionality (JSON/BSON as files)
-- [ ] **Step 5.4**: Create processing operations interface
-- [ ] **Step 5.5**: Implement "new collection" endpoint integration
-- [ ] **Step 5.6**: Add JSON editor for indexes property in ConfigurationVersion
+- ✅ **Step 5.1**: Build configuration detail page with version management
+- ✅ **Step 5.2**: Implement configuration editing with auto-save
+- ✅ **Step 5.3**: Add schema download functionality (JSON/BSON as files)
+- ✅ **Step 5.4**: Create processing operations interface
+- ✅ **Step 5.5**: Implement "new collection" endpoint integration
+- ✅ **Step 5.6**: Add JSON editor for indexes property in ConfigurationVersion
 
 ### Phase 6: Dictionary & Type System 🚧
 - [ ] **Step 6.1**: Build dictionary property editor with collapsible nested properties

@@ -31,6 +31,16 @@
           </v-chip>
           <v-btn
             color="primary"
+            @click="saveConfiguration"
+            :loading="saving"
+            :disabled="configuration._locked"
+            class="mr-2"
+          >
+            <v-icon start>mdi-content-save</v-icon>
+            Save
+          </v-btn>
+          <v-btn
+            color="secondary"
             @click="processConfiguration"
             :loading="processing"
           >
@@ -39,6 +49,31 @@
           </v-btn>
         </div>
       </div>
+
+      <!-- Configuration editing -->
+      <v-card class="mb-6">
+        <v-card-title>Configuration Settings</v-card-title>
+        <v-card-text>
+          <v-row>
+            <v-col cols="12" md="6">
+              <v-text-field
+                v-model="configuration.title"
+                label="Title"
+                :disabled="configuration._locked"
+                @update:model-value="autoSave"
+              />
+            </v-col>
+            <v-col cols="12" md="6">
+              <v-text-field
+                v-model="configuration.description"
+                label="Description"
+                :disabled="configuration._locked"
+                @update:model-value="autoSave"
+              />
+            </v-col>
+          </v-row>
+        </v-card-text>
+      </v-card>
 
       <!-- Version tabs -->
       <v-tabs v-model="activeVersion" class="mb-6">
@@ -81,60 +116,77 @@
             <!-- Test Data -->
             <div class="mb-4">
               <h3 class="text-h6 mb-2">Test Data</h3>
-              <v-chip color="primary">{{ getCurrentVersion().test_data }}</v-chip>
+              <v-text-field
+                v-model="getCurrentVersion().test_data"
+                label="Test Data File"
+                :disabled="configuration._locked"
+                @update:model-value="autoSave"
+                placeholder="sample.1.0.0.1.json"
+              />
             </div>
 
-            <!-- Indexes -->
+            <!-- Add Indexes -->
             <div class="mb-4">
               <h3 class="text-h6 mb-2">Add Indexes</h3>
-              <v-expansion-panels>
-                <v-expansion-panel
-                  v-for="(index, indexKey) in getCurrentVersion().add_indexes"
-                  :key="indexKey"
-                >
-                  <v-expansion-panel-title>
-                    {{ index.name }}
-                  </v-expansion-panel-title>
-                  <v-expansion-panel-text>
-                    <v-card variant="outlined" class="pa-3">
-                      <div class="mb-2">
-                        <strong>Keys:</strong>
-                        <pre class="mt-1">{{ JSON.stringify(index.key, null, 2) }}</pre>
-                      </div>
-                      <div v-if="index.options">
-                        <strong>Options:</strong>
-                        <pre class="mt-1">{{ JSON.stringify(index.options, null, 2) }}</pre>
-                      </div>
-                    </v-card>
-                  </v-expansion-panel-text>
-                </v-expansion-panel>
-              </v-expansion-panels>
+              <v-textarea
+                v-model="indexesJson"
+                label="Indexes JSON"
+                rows="8"
+                auto-grow
+                :disabled="configuration._locked"
+                @update:model-value="updateIndexes"
+                :error="!!indexesError"
+                :error-messages="indexesError || undefined"
+                placeholder='[
+  {
+    "name": "idx_field_name",
+    "key": {
+      "field_name": 1
+    },
+    "options": {
+      "unique": true
+    }
+  }
+]'
+              />
             </div>
 
             <!-- Drop Indexes -->
-            <div v-if="getCurrentVersion().drop_indexes.length > 0" class="mb-4">
+            <div class="mb-4">
               <h3 class="text-h6 mb-2">Drop Indexes</h3>
-              <v-chip
-                v-for="index in getCurrentVersion().drop_indexes"
-                :key="index.name"
-                color="error"
-                class="mr-2 mb-2"
-              >
-                {{ index.name }}
-              </v-chip>
+              <v-textarea
+                v-model="dropIndexesJson"
+                label="Drop Indexes JSON"
+                rows="4"
+                auto-grow
+                :disabled="configuration._locked"
+                @update:model-value="updateDropIndexes"
+                :error="!!dropIndexesError"
+                :error-messages="dropIndexesError || undefined"
+                placeholder='[
+  {
+    "name": "idx_old_field"
+  }
+]'
+              />
             </div>
 
             <!-- Migrations -->
-            <div v-if="getCurrentVersion().migrations.length > 0" class="mb-4">
+            <div class="mb-4">
               <h3 class="text-h6 mb-2">Migrations</h3>
-              <v-chip
-                v-for="migration in getCurrentVersion().migrations"
-                :key="migration"
-                color="info"
-                class="mr-2 mb-2"
-              >
-                {{ migration }}
-              </v-chip>
+              <v-textarea
+                v-model="migrationsJson"
+                label="Migrations JSON"
+                rows="4"
+                auto-grow
+                :disabled="configuration._locked"
+                @update:model-value="updateMigrations"
+                :error="!!migrationsError"
+                :error-messages="migrationsError || undefined"
+                placeholder='[
+  "migration_file.json"
+]'
+              />
             </div>
           </v-card-text>
         </v-card>
@@ -144,7 +196,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { apiService } from '@/utils/api'
 
@@ -172,10 +224,19 @@ interface Configuration {
 
 const route = useRoute()
 const loading = ref(false)
+const saving = ref(false)
 const error = ref<string | null>(null)
 const configuration = ref<Configuration | null>(null)
 const activeVersion = ref<string>('')
 const processing = ref(false)
+
+// JSON editor states
+const indexesJson = ref('')
+const dropIndexesJson = ref('')
+const migrationsJson = ref('')
+const indexesError = ref<string | null>(null)
+const dropIndexesError = ref<string | null>(null)
+const migrationsError = ref<string | null>(null)
 
 // Load configuration data
 const loadConfiguration = async () => {
@@ -207,6 +268,97 @@ const getCurrentVersion = (): ConfigurationVersion => {
     add_indexes: [],
     drop_indexes: [],
     migrations: []
+  }
+}
+
+// Update JSON editors when version changes
+watch(activeVersion, () => {
+  const version = getCurrentVersion()
+  indexesJson.value = JSON.stringify(version.add_indexes, null, 2)
+  dropIndexesJson.value = JSON.stringify(version.drop_indexes, null, 2)
+  migrationsJson.value = JSON.stringify(version.migrations, null, 2)
+  // Clear errors
+  indexesError.value = null
+  dropIndexesError.value = null
+  migrationsError.value = null
+})
+
+// Update indexes from JSON
+const updateIndexes = () => {
+  try {
+    const parsed = JSON.parse(indexesJson.value)
+    if (!Array.isArray(parsed)) {
+      indexesError.value = 'Must be an array'
+      return
+    }
+    getCurrentVersion().add_indexes = parsed
+    indexesError.value = null
+    autoSave()
+  } catch (err: any) {
+    indexesError.value = 'Invalid JSON format'
+  }
+}
+
+// Update drop indexes from JSON
+const updateDropIndexes = () => {
+  try {
+    const parsed = JSON.parse(dropIndexesJson.value)
+    if (!Array.isArray(parsed)) {
+      dropIndexesError.value = 'Must be an array'
+      return
+    }
+    getCurrentVersion().drop_indexes = parsed
+    dropIndexesError.value = null
+    autoSave()
+  } catch (err: any) {
+    dropIndexesError.value = 'Invalid JSON format'
+  }
+}
+
+// Update migrations from JSON
+const updateMigrations = () => {
+  try {
+    const parsed = JSON.parse(migrationsJson.value)
+    if (!Array.isArray(parsed)) {
+      migrationsError.value = 'Must be an array'
+      return
+    }
+    getCurrentVersion().migrations = parsed
+    migrationsError.value = null
+    autoSave()
+  } catch (err: any) {
+    migrationsError.value = 'Invalid JSON format'
+  }
+}
+
+// Auto-save functionality
+const autoSave = async () => {
+  if (!configuration.value || configuration.value._locked) return
+  
+  saving.value = true
+  try {
+    await apiService.saveConfiguration(configuration.value.file_name, configuration.value)
+  } catch (err: any) {
+    error.value = err.message || 'Failed to save configuration'
+    console.error('Failed to save configuration:', err)
+  } finally {
+    saving.value = false
+  }
+}
+
+// Manual save
+const saveConfiguration = async () => {
+  if (!configuration.value) return
+  
+  saving.value = true
+  try {
+    await apiService.saveConfiguration(configuration.value.file_name, configuration.value)
+    // Could add success notification here
+  } catch (err: any) {
+    error.value = err.message || 'Failed to save configuration'
+    console.error('Failed to save configuration:', err)
+  } finally {
+    saving.value = false
   }
 }
 
