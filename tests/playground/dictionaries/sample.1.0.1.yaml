@@ -14,7 +14,7 @@ properties:
     description: The current status of the document
     type: enum_array
     required: true
-    enums: default_status
+    enums: media_type
 additionalProperties: false
 file_name: sample.1.0.1.yaml
 _locked: false

@@ -15,174 +15,189 @@
 
     <!-- Enumerator detail -->
     <div v-else-if="enumerator">
-      <!-- Header -->
-      <div class="d-flex justify-space-between align-center mb-6">
-        <div>
-          <h1 class="text-h4">{{ enumerator.name }}</h1>
-          <p class="text-body-2 text-medium-emphasis">Version {{ enumerator.version }}</p>
-        </div>
-        <div class="d-flex align-center">
-          <v-chip
-            v-if="enumerator._locked"
-            color="warning"
-            class="mr-2"
-          >
-            Locked
-          </v-chip>
-          <v-btn
-            color="primary"
-            @click="saveEnumerator"
-            :loading="saving"
-            :disabled="enumerator._locked"
-          >
-            <v-icon start>mdi-content-save</v-icon>
-            Save
-          </v-btn>
-        </div>
-      </div>
-
-      <!-- Enumerator settings -->
-      <v-card class="mb-6">
-        <v-card-title>Enumerator Settings</v-card-title>
-        <v-card-text>
-          <v-row>
-            <v-col cols="12" md="6">
-              <v-text-field
-                v-model="enumerator.name"
-                label="Name"
-                :disabled="enumerator._locked"
-                @update:model-value="autoSave"
-              />
-            </v-col>
-            <v-col cols="12" md="6">
-              <v-text-field
-                v-model="enumerator.status"
-                label="Status"
-                :disabled="enumerator._locked"
-                @update:model-value="autoSave"
-              />
-            </v-col>
-            <v-col cols="12" md="6">
-              <v-text-field
-                v-model="enumerator.version"
-                label="Version"
-                type="number"
-                :disabled="enumerator._locked"
-                @update:model-value="autoSave"
-              />
-            </v-col>
-          </v-row>
-        </v-card-text>
-      </v-card>
-
-      <!-- Enumerations -->
-      <v-card>
-        <v-card-title class="d-flex justify-space-between align-center">
-          <span>Enumerations</span>
-          <v-btn
-            color="primary"
-            variant="outlined"
-            @click="addEnumeration"
-            :disabled="enumerator._locked"
-          >
-            <v-icon start>mdi-plus</v-icon>
-            Add Enumeration
-          </v-btn>
-        </v-card-title>
-        <v-card-text>
-          <div v-if="!enumerator.enumerators || Object.keys(enumerator.enumerators).length === 0" class="text-center pa-8">
-            <v-icon size="64" color="grey">mdi-format-list-bulleted</v-icon>
-            <h3 class="text-h6 mt-4">No Enumerations</h3>
-            <p class="text-body-2 text-medium-emphasis">Add enumerations to define key-value pairs.</p>
+      <v-card class="mb-4">
+        <v-card-title class="d-flex justify-space-between align-center pa-4" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+          <div class="d-flex align-center">
+            <h2 class="text-h5 mb-0">{{ (route.params.fileName as string)?.replace('.yaml', '') || 'Enumerator' }}</h2>
           </div>
-          
-          <div v-else>
-            <v-expansion-panels>
-              <v-expansion-panel
-                v-for="(enumeration, enumName) in enumerator.enumerators"
-                :key="enumName"
+          <div class="d-flex align-center">
+            <v-btn
+              v-if="enumerator._locked"
+              color="white"
+              variant="text"
+              @click="showUnlockDialog = true"
+            >
+              <v-icon start>mdi-lock</v-icon>
+              Locked
+            </v-btn>
+            <v-btn
+              v-else
+              color="white"
+              variant="text"
+              @click="lockEnumerator"
+            >
+              <v-icon start>mdi-lock</v-icon>
+              Lock
+            </v-btn>
+          </div>
+        </v-card-title>
+        
+        <v-card-text class="pa-4">
+          <!-- Version Info -->
+          <div class="mb-4">
+            <div class="d-flex align-center mb-3">
+              <div class="text-h6 font-weight-bold mr-3">Version:</div>
+              <div class="text-body-1">{{ enumerator.version }}</div>
+            </div>
+          </div>
+
+          <!-- Enumerations -->
+          <div class="mb-4">
+            <div class="d-flex align-center mb-3">
+              <div class="text-h6 font-weight-bold mr-3">Enumerations</div>
+              <v-btn
+                color="primary"
+                variant="outlined"
+                size="small"
+                @click="addEnumeration"
+                :disabled="enumerator._locked"
               >
-                <v-expansion-panel-title>
-                  <div class="d-flex justify-space-between align-center w-100">
-                    <span>{{ enumName }}</span>
-                    <v-btn
-                      icon
-                      size="small"
-                      variant="text"
-                      color="error"
-                      @click.stop="deleteEnumeration(enumName)"
-                      :disabled="enumerator._locked"
-                    >
-                      <v-icon size="18">mdi-delete</v-icon>
-                    </v-btn>
-                  </div>
-                </v-expansion-panel-title>
-                <v-expansion-panel-text>
-                  <div class="mb-4">
-                    <v-btn
-                      color="primary"
-                      variant="outlined"
-                      size="small"
-                      @click="addEnumValue(enumName)"
-                      :disabled="enumerator._locked"
-                    >
-                      <v-icon start>mdi-plus</v-icon>
-                      Add Value
-                    </v-btn>
-                  </div>
+                <v-icon start size="small">mdi-plus</v-icon>
+                Add
+              </v-btn>
+            </div>
+            
+            <div v-if="!enumerator.enumerators || Object.keys(enumerator.enumerators).length === 0" class="text-center pa-4">
+              <v-icon size="32" color="grey">mdi-format-list-bulleted</v-icon>
+              <div class="text-body-2 text-medium-emphasis mt-2">No enumerations defined</div>
+            </div>
+            
+            <div v-else>
+              <v-expansion-panels v-model="expandedPanels" multiple>
+                <v-expansion-panel
+                  v-for="(enumeration, enumName) in enumerator.enumerators"
+                  :key="enumName"
+                  class="mb-2"
+                >
+                  <v-expansion-panel-title>
+                    <div class="d-flex justify-space-between align-center w-100">
+                      <div class="d-flex align-center">
+                        <v-text-field
+                          v-model="editableEnumNames[enumName]"
+                          placeholder="Name me"
+                          density="compact"
+                          variant="outlined"
+                          hide-details
+                          :disabled="enumerator._locked"
+                          @blur="updateEnumName(enumName, editableEnumNames[enumName])"
+                          class="mr-2"
+                          style="min-width: 300px; max-width: 500px;"
+                        />
+                        <span class="text-caption text-medium-emphasis">
+                          ({{ Object.keys(enumeration).length }} values)
+                        </span>
+                      </div>
+                      <v-btn
+                        icon
+                        size="x-small"
+                        variant="text"
+                        color="error"
+                        @click.stop="deleteEnumeration(enumName)"
+                        :disabled="enumerator._locked"
+                        class="pa-0 ma-0"
+                      >
+                        <v-icon size="16">mdi-delete</v-icon>
+                      </v-btn>
+                    </div>
+                  </v-expansion-panel-title>
                   
-                  <v-row>
-                    <v-col
-                                             v-for="(_, key) in enumeration"
-                      :key="key"
-                      cols="12"
-                      md="6"
-                    >
-                      <v-card variant="outlined" class="pa-3">
-                        <div class="d-flex justify-space-between align-center">
-                          <div class="flex-grow-1 mr-3">
-                            <v-text-field
-                              v-model="enumeration[key]"
-                              :label="`Value for '${key}'`"
-                              density="compact"
-                              :disabled="enumerator._locked"
-                              @update:model-value="autoSave"
-                            />
-                          </div>
-                          <v-btn
-                            icon
-                            size="small"
-                            variant="text"
-                            color="error"
-                            @click="deleteEnumValue(enumName, key)"
-                            :disabled="enumerator._locked"
-                          >
-                            <v-icon size="18">mdi-delete</v-icon>
-                          </v-btn>
-                        </div>
-                      </v-card>
-                    </v-col>
-                  </v-row>
-                </v-expansion-panel-text>
-              </v-expansion-panel>
-            </v-expansion-panels>
+                  <v-expansion-panel-text>
+                    <div class="ml-4">
+                      <div
+                        v-for="(value, key) in enumeration"
+                        :key="key"
+                        class="d-flex align-center mb-2"
+                      >
+                        <v-text-field
+                          v-model="editableKeys[`${enumName}_${key}`]"
+                          placeholder="Name me"
+                          density="compact"
+                          variant="outlined"
+                          hide-details
+                          :disabled="enumerator._locked"
+                          @blur="updateKey(enumName, key, editableKeys[`${enumName}_${key}`])"
+                          class="mr-2"
+                          style="width: 150px;"
+                        />
+                        <v-text-field
+                          v-model="enumeration[key]"
+                          placeholder="Value"
+                          density="compact"
+                          variant="outlined"
+                          hide-details
+                          :disabled="enumerator._locked"
+                          @update:model-value="autoSave"
+                          class="flex-grow-1 mr-2"
+                          style="max-width: 300px;"
+                        />
+                        <v-btn
+                          icon
+                          size="x-small"
+                          variant="text"
+                          color="error"
+                          @click="deleteEnumValue(enumName, key)"
+                          :disabled="enumerator._locked"
+                          class="pa-0 ma-0"
+                        >
+                          <v-icon size="16">mdi-delete</v-icon>
+                        </v-btn>
+                      </div>
+                      
+                      <v-btn
+                        color="primary"
+                        variant="outlined"
+                        size="x-small"
+                        @click="addEnumValue(enumName)"
+                        :disabled="enumerator._locked"
+                        class="mt-2"
+                      >
+                        <v-icon start size="small">mdi-plus</v-icon>
+                        Add Value
+                      </v-btn>
+                    </div>
+                  </v-expansion-panel-text>
+                </v-expansion-panel>
+              </v-expansion-panels>
+            </div>
           </div>
         </v-card-text>
       </v-card>
     </div>
+    
+    <!-- Unlock Dialog -->
+    <v-dialog v-model="showUnlockDialog" max-width="400">
+      <v-card>
+        <v-card-title>Unlock Enumerator?</v-card-title>
+        <v-card-text>
+          Unlocking allows editing this enumerator. Are you sure?
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer />
+          <v-btn @click="showUnlockDialog = false">Cancel</v-btn>
+          <v-btn color="primary" @click="unlockEnumerator">Unlock</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { apiService } from '@/utils/api'
 
 interface Enumerator {
-  name: string
-  status: string
   version: number
-  file_name: string
   enumerators: Record<string, Record<string, string>>
   _locked: boolean
 }
@@ -192,6 +207,10 @@ const loading = ref(false)
 const saving = ref(false)
 const error = ref<string | null>(null)
 const enumerator = ref<Enumerator | null>(null)
+const showUnlockDialog = ref(false)
+const editableEnumNames = ref<Record<string, string>>({})
+const editableKeys = ref<Record<string, string>>({})
+const expandedPanels = ref<number[]>([])
 
 // Load enumerator data
 const loadEnumerator = async () => {
@@ -210,13 +229,28 @@ const loadEnumerator = async () => {
   }
 }
 
+// Get next version number for new enumerators
+const getNextVersion = async (): Promise<number> => {
+  try {
+    const enumerators = await apiService.getEnumerators()
+    if (enumerators.length === 0) return 0
+    
+    const maxVersion = Math.max(...enumerators.map((e: any) => e.version || 0))
+    return maxVersion + 1
+  } catch (err) {
+    console.error('Failed to get next version:', err)
+    return 0
+  }
+}
+
 // Auto-save functionality
 const autoSave = async () => {
   if (!enumerator.value || enumerator.value._locked) return
   
   saving.value = true
   try {
-    await apiService.saveEnumerator(enumerator.value.file_name, enumerator.value)
+    const fileName = route.params.fileName as string
+    await apiService.saveEnumerator(fileName, enumerator.value)
   } catch (err: any) {
     error.value = err.message || 'Failed to save enumerator'
     console.error('Failed to save enumerator:', err)
@@ -231,7 +265,8 @@ const saveEnumerator = async () => {
   
   saving.value = true
   try {
-    await apiService.saveEnumerator(enumerator.value.file_name, enumerator.value)
+    const fileName = route.params.fileName as string
+    await apiService.saveEnumerator(fileName, enumerator.value)
     // Could add success notification here
   } catch (err: any) {
     error.value = err.message || 'Failed to save enumerator'
@@ -245,8 +280,16 @@ const saveEnumerator = async () => {
 const addEnumeration = () => {
   if (!enumerator.value || enumerator.value._locked) return
   
-  const enumName = `new_enum_${Object.keys(enumerator.value.enumerators).length + 1}`
+  // Generate unique name
+  let counter = 1
+  let enumName = `name_me_${counter}`
+  while (enumerator.value.enumerators[enumName]) {
+    counter++
+    enumName = `name_me_${counter}`
+  }
+  
   enumerator.value.enumerators[enumName] = {}
+  editableEnumNames.value[enumName] = enumName
   
   autoSave()
 }
@@ -263,11 +306,21 @@ const deleteEnumeration = (enumName: string) => {
 const addEnumValue = (enumName: string) => {
   if (!enumerator.value || enumerator.value._locked) return
   
-  const key = `new_key_${Object.keys(enumerator.value.enumerators[enumName]).length + 1}`
+  // Generate unique key
+  let counter = 1
+  let key = `name_me_${counter}`
+  while (enumerator.value.enumerators[enumName][key]) {
+    counter++
+    key = `name_me_${counter}`
+  }
+  
   enumerator.value.enumerators[enumName][key] = 'new_value'
+  editableKeys.value[`${enumName}_${key}`] = key
   
   autoSave()
 }
+
+
 
 // Delete enum value
 const deleteEnumValue = (enumName: string, key: string) => {
@@ -277,8 +330,87 @@ const deleteEnumValue = (enumName: string, key: string) => {
   autoSave()
 }
 
+// Lock/unlock functionality
+const lockEnumerator = () => {
+  if (!enumerator.value) return
+  enumerator.value._locked = true
+  autoSave()
+}
+
+const unlockEnumerator = () => {
+  if (!enumerator.value) return
+  enumerator.value._locked = false
+  showUnlockDialog.value = false
+  autoSave()
+}
+
+// Editable name/key management
+const updateEnumName = (oldName: string, newName: string) => {
+  if (!enumerator.value || enumerator.value._locked) return
+  
+  // Validate the new name
+  if (!newName || newName.trim() === '') {
+    // Reset to original name if empty
+    editableEnumNames.value[oldName] = oldName
+    return
+  }
+  
+  if (newName && newName !== oldName) {
+    // Create new enumeration with new name
+    enumerator.value.enumerators[newName] = enumerator.value.enumerators[oldName]
+    // Delete old enumeration
+    delete enumerator.value.enumerators[oldName]
+    // Update editable names
+    editableEnumNames.value[newName] = newName
+    delete editableEnumNames.value[oldName]
+    autoSave()
+  }
+}
+
+const updateKey = (enumName: string, oldKey: string, newKey: string) => {
+  if (!enumerator.value || enumerator.value._locked) return
+  
+  // Validate the new key
+  if (!newKey || newKey.trim() === '') {
+    // Reset to original key if empty
+    editableKeys.value[`${enumName}_${oldKey}`] = oldKey
+    return
+  }
+  
+  if (newKey && newKey !== oldKey) {
+    // Create new key-value pair
+    enumerator.value.enumerators[enumName][newKey] = enumerator.value.enumerators[enumName][oldKey]
+    // Delete old key
+    delete enumerator.value.enumerators[enumName][oldKey]
+    // Update editable keys
+    editableKeys.value[`${enumName}_${newKey}`] = newKey
+    delete editableKeys.value[`${enumName}_${oldKey}`]
+    autoSave()
+  }
+}
+
+// Initialize editable names and keys when data loads
+const initializeEditableData = () => {
+  if (!enumerator.value) return
+  
+  editableEnumNames.value = {}
+  editableKeys.value = {}
+  
+  Object.keys(enumerator.value.enumerators).forEach(enumName => {
+    editableEnumNames.value[enumName] = enumName
+    Object.keys(enumerator.value!.enumerators[enumName]).forEach(key => {
+      editableKeys.value[`${enumName}_${key}`] = key
+    })
+  })
+}
+
 // Load enumerator on mount
 onMounted(() => {
   loadEnumerator()
+})
+
+// Watch for enumerator changes to initialize editable data
+watch(enumerator, () => {
+  initializeEditableData()
 })
 </script> 
