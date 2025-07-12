@@ -13,8 +13,8 @@
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
     "format": "prettier --write src/",
     "container": "docker build -t ghcr.io/agile-learning-institute/mongodb_configurator_spa:latest .",
-    "api": "docker-compose --profile configurator-api up -d",
-    "service": "docker-compose --profile configurator up -d",
+    "api": "npm run down && docker-compose --profile configurator-api up -d",
+    "service": "npm run down && docker-compose --profile configurator up -d",
     "down": "docker-compose down configurator_spa configurator_api mongodb"
   },
   "repository": {
