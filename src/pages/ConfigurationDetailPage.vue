@@ -153,21 +153,22 @@
                       <v-icon size="18">mdi-plus</v-icon>
                     </v-btn>
                   </template>
-                  <v-card min-width="300">
-                    <v-card-text>
-                      <v-select
-                        v-model="selectedTestData"
-                        :items="testDataFilesWithNew"
-                        label="Test Data File"
-                        :disabled="configuration._locked"
-                        :loading="loadingTestData"
-                        item-title="name"
-                        item-value="name"
-                        clearable
-                        @update:model-value="selectTestData"
-                      />
-                    </v-card-text>
-                  </v-card>
+                  <v-list min-width="300">
+                    <v-list-item
+                      v-for="file in testDataFiles"
+                      :key="file.name"
+                      @click="selectTestData(file.name)"
+                    >
+                      <v-list-item-title>{{ file.name }}</v-list-item-title>
+                    </v-list-item>
+                    <v-divider />
+                    <v-list-item @click="showNewTestDataDialog = true; showTestDataMenu = false">
+                      <v-list-item-title class="text-primary">
+                        <v-icon start size="small">mdi-plus</v-icon>
+                        New Test Data File
+                      </v-list-item-title>
+                    </v-list-item>
+                  </v-list>
                 </v-menu>
                 <v-btn
                   v-if="getCurrentVersion().test_data"
@@ -348,21 +349,22 @@
                       <v-icon size="18">mdi-plus</v-icon>
                     </v-btn>
                   </template>
-                  <v-card min-width="300">
-                    <v-card-text>
-                      <v-select
-                        v-model="selectedMigration"
-                        :items="migrationFilesWithNew"
-                        label="Migration File"
-                        :disabled="configuration._locked"
-                        :loading="loadingMigrations"
-                        item-title="name"
-                        item-value="name"
-                        clearable
-                        @update:model-value="selectMigration"
-                      />
-                    </v-card-text>
-                  </v-card>
+                  <v-list min-width="300">
+                    <v-list-item
+                      v-for="file in migrationFiles"
+                      :key="file.name"
+                      @click="selectMigration(file.name)"
+                    >
+                      <v-list-item-title>{{ file.name }}</v-list-item-title>
+                    </v-list-item>
+                    <v-divider />
+                    <v-list-item @click="showNewMigrationDialog = true; showMigrationMenu = false">
+                      <v-list-item-title class="text-primary">
+                        <v-icon start size="small">mdi-plus</v-icon>
+                        New Migration File
+                      </v-list-item-title>
+                    </v-list-item>
+                  </v-list>
                 </v-menu>
               </template>
               <template #default>
@@ -599,22 +601,11 @@ const loadTestDataFiles = async () => {
   }
 }
 
-const testDataFilesWithNew = computed(() => {
-  return [...testDataFiles.value, { name: 'New Test Data File', created_at: '', updated_at: '', size: 0 }]
-})
-
 const selectTestData = (name: string) => {
-  if (name === 'New Test Data File') {
-    showNewTestDataDialog.value = true
-    newTestDataFileName.value = ''
-    newTestDataError.value = null
-    showTestDataMenu.value = false
-  } else {
-    getCurrentVersion().test_data = name
-    selectedTestData.value = name
-    showTestDataMenu.value = false
-    autoSave()
-  }
+  getCurrentVersion().test_data = name
+  selectedTestData.value = name
+  showTestDataMenu.value = false
+  autoSave()
 }
 
 const removeTestData = () => {
@@ -711,24 +702,13 @@ const loadMigrationFiles = async () => {
   }
 }
 
-const migrationFilesWithNew = computed(() => {
-  return [...migrationFiles.value, { name: 'New Migration File', created_at: '', updated_at: '', size: 0 }]
-})
-
 const selectMigration = (name: string) => {
-  if (name === 'New Migration File') {
-    showNewMigrationDialog.value = true
-    newMigrationFileName.value = ''
-    newMigrationError.value = null
+  const currentVersion = getCurrentVersion()
+  if (!currentVersion.migrations.includes(name)) {
+    currentVersion.migrations.push(name)
+    selectedMigration.value = name
     showMigrationMenu.value = false
-  } else {
-    const currentVersion = getCurrentVersion()
-    if (!currentVersion.migrations.includes(name)) {
-      currentVersion.migrations.push(name)
-      selectedMigration.value = name
-      showMigrationMenu.value = false
-      autoSave()
-    }
+    autoSave()
   }
 }
 
