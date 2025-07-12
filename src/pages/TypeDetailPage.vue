@@ -141,7 +141,7 @@
       <!-- Object Editor -->
       <v-card v-if="isObject()" class="mb-6">
         <v-card-title class="d-flex justify-space-between align-center">
-          <span>Object Properties</span>
+          <span>Properties</span>
           <v-btn
             color="primary"
             variant="outlined"

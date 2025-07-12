@@ -101,7 +101,7 @@
       <!-- Object Properties Editor -->
       <div v-if="isObjectType()">
         <div class="d-flex justify-space-between align-center mb-3">
-          <div class="text-subtitle-2">Object Properties</div>
+          <div class="text-subtitle-2">Properties</div>
           <v-btn
             color="primary"
             variant="outlined"
