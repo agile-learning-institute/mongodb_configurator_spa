@@ -236,6 +236,13 @@ npm run down
 - ✅ Component architecture designed
 - ✅ Technical specifications documented
 
-### Phase 2: Teardown & Reset 🔄
-- 🔄 Ready to begin teardown process
+### Phase 2: Teardown & Reset ✅
+- ✅ **Step 2.1**: Tear down current repo to hello world with no backing services
+- ✅ **Step 2.2**: Docker-compose already correctly configured with playground mount
+- ✅ **Step 2.3**: Verify `npm run dev` and `npm run container` work successfully
+- ✅ **Step 2.4**: Package.json scripts updated with api, service, and down commands
+- ✅ **Step 2.5**: API proxy already configured in vite.config.ts for /api/* requests
+
+### Phase 3: Core Infrastructure 🔄
+- 🔄 Ready to begin core infrastructure development
 
