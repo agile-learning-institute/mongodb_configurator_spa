@@ -15,64 +15,67 @@
 
     <!-- Type detail -->
     <div v-else-if="type">
-      <!-- Header -->
-      <div class="d-flex justify-space-between align-center mb-6">
-        <div>
-          <h1 class="text-h4">{{ type.description }}</h1>
-          <p class="text-body-2 text-medium-emphasis">{{ type.file_name }}</p>
+      <!-- Header and Settings for non-object types -->
+      <div v-if="!isObject()">
+        <!-- Header -->
+        <div class="d-flex justify-space-between align-center mb-6">
+          <div>
+            <h1 class="text-h4">{{ type.description }}</h1>
+            <p class="text-body-2 text-medium-emphasis">{{ type.file_name }}</p>
+          </div>
+          <div class="d-flex align-center">
+            <v-chip
+              v-if="type._locked"
+              color="warning"
+              class="mr-2"
+            >
+              Locked
+            </v-chip>
+            <v-btn
+              color="primary"
+              @click="saveType"
+              :loading="saving"
+              :disabled="type._locked"
+            >
+              <v-icon start>mdi-content-save</v-icon>
+              Save
+            </v-btn>
+          </div>
         </div>
-        <div class="d-flex align-center">
-          <v-chip
-            v-if="type._locked"
-            color="warning"
-            class="mr-2"
-          >
-            Locked
-          </v-chip>
-          <v-btn
-            color="primary"
-            @click="saveType"
-            :loading="saving"
-            :disabled="type._locked"
-          >
-            <v-icon start>mdi-content-save</v-icon>
-            Save
-          </v-btn>
+
+        <!-- Type Settings -->
+        <v-card class="mb-6">
+          <v-card-title>Type Settings</v-card-title>
+          <v-card-text>
+            <v-row>
+              <v-col cols="12" md="6">
+                <v-text-field
+                  v-model="type.description"
+                  label="Description"
+                  :disabled="type._locked"
+                  @update:model-value="autoSave"
+                />
+              </v-col>
+              <v-col cols="12" md="6">
+                <v-switch
+                  v-model="type.required"
+                  label="Required"
+                  :disabled="type._locked"
+                  @update:model-value="autoSave"
+                />
+              </v-col>
+            </v-row>
+          </v-card-text>
+        </v-card>
+
+        <!-- Type Category Detection -->
+        <div class="mb-6">
+          <v-alert
+            :type="getTypeCategory() === 'unknown' ? 'warning' : 'info'"
+            :title="getTypeCategoryTitle()"
+            :text="getTypeCategoryDescription()"
+          />
         </div>
-      </div>
-
-      <!-- Type Settings -->
-      <v-card class="mb-6">
-        <v-card-title>Type Settings</v-card-title>
-        <v-card-text>
-          <v-row>
-            <v-col cols="12" md="6">
-              <v-text-field
-                v-model="type.description"
-                label="Description"
-                :disabled="type._locked"
-                @update:model-value="autoSave"
-              />
-            </v-col>
-            <v-col cols="12" md="6">
-              <v-switch
-                v-model="type.required"
-                label="Required"
-                :disabled="type._locked"
-                @update:model-value="autoSave"
-              />
-            </v-col>
-          </v-row>
-        </v-card-text>
-      </v-card>
-
-      <!-- Type Category Detection -->
-      <div class="mb-6">
-        <v-alert
-          :type="getTypeCategory() === 'unknown' ? 'warning' : 'info'"
-          :title="getTypeCategoryTitle()"
-          :text="getTypeCategoryDescription()"
-        />
       </div>
 
       <!-- Simple Primitive Editor -->
