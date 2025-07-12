@@ -45,10 +45,12 @@
 
       <!-- Always use containment layout -->
       <TypeProperty
-        property-name="{{ type.file_name.replace('.yaml', '') }}"
+        property-name="root"
         :property="{ ...type, type: type.type || '' }"
         :disabled="type._locked"
         :exclude-type="type.file_name"
+        :top-level="true"
+        :top-level-name="type.file_name.replace('.yaml', '')"
         @change="handleTopLevelPropertyChange"
       />
     </div>

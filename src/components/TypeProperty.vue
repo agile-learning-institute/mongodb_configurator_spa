@@ -4,7 +4,9 @@
     <div class="d-flex align-center pa-3 border rounded mb-2">
       <!-- Property Name (filename without .yaml) -->
       <div class="property-name mr-4">
-        <span class="text-subtitle-2 font-weight-medium">{{ getPropertyName() }}</span>
+        <span v-if="topLevel" class="text-h6 font-weight-bold">{{ topLevelName }}</span>
+        <span v-else-if="propertyName === 'items'" class="text-subtitle-2 font-weight-bold">Items</span>
+        <span v-else class="text-subtitle-2 font-weight-medium">{{ getPropertyName() }}</span>
       </div>
       
       <!-- Description -->
@@ -32,8 +34,8 @@
         />
       </div>
       
-      <!-- Required Checkbox -->
-      <div class="property-required mr-2">
+      <!-- Required Checkbox + Icon -->
+      <div class="property-required mr-2 d-flex align-center">
         <v-checkbox
           v-model="property.required"
           label="Required"
@@ -42,10 +44,25 @@
           :disabled="disabled"
           @update:model-value="handleChange"
         />
+        <v-tooltip location="top">
+          <template v-slot:activator="{ props }">
+            <v-btn
+              icon
+              size="small"
+              variant="text"
+              :color="property.required ? 'primary' : 'grey'"
+              :disabled="disabled"
+              v-bind="props"
+            >
+              <v-icon size="18">mdi-star</v-icon>
+            </v-btn>
+          </template>
+          <span>Required</span>
+        </v-tooltip>
       </div>
       
-      <!-- Additional Properties (for objects) -->
-      <div v-if="isObjectType()" class="property-additional mr-2">
+      <!-- Additional Properties (for objects) + Icon -->
+      <div v-if="isObjectType()" class="property-additional mr-2 d-flex align-center">
         <v-checkbox
           v-model="property.additionalProperties"
           label="Additional"
@@ -54,6 +71,21 @@
           :disabled="disabled"
           @update:model-value="handleChange"
         />
+        <v-tooltip location="top">
+          <template v-slot:activator="{ props }">
+            <v-btn
+              icon
+              size="small"
+              variant="text"
+              :color="property.additionalProperties ? 'primary' : 'grey'"
+              :disabled="disabled"
+              v-bind="props"
+            >
+              <v-icon size="18">mdi-plus-circle</v-icon>
+            </v-btn>
+          </template>
+          <span>Additional Properties</span>
+        </v-tooltip>
       </div>
       
       <!-- Expand/Collapse Button -->
@@ -159,9 +191,11 @@ interface Props {
   excludeType?: string
 }
 
-const props = withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<Props & { topLevel?: boolean; topLevelName?: string }>(), {
   disabled: false,
-  excludeType: ''
+  excludeType: '',
+  topLevel: false,
+  topLevelName: ''
 })
 
 const emit = defineEmits<{
