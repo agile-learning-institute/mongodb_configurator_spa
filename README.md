@@ -95,7 +95,8 @@ npm run down
 
 ### Core Components
 - **AppLayout**: Main application layout with collapsible navigation
-- **FileCard**: Generic file information display
+- **FileCard**: Generic file information display with colored headers
+- **FileList**: File listing component with full-width layout
 - **ActionButton**: Reusable action button with confirmation
 - **ConfirmationDialog**: GitHub-style danger zone confirmation
 - **EventDialog**: Event-based error/processing display
@@ -174,17 +175,17 @@ npm run down
 - [x] **Step 3.5**: Create base card components and action system
 - [x] **Step 3.6**: Set up event-based error handling with popup dialogs
 
-### Phase 4: File Management System 🚧
-- [ ] **Step 4.1**: Implement file listing and management for all resource types
-- [ ] **Step 4.2**: Create file CRUD operations with auto-save on field changes
-- [ ] **Step 4.3**: Implement lock/unlock functionality
-- [ ] **Step 4.4**: Add GitHub-style confirmation dialogs for destructive actions
-- [ ] **Step 4.5**: Implement welcome page for empty configurations
-- [ ] **Step 4.6**: Add file naming validation (collection names, versioned names, etc.)
+### Phase 4: File Management System ✅
+- ✅ **Step 4.1**: Implement file listing and management for all resource types
+- ✅ **Step 4.2**: Create file CRUD operations with auto-save on field changes
+- ✅ **Step 4.3**: Implement lock/unlock functionality
+- ✅ **Step 4.4**: Add GitHub-style confirmation dialogs for destructive actions
+- ✅ **Step 4.5**: Implement welcome page for empty configurations
+- ✅ **Step 4.6**: Add file naming validation (collection names, versioned names, etc.)
 
-### Phase 5: Configuration Management 🚧
-- [ ] **Step 5.1**: Build configuration file management with collection name validation
-- [ ] **Step 5.2**: Implement configuration version management
+### Phase 5: Detail Pages & Editing 🚧
+- [ ] **Step 5.1**: Build configuration detail page with version management
+- [ ] **Step 5.2**: Implement configuration editing with auto-save
 - [ ] **Step 5.3**: Add schema download functionality (JSON/BSON as files)
 - [ ] **Step 5.4**: Create processing operations interface
 - [ ] **Step 5.5**: Implement "new collection" endpoint integration
