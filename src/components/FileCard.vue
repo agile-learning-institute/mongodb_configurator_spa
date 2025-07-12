@@ -57,15 +57,33 @@
         >
           <v-icon size="18">mdi-cog</v-icon>
         </v-btn>
+
+        <!-- Expand/collapse button for section cards -->
+        <v-btn
+          v-if="isSectionCard && showExpand"
+          icon
+          size="small"
+          variant="text"
+          color="white"
+          @click.stop="$emit('toggle-expand')"
+          :title="expanded ? 'Collapse' : 'Expand'"
+        >
+          <v-icon size="18">{{ expanded ? 'mdi-chevron-up' : 'mdi-chevron-down' }}</v-icon>
+        </v-btn>
       </div>
     </div>
 
     <!-- Content section -->
     <div class="pa-4">
-      <div class="d-flex align-center text-caption text-medium-emphasis">
+      <div v-if="!isSectionCard" class="d-flex align-center text-caption text-medium-emphasis">
         <span class="mr-4">Created: {{ formatDate(file.created_at) }}</span>
         <span class="mr-4">Updated: {{ formatDate(file.updated_at) }}</span>
         <span>Size: {{ formatFileSize(file.size) }}</span>
+      </div>
+      
+      <!-- Section card content -->
+      <div v-else-if="expanded">
+        <slot />
       </div>
     </div>
   </v-card>
@@ -90,6 +108,9 @@ interface Props {
   showLock?: boolean
   showActions?: boolean
   showProcess?: boolean
+  isSectionCard?: boolean
+  showExpand?: boolean
+  expanded?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -97,7 +118,10 @@ const props = withDefaults(defineProps<Props>(), {
   showDelete: true,
   showLock: true,
   showActions: true,
-  showProcess: false
+  showProcess: false,
+  isSectionCard: false,
+  showExpand: false,
+  expanded: false
 })
 
 const emit = defineEmits<{
@@ -106,6 +130,7 @@ const emit = defineEmits<{
   'toggle-lock': []
   open: []
   process: []
+  'toggle-expand': []
 }>()
 
 const fileIcon = computed(() => {
