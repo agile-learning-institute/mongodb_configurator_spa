@@ -166,13 +166,13 @@ npm run down
 - [x] **Step 2.5**: API proxy already configured in vite.config.ts for /api/* requests
 - [x] **Step 2.6**: NGINX config and environment variable substitution fixed; containerized SPA now serves hello world page successfully
 
-### Phase 3: Core Infrastructure 🚧
+### Phase 3: Core Infrastructure ✅
 - [x] **Step 3.1**: Set up API client with axios and environment-based configuration
 - [x] **Step 3.2**: Implement BUILT_AT config-based read-only/read-write mode
 - [x] **Step 3.3**: Create base layout with collapsible navigation and admin panel
 - [x] **Step 3.4**: Implement routing structure for all pages
-- [ ] **Step 3.5**: Create base card components and action system
-- [ ] **Step 3.6**: Set up event-based error handling with popup dialogs
+- [x] **Step 3.5**: Create base card components and action system
+- [x] **Step 3.6**: Set up event-based error handling with popup dialogs
 
 ### Phase 4: File Management System 🚧
 - [ ] **Step 4.1**: Implement file listing and management for all resource types

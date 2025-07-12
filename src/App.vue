@@ -18,14 +18,19 @@
       </div>
     </template>
   </AppLayout>
+  
+  <!-- Global event notifications -->
+  <EventNotifications ref="eventNotifications" />
 </template>
 
 <script setup lang="ts">
-import { onMounted, inject } from 'vue'
+import { onMounted, inject, ref } from 'vue'
 import AppLayout from '@/components/AppLayout.vue'
+import EventNotifications from '@/components/EventNotifications.vue'
 
 // Inject global config
 const config = inject('config')
+const eventNotifications = ref()
 
 // Load configuration on app startup
 onMounted(() => {
