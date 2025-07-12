@@ -2,7 +2,7 @@
   <v-container>
     <h1>Test Data</h1>
     <FileList 
-      file-type="test_data"
+      file-type="test-data"
       @edit="handleEdit"
       @open="handleOpen"
     />
@@ -10,15 +10,16 @@
 </template>
 
 <script setup lang="ts">
+import { useRouter } from 'vue-router'
 import FileList from '@/components/FileList.vue'
 
+const router = useRouter()
+
 const handleEdit = (fileName: string) => {
-  console.log('Edit file:', fileName)
-  // TODO: Implement edit functionality
+  router.push(`/test_data/${fileName}`)
 }
 
 const handleOpen = (fileName: string) => {
-  console.log('Open file:', fileName)
-  // TODO: Implement open functionality
+  router.push(`/test_data/${fileName}`)
 }
 </script> 

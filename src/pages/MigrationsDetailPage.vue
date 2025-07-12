@@ -9,17 +9,17 @@
     <div v-else-if="error" class="pa-4">
       <v-alert type="error">
         {{ error }}
-        <v-btn @click="loadTestData" class="mt-2">Retry</v-btn>
+        <v-btn @click="loadMigration" class="mt-2">Retry</v-btn>
       </v-alert>
     </div>
 
-    <!-- Test data detail -->
-    <div v-else-if="testData">
+    <!-- Migration detail -->
+    <div v-else-if="migration">
       <!-- Header -->
       <div class="d-flex justify-space-between align-center mb-6">
         <div>
           <h1 class="text-h4">{{ fileName }}</h1>
-          <p class="text-body-2 text-medium-emphasis">Test Data Document</p>
+          <p class="text-body-2 text-medium-emphasis">Migration Document</p>
         </div>
         <div class="d-flex align-center">
           <v-chip
@@ -31,7 +31,7 @@
           </v-chip>
           <v-btn
             color="primary"
-            @click="saveTestData"
+            @click="saveMigration"
             :loading="saving"
             :disabled="locked"
           >
@@ -56,12 +56,21 @@
             :error-messages="jsonError || undefined"
             placeholder='[
   {
-    "_id": {
-      "$oid": "A00000000000000000000001"
-    },
-    "first_name": "Joe",
-    "last_name": "Smith",
-    "status": "active"
+    "$addFields": {
+      "full_name": {
+        "$concat": [
+          "$first_name",
+          " ",
+          "$last_name"
+        ]
+      }
+    }
+  },
+  {
+    "$unset": [
+      "first_name",
+      "last_name"
+    ]
   }
 ]'
           />
@@ -80,25 +89,25 @@ const route = useRoute()
 const loading = ref(false)
 const saving = ref(false)
 const error = ref<string | null>(null)
-const testData = ref<any[] | null>(null)
+const migration = ref<any[] | null>(null)
 const jsonString = ref('')
 const jsonError = ref<string | null>(null)
 const locked = ref(false)
 
 const fileName = computed(() => route.params.fileName as string)
 
-// Load test data
-const loadTestData = async () => {
+// Load migration
+const loadMigration = async () => {
   loading.value = true
   error.value = null
   
   try {
-    const data = await apiService.getTestDataFile(fileName.value)
-    testData.value = data
+    const data = await apiService.getMigration(fileName.value)
+    migration.value = data
     jsonString.value = JSON.stringify(data, null, 2)
   } catch (err: any) {
-    error.value = err.message || 'Failed to load test data'
-    console.error('Failed to load test data:', err)
+    error.value = err.message || 'Failed to load migration'
+    console.error('Failed to load migration:', err)
   } finally {
     loading.value = false
   }
@@ -114,26 +123,26 @@ const validateJson = () => {
   }
 }
 
-// Save test data
-const saveTestData = async () => {
+// Save migration
+const saveMigration = async () => {
   if (jsonError.value) return
   
   saving.value = true
   try {
     const parsedData = JSON.parse(jsonString.value)
-    await apiService.saveTestDataFile(fileName.value, parsedData)
-    testData.value = parsedData
+    await apiService.saveMigration(fileName.value, parsedData)
+    migration.value = parsedData
     // Could add success notification here
   } catch (err: any) {
-    error.value = err.message || 'Failed to save test data'
-    console.error('Failed to save test data:', err)
+    error.value = err.message || 'Failed to save migration'
+    console.error('Failed to save migration:', err)
   } finally {
     saving.value = false
   }
 }
 
-// Load test data on mount
+// Load migration on mount
 onMounted(() => {
-  loadTestData()
+  loadMigration()
 })
 </script> 
