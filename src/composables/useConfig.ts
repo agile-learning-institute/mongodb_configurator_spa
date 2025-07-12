@@ -19,7 +19,7 @@ export function useConfig() {
   // Computed properties for common config values
   const builtAt = computed(() => {
     if (!config.value) return null
-    const builtAtItem = config.value.config_items.find(item => item.name === 'BUILT_AT')
+    const builtAtItem = config.value.config_items.find(item => item.name === 'API_BUILT_AT')
     return builtAtItem?.value || null
   })
 

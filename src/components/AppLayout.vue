@@ -1,21 +1,21 @@
 <template>
   <v-app>
-    <v-navigation-drawer v-model="drawer" app clipped width="260">
-      <v-list dense nav>
+    <v-navigation-drawer v-model="drawer" location="left" width="260">
+      <v-list density="compact" nav>
         <v-list-item>
           <v-list-item-title class="text-h6">Navigation</v-list-item-title>
         </v-list-item>
         <v-divider></v-divider>
         <v-list-item v-for="item in navItems" :key="item.title" :to="item.to" link>
-          <v-list-item-icon>
+          <template v-slot:prepend>
             <v-icon>{{ item.icon }}</v-icon>
-          </v-list-item-icon>
+          </template>
           <v-list-item-title>{{ item.title }}</v-list-item-title>
         </v-list-item>
       </v-list>
     </v-navigation-drawer>
 
-    <v-app-bar app clipped-left color="primary" dark>
+    <v-app-bar color="primary" theme="dark">
       <v-app-bar-nav-icon @click="drawer = !drawer" />
       <v-toolbar-title>MongoDB Configurator</v-toolbar-title>
       <v-spacer></v-spacer>
@@ -25,7 +25,9 @@
     </v-app-bar>
 
     <v-main>
-      <slot />
+      <v-container fluid>
+        <slot />
+      </v-container>
     </v-main>
   </v-app>
 </template>
@@ -44,10 +46,4 @@ const navItems = [
   { title: 'Migrations', icon: 'mdi-swap-horizontal', to: '/migrations' },
   { title: 'Admin', icon: 'mdi-cog', to: '/admin' },
 ]
-</script>
-
-<style scoped>
-.v-application {
-  background: #f5f5f5;
-}
-</style> 
+</script> 

@@ -33,7 +33,7 @@ apiClient.interceptors.response.use(
 // API endpoints
 export const API_ENDPOINTS = {
   // Configuration
-  CONFIG: '/config',
+  CONFIG: '/config/',
   
   // Configurations
   CONFIGURATIONS: '/configurations',
