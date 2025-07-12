@@ -169,20 +169,24 @@
                     </v-card-text>
                   </v-card>
                 </v-menu>
+                <v-btn
+                  v-if="getCurrentVersion().test_data"
+                  icon
+                  size="small"
+                  variant="text"
+                  color="white"
+                  @click="removeTestData"
+                  :disabled="configuration._locked"
+                  title="Clear Test Data"
+                >
+                  <v-icon size="18">mdi-close-circle</v-icon>
+                </v-btn>
               </template>
               <template #default>
                 <div v-if="getCurrentVersion().test_data" class="d-flex align-center">
                   <v-chip color="primary" class="mr-2">
                     {{ getCurrentVersion().test_data }}
                   </v-chip>
-                  <v-btn
-                    icon="mdi-delete"
-                    size="small"
-                    variant="text"
-                    color="error"
-                    @click="removeTestData"
-                    :disabled="configuration._locked"
-                  />
                 </div>
                 <div v-else class="text-medium-emphasis">
                   No test data file selected
@@ -199,8 +203,10 @@
               :show-lock="false"
               :show-actions="false"
               :is-section-card="true"
-              :expanded="false"
+              :show-expand="true"
+              :expanded="indexesExpanded"
               class="mb-4"
+              @toggle-expand="indexesExpanded = !indexesExpanded"
             >
               <template #default>
                 <v-textarea
@@ -292,7 +298,7 @@
                 </v-menu>
               </template>
               <template #default>
-                <div class="d-flex flex-wrap">
+                <div v-if="getCurrentVersion().drop_indexes.length > 0" class="d-flex flex-wrap">
                   <v-chip
                     v-for="index in getCurrentVersion().drop_indexes"
                     :key="index.name"
@@ -304,6 +310,9 @@
                   >
                     {{ index.name }}
                   </v-chip>
+                </div>
+                <div v-else class="text-medium-emphasis">
+                  No indexes to drop
                 </div>
               </template>
             </FileCard>
@@ -497,6 +506,7 @@ const processing = ref(false)
 // JSON editor states
 const indexesJson = ref('')
 const indexesError = ref<string | null>(null)
+const indexesExpanded = ref(false) // Start collapsed
 
 // File lists
 const testDataFiles = ref<FileInfo[]>([])
