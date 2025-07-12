@@ -116,13 +116,27 @@
             <!-- Test Data -->
             <div class="mb-4">
               <h3 class="text-h6 mb-2">Test Data</h3>
-              <v-text-field
+              <v-select
                 v-model="getCurrentVersion().test_data"
+                :items="testDataFiles"
                 label="Test Data File"
                 :disabled="configuration._locked"
                 @update:model-value="autoSave"
-                placeholder="sample.1.0.0.1.json"
-              />
+                :loading="loadingTestData"
+                item-title="name"
+                item-value="name"
+                clearable
+              >
+                <template v-slot:append>
+                  <v-btn
+                    icon="mdi-plus"
+                    size="small"
+                    variant="text"
+                    @click="showNewTestDataDialog = true"
+                    :disabled="configuration._locked"
+                  />
+                </template>
+              </v-select>
             </div>
 
             <!-- Add Indexes -->
@@ -154,44 +168,163 @@
             <!-- Drop Indexes -->
             <div class="mb-4">
               <h3 class="text-h6 mb-2">Drop Indexes</h3>
-              <v-textarea
-                v-model="dropIndexesJson"
-                label="Drop Indexes JSON"
-                rows="4"
-                auto-grow
-                :disabled="configuration._locked"
-                @update:model-value="updateDropIndexes"
-                :error="!!dropIndexesError"
-                :error-messages="dropIndexesError || undefined"
-                placeholder='[
-  {
-    "name": "idx_old_field"
-  }
-]'
-              />
+              <div class="d-flex align-center mb-2">
+                <v-text-field
+                  v-model="newDropIndex"
+                  label="Index Name"
+                  placeholder="idx_old_field"
+                  :disabled="configuration._locked"
+                  @keyup.enter="addDropIndex"
+                  class="mr-2"
+                  style="max-width: 300px;"
+                />
+                <v-btn
+                  color="primary"
+                  @click="addDropIndex"
+                  :disabled="!newDropIndex.trim() || configuration._locked"
+                  size="small"
+                >
+                  <v-icon start>mdi-plus</v-icon>
+                  Add
+                </v-btn>
+              </div>
+              <div class="d-flex flex-wrap">
+                <v-chip
+                  v-for="index in getCurrentVersion().drop_indexes"
+                  :key="index.name"
+                  color="error"
+                  class="mr-2 mb-2"
+                  closable
+                  @click:close="removeDropIndex(index.name)"
+                  :disabled="configuration._locked"
+                >
+                  {{ index.name }}
+                </v-chip>
+              </div>
             </div>
 
             <!-- Migrations -->
             <div class="mb-4">
               <h3 class="text-h6 mb-2">Migrations</h3>
-              <v-textarea
-                v-model="migrationsJson"
-                label="Migrations JSON"
-                rows="4"
-                auto-grow
-                :disabled="configuration._locked"
-                @update:model-value="updateMigrations"
-                :error="!!migrationsError"
-                :error-messages="migrationsError || undefined"
-                placeholder='[
-  "migration_file.json"
-]'
-              />
+              <div class="d-flex align-center mb-2">
+                <v-select
+                  v-model="newMigration"
+                  :items="migrationFiles"
+                  label="Migration File"
+                  :disabled="configuration._locked"
+                  :loading="loadingMigrations"
+                  item-title="name"
+                  item-value="name"
+                  clearable
+                  style="max-width: 300px;"
+                  class="mr-2"
+                >
+                  <template v-slot:append>
+                    <v-btn
+                      icon="mdi-plus"
+                      size="small"
+                      variant="text"
+                      @click="showNewMigrationDialog = true"
+                      :disabled="configuration._locked"
+                    />
+                  </template>
+                </v-select>
+                <v-btn
+                  color="primary"
+                  @click="addMigration"
+                  :disabled="!newMigration || configuration._locked"
+                  size="small"
+                >
+                  <v-icon start>mdi-plus</v-icon>
+                  Add
+                </v-btn>
+              </div>
+              <div class="d-flex flex-wrap">
+                <v-chip
+                  v-for="migration in getCurrentVersion().migrations"
+                  :key="migration"
+                  color="info"
+                  class="mr-2 mb-2"
+                  closable
+                  @click:close="removeMigration(migration)"
+                  :disabled="configuration._locked"
+                >
+                  {{ migration }}
+                </v-chip>
+              </div>
             </div>
           </v-card-text>
         </v-card>
       </div>
     </div>
+
+    <!-- New Test Data Dialog -->
+    <v-dialog v-model="showNewTestDataDialog" max-width="500px">
+      <v-card>
+        <v-card-title>Create New Test Data File</v-card-title>
+        <v-card-text>
+          <v-text-field
+            v-model="newTestDataFileName"
+            label="File Name"
+            :error="!!newTestDataError"
+            :error-messages="newTestDataError || undefined"
+            placeholder="sample.1.0.0.1.json"
+            :disabled="creatingTestData"
+          />
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer />
+          <v-btn
+            @click="showNewTestDataDialog = false"
+            :disabled="creatingTestData"
+          >
+            Cancel
+          </v-btn>
+          <v-btn
+            color="primary"
+            @click="createTestDataFile"
+            :loading="creatingTestData"
+            :disabled="!newTestDataFileName.trim()"
+          >
+            Create
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <!-- New Migration Dialog -->
+    <v-dialog v-model="showNewMigrationDialog" max-width="500px">
+      <v-card>
+        <v-card-title>Create New Migration File</v-card-title>
+        <v-card-text>
+          <v-text-field
+            v-model="newMigrationFileName"
+            label="File Name"
+            :error="!!newMigrationError"
+            :error-messages="newMigrationError || undefined"
+            placeholder="migration.json"
+            :disabled="creatingMigration"
+          />
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer />
+          <v-btn
+            @click="showNewMigrationDialog = false"
+            :disabled="creatingMigration"
+          >
+            Cancel
+          </v-btn>
+          <v-btn
+            color="primary"
+            @click="createMigrationFile"
+            :loading="creatingMigration"
+            :disabled="!newMigrationFileName.trim()"
+          >
+            Create
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
@@ -222,6 +355,14 @@ interface Configuration {
   versions: ConfigurationVersion[]
 }
 
+interface FileInfo {
+  name: string
+  created_at: string
+  updated_at: string
+  size: number
+  _locked?: boolean
+}
+
 const route = useRoute()
 const loading = ref(false)
 const saving = ref(false)
@@ -232,11 +373,29 @@ const processing = ref(false)
 
 // JSON editor states
 const indexesJson = ref('')
-const dropIndexesJson = ref('')
-const migrationsJson = ref('')
 const indexesError = ref<string | null>(null)
-const dropIndexesError = ref<string | null>(null)
-const migrationsError = ref<string | null>(null)
+
+// File lists
+const testDataFiles = ref<FileInfo[]>([])
+const migrationFiles = ref<FileInfo[]>([])
+const loadingTestData = ref(false)
+const loadingMigrations = ref(false)
+
+// Drop indexes
+const newDropIndex = ref('')
+
+// Migrations
+const newMigration = ref('')
+
+// New file dialogs
+const showNewTestDataDialog = ref(false)
+const showNewMigrationDialog = ref(false)
+const newTestDataFileName = ref('')
+const newMigrationFileName = ref('')
+const newTestDataError = ref<string | null>(null)
+const newMigrationError = ref<string | null>(null)
+const creatingTestData = ref(false)
+const creatingMigration = ref(false)
 
 // Load configuration data
 const loadConfiguration = async () => {
@@ -260,6 +419,44 @@ const loadConfiguration = async () => {
   }
 }
 
+// Load test data files
+const loadTestDataFiles = async () => {
+  loadingTestData.value = true
+  try {
+    const data = await apiService.getTestData()
+    testDataFiles.value = (data || []).map((file: any) => ({
+      name: file.file_name,
+      created_at: file.created_at,
+      updated_at: file.updated_at,
+      size: file.size,
+      _locked: file._locked || false
+    }))
+  } catch (err: any) {
+    console.error('Failed to load test data files:', err)
+  } finally {
+    loadingTestData.value = false
+  }
+}
+
+// Load migration files
+const loadMigrationFiles = async () => {
+  loadingMigrations.value = true
+  try {
+    const data = await apiService.getMigrations()
+    migrationFiles.value = (data || []).map((file: any) => ({
+      name: file.file_name,
+      created_at: file.created_at,
+      updated_at: file.updated_at,
+      size: file.size,
+      _locked: file._locked || false
+    }))
+  } catch (err: any) {
+    console.error('Failed to load migration files:', err)
+  } finally {
+    loadingMigrations.value = false
+  }
+}
+
 // Get current version data
 const getCurrentVersion = (): ConfigurationVersion => {
   return configuration.value?.versions.find(v => v.version === activeVersion.value) || {
@@ -275,12 +472,8 @@ const getCurrentVersion = (): ConfigurationVersion => {
 watch(activeVersion, () => {
   const version = getCurrentVersion()
   indexesJson.value = JSON.stringify(version.add_indexes, null, 2)
-  dropIndexesJson.value = JSON.stringify(version.drop_indexes, null, 2)
-  migrationsJson.value = JSON.stringify(version.migrations, null, 2)
   // Clear errors
   indexesError.value = null
-  dropIndexesError.value = null
-  migrationsError.value = null
 })
 
 // Update indexes from JSON
@@ -299,35 +492,102 @@ const updateIndexes = () => {
   }
 }
 
-// Update drop indexes from JSON
-const updateDropIndexes = () => {
-  try {
-    const parsed = JSON.parse(dropIndexesJson.value)
-    if (!Array.isArray(parsed)) {
-      dropIndexesError.value = 'Must be an array'
-      return
-    }
-    getCurrentVersion().drop_indexes = parsed
-    dropIndexesError.value = null
+// Drop index management
+const addDropIndex = () => {
+  const name = newDropIndex.value.trim()
+  if (!name) return
+  
+  const currentVersion = getCurrentVersion()
+  if (!currentVersion.drop_indexes.find(idx => idx.name === name)) {
+    currentVersion.drop_indexes.push({ name })
+    newDropIndex.value = ''
     autoSave()
-  } catch (err: any) {
-    dropIndexesError.value = 'Invalid JSON format'
   }
 }
 
-// Update migrations from JSON
-const updateMigrations = () => {
-  try {
-    const parsed = JSON.parse(migrationsJson.value)
-    if (!Array.isArray(parsed)) {
-      migrationsError.value = 'Must be an array'
-      return
-    }
-    getCurrentVersion().migrations = parsed
-    migrationsError.value = null
+const removeDropIndex = (name: string) => {
+  const currentVersion = getCurrentVersion()
+  currentVersion.drop_indexes = currentVersion.drop_indexes.filter(idx => idx.name !== name)
+  autoSave()
+}
+
+// Migration management
+const addMigration = () => {
+  const name = newMigration.value
+  if (!name) return
+  
+  const currentVersion = getCurrentVersion()
+  if (!currentVersion.migrations.includes(name)) {
+    currentVersion.migrations.push(name)
+    newMigration.value = ''
     autoSave()
+  }
+}
+
+const removeMigration = (name: string) => {
+  const currentVersion = getCurrentVersion()
+  currentVersion.migrations = currentVersion.migrations.filter(m => m !== name)
+  autoSave()
+}
+
+// Create new test data file
+const createTestDataFile = async () => {
+  const fileName = newTestDataFileName.value.trim()
+  if (!fileName) return
+  
+  creatingTestData.value = true
+  try {
+    // Create empty test data file
+    await apiService.saveTestDataFile(fileName, [])
+    
+    // Refresh test data files list
+    await loadTestDataFiles()
+    
+    // Set as selected
+    getCurrentVersion().test_data = fileName
+    autoSave()
+    
+    // Close dialog
+    showNewTestDataDialog.value = false
+    newTestDataFileName.value = ''
+    newTestDataError.value = null
+    
   } catch (err: any) {
-    migrationsError.value = 'Invalid JSON format'
+    newTestDataError.value = err.message || 'Failed to create test data file'
+  } finally {
+    creatingTestData.value = false
+  }
+}
+
+// Create new migration file
+const createMigrationFile = async () => {
+  const fileName = newMigrationFileName.value.trim()
+  if (!fileName) return
+  
+  creatingMigration.value = true
+  try {
+    // Create empty migration file
+    await apiService.saveMigration(fileName, [])
+    
+    // Refresh migration files list
+    await loadMigrationFiles()
+    
+    // Add to current version
+    const currentVersion = getCurrentVersion()
+    if (!currentVersion.migrations.includes(fileName)) {
+      currentVersion.migrations.push(fileName)
+      autoSave()
+    }
+    
+    // Close dialog
+    showNewMigrationDialog.value = false
+    newMigrationFileName.value = ''
+    newMigrationError.value = null
+    
+  } catch (err: any) {
+    newMigrationError.value = err.message || 'Failed to create migration file'
+  } finally {
+    creatingMigration.value = false
   }
 }
 
@@ -420,5 +680,7 @@ const downloadBsonSchema = async () => {
 // Load configuration on mount
 onMounted(() => {
   loadConfiguration()
+  loadTestDataFiles()
+  loadMigrationFiles()
 })
 </script> 
