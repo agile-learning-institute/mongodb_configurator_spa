@@ -220,30 +220,15 @@
       </div>
 
       <!-- Array Editor -->
-      <v-card v-if="isArray()" class="mb-6">
-        <v-card-title>Array Items</v-card-title>
-        <v-card-text>
-          <v-row>
-            <v-col cols="12" md="6">
-              <TypePicker
-                v-model="type.items!.type"
-                label="Item Type"
-                :disabled="type._locked"
-                :exclude-type="type.file_name"
-                @update:model-value="autoSave"
-              />
-            </v-col>
-            <v-col cols="12" md="6">
-              <v-text-field
-                v-model="type.items!.description"
-                label="Item Description"
-                :disabled="type._locked"
-                @update:model-value="autoSave"
-              />
-            </v-col>
-          </v-row>
-        </v-card-text>
-      </v-card>
+      <div v-if="isArray()" class="mb-6">
+        <TypeProperty
+          property-name="items"
+          :property="type.items || { description: '', type: 'string', required: false, additionalProperties: false }"
+          :disabled="type._locked"
+          :exclude-type="type.file_name"
+          @change="handleItemsChange"
+        />
+      </div>
     </div>
     <v-dialog v-model="showUnlockDialog" max-width="400">
       <v-card>
@@ -273,10 +258,7 @@ interface TypeProperty {
   type: string
   required: boolean
   additionalProperties?: boolean
-  items?: {
-    type: string
-    description: string
-  }
+  items?: TypeProperty
   properties?: Record<string, TypeProperty>
 }
 
@@ -292,10 +274,7 @@ interface Type {
   bson_type?: any
   properties?: Record<string, TypeProperty>
   additionalProperties?: boolean
-  items?: {
-    type: string
-    description: string
-  }
+  items?: TypeProperty
   _locked: boolean
 }
 
@@ -534,6 +513,12 @@ const unlockType = () => {
 const lockType = () => {
   if (!type.value) return
   type.value._locked = true
+  autoSave()
+}
+
+const handleItemsChange = (updatedItems: any) => {
+  if (!type.value) return
+  type.value.items = updatedItems
   autoSave()
 }
 
