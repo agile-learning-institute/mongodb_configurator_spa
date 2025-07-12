@@ -210,16 +210,25 @@
               @toggle-expand="indexesExpanded = !indexesExpanded"
             >
               <template #default>
-                <v-textarea
-                  v-model="indexesJson"
-                  label="Indexes JSON"
-                  rows="8"
-                  auto-grow
-                  :disabled="configuration._locked"
-                  @update:model-value="updateIndexes"
-                  :error="!!indexesError"
-                  :error-messages="indexesError || undefined"
-                  placeholder='[
+                <div v-if="!indexesExpanded" class="text-medium-emphasis">
+                  <span v-if="getCurrentVersion().add_indexes.length > 0">
+                    {{ getCurrentVersion().add_indexes.length }} index{{ getCurrentVersion().add_indexes.length === 1 ? '' : 'es' }} specified
+                  </span>
+                  <span v-else>
+                    No indexes specified
+                  </span>
+                </div>
+                <div v-else>
+                  <v-textarea
+                    v-model="indexesJson"
+                    label="Indexes JSON"
+                    rows="8"
+                    auto-grow
+                    :disabled="configuration._locked"
+                    @update:model-value="updateIndexes"
+                    :error="!!indexesError"
+                    :error-messages="indexesError || undefined"
+                    placeholder='[
   {
     "name": "idx_field_name",
     "key": {
@@ -230,16 +239,17 @@
     }
   }
 ]'
-                />
-                <div class="d-flex justify-end mt-2">
-                  <v-btn
-                    color="primary"
-                    @click="saveIndexes"
-                    :disabled="!!indexesError"
-                    size="small"
-                  >
-                    Save
-                  </v-btn>
+                  />
+                  <div class="d-flex justify-end mt-2">
+                    <v-btn
+                      color="primary"
+                      @click="saveIndexes"
+                      :disabled="!!indexesError"
+                      size="small"
+                    >
+                      Save
+                    </v-btn>
+                  </div>
                 </div>
               </template>
             </FileCard>
