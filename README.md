@@ -43,125 +43,199 @@ npm run down
 - **Vite** for build tooling
 - **Vue Router** for navigation
 
-## Instructions for Cursor
-Build a Single Page App with the above stack and the specifications below. Review @mongodb_configurator/README.md to get an overview of the MongoDB Configurator utility. Review @mongodb_configurator_api/docs/openapi.yaml to understand the API that will support this SPA. This is a non-trivial SPA, so we should make sure we have good plans to implement effective componentization and project structure.
+## Implementation Plan
 
-Here are the requirements I have documented
+### Phase 1: Foundation & Planning ✅
+- [x] **Step 1.1**: Conduct interview to gather requirements and clarify implementation details
+- [x] **Step 1.2**: Compile icons for all identified actions
+- [x] **Step 1.3**: Create comprehensive implementation plan with phases
 
-# At App Startup
-- Load /api/config/ endpoint on startup
-- Config Item BUILT_AT == "Local" enables editing, else it's read and render only.
-- If get configurations is empty, or only has sample.yaml show welcome page. 
-- Drop Database, Delete, and Unlock actions have warnings, and require confirmation. The confirmation should require them to type the name of the file they are unlocking or deleting, or the database name (CI MONGO_DB_NAME) for the Drop Database button.
+### Phase 2: Teardown & Reset 🔄
+- [ ] **Step 2.1**: Tear down current repo to hello world with no backing services
+- [ ] **Step 2.2**: Update docker-compose.yaml to mount ./tests/playground to /input folder
+- [ ] **Step 2.3**: Verify `npm run dev` and `npm run container` work successfully
+- [ ] **Step 2.4**: Update package.json scripts to match documented commands
+- [ ] **Step 2.5**: Configure API proxy for /api/* requests to API host/port
 
-## Overall Layout
-```
-+--------------------------------------------------+ 
-| [burger]     MongoDB Configurator       [admin]  |
-+--------------+-----------------------------------+
-|  Navigation  |          Page                     |
-|              |                                   |
-|              |                                   |
-|              |                                   |
-+--------------+-----------------------------------+
-```
-Hamburger menu collapse/expand navigation pane
+### Phase 3: Core Infrastructure 🚧
+- [ ] **Step 3.1**: Set up API client with axios and environment-based configuration
+- [ ] **Step 3.2**: Implement BUILT_AT config-based read-only/read-write mode
+- [ ] **Step 3.3**: Create base layout with collapsible navigation and admin panel
+- [ ] **Step 3.4**: Implement routing structure for all pages
+- [ ] **Step 3.5**: Create base card components and action system
+- [ ] **Step 3.6**: Set up event-based error handling with popup dialogs
 
-## Card Component
-```
-+-------------------+
-| {name}    actions |
-+-------------------+
-|   {details}       |
-+-------------------+
-```
-General Card Layout
+### Phase 4: File Management System 🚧
+- [ ] **Step 4.1**: Implement file listing and management for all resource types
+- [ ] **Step 4.2**: Create file CRUD operations with auto-save on field changes
+- [ ] **Step 4.3**: Implement lock/unlock functionality
+- [ ] **Step 4.4**: Add GitHub-style confirmation dialogs for destructive actions
+- [ ] **Step 4.5**: Implement welcome page for empty configurations
+- [ ] **Step 4.6**: Add file naming validation (collection names, versioned names, etc.)
 
-## Actions 
- - Add to list on list containers 
- - Delete Item on list items 
- - Lock/unlock object
- - Lock All on Configuration, Dictionary, and Type folders
- - collapse/expand card on most cards, not all
- - open page from file
- - process on configuration file
- - Render JSON / BSON Schema from configuration version
- - required toggle on properties
- - additional properties toggle on object properties
- - one_of toggle on object properties shows one-of view
+### Phase 5: Configuration Management 🚧
+- [ ] **Step 5.1**: Build configuration file management with collection name validation
+- [ ] **Step 5.2**: Implement configuration version management
+- [ ] **Step 5.3**: Add schema download functionality (JSON/BSON as files)
+- [ ] **Step 5.4**: Create processing operations interface
+- [ ] **Step 5.5**: Implement "new collection" endpoint integration
+- [ ] **Step 5.6**: Add JSON editor for indexes property in ConfigurationVersion
 
-## Cards
-- File Info
-- Event with sub events
-- Configurations with Versions 
-- ConfigurationVersion
-- Enumerators list of enumerations
-- Enumeration dict of named key value pair strings
-- DictionaryProperty - Most complicated component
-  - Ref toggle for ref values else:
-  - name, description and type are always visible and required
-  - Object Type 
-    - enable Actions Additional Props, Add Prop
-    - Property lists is collapsible
-    - enable OneOf builder
-  - List type 
-    - Items details are collapsible
-  - Enum and Enum_array types make enums field visible
-  - Custom types need on additional props
+### Phase 6: Dictionary & Type System 🚧
+- [ ] **Step 6.1**: Build dictionary property editor with collapsible nested properties
+- [ ] **Step 6.2**: Implement type property editor for universal/typed primitives
+- [ ] **Step 6.3**: Add ref, enum, and one_of functionality
+- [ ] **Step 6.4**: Create object/array property management
+- [ ] **Step 6.5**: Implement required/additional properties toggles
+- [ ] **Step 6.6**: Add versioned naming validation for dictionary files
 
-- TypeProperty - Second most complicated component
-  - type properties take one of three forms
-    - A complex property (object or list)
-    - A universal primitive
-    - A typed primitive
-  - complex types are similar to dictionary property, but do not support ref, enum, or one_of.
-  - universal primitives contain a simple schema dictionary
-  - typed primitives contain both a json schema and bson schema dictionary.
-  - Documents (List of documents - for test_data and migrations)
-  - Document (json doc) simple json editor
+### Phase 7: Data Management 🚧
+- [ ] **Step 7.1**: Build test data file management with simple JSON editor
+- [ ] **Step 7.2**: Implement document editor for test data
+- [ ] **Step 7.3**: Create migration file management with JSON editor
+- [ ] **Step 7.4**: Add enumerator management system
+- [ ] **Step 7.5**: Implement enumeration key-value editing
+- [ ] **Step 7.6**: Add type file naming validation
 
-## Pages
-Most pages are a list of one card or another. 
-- Navigation - A list of Collapsible cards that show list of Objects, and a list of files when expanded. Open action on card opens that file.
-  = Big red "Drop Database" and green "Process All" buttons at the top 
-  - Configurations
-  - Dictionaries
-  - Types
-  - Enumerators
-  - Test Data
-  - Migrations
-- Welcome Page - Usage Instructions
-- Admin - List of Config Items (Config Items are not cards)
-- Configurations - List of Configuration File cards
-- Configuration/{file_name} - Title and List of Configuration Version cards
-- Dictionaries - List of Dictionary File cards
-- Dictionary/{file_name} - Property Card(s)
-- Types - List of Type File cards
-- Type/{file_name} - TypeProperty Card(s)
-- TestData - List of test_data file cards
-- TestData/{file name} - List of Document cards.
-- Enumerators - List of Enumerators
-- Enumerator - Dict of name:key-value strings
-- Events - List of Event Cards (Modal Dialog, Processing Output or Exception Handling)
+### Phase 8: Processing & Events 🚧
+- [ ] **Step 8.1**: Create event monitoring system with popup dialogs
+- [ ] **Step 8.2**: Implement processing status tracking
+- [ ] **Step 8.3**: Build event modal dialogs for all 500 responses
+- [ ] **Step 8.4**: Add sub-event display functionality
+- [ ] **Step 8.5**: Implement error handling and display
+- [ ] **Step 8.6**: Add event-based processing output display
 
-# Plan
-You will build a plan that breaks our work into phases. 
-I should review and approve the completion of each phase before we proceed to the next phase. 
-Your plan should break the phase down into steps that you will complete without any additional input from me.
-After each step, you should update the readme with information about progress, and make a commit of your changes.
-You are free to make changes or adjustments to any file within the mongodb_configurator_spa repo - you can not make any changes to other repo's without first getting approval.
-You will need to update the npm run scripts to function as documented above.
-We will need the ``npm run api`` script working to test the SPA. 
+### Phase 9: Database Operations 🚧
+- [ ] **Step 9.1**: Implement "Process All" functionality
+- [ ] **Step 9.2**: Add "Drop Database" with GitHub-style confirmation
+- [ ] **Step 9.3**: Create database health monitoring
+- [ ] **Step 9.4**: Implement configuration validation
+- [ ] **Step 9.5**: Add bulk operations (lock all, etc.)
+- [ ] **Step 9.6**: Add case-sensitive typing confirmations for destructive actions
 
-## Phase 1.
-  - Step 1 - conduct a interview with me to fill in any details that you will need to create this SPA. One question at a time please.
-  - Compile icons for the actions identified above.
-  - Extend the plan with implementation phases. 
+### Phase 10: Polish & Testing 🚧
+- [ ] **Step 10.1**: Implement comprehensive error handling with event popups
+- [ ] **Step 10.2**: Add auto-save functionality for all editor pages
+- [ ] **Step 10.3**: Create responsive design for mobile
+- [ ] **Step 10.4**: Implement Jest unit tests and Cypress E2E tests
+- [ ] **Step 10.5**: Performance optimization and final polish
+- [ ] **Step 10.6**: Configure live API testing with playground data
 
-## Phase 2. Teardown 
-  - Tear down this repo to just hello world with no backing services. 
-  - You are done with this phase when ``npm run serve`` and ``npm build container`` successfully build and serves up the hello world page. 
-  - You will need to update the docker-compose to mount ./tests/playground to the /input folder in the api container. 
+## Technical Specifications
 
-# Progress
+### Authentication
+- **Method**: BUILT_AT config-based read-only vs read-write mode
+- **Implementation**: Check `/api/config/` on startup, disable editing if not "Local"
+
+### File Naming Conventions
+- **Configurations**: Collection names (one word, no spaces) + `.yaml`
+- **Dictionaries**: `collection_name.1.2.3.yaml` (versioned)
+- **Types**: Simple names (one word, no spaces) + `.yaml`
+- **Test Data**: No naming rules, simple JSON editor
+- **Migrations**: No naming rules, JSON editor
+- **Enumerators**: No naming rules
+
+### Error Handling
+- **Method**: Event-based popup dialogs
+- **Triggers**: All API 500 responses and processing events
+- **Display**: Modal dialogs with event information
+- **No retry mechanisms needed**
+
+### State Management
+- **Persistence**: Server-side only
+- **Auto-save**: On each field update (PUT after field change)
+- **No client-side state management needed**
+
+### UI/UX
+- **Navigation**: Collapsible hamburger menu
+- **Theme**: Material Design defaults, no dark mode
+- **Loading**: No spinners needed (local API is responsive)
+- **Confirmations**: GitHub-style danger zone with case-sensitive typing
+
+### Complex Components
+- **DictionaryProperty**: Collapsible nested properties, ready for drag-drop upgrade
+- **TypeProperty**: Universal/typed primitives support
+- **Circular References**: Handled by API, no client-side logic needed
+- **JSON Editors**: Simple editors for large documents (test_data, migrations, indexes)
+
+### Performance
+- **Lists**: No pagination needed (small datasets)
+- **Large Documents**: Simple JSON editors
+- **Real-time**: No websockets, API is local and responsive
+
+### Testing
+- **Unit Tests**: Jest
+- **E2E Tests**: Cypress
+- **API**: Live local API with playground data
+- **Proxy**: /api/* requests to API host/port (runtime configurable)
+
+## Component Architecture
+
+### Core Components
+- **AppLayout**: Main application layout with collapsible navigation
+- **FileCard**: Generic file information display
+- **ActionButton**: Reusable action button with confirmation
+- **ConfirmationDialog**: GitHub-style danger zone confirmation
+- **EventDialog**: Event-based error/processing display
+- **JsonEditor**: Simple JSON editor for large documents
+
+### Complex Components
+- **DictionaryProperty**: Most complex - handles ref, enum, object, array types with collapsible nesting
+- **TypeProperty**: Second most complex - handles universal/typed primitives
+- **ConfigurationVersion**: Version management with schema download
+- **EventCard**: Event display with sub-events in popup
+- **DocumentEditor**: JSON document editing for test data
+
+### Pages
+- **WelcomePage**: Instructions for empty configurations
+- **AdminPage**: Configuration items display
+- **ConfigurationsPage**: Configuration file listing with collection name validation
+- **ConfigurationDetailPage**: Configuration version management
+- **DictionariesPage**: Dictionary file listing with versioned naming
+- **DictionaryDetailPage**: Dictionary property editing with auto-save
+- **TypesPage**: Type file listing with simple naming
+- **TypeDetailPage**: Type property editing with auto-save
+- **TestDataPage**: Test data file listing
+- **TestDataDetailPage**: Document editing with JSON editor
+- **EnumeratorsPage**: Enumerator listing
+- **EnumeratorDetailPage**: Enumeration editing
+- **EventsPage**: Event monitoring with popup dialogs
+
+## API Integration Points
+
+### Configuration Management
+- `GET /api/config/` - App startup configuration (BUILT_AT check)
+- `GET /api/configurations/` - List configurations
+- `POST /api/configurations/` - Process all configurations
+- `GET /api/configurations/{file_name}/` - Get specific configuration
+- `POST /api/configurations/collection/{name}` - Create new collection
+
+### Schema Rendering
+- `GET /api/configurations/json_schema/{file_name}/{version}/` - Download JSON schema
+- `GET /api/configurations/bson_schema/{file_name}/{version}/` - Download BSON schema
+
+### File Management
+- All resource types: `GET`, `PUT`, `DELETE` operations with auto-save
+- Lock/unlock operations via `PATCH` endpoints
+- File listing via `GET` endpoints
+
+### Database Operations
+- `DELETE /api/database/` - Drop database (with GitHub-style confirmation)
+- Processing operations via `POST` endpoints
+
+### Error Handling
+- All endpoints return 200 or 500 with Event objects
+- 500 responses and processing events displayed in popup dialogs
+
+## Progress
+
+### Phase 1: Foundation & Planning ✅
+- ✅ Requirements analysis complete
+- ✅ OpenAPI specification reviewed
+- ✅ Implementation plan created with detailed specifications
+- ✅ Component architecture designed
+- ✅ Technical specifications documented
+
+### Phase 2: Teardown & Reset 🔄
+- 🔄 Ready to begin teardown process
 
