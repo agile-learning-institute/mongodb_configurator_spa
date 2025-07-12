@@ -159,32 +159,42 @@
           
           <!-- Required icon -->
           <div class="mr-2">
-            <v-btn
-              icon
-              size="small"
-              variant="text"
-              :color="type.required ? 'primary' : 'grey'"
-              :disabled="type._locked"
-              @click="type.required = !type.required; autoSave()"
-              title="Required"
-            >
-              <v-icon size="18">mdi-star</v-icon>
-            </v-btn>
+            <v-tooltip location="top">
+              <template v-slot:activator="{ props }">
+                <v-btn
+                  icon
+                  size="small"
+                  variant="text"
+                  :color="type.required ? 'primary' : 'grey'"
+                  :disabled="type._locked"
+                  @click="type.required = !type.required; autoSave()"
+                  v-bind="props"
+                >
+                  <v-icon size="18">mdi-star</v-icon>
+                </v-btn>
+              </template>
+              <span>Required</span>
+            </v-tooltip>
           </div>
           
           <!-- Additional Properties icon -->
           <div class="mr-2">
-            <v-btn
-              icon
-              size="small"
-              variant="text"
-              :color="type.additionalProperties ? 'primary' : 'grey'"
-              :disabled="type._locked"
-              @click="type.additionalProperties = !type.additionalProperties; autoSave()"
-              title="Additional Properties"
-            >
-              <v-icon size="18">mdi-plus-circle</v-icon>
-            </v-btn>
+            <v-tooltip location="top">
+              <template v-slot:activator="{ props }">
+                <v-btn
+                  icon
+                  size="small"
+                  variant="text"
+                  :color="type.additionalProperties ? 'primary' : 'grey'"
+                  :disabled="type._locked"
+                  @click="type.additionalProperties = !type.additionalProperties; autoSave()"
+                  v-bind="props"
+                >
+                  <v-icon size="18">mdi-plus-circle</v-icon>
+                </v-btn>
+              </template>
+              <span>Additional Properties</span>
+            </v-tooltip>
           </div>
         </div>
       </div>
