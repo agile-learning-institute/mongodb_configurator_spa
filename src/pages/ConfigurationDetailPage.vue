@@ -101,26 +101,48 @@
           class="mb-4"
         >
           <template #default>
-            <!-- Schema Download Buttons -->
-            <div class="d-flex justify-end mb-4">
-              <v-btn
-                size="small"
-                variant="outlined"
-                @click="downloadJsonSchema"
-                class="mr-2"
-              >
-                <v-icon start>mdi-download</v-icon>
-                JSON Schema
-              </v-btn>
-              <v-btn
-                size="small"
-                variant="outlined"
-                @click="downloadBsonSchema"
-              >
-                <v-icon start>mdi-download</v-icon>
-                BSON Schema
-              </v-btn>
-            </div>
+            <!-- Schema Downloads Card -->
+            <FileCard
+              :file="{ name: 'Schema Downloads', created_at: '', updated_at: '', size: 0 }"
+              file-type="configuration"
+              :show-edit="false"
+              :show-delete="false"
+              :show-lock="false"
+              :show-actions="false"
+              :is-section-card="true"
+              :expanded="true"
+              class="mb-4"
+            >
+              <template #actions>
+                <v-btn
+                  icon
+                  size="small"
+                  variant="text"
+                  color="white"
+                  @click="downloadJsonSchema"
+                  :disabled="configuration._locked"
+                  title="Download JSON Schema"
+                >
+                  <v-icon size="18">mdi-download</v-icon>
+                </v-btn>
+                <v-btn
+                  icon
+                  size="small"
+                  variant="text"
+                  color="white"
+                  @click="downloadBsonSchema"
+                  :disabled="configuration._locked"
+                  title="Download BSON Schema"
+                >
+                  <v-icon size="18">mdi-download</v-icon>
+                </v-btn>
+              </template>
+              <template #default>
+                <div class="text-medium-emphasis">
+                  Download JSON or BSON schema for this version
+                </div>
+              </template>
+            </FileCard>
 
             <!-- Test Data Card -->
             <FileCard
@@ -209,6 +231,19 @@
               class="mb-4"
               @toggle-expand="indexesExpanded = !indexesExpanded"
             >
+              <template #actions>
+                <v-btn
+                  icon
+                  size="small"
+                  variant="text"
+                  color="white"
+                  @click="addNewIndex"
+                  :disabled="configuration._locked"
+                  title="Add Index"
+                >
+                  <v-icon size="18">mdi-plus</v-icon>
+                </v-btn>
+              </template>
               <template #default>
                 <div v-if="!indexesExpanded" class="text-medium-emphasis">
                   <span v-if="getCurrentVersion().add_indexes.length > 0">
@@ -225,16 +260,7 @@
                       :key="indexIndex"
                       class="mb-4 pa-3 border rounded"
                     >
-                      <div class="d-flex justify-space-between align-center mb-2">
-                        <v-text-field
-                          v-model="index.name"
-                          label="Index Name"
-                          :disabled="configuration._locked"
-                          @update:model-value="autoSave"
-                          density="compact"
-                          class="mr-2"
-                          style="max-width: 300px;"
-                        />
+                      <div class="d-flex justify-end mb-2">
                         <v-btn
                           icon="mdi-delete"
                           size="small"
@@ -267,16 +293,6 @@
                   <div v-else class="text-medium-emphasis">
                     No indexes defined
                   </div>
-                  <v-btn
-                    color="primary"
-                    size="small"
-                    @click="addNewIndex"
-                    :disabled="configuration._locked"
-                    class="mt-2"
-                  >
-                    <v-icon start>mdi-plus</v-icon>
-                    Add Index
-                  </v-btn>
                 </div>
               </template>
             </FileCard>
@@ -508,7 +524,6 @@ interface ConfigurationVersion {
   version: string
   test_data: string
   add_indexes: Array<{
-    name: string
     key: Record<string, number>
     options?: Record<string, any>
   }>
@@ -616,8 +631,7 @@ watch(activeVersion, () => {
   const version = getCurrentVersion()
   // Initialize JSON strings for each index
   indexJsonStrings.value = version.add_indexes.map(index => {
-    const { name, ...indexData } = index
-    return JSON.stringify(indexData, null, 2)
+    return JSON.stringify(index, null, 2)
   })
   // Clear errors
   indexJsonErrors.value = new Array(version.add_indexes.length).fill(null)
@@ -660,10 +674,7 @@ const updateIndexFromJson = (indexIndex: number) => {
     const jsonString = indexJsonStrings.value[indexIndex]
     const parsed = JSON.parse(jsonString)
     const currentVersion = getCurrentVersion()
-    currentVersion.add_indexes[indexIndex] = {
-      ...currentVersion.add_indexes[indexIndex],
-      ...parsed
-    }
+    currentVersion.add_indexes[indexIndex] = parsed
     indexJsonErrors.value[indexIndex] = null
     autoSave()
   } catch (err: any) {
@@ -674,7 +685,6 @@ const updateIndexFromJson = (indexIndex: number) => {
 const addNewIndex = () => {
   const currentVersion = getCurrentVersion()
   const newIndex = {
-    name: `idx_${Date.now()}`,
     key: {},
     options: {}
   }
