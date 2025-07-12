@@ -3,7 +3,7 @@
     <v-row>
       <v-col cols="12">
         <div class="d-flex justify-space-between align-center mb-6">
-          <h1 class="text-h4">Configurations</h1>
+          <h1 class="text-h4">Types</h1>
         </div>
         
         <!-- Action Bar -->
@@ -23,7 +23,7 @@
         <!-- File List -->
         <FileList 
           ref="fileList"
-          file-type="configurations"
+          file-type="types"
           @edit="editFile"
           @open="openFile"
         />
@@ -31,10 +31,10 @@
         <!-- Upload Dialog -->
         <v-dialog v-model="showUpload" max-width="600">
           <v-card>
-            <v-card-title>Upload Configurations</v-card-title>
+            <v-card-title>Upload Types</v-card-title>
             <v-card-text>
               <FileUpload 
-                file-type="configurations"
+                file-type="types"
                 @uploaded="onFileUploaded"
               />
             </v-card-text>
@@ -68,28 +68,27 @@ const {
   loading,
   loadFiles,
   deleteFile,
-  processFile,
   toggleFileLock
-} = useFiles('configurations')
+} = useFiles('types')
 
 // Use upload composable
-const { downloadFile } = useFileUpload('configurations')
+const { downloadFile } = useFileUpload('types')
 
 // Computed properties
 const hasSelection = computed(() => files.value.length > 0)
 
 // Event handlers
 const editFile = (fileName: string) => {
-  router.push(`/configurations/${fileName}`)
+  router.push(`/types/${fileName}`)
 }
 
 const openFile = (fileName: string) => {
-  router.push(`/configurations/${fileName}`)
+  router.push(`/types/${fileName}`)
 }
 
 const createNew = () => {
-  // TODO: Implement new configuration creation
-  console.log('Create new configuration')
+  // TODO: Implement new type creation
+  console.log('Create new type')
 }
 
 const downloadSelected = async () => {
@@ -104,21 +103,13 @@ const downloadSelected = async () => {
 }
 
 const processSelected = async () => {
-  // Process all unlocked files
-  for (const file of files.value) {
-    if (!file._locked) {
-      try {
-        await processFile(file.name)
-      } catch (err) {
-        console.error(`Failed to process ${file.name}:`, err)
-      }
-    }
-  }
+  // Types don't have processing, so this is a no-op
+  console.log('Processing not available for types')
 }
 
 const deleteSelected = async () => {
   // For now, delete all files (with confirmation)
-  if (confirm('Are you sure you want to delete all configurations?')) {
+  if (confirm('Are you sure you want to delete all types?')) {
     for (const file of files.value) {
       try {
         await deleteFile(file.name)

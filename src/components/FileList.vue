@@ -22,28 +22,21 @@
         <p class="text-body-1 text-medium-emphasis">No {{ fileType }} files are available.</p>
       </div>
 
-      <!-- File grid -->
-      <v-row v-else>
-        <v-col 
+      <!-- File list -->
+      <div v-else>
+        <FileCard
           v-for="file in files" 
           :key="file.name"
-          cols="12" 
-          sm="6" 
-          md="4" 
-          lg="3"
-        >
-          <FileCard
-            :file="file"
-            :file-type="fileType === 'configurations' ? 'configuration' : fileType === 'dictionaries' ? 'dictionary' : fileType === 'types' ? 'type' : fileType === 'enumerators' ? 'enumerator' : fileType === 'test_data' ? 'test-data' : 'migration'"
-            :show-process="fileType === 'configurations'"
-            @edit="editFile(file.name)"
-            @delete="deleteFile(file.name)"
-            @toggle-lock="toggleFileLock(file.name)"
-            @open="openFile(file.name)"
-            @process="processFile(file.name)"
-          />
-        </v-col>
-      </v-row>
+          :file="file"
+          :file-type="fileType === 'configurations' ? 'configuration' : fileType === 'dictionaries' ? 'dictionary' : fileType === 'types' ? 'type' : fileType === 'enumerators' ? 'enumerator' : fileType === 'test_data' ? 'test-data' : 'migration'"
+          :show-process="fileType === 'configurations'"
+          @edit="editFile(file.name)"
+          @delete="deleteFile(file.name)"
+          @toggle-lock="toggleFileLock(file.name)"
+          @open="openFile(file.name)"
+          @process="processFile(file.name)"
+        />
+      </div>
     </div>
   </div>
 </template>

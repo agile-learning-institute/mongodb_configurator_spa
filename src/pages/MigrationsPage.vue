@@ -1,10 +1,24 @@
 <template>
   <v-container>
     <h1>Migrations</h1>
-    <p>Migration files will be listed here.</p>
+    <FileList 
+      file-type="migrations"
+      @edit="handleEdit"
+      @open="handleOpen"
+    />
   </v-container>
 </template>
 
 <script setup lang="ts">
-// Migrations page placeholder
+import FileList from '@/components/FileList.vue'
+
+const handleEdit = (fileName: string) => {
+  console.log('Edit file:', fileName)
+  // TODO: Implement edit functionality
+}
+
+const handleOpen = (fileName: string) => {
+  console.log('Open file:', fileName)
+  // TODO: Implement open functionality
+}
 </script> 

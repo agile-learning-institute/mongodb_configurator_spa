@@ -1,81 +1,73 @@
 <template>
-  <v-card class="mb-4">
-    <v-card-title class="d-flex justify-space-between align-center">
-      <div>
-        <v-icon class="mr-2">{{ fileIcon }}</v-icon>
-        {{ file.name }}
+  <v-card 
+    class="mb-3" 
+    :class="{ 'cursor-pointer': showEdit && !file._locked }"
+    @click="handleCardClick"
+  >
+    <!-- Colored header section -->
+    <div class="header-section pa-4 d-flex justify-space-between align-center">
+      <div class="d-flex align-center">
+        <v-icon class="mr-3" size="24" color="white">{{ fileIcon }}</v-icon>
+        <div class="text-h6 text-white">{{ file.name }}</div>
       </div>
-      <div>
-        <v-btn
-          v-if="showEdit && !file._locked"
-          icon
-          small
-          @click="$emit('edit')"
-          title="Edit"
-        >
-          <v-icon>mdi-pencil</v-icon>
-        </v-btn>
-        <v-btn
-          v-if="showLock"
-          icon
-          small
-          @click="$emit('toggle-lock')"
-          :title="file._locked ? 'Unlock' : 'Lock'"
-        >
-          <v-icon>{{ file._locked ? 'mdi-lock' : 'mdi-lock-open' }}</v-icon>
-        </v-btn>
-        <v-btn
-          v-if="showDelete"
-          icon
-          small
-          color="error"
-          @click="$emit('delete')"
-          title="Delete"
-        >
-          <v-icon>mdi-delete</v-icon>
-        </v-btn>
-      </div>
-    </v-card-title>
-    
-    <v-card-text>
-      <div class="d-flex justify-space-between align-center">
-        <div>
-          <p class="text-caption mb-1">
-            Created: {{ formatDate(file.created_at) }}
-          </p>
-          <p class="text-caption mb-1">
-            Updated: {{ formatDate(file.updated_at) }}
-          </p>
-          <p class="text-caption">
-            Size: {{ formatFileSize(file.size) }}
-          </p>
-        </div>
+      
+      <!-- Action buttons on header background -->
+      <div class="d-flex align-center">
         <v-chip
           v-if="file._locked"
           color="warning"
-          small
+          size="small"
+          class="mr-2"
         >
           Locked
         </v-chip>
+        
+        <v-btn
+          v-if="showLock"
+          icon
+          size="small"
+          variant="text"
+          color="white"
+          @click.stop="$emit('toggle-lock')"
+          :title="file._locked ? 'Unlock' : 'Lock'"
+        >
+          <v-icon size="18">{{ file._locked ? 'mdi-lock' : 'mdi-lock-open' }}</v-icon>
+        </v-btn>
+        
+        <v-btn
+          v-if="showDelete"
+          icon
+          size="small"
+          variant="text"
+          color="white"
+          @click.stop="$emit('delete')"
+          title="Delete"
+        >
+          <v-icon size="18">mdi-delete</v-icon>
+        </v-btn>
+        
+        <v-btn
+          v-if="showProcess"
+          icon
+          size="small"
+          variant="text"
+          color="white"
+          @click.stop="$emit('process')"
+          title="Process"
+        >
+          <v-icon size="18">mdi-cog</v-icon>
+        </v-btn>
       </div>
-    </v-card-text>
-    
-    <v-card-actions v-if="showActions">
-      <v-btn
-        text
-        @click="$emit('open')"
-      >
-        Open
-      </v-btn>
-      <v-spacer></v-spacer>
-      <v-btn
-        v-if="showProcess"
-        text
-        @click="$emit('process')"
-      >
-        Process
-      </v-btn>
-    </v-card-actions>
+    </div>
+
+    <!-- Content section -->
+    <div class="pa-4">
+      <div class="d-flex align-center text-caption text-medium-emphasis">
+        <span class="mr-4">Created: {{ formatDate(file.created_at) }}</span>
+        <span class="mr-4">Updated: {{ formatDate(file.updated_at) }}</span>
+        <span>Size: {{ formatFileSize(file.size) }}</span>
+      </div>
+    </div>
   </v-card>
 </template>
 
@@ -135,6 +127,12 @@ const fileIcon = computed(() => {
   }
 })
 
+const handleCardClick = () => {
+  if (props.showEdit && !props.file._locked) {
+    emit('edit')
+  }
+}
+
 const formatDate = (dateString: string) => {
   return new Date(dateString).toLocaleDateString()
 }
@@ -146,4 +144,19 @@ const formatFileSize = (bytes: number) => {
   const i = Math.floor(Math.log(bytes) / Math.log(k))
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
 }
-</script> 
+</script>
+
+<style scoped>
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.cursor-pointer:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+.header-section {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 4px 4px 0 0;
+}
+</style> 

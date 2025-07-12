@@ -38,7 +38,7 @@ services:
       API_PORT: 8081
       SPA_PORT: 8082
     volumes:
-      - ${INPUT_FOLDER:-./tests/test_cases/playground}:/input
+      - ./tests/playground:/input
     depends_on:
       mongodb:
         condition: service_healthy
@@ -49,10 +49,6 @@ services:
   configurator_spa:
     image: ghcr.io/agile-learning-institute/mongodb_configurator_spa:latest
     restart: no
-    environment:
-      API_HOST: configurator_api
-      API_PORT: 8081
-      SPA_PORT: 8082
     ports:
       - 8082:8082
     depends_on:

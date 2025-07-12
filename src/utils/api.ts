@@ -11,6 +11,8 @@ const apiClient: AxiosInstance = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  // Force relative URLs
+  withCredentials: false,
 })
 
 // Response interceptor for error handling
@@ -36,7 +38,7 @@ export const API_ENDPOINTS = {
   CONFIG: '/config/',
   
   // Configurations
-  CONFIGURATIONS: '/configurations',
+  CONFIGURATIONS: '/configurations/',
   CONFIGURATION: (fileName: string) => `/configurations/${fileName}`,
   NEW_COLLECTION: (name: string) => `/configurations/collection/${name}`,
   JSON_SCHEMA: (fileName: string, version: string) => 
@@ -45,23 +47,23 @@ export const API_ENDPOINTS = {
     `/configurations/bson_schema/${fileName}/${version}`,
   
   // Dictionaries
-  DICTIONARIES: '/dictionaries',
+  DICTIONARIES: '/dictionaries/',
   DICTIONARY: (fileName: string) => `/dictionaries/${fileName}`,
   
   // Types
-  TYPES: '/types',
+  TYPES: '/types/',
   TYPE: (fileName: string) => `/types/${fileName}`,
   
   // Test Data
-  TEST_DATA: '/test_data',
+  TEST_DATA: '/test_data/',
   TEST_DATA_FILE: (fileName: string) => `/test_data/${fileName}`,
   
   // Migrations
-  MIGRATIONS: '/migrations',
+  MIGRATIONS: '/migrations/',
   MIGRATION: (fileName: string) => `/migrations/${fileName}`,
   
   // Enumerators
-  ENUMERATORS: '/enumerators',
+  ENUMERATORS: '/enumerators/',
   ENUMERATOR: (fileName: string) => `/enumerators/${fileName}`,
   
   // Database
