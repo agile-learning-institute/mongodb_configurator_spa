@@ -51,8 +51,7 @@
             :disabled="locked"
             :auto-save="autoSave"
             :allow-multiple="true"
-            size-mode="percentage"
-            :percentage="40"
+            size-mode="fit-content"
           />
         </v-card-text>
       </v-card>
