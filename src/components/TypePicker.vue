@@ -13,7 +13,7 @@
     </v-chip>
 
     <!-- Type Picker Dialog -->
-    <v-dialog v-model="showPicker" max-width="500">
+    <v-dialog v-model="showPicker" max-width="600">
       <v-card>
         <v-card-title class="d-flex justify-space-between align-center pa-4">
           <span>Select Type</span>
@@ -34,20 +34,20 @@
           />
           
           <!-- All Types -->
-          <div class="d-flex flex-wrap gap-1">
-            <v-chip
-              v-for="type in filteredTypes"
-              :key="type"
-              :color="modelValue === type ? 'primary' : undefined"
-              variant="outlined"
-              size="small"
-              class="cursor-pointer"
-              @click="selectType(type)"
-            >
-              <v-icon v-if="hasIcon(type)" start size="16">{{ getTypeIcon(type) }}</v-icon>
-              {{ type }}
-            </v-chip>
-          </div>
+                      <div class="d-flex flex-wrap gap-2">
+              <v-chip
+                v-for="type in filteredTypes"
+                :key="type"
+                :color="modelValue === type ? 'primary' : undefined"
+                variant="outlined"
+                size="default"
+                class="cursor-pointer pa-2"
+                @click="selectType(type)"
+              >
+                <v-icon v-if="hasIcon(type)" start size="18">{{ getTypeIcon(type) }}</v-icon>
+                {{ type }}
+              </v-chip>
+            </div>
         </v-card-text>
       </v-card>
     </v-dialog>
@@ -112,8 +112,8 @@ const loadTypes = async () => {
 
 // Combine all types and filter based on search query
 const allTypes = computed(() => [
+  ...structuralTypes, // Object and array first
   ...primitiveTypes,
-  ...structuralTypes,
   ...availableTypes.value
 ])
 
