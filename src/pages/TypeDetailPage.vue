@@ -134,10 +134,10 @@
       <!-- Object Editor -->
       <div v-if="isObject()" class="mb-6">
         <!-- Simple single line layout -->
-        <div class="d-flex align-center pa-3 border rounded">
+        <div class="d-flex align-center">
           <!-- Type name -->
           <div class="mr-4">
-            <span class="text-subtitle-2 font-weight-medium">{{ type.file_name.replace('.yaml', '') }}</span>
+            <span class="text-h6 font-weight-bold">{{ type.file_name.replace('.yaml', '') }}</span>
           </div>
           
           <!-- Description -->
@@ -157,26 +157,34 @@
             <v-chip size="small" color="primary">object</v-chip>
           </div>
           
-          <!-- Required checkbox -->
+          <!-- Required icon -->
           <div class="mr-2">
-            <v-checkbox
-              v-model="type.required"
-              density="compact"
-              hide-details
+            <v-btn
+              icon
+              size="small"
+              variant="text"
+              :color="type.required ? 'primary' : 'grey'"
               :disabled="type._locked"
-              @update:model-value="autoSave"
-            />
+              @click="type.required = !type.required; autoSave()"
+              title="Required"
+            >
+              <v-icon size="18">mdi-star</v-icon>
+            </v-btn>
           </div>
           
-          <!-- Additional Properties checkbox -->
+          <!-- Additional Properties icon -->
           <div class="mr-2">
-            <v-checkbox
-              v-model="type.additionalProperties"
-              density="compact"
-              hide-details
+            <v-btn
+              icon
+              size="small"
+              variant="text"
+              :color="type.additionalProperties ? 'primary' : 'grey'"
               :disabled="type._locked"
-              @update:model-value="autoSave"
-            />
+              @click="type.additionalProperties = !type.additionalProperties; autoSave()"
+              title="Additional Properties"
+            >
+              <v-icon size="18">mdi-plus-circle</v-icon>
+            </v-btn>
           </div>
         </div>
       </div>
