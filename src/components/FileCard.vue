@@ -88,6 +88,10 @@
       <div v-else-if="expanded">
         <slot />
       </div>
+      <!-- Collapsed content for section cards -->
+      <div v-else-if="isSectionCard && !expanded" class="text-medium-emphasis">
+        <slot name="collapsed" />
+      </div>
     </div>
   </v-card>
 </template>

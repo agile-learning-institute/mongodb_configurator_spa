@@ -102,7 +102,6 @@
         >
           <template #actions>
             <v-btn
-              icon
               size="small"
               variant="text"
               color="white"
@@ -110,10 +109,10 @@
               :disabled="configuration._locked"
               title="Download JSON Schema"
             >
-              <v-icon size="18">mdi-download</v-icon>
+              <v-icon start size="18">mdi-download</v-icon>
+              JSON
             </v-btn>
             <v-btn
-              icon
               size="small"
               variant="text"
               color="white"
@@ -121,7 +120,8 @@
               :disabled="configuration._locked"
               title="Download BSON Schema"
             >
-              <v-icon size="18">mdi-download</v-icon>
+              <v-icon start size="18">mdi-download</v-icon>
+              BSON
             </v-btn>
           </template>
           <template #default>
@@ -225,42 +225,41 @@
                   <v-icon size="18">mdi-plus</v-icon>
                 </v-btn>
               </template>
+              <template #collapsed>
+                <span v-if="getCurrentVersion().add_indexes.length > 0">
+                  {{ getCurrentVersion().add_indexes.length }} Index{{ getCurrentVersion().add_indexes.length === 1 ? '' : 'es' }} to Add
+                </span>
+                <span v-else>
+                  No Indexes to Add
+                </span>
+              </template>
               <template #default>
-                <div v-if="!indexesExpanded" class="text-medium-emphasis">
-                  <span v-if="getCurrentVersion().add_indexes.length > 0">
-                    {{ getCurrentVersion().add_indexes.length }} index{{ getCurrentVersion().add_indexes.length === 1 ? '' : 'es' }} to add
-                  </span>
-                  <span v-else>
-                    No indexes defined
-                  </span>
-                </div>
-                <div v-else>
-                  <div v-if="getCurrentVersion().add_indexes.length > 0">
-                    <div
-                      v-for="(index, indexIndex) in getCurrentVersion().add_indexes"
-                      :key="indexIndex"
-                      class="mb-4 pa-3 border rounded"
-                    >
-                      <div class="d-flex justify-end mb-2">
-                        <v-btn
-                          icon="mdi-delete"
-                          size="small"
-                          variant="text"
-                          color="error"
-                          @click="removeIndex(indexIndex)"
-                          :disabled="configuration._locked"
-                        />
-                      </div>
-                      <v-textarea
-                        v-model="indexJsonStrings[indexIndex]"
-                        label="Index JSON"
-                        rows="4"
-                        auto-grow
+                <div v-if="getCurrentVersion().add_indexes.length > 0">
+                  <div
+                    v-for="(index, indexIndex) in getCurrentVersion().add_indexes"
+                    :key="indexIndex"
+                    class="mb-4 pa-3 border rounded"
+                  >
+                    <div class="d-flex justify-end mb-2">
+                      <v-btn
+                        icon="mdi-delete"
+                        size="small"
+                        variant="text"
+                        color="error"
+                        @click="removeIndex(indexIndex)"
                         :disabled="configuration._locked"
-                        @update:model-value="updateIndexFromJson(indexIndex)"
-                        :error="!!indexJsonErrors[indexIndex]"
-                        :error-messages="indexJsonErrors[indexIndex] || undefined"
-                        placeholder='{
+                      />
+                    </div>
+                    <v-textarea
+                      v-model="indexJsonStrings[indexIndex]"
+                      label="Index JSON"
+                      rows="4"
+                      auto-grow
+                      :disabled="configuration._locked"
+                      @update:model-value="updateIndexFromJson(indexIndex)"
+                      :error="!!indexJsonErrors[indexIndex]"
+                      :error-messages="indexJsonErrors[indexIndex] || undefined"
+                      placeholder='{
   "key": {
     "field_name": 1
   },
@@ -268,12 +267,11 @@
     "unique": true
   }
 }'
-                      />
-                    </div>
+                    />
                   </div>
-                  <div v-else class="text-medium-emphasis">
-                    No indexes defined
-                  </div>
+                </div>
+                <div v-else class="text-medium-emphasis">
+                  No indexes defined
                 </div>
               </template>
             </FileCard>
