@@ -227,6 +227,8 @@
                   item-label="Index"
                   :disabled="configuration._locked"
                   :auto-save="autoSave"
+                  :allow-multiple="false"
+                  size-mode="fit-content"
                 />
               </template>
             </FileCard>

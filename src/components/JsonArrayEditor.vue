@@ -21,9 +21,9 @@
       <div class="text-body-2 text-medium-emphasis mt-2">No {{ itemLabel }}s defined</div>
     </div>
 
-    <!-- List of JSON objects with accordion behavior -->
+    <!-- List of JSON objects with configurable accordion behavior -->
     <div v-else>
-      <v-expansion-panels v-model="expandedPanel">
+      <v-expansion-panels v-model="expandedPanel" :multiple="allowMultiple">
         <v-expansion-panel
           v-for="(item, index) in modelValue"
           :key="index"
@@ -60,7 +60,7 @@
               :disabled="disabled"
               :error="!!itemErrors[index]"
               :error-messages="itemErrors[index]"
-              :rows="Math.floor(window.innerHeight * 0.7 / 24)"
+              :rows="getTextareaRows()"
               auto-grow
               @update:model-value="updateItem(index, $event)"
               @blur="validateItem(index)"
@@ -91,11 +91,19 @@ interface Props {
   itemLabel: string
   disabled?: boolean
   autoSave?: () => Promise<void>
+  allowMultiple?: boolean
+  sizeMode?: 'fit-content' | 'percentage' | 'fixed'
+  percentage?: number
+  fixedRows?: number
 }
 
 const props = withDefaults(defineProps<Props>(), {
   disabled: false,
-  autoSave: undefined
+  autoSave: undefined,
+  allowMultiple: false,
+  sizeMode: 'fit-content',
+  percentage: 70,
+  fixedRows: 4
 })
 
 const emit = defineEmits<{
@@ -107,8 +115,21 @@ const itemTexts = ref<string[]>([])
 const itemErrors = ref<string[]>([])
 const showError = ref(false)
 const errorMessage = ref('')
-const expandedPanel = ref<number | null>(null)
+const expandedPanel = ref<number | number[] | null>(props.allowMultiple ? [] : null)
 const window = ref<Window>(globalThis.window)
+
+// Calculate textarea rows based on size mode
+const getTextareaRows = () => {
+  switch (props.sizeMode) {
+    case 'percentage':
+      return Math.floor(window.value.innerHeight * (props.percentage / 100) / 24)
+    case 'fixed':
+      return props.fixedRows
+    case 'fit-content':
+    default:
+      return 4 // Default minimum rows
+  }
+}
 
 // Initialize text inputs from model value
 const initializeTexts = () => {
@@ -129,7 +150,11 @@ const addItem = () => {
   itemErrors.value.push('')
   
   // Expand the new item
-  expandedPanel.value = newValue.length - 1
+  if (props.allowMultiple) {
+    (expandedPanel.value as number[]).push(newValue.length - 1)
+  } else {
+    expandedPanel.value = newValue.length - 1
+  }
   
   // Auto-save if provided
   if (props.autoSave) {
@@ -152,11 +177,19 @@ const removeItem = (index: number) => {
   itemTexts.value.splice(index, 1)
   itemErrors.value.splice(index, 1)
   
-  // Update expanded panel
-  if (expandedPanel.value === index) {
-    expandedPanel.value = null
-  } else if (expandedPanel.value !== null && expandedPanel.value > index) {
-    expandedPanel.value = expandedPanel.value - 1
+  // Update expanded panels
+  if (props.allowMultiple) {
+    const panels = expandedPanel.value as number[]
+    expandedPanel.value = panels
+      .filter(panel => panel !== index)
+      .map(panel => panel > index ? panel - 1 : panel)
+  } else {
+    const panel = expandedPanel.value as number | null
+    if (panel === index) {
+      expandedPanel.value = null
+    } else if (panel !== null && panel > index) {
+      expandedPanel.value = panel - 1
+    }
   }
   
   // Auto-save if provided

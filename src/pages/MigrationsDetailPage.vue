@@ -50,6 +50,9 @@
             item-label="Migration"
             :disabled="locked"
             :auto-save="autoSave"
+            :allow-multiple="true"
+            size-mode="percentage"
+            :percentage="40"
           />
         </v-card-text>
       </v-card>

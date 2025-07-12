@@ -50,6 +50,9 @@
             item-label="Document"
             :disabled="locked"
             :auto-save="autoSave"
+            :allow-multiple="false"
+            size-mode="percentage"
+            :percentage="70"
           />
         </v-card-text>
       </v-card>
