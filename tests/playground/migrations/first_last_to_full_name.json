@@ -2,7 +2,12 @@
   {
     "$addFields": {
       "full_name": {
-        "$concat": ["$first_name", " ", "$last_name"]
+        "$concat": [
+          "$first_name",
+          " ",
+          "$last_name",
+          "another"
+        ]
       }
     }
   },
@@ -13,6 +18,7 @@
     ]
   },
   {
-    "$out": "user"
+    "$out": "user",
+    "foo": "bar"
   }
-] 
+]

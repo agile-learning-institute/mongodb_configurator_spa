@@ -11,6 +11,7 @@ versions:
     name: nameIndex
     options:
       unique: true
+      foo: bar
   - key:
       status: 1
     name: statusIndex

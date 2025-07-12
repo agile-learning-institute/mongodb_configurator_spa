@@ -21,47 +21,53 @@
       <div class="text-body-2 text-medium-emphasis mt-2">No {{ itemLabel }}s defined</div>
     </div>
 
-    <!-- List of JSON objects -->
+    <!-- List of JSON objects with accordion behavior -->
     <div v-else>
-      <div
-        v-for="(item, index) in modelValue"
-        :key="index"
-        class="mb-3"
-      >
-        <v-card variant="outlined" class="pa-3">
-          <div class="d-flex align-center mb-2">
-            <div class="text-caption text-medium-emphasis mr-2">
-              {{ itemLabel }} {{ index + 1 }}
+      <v-expansion-panels v-model="expandedPanel">
+        <v-expansion-panel
+          v-for="(item, index) in modelValue"
+          :key="index"
+          class="mb-2"
+        >
+          <v-expansion-panel-title>
+            <div class="d-flex justify-space-between align-center w-100">
+              <div class="d-flex align-center">
+                <span class="text-caption text-medium-emphasis mr-2">
+                  {{ itemLabel }} {{ index + 1 }}
+                </span>
+              </div>
+              <v-btn
+                icon
+                size="x-small"
+                variant="text"
+                color="error"
+                @click.stop="removeItem(index)"
+                :disabled="disabled"
+                class="pa-0 ma-0"
+              >
+                <v-icon size="16">mdi-delete</v-icon>
+              </v-btn>
             </div>
-            <v-spacer />
-            <v-btn
-              icon
-              size="x-small"
-              variant="text"
-              color="error"
-              @click="removeItem(index)"
-              :disabled="disabled"
-              class="pa-0 ma-0"
-            >
-              <v-icon size="16">mdi-delete</v-icon>
-            </v-btn>
-          </div>
+          </v-expansion-panel-title>
           
-          <v-textarea
-            v-model="itemTexts[index]"
-            :placeholder="`Enter ${itemLabel} as JSON`"
-            variant="outlined"
-            density="compact"
-            hide-details
-            :disabled="disabled"
-            :error="!!itemErrors[index]"
-            :error-messages="itemErrors[index]"
-            rows="4"
-            @update:model-value="updateItem(index, $event)"
-            @blur="validateItem(index)"
-          />
-        </v-card>
-      </div>
+          <v-expansion-panel-text>
+            <v-textarea
+              v-model="itemTexts[index]"
+              :placeholder="`Enter ${itemLabel} as JSON`"
+              variant="outlined"
+              density="compact"
+              hide-details
+              :disabled="disabled"
+              :error="!!itemErrors[index]"
+              :error-messages="itemErrors[index]"
+              :rows="Math.floor(window.innerHeight * 0.7 / 24)"
+              auto-grow
+              @update:model-value="updateItem(index, $event)"
+              @blur="validateItem(index)"
+            />
+          </v-expansion-panel-text>
+        </v-expansion-panel>
+      </v-expansion-panels>
     </div>
 
     <!-- Error flash overlay -->
@@ -77,7 +83,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, computed } from 'vue'
+import { ref, watch, computed, onMounted } from 'vue'
 
 interface Props {
   modelValue: any[]
@@ -101,6 +107,8 @@ const itemTexts = ref<string[]>([])
 const itemErrors = ref<string[]>([])
 const showError = ref(false)
 const errorMessage = ref('')
+const expandedPanel = ref<number | null>(null)
+const window = ref<Window>(globalThis.window)
 
 // Initialize text inputs from model value
 const initializeTexts = () => {
@@ -119,6 +127,9 @@ const addItem = () => {
   // Add text for new item
   itemTexts.value.push(JSON.stringify(newItem, null, 2))
   itemErrors.value.push('')
+  
+  // Expand the new item
+  expandedPanel.value = newValue.length - 1
   
   // Auto-save if provided
   if (props.autoSave) {
@@ -140,6 +151,13 @@ const removeItem = (index: number) => {
   // Remove text and error for item
   itemTexts.value.splice(index, 1)
   itemErrors.value.splice(index, 1)
+  
+  // Update expanded panel
+  if (expandedPanel.value === index) {
+    expandedPanel.value = null
+  } else if (expandedPanel.value !== null && expandedPanel.value > index) {
+    expandedPanel.value = expandedPanel.value - 1
+  }
   
   // Auto-save if provided
   if (props.autoSave) {
@@ -192,11 +210,17 @@ watch(() => props.modelValue, () => {
 }, { deep: true })
 
 // Initialize on mount
-initializeTexts()
+onMounted(() => {
+  initializeTexts()
+})
 </script>
 
 <style scoped>
 .json-array-editor {
   width: 100%;
+}
+
+.v-expansion-panel-text {
+  padding: 16px;
 }
 </style> 
