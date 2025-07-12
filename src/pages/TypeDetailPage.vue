@@ -160,66 +160,15 @@
           </div>
           
           <div v-else>
-            <v-expansion-panels>
-              <v-expansion-panel
-                v-for="(property, propertyName) in type.properties"
-                :key="propertyName"
-              >
-                <v-expansion-panel-title>
-                  <div class="d-flex justify-space-between align-center w-100">
-                    <span>{{ propertyName }}</span>
-                    <div class="d-flex align-center">
-                      <v-chip
-                        v-if="property.required"
-                        color="primary"
-                        size="small"
-                        class="mr-2"
-                      >
-                        Required
-                      </v-chip>
-                      <v-btn
-                        icon
-                        size="small"
-                        variant="text"
-                        color="error"
-                        @click.stop="deleteProperty(propertyName)"
-                        :disabled="type._locked"
-                      >
-                        <v-icon size="18">mdi-delete</v-icon>
-                      </v-btn>
-                    </div>
-                  </div>
-                </v-expansion-panel-title>
-                <v-expansion-panel-text>
-                  <v-row>
-                    <v-col cols="12" md="6">
-                      <v-text-field
-                        v-model="property.description"
-                        label="Description"
-                        :disabled="type._locked"
-                        @update:model-value="autoSave"
-                      />
-                    </v-col>
-                    <v-col cols="12" md="6">
-                      <TypePicker
-                        v-model="property.type"
-                        label="Type"
-                        :disabled="type._locked"
-                        @update:model-value="autoSave"
-                      />
-                    </v-col>
-                    <v-col cols="12" md="6">
-                      <v-switch
-                        v-model="property.required"
-                        label="Required"
-                        :disabled="type._locked"
-                        @update:model-value="autoSave"
-                      />
-                    </v-col>
-                  </v-row>
-                </v-expansion-panel-text>
-              </v-expansion-panel>
-            </v-expansion-panels>
+            <TypeProperty
+              v-for="(property, propertyName) in type.properties"
+              :key="propertyName"
+              :property-name="propertyName"
+              :property="property"
+              :disabled="type._locked"
+              @change="handlePropertyChange(propertyName, $event)"
+              @delete="deleteProperty(propertyName)"
+            />
           </div>
         </v-card-text>
       </v-card>
@@ -257,11 +206,18 @@ import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { apiService } from '@/utils/api'
 import TypePicker from '@/components/TypePicker.vue'
+import TypeProperty from '@/components/TypeProperty.vue'
 
 interface TypeProperty {
   description: string
   type: string
   required: boolean
+  additionalProperties?: boolean
+  items?: {
+    type: string
+    description: string
+  }
+  properties?: Record<string, TypeProperty>
 }
 
 interface Type {
@@ -456,9 +412,19 @@ const addProperty = () => {
   type.value.properties![propertyName] = {
     description: '',
     type: 'string',
-    required: false
+    required: false,
+    additionalProperties: false
   }
   
+  autoSave()
+}
+
+const handlePropertyChange = (propertyName: string, updatedProperty: any) => {
+  if (!type.value || type.value._locked) return
+  
+  if (type.value.properties) {
+    type.value.properties[propertyName] = updatedProperty
+  }
   autoSave()
 }
 
