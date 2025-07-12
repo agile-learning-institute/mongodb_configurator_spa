@@ -212,44 +212,71 @@
               <template #default>
                 <div v-if="!indexesExpanded" class="text-medium-emphasis">
                   <span v-if="getCurrentVersion().add_indexes.length > 0">
-                    {{ getCurrentVersion().add_indexes.length }} index{{ getCurrentVersion().add_indexes.length === 1 ? '' : 'es' }} specified
+                    {{ getCurrentVersion().add_indexes.length }} index{{ getCurrentVersion().add_indexes.length === 1 ? '' : 'es' }} to add
                   </span>
                   <span v-else>
-                    No indexes specified
+                    No indexes defined
                   </span>
                 </div>
                 <div v-else>
-                  <v-textarea
-                    v-model="indexesJson"
-                    label="Indexes JSON"
-                    rows="8"
-                    auto-grow
-                    :disabled="configuration._locked"
-                    @update:model-value="updateIndexes"
-                    :error="!!indexesError"
-                    :error-messages="indexesError || undefined"
-                    placeholder='[
-  {
-    "name": "idx_field_name",
-    "key": {
-      "field_name": 1
-    },
-    "options": {
-      "unique": true
-    }
-  }
-]'
-                  />
-                  <div class="d-flex justify-end mt-2">
-                    <v-btn
-                      color="primary"
-                      @click="saveIndexes"
-                      :disabled="!!indexesError"
-                      size="small"
+                  <div v-if="getCurrentVersion().add_indexes.length > 0">
+                    <div
+                      v-for="(index, indexIndex) in getCurrentVersion().add_indexes"
+                      :key="indexIndex"
+                      class="mb-4 pa-3 border rounded"
                     >
-                      Save
-                    </v-btn>
+                      <div class="d-flex justify-space-between align-center mb-2">
+                        <v-text-field
+                          v-model="index.name"
+                          label="Index Name"
+                          :disabled="configuration._locked"
+                          @update:model-value="autoSave"
+                          density="compact"
+                          class="mr-2"
+                          style="max-width: 300px;"
+                        />
+                        <v-btn
+                          icon="mdi-delete"
+                          size="small"
+                          variant="text"
+                          color="error"
+                          @click="removeIndex(indexIndex)"
+                          :disabled="configuration._locked"
+                        />
+                      </div>
+                      <v-textarea
+                        v-model="indexJsonStrings[indexIndex]"
+                        label="Index JSON"
+                        rows="4"
+                        auto-grow
+                        :disabled="configuration._locked"
+                        @update:model-value="updateIndexFromJson(indexIndex)"
+                        :error="!!indexJsonErrors[indexIndex]"
+                        :error-messages="indexJsonErrors[indexIndex] || undefined"
+                        placeholder='{
+  "key": {
+    "field_name": 1
+  },
+  "options": {
+    "unique": true
+  }
+}'
+                      />
+                    </div>
                   </div>
+                  <div v-else class="text-medium-emphasis">
+                    No indexes defined
+                  </div>
+                  <v-btn
+                    color="primary"
+                    size="small"
+                    @click="addNewIndex"
+                    :disabled="configuration._locked"
+                    class="mt-2"
+                  >
+                    <v-icon start>mdi-plus</v-icon>
+                    Add Index
+                  </v-btn>
                 </div>
               </template>
             </FileCard>
@@ -516,9 +543,9 @@ const activeVersion = ref<string>('')
 const processing = ref(false)
 
 // JSON editor states
-const indexesJson = ref('')
-const indexesError = ref<string | null>(null)
 const indexesExpanded = ref(false) // Start collapsed
+const indexJsonStrings = ref<string[]>([])
+const indexJsonErrors = ref<(string | null)[]>([])
 
 // File lists
 const testDataFiles = ref<FileInfo[]>([])
@@ -587,9 +614,13 @@ const getCurrentVersion = (): ConfigurationVersion => {
 // Update JSON editors when version changes
 watch(activeVersion, () => {
   const version = getCurrentVersion()
-  indexesJson.value = JSON.stringify(version.add_indexes, null, 2)
+  // Initialize JSON strings for each index
+  indexJsonStrings.value = version.add_indexes.map(index => {
+    const { name, ...indexData } = index
+    return JSON.stringify(indexData, null, 2)
+  })
   // Clear errors
-  indexesError.value = null
+  indexJsonErrors.value = new Array(version.add_indexes.length).fill(null)
 })
 
 // Test Data File Management
@@ -624,34 +655,41 @@ const removeTestData = () => {
 }
 
 // Add Indexes Management
-const updateIndexes = () => {
+const updateIndexFromJson = (indexIndex: number) => {
   try {
-    const parsed = JSON.parse(indexesJson.value)
-    if (!Array.isArray(parsed)) {
-      indexesError.value = 'Must be an array'
-      return
+    const jsonString = indexJsonStrings.value[indexIndex]
+    const parsed = JSON.parse(jsonString)
+    const currentVersion = getCurrentVersion()
+    currentVersion.add_indexes[indexIndex] = {
+      ...currentVersion.add_indexes[indexIndex],
+      ...parsed
     }
-    getCurrentVersion().add_indexes = parsed
-    indexesError.value = null
+    indexJsonErrors.value[indexIndex] = null
     autoSave()
   } catch (err: any) {
-    indexesError.value = 'Invalid JSON format'
+    indexJsonErrors.value[indexIndex] = 'Invalid JSON format'
   }
 }
 
-const saveIndexes = async () => {
-  if (!configuration.value || configuration.value._locked) return
-  
-  saving.value = true
-  try {
-    await apiService.saveConfiguration(configuration.value.file_name, configuration.value)
-    autoSave()
-  } catch (err: any) {
-    error.value = err.message || 'Failed to save indexes'
-    console.error('Failed to save indexes:', err)
-  } finally {
-    saving.value = false
+const addNewIndex = () => {
+  const currentVersion = getCurrentVersion()
+  const newIndex = {
+    name: `idx_${Date.now()}`,
+    key: {},
+    options: {}
   }
+  currentVersion.add_indexes.push(newIndex)
+  indexJsonStrings.value.push(JSON.stringify({ key: {}, options: {} }, null, 2))
+  indexJsonErrors.value.push(null)
+  autoSave()
+}
+
+const removeIndex = (indexIndex: number) => {
+  const currentVersion = getCurrentVersion()
+  currentVersion.add_indexes.splice(indexIndex, 1)
+  indexJsonStrings.value.splice(indexIndex, 1)
+  indexJsonErrors.value.splice(indexIndex, 1)
+  autoSave()
 }
 
 // Drop Indexes Management
