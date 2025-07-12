@@ -182,6 +182,7 @@ npm run down
 - ✅ **Step 4.4**: Add GitHub-style confirmation dialogs for destructive actions
 - ✅ **Step 4.5**: Implement welcome page for empty configurations
 - ✅ **Step 4.6**: Add file naming validation (collection names, versioned names, etc.)
+- ✅ **Step 4.7**: Fix MigrationsDetailPage routing - added missing import and route
 
 ### Phase 5: Detail Pages & Editing 🚧
 - [ ] **Step 5.1**: Build configuration detail page with version management

@@ -15,6 +15,7 @@ const EnumeratorDetailPage = () => import('@/pages/EnumeratorDetailPage.vue')
 const TestDataPage = () => import('@/pages/TestDataPage.vue')
 const TestDataDetailPage = () => import('@/pages/TestDataDetailPage.vue')
 const MigrationsPage = () => import('@/pages/MigrationsPage.vue')
+const MigrationsDetailPage = () => import('@/pages/MigrationsDetailPage.vue')
 
 const routes = [
   {
@@ -94,6 +95,12 @@ const routes = [
     name: 'Migrations',
     component: MigrationsPage,
     meta: { title: 'Migrations' }
+  },
+  {
+    path: '/migrations/:fileName',
+    name: 'MigrationsDetail',
+    component: MigrationsDetailPage,
+    meta: { title: 'Migration Detail' }
   },
   // Catch all route
   {
