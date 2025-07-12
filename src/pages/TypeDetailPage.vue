@@ -288,6 +288,8 @@ interface Type {
   schema?: any
   json_schema?: any
   bson_schema?: any
+  json_type?: any
+  bson_type?: any
   properties?: Record<string, TypeProperty>
   additionalProperties?: boolean
   items?: {
@@ -383,7 +385,7 @@ const getTypeCategory = (): string => {
   if (!type.value) return 'unknown';
 
   if (type.value.schema) return 'simple_primitive';
-  if (type.value.json_schema || type.value.bson_schema) return 'complex_primitive';
+  if (type.value.json_schema || type.value.bson_schema || type.value.json_type || type.value.bson_type) return 'complex_primitive';
   if (type.value.properties) return 'object';
   if (type.value.items) return 'array';
   if (primitiveTypes.includes(type.value.type || '')) return 'property_primitive';
