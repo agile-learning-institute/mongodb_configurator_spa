@@ -15,68 +15,60 @@
 
     <!-- Migration detail -->
     <div v-else-if="migration">
-      <!-- Header -->
-      <div class="d-flex justify-space-between align-center mb-6">
-        <div>
-          <h1 class="text-h4">{{ fileName }}</h1>
-          <p class="text-body-2 text-medium-emphasis">Migration Document</p>
-        </div>
-        <div class="d-flex align-center">
-          <v-chip
-            v-if="locked"
-            color="warning"
-            class="mr-2"
-          >
-            Locked
-          </v-chip>
-          <v-btn
-            color="primary"
-            @click="saveMigration"
-            :loading="saving"
+      <!-- Header Card -->
+      <v-card class="mb-4">
+        <v-card-title class="d-flex justify-space-between align-center">
+          <div class="d-flex align-center">
+            <h2 class="text-h5 mb-0">{{ fileName }}</h2>
+          </div>
+          <div class="d-flex align-center">
+            <v-btn
+              v-if="locked"
+              color="white"
+              variant="text"
+              @click="showUnlockDialog = true"
+            >
+              <v-icon start>mdi-lock</v-icon>
+              Locked
+            </v-btn>
+            <v-btn
+              v-else
+              color="white"
+              variant="text"
+              @click="lockMigration"
+            >
+              <v-icon start>mdi-lock</v-icon>
+              Lock
+            </v-btn>
+          </div>
+        </v-card-title>
+        
+        <v-card-text class="pa-4">
+          <JsonArrayEditor
+            v-model="migration"
+            title="Migrations"
+            item-label="Migration"
             :disabled="locked"
-          >
-            <v-icon start>mdi-content-save</v-icon>
-            Save
-          </v-btn>
-        </div>
-      </div>
-
-      <!-- JSON Editor -->
-      <v-card>
-        <v-card-title>JSON Editor</v-card-title>
-        <v-card-text>
-          <v-textarea
-            v-model="jsonString"
-            label="JSON Data"
-            rows="20"
-            auto-grow
-            :disabled="locked"
-            @update:model-value="validateJson"
-            :error="!!jsonError"
-            :error-messages="jsonError || undefined"
-            placeholder='[
-  {
-    "$addFields": {
-      "full_name": {
-        "$concat": [
-          "$first_name",
-          " ",
-          "$last_name"
-        ]
-      }
-    }
-  },
-  {
-    "$unset": [
-      "first_name",
-      "last_name"
-    ]
-  }
-]'
+            :auto-save="autoSave"
           />
         </v-card-text>
       </v-card>
     </div>
+    
+    <!-- Unlock Dialog -->
+    <v-dialog v-model="showUnlockDialog" max-width="400">
+      <v-card>
+        <v-card-title>Unlock Migration?</v-card-title>
+        <v-card-text>
+          Unlocking allows editing this migration. Are you sure?
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer />
+          <v-btn @click="showUnlockDialog = false">Cancel</v-btn>
+          <v-btn color="primary" @click="unlockMigration">Unlock</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
@@ -84,15 +76,15 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { apiService } from '@/utils/api'
+import JsonArrayEditor from '@/components/JsonArrayEditor.vue'
 
 const route = useRoute()
 const loading = ref(false)
 const saving = ref(false)
 const error = ref<string | null>(null)
 const migration = ref<any[] | null>(null)
-const jsonString = ref('')
-const jsonError = ref<string | null>(null)
 const locked = ref(false)
+const showUnlockDialog = ref(false)
 
 const fileName = computed(() => route.params.fileName as string)
 
@@ -104,7 +96,6 @@ const loadMigration = async () => {
   try {
     const data = await apiService.getMigration(fileName.value)
     migration.value = data
-    jsonString.value = JSON.stringify(data, null, 2)
   } catch (err: any) {
     error.value = err.message || 'Failed to load migration'
     console.error('Failed to load migration:', err)
@@ -113,32 +104,34 @@ const loadMigration = async () => {
   }
 }
 
-// Validate JSON
-const validateJson = () => {
-  try {
-    JSON.parse(jsonString.value)
-    jsonError.value = null
-  } catch (err: any) {
-    jsonError.value = 'Invalid JSON format'
-  }
-}
-
-// Save migration
-const saveMigration = async () => {
-  if (jsonError.value) return
+// Auto-save functionality
+const autoSave = async () => {
+  if (!migration.value || locked.value) return
   
   saving.value = true
   try {
-    const parsedData = JSON.parse(jsonString.value)
-    await apiService.saveMigration(fileName.value, parsedData)
-    migration.value = parsedData
-    // Could add success notification here
+    await apiService.saveMigration(fileName.value, migration.value)
   } catch (err: any) {
     error.value = err.message || 'Failed to save migration'
     console.error('Failed to save migration:', err)
+    throw err
   } finally {
     saving.value = false
   }
+}
+
+// Lock/unlock functionality
+const lockMigration = () => {
+  if (!migration.value) return
+  locked.value = true
+  autoSave()
+}
+
+const unlockMigration = () => {
+  if (!migration.value) return
+  locked.value = false
+  showUnlockDialog.value = false
+  autoSave()
 }
 
 // Load migration on mount

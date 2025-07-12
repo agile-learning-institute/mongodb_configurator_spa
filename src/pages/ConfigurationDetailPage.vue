@@ -212,19 +212,6 @@
               class="mb-4"
               @toggle-expand="indexesExpanded = !indexesExpanded"
             >
-              <template #actions>
-                <v-btn
-                  icon
-                  size="small"
-                  variant="text"
-                  color="white"
-                  @click="addNewIndex"
-                  :disabled="configuration._locked"
-                  title="Add Index"
-                >
-                  <v-icon size="18">mdi-plus</v-icon>
-                </v-btn>
-              </template>
               <template #collapsed>
                 <span v-if="getCurrentVersion().add_indexes.length > 0">
                   {{ getCurrentVersion().add_indexes.length }} Index{{ getCurrentVersion().add_indexes.length === 1 ? '' : 'es' }} to Add
@@ -234,45 +221,13 @@
                 </span>
               </template>
               <template #default>
-                <div v-if="getCurrentVersion().add_indexes.length > 0">
-                  <div
-                    v-for="(index, indexIndex) in getCurrentVersion().add_indexes"
-                    :key="indexIndex"
-                    class="mb-4 pa-3 border rounded"
-                  >
-                    <div class="d-flex justify-end mb-2">
-                      <v-btn
-                        icon="mdi-delete"
-                        size="small"
-                        variant="text"
-                        color="error"
-                        @click="removeIndex(indexIndex)"
-                        :disabled="configuration._locked"
-                      />
-                    </div>
-                    <v-textarea
-                      v-model="indexJsonStrings[indexIndex]"
-                      label="Index JSON"
-                      rows="4"
-                      auto-grow
-                      :disabled="configuration._locked"
-                      @update:model-value="updateIndexFromJson(indexIndex)"
-                      :error="!!indexJsonErrors[indexIndex]"
-                      :error-messages="indexJsonErrors[indexIndex] || undefined"
-                      placeholder='{
-  "key": {
-    "field_name": 1
-  },
-  "options": {
-    "unique": true
-  }
-}'
-                    />
-                  </div>
-                </div>
-                <div v-else class="text-medium-emphasis">
-                  No indexes defined
-                </div>
+                <JsonArrayEditor
+                  v-model="getCurrentVersion().add_indexes"
+                  title=""
+                  item-label="Index"
+                  :disabled="configuration._locked"
+                  :auto-save="autoSave"
+                />
               </template>
             </FileCard>
 
@@ -498,6 +453,7 @@ import { ref, onMounted, computed, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { apiService } from '@/utils/api'
 import FileCard from '@/components/FileCard.vue'
+import JsonArrayEditor from '@/components/JsonArrayEditor.vue'
 
 interface ConfigurationVersion {
   version: string
@@ -538,8 +494,6 @@ const processing = ref(false)
 
 // JSON editor states
 const indexesExpanded = ref(false) // Start collapsed
-const indexJsonStrings = ref<string[]>([])
-const indexJsonErrors = ref<(string | null)[]>([])
 
 // File lists
 const testDataFiles = ref<FileInfo[]>([])
@@ -605,16 +559,7 @@ const getCurrentVersion = (): ConfigurationVersion => {
   }
 }
 
-// Update JSON editors when version changes
-watch(activeVersion, () => {
-  const version = getCurrentVersion()
-  // Initialize JSON strings for each index
-  indexJsonStrings.value = version.add_indexes.map(index => {
-    return JSON.stringify(index, null, 2)
-  })
-  // Clear errors
-  indexJsonErrors.value = new Array(version.add_indexes.length).fill(null)
-})
+
 
 // Test Data File Management
 const loadTestDataFiles = async () => {
@@ -647,39 +592,7 @@ const removeTestData = () => {
   autoSave()
 }
 
-// Add Indexes Management
-const updateIndexFromJson = (indexIndex: number) => {
-  try {
-    const jsonString = indexJsonStrings.value[indexIndex]
-    const parsed = JSON.parse(jsonString)
-    const currentVersion = getCurrentVersion()
-    currentVersion.add_indexes[indexIndex] = parsed
-    indexJsonErrors.value[indexIndex] = null
-    autoSave()
-  } catch (err: any) {
-    indexJsonErrors.value[indexIndex] = 'Invalid JSON format'
-  }
-}
 
-const addNewIndex = () => {
-  const currentVersion = getCurrentVersion()
-  const newIndex = {
-    key: {},
-    options: {}
-  }
-  currentVersion.add_indexes.push(newIndex)
-  indexJsonStrings.value.push(JSON.stringify({ key: {}, options: {} }, null, 2))
-  indexJsonErrors.value.push(null)
-  autoSave()
-}
-
-const removeIndex = (indexIndex: number) => {
-  const currentVersion = getCurrentVersion()
-  currentVersion.add_indexes.splice(indexIndex, 1)
-  indexJsonStrings.value.splice(indexIndex, 1)
-  indexJsonErrors.value.splice(indexIndex, 1)
-  autoSave()
-}
 
 // Drop Indexes Management
 const addDropIndex = () => {

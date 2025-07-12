@@ -15,59 +15,60 @@
 
     <!-- Test data detail -->
     <div v-else-if="testData">
-      <!-- Header -->
-      <div class="d-flex justify-space-between align-center mb-6">
-        <div>
-          <h1 class="text-h4">{{ fileName }}</h1>
-          <p class="text-body-2 text-medium-emphasis">Test Data Document</p>
-        </div>
-        <div class="d-flex align-center">
-          <v-chip
-            v-if="locked"
-            color="warning"
-            class="mr-2"
-          >
-            Locked
-          </v-chip>
-          <v-btn
-            color="primary"
-            @click="saveTestData"
-            :loading="saving"
+      <!-- Header Card -->
+      <v-card class="mb-4">
+        <v-card-title class="d-flex justify-space-between align-center">
+          <div class="d-flex align-center">
+            <h2 class="text-h5 mb-0">{{ fileName }}</h2>
+          </div>
+          <div class="d-flex align-center">
+            <v-btn
+              v-if="locked"
+              color="white"
+              variant="text"
+              @click="showUnlockDialog = true"
+            >
+              <v-icon start>mdi-lock</v-icon>
+              Locked
+            </v-btn>
+            <v-btn
+              v-else
+              color="white"
+              variant="text"
+              @click="lockTestData"
+            >
+              <v-icon start>mdi-lock</v-icon>
+              Lock
+            </v-btn>
+          </div>
+        </v-card-title>
+        
+        <v-card-text class="pa-4">
+          <JsonArrayEditor
+            v-model="testData"
+            title="Test Data"
+            item-label="Document"
             :disabled="locked"
-          >
-            <v-icon start>mdi-content-save</v-icon>
-            Save
-          </v-btn>
-        </div>
-      </div>
-
-      <!-- JSON Editor -->
-      <v-card>
-        <v-card-title>JSON Editor</v-card-title>
-        <v-card-text>
-          <v-textarea
-            v-model="jsonString"
-            label="JSON Data"
-            rows="20"
-            auto-grow
-            :disabled="locked"
-            @update:model-value="validateJson"
-            :error="!!jsonError"
-            :error-messages="jsonError || undefined"
-            placeholder='[
-  {
-    "_id": {
-      "$oid": "A00000000000000000000001"
-    },
-    "first_name": "Joe",
-    "last_name": "Smith",
-    "status": "active"
-  }
-]'
+            :auto-save="autoSave"
           />
         </v-card-text>
       </v-card>
     </div>
+    
+    <!-- Unlock Dialog -->
+    <v-dialog v-model="showUnlockDialog" max-width="400">
+      <v-card>
+        <v-card-title>Unlock Test Data?</v-card-title>
+        <v-card-text>
+          Unlocking allows editing this test data. Are you sure?
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer />
+          <v-btn @click="showUnlockDialog = false">Cancel</v-btn>
+          <v-btn color="primary" @click="unlockTestData">Unlock</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
@@ -75,15 +76,15 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { apiService } from '@/utils/api'
+import JsonArrayEditor from '@/components/JsonArrayEditor.vue'
 
 const route = useRoute()
 const loading = ref(false)
 const saving = ref(false)
 const error = ref<string | null>(null)
 const testData = ref<any[] | null>(null)
-const jsonString = ref('')
-const jsonError = ref<string | null>(null)
 const locked = ref(false)
+const showUnlockDialog = ref(false)
 
 const fileName = computed(() => route.params.fileName as string)
 
@@ -95,7 +96,6 @@ const loadTestData = async () => {
   try {
     const data = await apiService.getTestDataFile(fileName.value)
     testData.value = data
-    jsonString.value = JSON.stringify(data, null, 2)
   } catch (err: any) {
     error.value = err.message || 'Failed to load test data'
     console.error('Failed to load test data:', err)
@@ -104,32 +104,34 @@ const loadTestData = async () => {
   }
 }
 
-// Validate JSON
-const validateJson = () => {
-  try {
-    JSON.parse(jsonString.value)
-    jsonError.value = null
-  } catch (err: any) {
-    jsonError.value = 'Invalid JSON format'
-  }
-}
-
-// Save test data
-const saveTestData = async () => {
-  if (jsonError.value) return
+// Auto-save functionality
+const autoSave = async () => {
+  if (!testData.value || locked.value) return
   
   saving.value = true
   try {
-    const parsedData = JSON.parse(jsonString.value)
-    await apiService.saveTestDataFile(fileName.value, parsedData)
-    testData.value = parsedData
-    // Could add success notification here
+    await apiService.saveTestDataFile(fileName.value, testData.value)
   } catch (err: any) {
     error.value = err.message || 'Failed to save test data'
     console.error('Failed to save test data:', err)
+    throw err
   } finally {
     saving.value = false
   }
+}
+
+// Lock/unlock functionality
+const lockTestData = () => {
+  if (!testData.value) return
+  locked.value = true
+  autoSave()
+}
+
+const unlockTestData = () => {
+  if (!testData.value) return
+  locked.value = false
+  showUnlockDialog.value = false
+  autoSave()
 }
 
 // Load test data on mount
