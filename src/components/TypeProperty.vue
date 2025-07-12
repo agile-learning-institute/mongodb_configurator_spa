@@ -71,34 +71,30 @@
       </div>
     </div>
 
-    <!-- Expanded Content (only for list/object types) -->
-    <div v-if="expanded && hasExpandableContent()" class="expanded-content pa-3 border rounded mb-2">
-      <!-- List Items Editor -->
-      <div v-if="isListType()">
-        <div class="text-subtitle-2 mb-2">List Items</div>
-        <v-row>
-          <v-col cols="12" md="6">
-            <TypePicker
-              v-model="property.items!.type"
-              label="Item Type"
-              density="compact"
-              :disabled="disabled"
-              :exclude-type="excludeType"
-              @update:model-value="handleChange"
-            />
-          </v-col>
-          <v-col cols="12" md="6">
-            <v-text-field
-              v-model="property.items!.description"
-              label="Item Description"
-              density="compact"
-              variant="outlined"
-              :disabled="disabled"
-              @update:model-value="handleChange"
-            />
-          </v-col>
-        </v-row>
+    <!-- Array Items Section (special layout for array types) -->
+    <div v-if="isListType()" class="array-items-section ml-8 mb-2">
+      <!-- Items Row -->
+      <div class="d-flex align-center pa-3 border rounded">
+        <!-- Items Label -->
+        <div class="items-label mr-4">
+          <span class="text-subtitle-2 font-weight-bold">Items</span>
+        </div>
+        
+        <!-- Items Property Component -->
+        <div class="items-property flex-grow-1">
+          <TypeProperty
+            property-name="items"
+            :property="property.items || { description: '', type: 'string', required: false }"
+            :disabled="disabled"
+            :exclude-type="excludeType"
+            @change="handleItemsChange"
+          />
+        </div>
       </div>
+    </div>
+
+    <!-- Expanded Content (only for object types) -->
+    <div v-if="expanded && isObjectType()" class="expanded-content pa-3 border rounded mb-2">
 
       <!-- Object Properties Editor -->
       <div v-if="isObjectType()">
@@ -144,6 +140,7 @@ import TypePicker from './TypePicker.vue'
 interface PropertyItems {
   type: string
   description: string
+  required: boolean
 }
 
 interface Property {
@@ -215,7 +212,8 @@ const handleTypeChange = () => {
   if (isListType() && !props.property.items) {
     props.property.items = {
       type: 'string',
-      description: ''
+      description: '',
+      required: false
     }
   }
   if (isObjectType() && !props.property.properties) {
@@ -260,6 +258,11 @@ const handleSubPropertyChange = (propertyName: string, updatedProperty: Property
     props.property.properties[propertyName] = updatedProperty
     emit('change', props.property)
   }
+}
+
+const handleItemsChange = (updatedItems: Property) => {
+  props.property.items = updatedItems
+  emit('change', props.property)
 }
 </script>
 
