@@ -2,7 +2,7 @@
   <v-container>
     <h1>Configurations</h1>
     <FileList 
-      file-type="configuration"
+      file-type="configurations"
       @edit="handleEdit"
       @open="handleOpen"
     />

@@ -2,7 +2,7 @@
   <v-container>
     <h1>Dictionaries</h1>
     <FileList 
-      file-type="dictionary"
+      file-type="dictionaries"
       @edit="handleEdit"
       @open="handleOpen"
     />

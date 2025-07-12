@@ -2,7 +2,7 @@
   <v-container>
     <h1>Test Data</h1>
     <FileList 
-      file-type="test-data"
+      file-type="test_data"
       @edit="handleEdit"
       @open="handleOpen"
     />

@@ -133,7 +133,7 @@
                   
                   <v-row>
                     <v-col
-                      v-for="(value, key) in enumeration"
+                                             v-for="(_, key) in enumeration"
                       :key="key"
                       cols="12"
                       md="6"

@@ -2,7 +2,7 @@
   <v-container>
     <h1>Enumerators</h1>
     <FileList 
-      file-type="enumerator"
+      file-type="enumerators"
       @edit="handleEdit"
       @open="handleOpen"
     />

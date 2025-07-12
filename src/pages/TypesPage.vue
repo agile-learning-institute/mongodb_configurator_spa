@@ -2,7 +2,7 @@
   <v-container>
     <h1>Types</h1>
     <FileList 
-      file-type="type"
+      file-type="types"
       @edit="handleEdit"
       @open="handleOpen"
     />

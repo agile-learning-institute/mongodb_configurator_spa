@@ -2,7 +2,7 @@
   <v-container>
     <h1>Migrations</h1>
     <FileList 
-      file-type="migration"
+      file-type="migrations"
       @edit="handleEdit"
       @open="handleOpen"
     />

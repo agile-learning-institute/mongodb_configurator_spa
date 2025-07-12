@@ -108,7 +108,7 @@ const router = createRouter({
 })
 
 // Global route guard for read-only mode
-router.beforeEach((to, from, next) => {
+router.beforeEach((to, _from, next) => {
   const { isReadOnly } = useConfig()
   
   // If in read-only mode, prevent access to edit pages
