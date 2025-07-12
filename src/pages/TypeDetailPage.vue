@@ -139,9 +139,9 @@
       </v-card>
 
       <!-- Object Editor -->
-      <v-card v-if="isObject()" class="mb-6">
-        <v-card-title class="d-flex justify-space-between align-center">
-          <span>Properties</span>
+      <div v-if="isObject()" class="mb-6">
+        <div class="d-flex justify-space-between align-center mb-4">
+          <h3 class="text-h6">Properties</h3>
           <v-btn
             color="primary"
             variant="outlined"
@@ -151,27 +151,26 @@
             <v-icon start>mdi-plus</v-icon>
             Add Property
           </v-btn>
-        </v-card-title>
-        <v-card-text>
-          <div v-if="!type.properties || Object.keys(type.properties).length === 0" class="text-center pa-8">
-            <v-icon size="64" color="grey">mdi-cube-outline</v-icon>
-            <h3 class="text-h6 mt-4">No Properties</h3>
-            <p class="text-body-2 text-medium-emphasis">Add properties to define the object structure.</p>
-          </div>
-          
-          <div v-else>
-            <TypeProperty
-              v-for="(property, propertyName) in type.properties"
-              :key="propertyName"
-              :property-name="propertyName"
-              :property="property"
-              :disabled="type._locked"
-              @change="handlePropertyChange(propertyName, $event)"
-              @delete="deleteProperty(propertyName)"
-            />
-          </div>
-        </v-card-text>
-      </v-card>
+        </div>
+        
+        <div v-if="!type.properties || Object.keys(type.properties).length === 0" class="text-center pa-8">
+          <v-icon size="64" color="grey">mdi-cube-outline</v-icon>
+          <h3 class="text-h6 mt-4">No Properties</h3>
+          <p class="text-body-2 text-medium-emphasis">Add properties to define the object structure.</p>
+        </div>
+        
+        <div v-else>
+          <TypeProperty
+            v-for="(property, propertyName) in type.properties"
+            :key="propertyName"
+            :property-name="propertyName"
+            :property="property"
+            :disabled="type._locked"
+            @change="handlePropertyChange(propertyName, $event)"
+            @delete="deleteProperty(propertyName)"
+          />
+        </div>
+      </div>
 
       <!-- Array Editor -->
       <v-card v-if="isArray()" class="mb-6">
