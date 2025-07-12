@@ -88,7 +88,7 @@
 
       <!-- Version content -->
       <div v-if="activeVersion">
-        <!-- Version Title Card -->
+        <!-- Version Wrapper Card -->
         <FileCard
           :file="{ name: `Version ${activeVersion}`, created_at: '', updated_at: '', size: 0 }"
           file-type="configuration"
@@ -96,10 +96,13 @@
           :show-delete="false"
           :show-lock="false"
           :show-actions="false"
+          :is-section-card="true"
+          :expanded="true"
           class="mb-4"
         >
           <template #default>
-            <v-card-actions>
+            <!-- Schema Download Buttons -->
+            <div class="d-flex justify-end mb-4">
               <v-btn
                 size="small"
                 variant="outlined"
@@ -117,72 +120,99 @@
                 <v-icon start>mdi-download</v-icon>
                 BSON Schema
               </v-btn>
-            </v-card-actions>
-          </template>
-        </FileCard>
-
-        <!-- Test Data Card -->
-        <FileCard
-          :file="{ name: 'Test Data', created_at: '', updated_at: '', size: 0 }"
-          file-type="test-data"
-          :show-edit="false"
-          :show-delete="false"
-          :show-lock="false"
-          :show-actions="false"
-          :is-section-card="true"
-          :expanded="true"
-          class="mb-4"
-        >
-          <template #default>
-            <v-select
-              v-model="getCurrentVersion().test_data"
-              :items="testDataFiles"
-              label="Test Data File"
-              :disabled="configuration._locked"
-              @update:model-value="autoSave"
-              :loading="loadingTestData"
-              item-title="name"
-              item-value="name"
-              clearable
-            >
-              <template v-slot:append>
+            </div>
+            <!-- Test Data Card -->
+            <v-card class="mb-4" variant="outlined">
+              <v-card-title class="text-h6 d-flex justify-space-between align-center">
+                <div class="d-flex align-center">
+                  <v-icon class="mr-2">mdi-database</v-icon>
+                  Test Data
+                </div>
                 <v-btn
                   icon="mdi-plus"
                   size="small"
                   variant="text"
-                  @click="showNewTestDataDialog = true"
+                  @click="showTestDataChooser = true"
                   :disabled="configuration._locked"
                 />
-              </template>
-            </v-select>
-          </template>
-        </FileCard>
+              </v-card-title>
+              <v-card-text v-if="!showTestDataChooser">
+                <div v-if="getCurrentVersion().test_data" class="d-flex align-center">
+                  <v-chip color="primary" class="mr-2">
+                    {{ getCurrentVersion().test_data }}
+                  </v-chip>
+                  <v-btn
+                    icon="mdi-delete"
+                    size="small"
+                    variant="text"
+                    color="error"
+                    @click="removeTestData"
+                    :disabled="configuration._locked"
+                  />
+                </div>
+                <div v-else class="text-medium-emphasis">
+                  No test data file selected
+                </div>
+              </v-card-text>
+              <v-card-text v-else>
+                <v-select
+                  v-model="selectedTestData"
+                  :items="testDataFilesWithNew"
+                  label="Test Data File"
+                  :disabled="configuration._locked"
+                  :loading="loadingTestData"
+                  item-title="name"
+                  item-value="name"
+                  clearable
+                  @update:model-value="selectTestData"
+                />
+              </v-card-text>
+            </v-card>
 
-        <!-- Add Indexes Card -->
-        <FileCard
-          :file="{ name: 'Add Indexes', created_at: '', updated_at: '', size: 0 }"
-          file-type="configuration"
-          :show-edit="false"
-          :show-delete="false"
-          :show-lock="false"
-          :show-actions="false"
-          :is-section-card="true"
-          :show-expand="true"
-          :expanded="indexesExpanded"
-          @toggle-expand="toggleIndexesExpansion"
-          class="mb-4"
-        >
-          <template #default>
-            <v-textarea
-              v-model="indexesJson"
-              label="Indexes JSON"
-              rows="8"
-              auto-grow
-              :disabled="configuration._locked"
-              @update:model-value="updateIndexes"
-              :error="!!indexesError"
-              :error-messages="indexesError || undefined"
-              placeholder='[
+            <!-- Add Indexes Card -->
+            <v-card class="mb-4" variant="outlined">
+              <v-card-title class="text-h6 d-flex justify-space-between align-center">
+                <div class="d-flex align-center">
+                  <v-icon class="mr-2">mdi-index</v-icon>
+                  Add Indexes
+                </div>
+                <v-btn
+                  icon="mdi-plus"
+                  size="small"
+                  variant="text"
+                  @click="showIndexesEditor = true"
+                  :disabled="configuration._locked"
+                />
+              </v-card-title>
+              <v-card-text v-if="!showIndexesEditor">
+                <div v-if="getCurrentVersion().add_indexes.length > 0" class="d-flex flex-wrap">
+                  <v-chip
+                    v-for="index in getCurrentVersion().add_indexes"
+                    :key="index.name"
+                    color="primary"
+                    class="mr-2 mb-2"
+                    closable
+                    @click:close="removeIndex(index)"
+                    :disabled="configuration._locked"
+                  >
+                    {{ index.name }}
+                  </v-chip>
+                </div>
+                <div v-else class="text-medium-emphasis">
+                  No indexes defined
+                </div>
+              </v-card-text>
+              <v-card-text v-else>
+                <v-textarea
+                  v-model="indexesJson"
+                  label="Indexes JSON"
+                  rows="8"
+                  auto-grow
+                  :disabled="configuration._locked"
+                  @update:model-value="updateIndexes"
+                  :error="!!indexesError"
+                  :error-messages="indexesError || undefined"
+                  placeholder='[
   {
     "name": "idx_field_name",
     "key": {
@@ -193,122 +223,128 @@
     }
   }
 ]'
-            />
-          </template>
-        </FileCard>
-
-        <!-- Drop Indexes Card -->
-        <FileCard
-          :file="{ name: 'Drop Indexes', created_at: '', updated_at: '', size: 0 }"
-          file-type="configuration"
-          :show-edit="false"
-          :show-delete="false"
-          :show-lock="false"
-          :show-actions="false"
-          :is-section-card="true"
-          :expanded="true"
-          class="mb-4"
-        >
-          <template #default>
-            <div class="d-flex align-center mb-2">
-              <v-text-field
-                v-model="newDropIndex"
-                label="Index Name"
-                placeholder="idx_old_field"
-                :disabled="configuration._locked"
-                @keyup.enter="addDropIndex"
-                class="mr-2"
-                style="max-width: 300px;"
-              />
-              <v-btn
-                color="primary"
-                @click="addDropIndex"
-                :disabled="!newDropIndex.trim() || configuration._locked"
-                size="small"
-              >
-                <v-icon start>mdi-plus</v-icon>
-                Add
-              </v-btn>
-            </div>
-            <div class="d-flex flex-wrap">
-              <v-chip
-                v-for="index in getCurrentVersion().drop_indexes"
-                :key="index.name"
-                color="error"
-                class="mr-2 mb-2"
-                closable
-                @click:close="removeDropIndex(index.name)"
-                :disabled="configuration._locked"
-              >
-                {{ index.name }}
-              </v-chip>
-            </div>
-          </template>
-        </FileCard>
-
-        <!-- Migrations Card -->
-        <FileCard
-          :file="{ name: 'Migrations', created_at: '', updated_at: '', size: 0 }"
-          file-type="migration"
-          :show-edit="false"
-          :show-delete="false"
-          :show-lock="false"
-          :show-actions="false"
-          :is-section-card="true"
-          :expanded="true"
-          class="mb-4"
-        >
-          <template #default>
-            <div class="d-flex align-center mb-2">
-              <v-select
-                v-model="newMigration"
-                :items="migrationFiles"
-                label="Migration File"
-                :disabled="configuration._locked"
-                :loading="loadingMigrations"
-                item-title="name"
-                item-value="name"
-                clearable
-                style="max-width: 300px;"
-                class="mr-2"
-              >
-                <template v-slot:append>
+                />
+                <div class="d-flex justify-end mt-2">
                   <v-btn
-                    icon="mdi-plus"
+                    color="primary"
+                    @click="saveIndexes"
+                    :disabled="!!indexesError"
                     size="small"
-                    variant="text"
-                    @click="showNewMigrationDialog = true"
+                  >
+                    Save
+                  </v-btn>
+                </div>
+              </v-card-text>
+            </v-card>
+
+            <!-- Drop Indexes Card -->
+            <v-card class="mb-4" variant="outlined">
+              <v-card-title class="text-h6 d-flex justify-space-between align-center">
+                <div class="d-flex align-center">
+                  <v-icon class="mr-2">mdi-delete</v-icon>
+                  Drop Indexes
+                </div>
+                <v-btn
+                  icon="mdi-plus"
+                  size="small"
+                  variant="text"
+                  @click="showDropIndexInput = true"
+                  :disabled="configuration._locked"
+                />
+              </v-card-title>
+              <v-card-text>
+                <div v-if="showDropIndexInput" class="d-flex align-center mb-2">
+                  <v-text-field
+                    v-model="newDropIndex"
+                    label="Index Name"
+                    placeholder="idx_old_field"
                     :disabled="configuration._locked"
+                    @keyup.enter="addDropIndex"
+                    class="mr-2"
+                    style="max-width: 300px;"
                   />
-                </template>
-              </v-select>
-              <v-btn
-                color="primary"
-                @click="addMigration"
-                :disabled="!newMigration || configuration._locked"
-                size="small"
-              >
-                <v-icon start>mdi-plus</v-icon>
-                Add
-              </v-btn>
-            </div>
-            <div class="d-flex flex-wrap">
-              <v-chip
-                v-for="migration in getCurrentVersion().migrations"
-                :key="migration"
-                color="info"
-                class="mr-2 mb-2"
-                closable
-                @click:close="removeMigration(migration)"
-                :disabled="configuration._locked"
-              >
-                {{ migration }}
-              </v-chip>
-            </div>
+                  <v-btn
+                    color="primary"
+                    @click="addDropIndex"
+                    :disabled="!newDropIndex.trim() || configuration._locked"
+                    size="small"
+                  >
+                    Add
+                  </v-btn>
+                  <v-btn
+                    @click="cancelDropIndex"
+                    size="small"
+                    class="ml-2"
+                  >
+                    Cancel
+                  </v-btn>
+                </div>
+                <div class="d-flex flex-wrap">
+                  <v-chip
+                    v-for="index in getCurrentVersion().drop_indexes"
+                    :key="index.name"
+                    color="error"
+                    class="mr-2 mb-2"
+                    closable
+                    @click:close="removeDropIndex(index.name)"
+                    :disabled="configuration._locked"
+                  >
+                    {{ index.name }}
+                  </v-chip>
+                </div>
+              </v-card-text>
+            </v-card>
+
+            <!-- Migrations Card -->
+            <v-card class="mb-4" variant="outlined">
+              <v-card-title class="text-h6 d-flex justify-space-between align-center">
+                <div class="d-flex align-center">
+                  <v-icon class="mr-2">mdi-swap-horizontal</v-icon>
+                  Migrations
+                </div>
+                <v-btn
+                  icon="mdi-plus"
+                  size="small"
+                  variant="text"
+                  @click="showMigrationChooser = true"
+                  :disabled="configuration._locked"
+                />
+              </v-card-title>
+              <v-card-text v-if="!showMigrationChooser">
+                <div v-if="getCurrentVersion().migrations.length > 0" class="d-flex flex-wrap">
+                  <v-chip
+                    v-for="migration in getCurrentVersion().migrations"
+                    :key="migration"
+                    color="info"
+                    class="mr-2 mb-2"
+                    closable
+                    @click:close="removeMigration(migration)"
+                    :disabled="configuration._locked"
+                  >
+                    {{ migration }}
+                  </v-chip>
+                </div>
+                <div v-else class="text-medium-emphasis">
+                  No migrations defined
+                </div>
+              </v-card-text>
+              <v-card-text v-else>
+                <v-select
+                  v-model="selectedMigration"
+                  :items="migrationFilesWithNew"
+                  label="Migration File"
+                  :disabled="configuration._locked"
+                  :loading="loadingMigrations"
+                  item-title="name"
+                  item-value="name"
+                  clearable
+                  @update:model-value="selectMigration"
+                />
+              </v-card-text>
+            </v-card>
           </template>
         </FileCard>
       </div>
-    </div>
 
     <!-- New Test Data Dialog -->
     <v-dialog v-model="showNewTestDataDialog" max-width="500px">
@@ -451,6 +487,16 @@ const newMigrationError = ref<string | null>(null)
 const creatingTestData = ref(false)
 const creatingMigration = ref(false)
 
+// Chooser states
+const showTestDataChooser = ref(false)
+const showIndexesEditor = ref(false)
+const showDropIndexInput = ref(false)
+const showMigrationChooser = ref(false)
+
+// Selected items for choosers
+const selectedTestData = ref<string | null>(null)
+const selectedMigration = ref<string | null>(null)
+
 // Load configuration data
 const loadConfiguration = async () => {
   loading.value = true
@@ -473,7 +519,26 @@ const loadConfiguration = async () => {
   }
 }
 
-// Load test data files
+// Get current version data
+const getCurrentVersion = (): ConfigurationVersion => {
+  return configuration.value?.versions.find(v => v.version === activeVersion.value) || {
+    version: '',
+    test_data: '',
+    add_indexes: [],
+    drop_indexes: [],
+    migrations: []
+  }
+}
+
+// Update JSON editors when version changes
+watch(activeVersion, () => {
+  const version = getCurrentVersion()
+  indexesJson.value = JSON.stringify(version.add_indexes, null, 2)
+  // Clear errors
+  indexesError.value = null
+})
+
+// Test Data File Management
 const loadTestDataFiles = async () => {
   loadingTestData.value = true
   try {
@@ -490,6 +555,105 @@ const loadTestDataFiles = async () => {
   } finally {
     loadingTestData.value = false
   }
+}
+
+const testDataFilesWithNew = computed(() => {
+  return [...testDataFiles.value, { name: 'New Test Data File', created_at: '', updated_at: '', size: 0 }]
+})
+
+const selectTestData = (name: string) => {
+  if (name === 'New Test Data File') {
+    showNewTestDataDialog.value = true
+    newTestDataFileName.value = ''
+    newTestDataError.value = null
+  } else {
+    getCurrentVersion().test_data = name
+    selectedTestData.value = name
+    showTestDataChooser.value = false
+    autoSave()
+  }
+}
+
+const removeTestData = () => {
+  getCurrentVersion().test_data = ''
+  autoSave()
+}
+
+// Add Indexes Management
+const updateIndexes = () => {
+  try {
+    const parsed = JSON.parse(indexesJson.value)
+    if (!Array.isArray(parsed)) {
+      indexesError.value = 'Must be an array'
+      return
+    }
+    getCurrentVersion().add_indexes = parsed
+    indexesError.value = null
+    autoSave()
+  } catch (err: any) {
+    indexesError.value = 'Invalid JSON format'
+  }
+}
+
+const saveIndexes = async () => {
+  if (!configuration.value || configuration.value._locked) return
+  
+  saving.value = true
+  try {
+    await apiService.saveConfiguration(configuration.value.file_name, configuration.value)
+    showIndexesEditor.value = false
+    autoSave()
+  } catch (err: any) {
+    error.value = err.message || 'Failed to save indexes'
+    console.error('Failed to save indexes:', err)
+  } finally {
+    saving.value = false
+  }
+}
+
+const removeIndex = (index: { name: string }) => {
+  const currentVersion = getCurrentVersion()
+  currentVersion.add_indexes = currentVersion.add_indexes.filter((i: { name: string }) => i.name !== index.name)
+  autoSave()
+}
+
+// Drop Indexes Management
+const addDropIndex = () => {
+  const name = newDropIndex.value.trim()
+  if (!name) return
+  
+  const currentVersion = getCurrentVersion()
+  if (!currentVersion.drop_indexes.find((idx: { name: string }) => idx.name === name)) {
+    currentVersion.drop_indexes.push({ name })
+    newDropIndex.value = ''
+    showDropIndexInput.value = false
+    autoSave()
+  }
+}
+
+const removeDropIndex = (name: string) => {
+  const currentVersion = getCurrentVersion()
+  currentVersion.drop_indexes = currentVersion.drop_indexes.filter((idx: { name: string }) => idx.name !== name)
+  autoSave()
+}
+
+// Migrations Management
+const addMigration = () => {
+  const name = newMigration.value
+  if (!name) return
+  
+  const currentVersion = getCurrentVersion()
+  if (!currentVersion.migrations.includes(name)) {
+    currentVersion.migrations.push(name)
+    newMigration.value = ''
+    autoSave()
+  }
+}
+
+const removeMigration = (name: string) => {
+  const currentVersion = getCurrentVersion()
+  currentVersion.migrations = currentVersion.migrations.filter((m: string) => m !== name)
+  autoSave()
 }
 
 // Load migration files
@@ -511,85 +675,26 @@ const loadMigrationFiles = async () => {
   }
 }
 
-// Get current version data
-const getCurrentVersion = (): ConfigurationVersion => {
-  return configuration.value?.versions.find(v => v.version === activeVersion.value) || {
-    version: '',
-    test_data: '',
-    add_indexes: [],
-    drop_indexes: [],
-    migrations: []
-  }
-}
-
-// Update JSON editors when version changes
-watch(activeVersion, () => {
-  const version = getCurrentVersion()
-  indexesJson.value = JSON.stringify(version.add_indexes, null, 2)
-  // Clear errors
-  indexesError.value = null
+const migrationFilesWithNew = computed(() => {
+  return [...migrationFiles.value, { name: 'New Migration File', created_at: '', updated_at: '', size: 0 }]
 })
 
-// Update indexes from JSON
-const updateIndexes = () => {
-  try {
-    const parsed = JSON.parse(indexesJson.value)
-    if (!Array.isArray(parsed)) {
-      indexesError.value = 'Must be an array'
-      return
+const selectMigration = (name: string) => {
+  if (name === 'New Migration File') {
+    showNewMigrationDialog.value = true
+    newMigrationFileName.value = ''
+    newMigrationError.value = null
+  } else {
+    const currentVersion = getCurrentVersion()
+    if (!currentVersion.migrations.includes(name)) {
+      currentVersion.migrations.push(name)
+      selectedMigration.value = name
+      showMigrationChooser.value = false
+      autoSave()
     }
-    getCurrentVersion().add_indexes = parsed
-    indexesError.value = null
-    autoSave()
-  } catch (err: any) {
-    indexesError.value = 'Invalid JSON format'
   }
 }
 
-// Toggle Add Indexes card expansion
-const toggleIndexesExpansion = () => {
-  indexesExpanded.value = !indexesExpanded.value
-}
-
-// Drop index management
-const addDropIndex = () => {
-  const name = newDropIndex.value.trim()
-  if (!name) return
-  
-  const currentVersion = getCurrentVersion()
-  if (!currentVersion.drop_indexes.find(idx => idx.name === name)) {
-    currentVersion.drop_indexes.push({ name })
-    newDropIndex.value = ''
-    autoSave()
-  }
-}
-
-const removeDropIndex = (name: string) => {
-  const currentVersion = getCurrentVersion()
-  currentVersion.drop_indexes = currentVersion.drop_indexes.filter(idx => idx.name !== name)
-  autoSave()
-}
-
-// Migration management
-const addMigration = () => {
-  const name = newMigration.value
-  if (!name) return
-  
-  const currentVersion = getCurrentVersion()
-  if (!currentVersion.migrations.includes(name)) {
-    currentVersion.migrations.push(name)
-    newMigration.value = ''
-    autoSave()
-  }
-}
-
-const removeMigration = (name: string) => {
-  const currentVersion = getCurrentVersion()
-  currentVersion.migrations = currentVersion.migrations.filter(m => m !== name)
-  autoSave()
-}
-
-// Create new test data file
 const createTestDataFile = async () => {
   const fileName = newTestDataFileName.value.trim()
   if (!fileName) return
@@ -618,7 +723,6 @@ const createTestDataFile = async () => {
   }
 }
 
-// Create new migration file
 const createMigrationFile = async () => {
   const fileName = newMigrationFileName.value.trim()
   if (!fileName) return
@@ -734,6 +838,12 @@ const downloadBsonSchema = async () => {
     error.value = err.message || 'Failed to download BSON schema'
     console.error('Failed to download BSON schema:', err)
   }
+}
+
+// Cancel Drop Index Input
+const cancelDropIndex = () => {
+  showDropIndexInput.value = false
+  newDropIndex.value = ''
 }
 
 // Load configuration on mount
