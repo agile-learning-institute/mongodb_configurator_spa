@@ -2,4 +2,4 @@ file_name: breadcrumb.yaml
 _locked: false
 description: A tracking breadcrumb
 required: false
-type: sentence
+type: count
