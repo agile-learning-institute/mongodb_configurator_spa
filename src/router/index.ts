@@ -16,6 +16,7 @@ const TestDataPage = () => import('@/pages/TestDataPage.vue')
 const TestDataDetailPage = () => import('@/pages/TestDataDetailPage.vue')
 const MigrationsPage = () => import('@/pages/MigrationsPage.vue')
 const MigrationsDetailPage = () => import('@/pages/MigrationsDetailPage.vue')
+const EventsPage = () => import('@/pages/EventsPage.vue')
 
 const routes = [
   {
@@ -101,6 +102,12 @@ const routes = [
     name: 'MigrationsDetail',
     component: MigrationsDetailPage,
     meta: { title: 'Migration Detail' }
+  },
+  {
+    path: '/events',
+    name: 'Events',
+    component: EventsPage,
+    meta: { title: 'Events' }
   },
   // Catch all route
   {

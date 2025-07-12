@@ -44,6 +44,7 @@ const navItems = [
   { title: 'Enumerators', icon: 'mdi-format-list-bulleted', to: '/enumerators' },
   { title: 'Test Data', icon: 'mdi-file-document', to: '/test_data' },
   { title: 'Migrations', icon: 'mdi-swap-horizontal', to: '/migrations' },
+  { title: 'Events', icon: 'mdi-calendar-clock', to: '/events' },
   { title: 'Admin', icon: 'mdi-cog', to: '/admin' },
 ]
 </script> 

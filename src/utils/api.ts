@@ -71,6 +71,9 @@ export const API_ENDPOINTS = {
   
   // Health
   HEALTH: '/health',
+  
+  // Events
+  EVENTS: '/events/',
 } as const
 
 // API service functions
@@ -260,6 +263,17 @@ export const apiService = {
   // Health
   async getHealth() {
     const response = await apiClient.get(API_ENDPOINTS.HEALTH)
+    return response.data
+  },
+
+  // Events
+  async getEvents() {
+    const response = await apiClient.get(API_ENDPOINTS.EVENTS)
+    return response.data
+  },
+
+  async clearEvents() {
+    const response = await apiClient.delete(API_ENDPOINTS.EVENTS)
     return response.data
   },
 }
