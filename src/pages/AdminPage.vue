@@ -14,7 +14,7 @@
     </div>
 
     <!-- Config items -->
-    <div v-else-if="configItems">
+    <div v-else>
       <v-card>
         <v-card-title>API Config Items</v-card-title>
         <v-card-text>

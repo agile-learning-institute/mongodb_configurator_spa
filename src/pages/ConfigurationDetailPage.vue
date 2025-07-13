@@ -101,25 +101,25 @@
           class="mb-4"
         >
           <template #actions>
-            <v-btn
-              size="small"
+              <v-btn
+                size="small"
               variant="text"
               color="white"
-              @click="downloadJsonSchema"
+                @click="downloadJsonSchema"
               :disabled="configuration._locked"
               title="Download JSON Schema"
-            >
+              >
               <v-icon start size="18">mdi-download</v-icon>
               JSON
-            </v-btn>
-            <v-btn
-              size="small"
+              </v-btn>
+              <v-btn
+                size="small"
               variant="text"
               color="white"
-              @click="downloadBsonSchema"
+                @click="downloadBsonSchema"
               :disabled="configuration._locked"
               title="Download BSON Schema"
-            >
+              >
               <v-icon start size="18">mdi-download</v-icon>
               BSON
             </v-btn>
@@ -184,17 +184,17 @@
                   title="Clear Test Data"
                 >
                   <v-icon size="18">mdi-close-circle</v-icon>
-                </v-btn>
+              </v-btn>
               </template>
               <template #default>
                 <div v-if="getCurrentVersion().test_data" class="d-flex align-center">
                   <v-chip color="primary" class="mr-2">
                     {{ getCurrentVersion().test_data }}
                   </v-chip>
-                </div>
+            </div>
                 <div v-else class="text-medium-emphasis">
                   No test data file selected
-                </div>
+            </div>
               </template>
             </FileCard>
 
@@ -284,23 +284,23 @@
                         </v-btn>
                       </div>
                     </v-card-text>
-                  </v-card>
+                    </v-card>
                 </v-menu>
               </template>
               <template #default>
                 <div v-if="getCurrentVersion().drop_indexes.length > 0" class="d-flex flex-wrap">
-                  <v-chip
-                    v-for="index in getCurrentVersion().drop_indexes"
-                    :key="index.name"
-                    color="error"
-                    class="mr-2 mb-2"
+              <v-chip
+                v-for="index in getCurrentVersion().drop_indexes"
+                :key="index.name"
+                color="error"
+                class="mr-2 mb-2"
                     closable
                     @click:close="removeDropIndex(index.name)"
                     :disabled="configuration._locked"
-                  >
-                    {{ index.name }}
-                  </v-chip>
-                </div>
+              >
+                {{ index.name }}
+              </v-chip>
+            </div>
                 <div v-else class="text-medium-emphasis">
                   No indexes to drop
                 </div>
@@ -358,18 +358,18 @@
               </template>
               <template #default>
                 <div v-if="getCurrentVersion().migrations.length > 0" class="d-flex flex-wrap">
-                  <v-chip
-                    v-for="migration in getCurrentVersion().migrations"
-                    :key="migration"
-                    color="info"
-                    class="mr-2 mb-2"
+              <v-chip
+                v-for="migration in getCurrentVersion().migrations"
+                :key="migration"
+                color="info"
+                class="mr-2 mb-2"
                     closable
                     @click:close="removeMigration(migration)"
                     :disabled="configuration._locked"
-                  >
-                    {{ migration }}
-                  </v-chip>
-                </div>
+              >
+                {{ migration }}
+              </v-chip>
+            </div>
                 <div v-else class="text-medium-emphasis">
                   No migrations defined
                 </div>
@@ -787,8 +787,16 @@ const processConfiguration = async () => {
   
   processing.value = true
   try {
-    await apiService.processConfiguration(configuration.value.file_name)
-    // Could add success notification here
+    const result = await apiService.processConfiguration(configuration.value.file_name)
+    
+    // Check if the response contains event data (successful processing with events)
+    if (result && result.id && result.type && result.status) {
+      // This is a ConfiguratorEvent from successful processing
+      const { showEvent } = useEvents()
+      showEvent(result, 'Processing Complete', 'Configuration processing completed successfully')
+    }
+    // If no event data, processing completed silently (no popup needed)
+    
   } catch (err: any) {
     console.error('Failed to process configuration:', err)
     

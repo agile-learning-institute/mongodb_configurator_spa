@@ -20,27 +20,27 @@
         <v-card-title class="d-flex justify-space-between align-center">
           <div class="d-flex align-center">
             <h2 class="text-h5 mb-0">{{ fileName }}</h2>
-          </div>
-          <div class="d-flex align-center">
+        </div>
+        <div class="d-flex align-center">
             <v-btn
-              v-if="locked"
+            v-if="locked"
               color="white"
               variant="text"
               @click="showUnlockDialog = true"
-            >
+          >
               <v-icon start>mdi-lock</v-icon>
-              Locked
+            Locked
             </v-btn>
-            <v-btn
+          <v-btn
               v-else
               color="white"
               variant="text"
               @click="lockMigration"
-            >
+          >
               <v-icon start>mdi-lock</v-icon>
               Lock
-            </v-btn>
-          </div>
+          </v-btn>
+        </div>
         </v-card-title>
         
         <v-card-text class="pa-4">

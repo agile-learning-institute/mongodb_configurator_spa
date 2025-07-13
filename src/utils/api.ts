@@ -67,7 +67,7 @@ export const API_ENDPOINTS = {
   ENUMERATOR: (fileName: string) => `/enumerators/${fileName}/`,
   
   // Database
-  DATABASE: '/database',
+  DATABASE: '/database/',
   
   // Health
   HEALTH: '/health',

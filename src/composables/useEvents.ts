@@ -14,7 +14,7 @@ export function useEvents() {
     eventSubtitle.value = subtitle || 'Processing or error information'
     showEventDialog.value = true
   }
-
+  
   const showError = (message: string, title?: string, subtitle?: string) => {
     currentEvent.value = null
     eventMessage.value = message
@@ -22,13 +22,13 @@ export function useEvents() {
     eventSubtitle.value = subtitle || 'An error occurred'
     showEventDialog.value = true
   }
-
+  
   const hideEvent = () => {
     showEventDialog.value = false
     currentEvent.value = null
     eventMessage.value = ''
   }
-
+  
   return {
     showEventDialog,
     currentEvent,

@@ -59,24 +59,60 @@
       
       <!-- Sub-events -->
       <div v-if="event.sub_events && event.sub_events.length > 0" class="mt-3">
-        <div class="text-caption text-medium-emphasis mb-2">
-          Sub-events ({{ event.sub_events.length }}):
+        <div class="d-flex align-center justify-space-between mb-2">
+          <div class="text-caption text-medium-emphasis">
+            Sub-events ({{ event.sub_events.length }}):
+          </div>
+          <v-btn
+            size="small"
+            variant="text"
+            @click="subEventsExpanded = !subEventsExpanded"
+            class="text-caption"
+          >
+            <v-icon size="16" class="mr-1">
+              {{ subEventsExpanded ? 'mdi-chevron-up' : 'mdi-chevron-down' }}
+            </v-icon>
+            {{ subEventsExpanded ? 'Collapse' : 'Expand' }}
+          </v-btn>
         </div>
-        <div class="ml-4">
-          <EventCard
-            v-for="subEvent in event.sub_events"
-            :key="subEvent.id"
-            :event="subEvent"
-            class="mb-2"
-          />
+        
+        <!-- Sub-events Summary (always visible) -->
+        <div class="mb-2">
+          <div class="d-flex flex-wrap gap-1">
+            <v-chip
+              v-for="subEvent in event.sub_events"
+              :key="subEvent.id"
+              :color="getSubEventStatusColor(subEvent.status)"
+              size="x-small"
+              variant="tonal"
+              class="text-caption"
+            >
+              <v-icon size="12" class="mr-1">
+                {{ getSubEventStatusIcon(subEvent.status) }}
+              </v-icon>
+              {{ subEvent.type }}
+            </v-chip>
+          </div>
         </div>
+        
+        <!-- Expanded Sub-events -->
+        <v-expand-transition>
+          <div v-if="subEventsExpanded" class="ml-4">
+            <EventCard
+              v-for="subEvent in event.sub_events"
+              :key="subEvent.id"
+              :event="subEvent"
+              class="mb-2"
+            />
+          </div>
+        </v-expand-transition>
       </div>
     </v-card-text>
   </v-card>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { ref, computed } from 'vue'
 import type { ConfiguratorEvent } from '@/types/events'
 
 interface Props {
@@ -84,6 +120,9 @@ interface Props {
 }
 
 const props = defineProps<Props>()
+
+// Sub-events expansion state (start collapsed)
+const subEventsExpanded = ref(false)
 
 // Format datetime for display
 const formatDateTime = (dateTime: string) => {
@@ -115,6 +154,34 @@ const getStatusIcon = () => {
       return 'mdi-clock'
     default:
       return 'mdi-help-circle'
+  }
+}
+
+// Get sub-event status color
+const getSubEventStatusColor = (status: string) => {
+  switch (status) {
+    case 'SUCCESS':
+      return 'success'
+    case 'FAILURE':
+      return 'error'
+    case 'PENDING':
+      return 'warning'
+    default:
+      return 'grey'
+  }
+}
+
+// Get sub-event status icon
+const getSubEventStatusIcon = (status: string) => {
+  switch (status) {
+    case 'SUCCESS':
+      return 'mdi-check'
+    case 'FAILURE':
+      return 'mdi-alert'
+    case 'PENDING':
+      return 'mdi-clock'
+    default:
+      return 'mdi-help'
   }
 }
 
