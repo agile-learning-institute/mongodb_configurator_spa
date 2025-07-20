@@ -43,7 +43,8 @@ withDefaults(defineProps<Props>(), {
 
 // Check if there's content in the default slot
 const hasContent = computed(() => {
-  return !!useSlots().default
+  const slots = useSlots()
+  return !!slots.default && slots.default().length > 0
 })
 </script>
 

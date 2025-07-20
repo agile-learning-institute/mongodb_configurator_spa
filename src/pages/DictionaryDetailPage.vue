@@ -316,6 +316,8 @@
                 <span>Required</span>
               </v-tooltip>
             </template>
+            <!-- Explicitly no content -->
+            <template #default></template>
           </PropertyTypeCard>
         </div>
       </BaseCard>
