@@ -45,8 +45,8 @@
         <v-card-text class="pa-4">
           <TypeProperty
             property-name="root"
-            :property="{ ...type, type: type.type || '' }"
-                :disabled="type._locked"
+            :property="type.root"
+            :disabled="type._locked"
             :exclude-type="type.file_name"
             :top-level="true"
             :top-level-name="type.file_name.replace('.yaml', '')"
@@ -80,27 +80,20 @@ import TypeProperty from '@/components/TypeProperty.vue'
 
 interface TypeProperty {
   description: string
-  type: string
-  required: boolean
+  type?: string
+  required?: boolean
   additionalProperties?: boolean
   items?: TypeProperty
   properties?: Record<string, TypeProperty>
+  schema?: any
+  json_type?: any
+  bson_type?: any
 }
 
 interface Type {
-  description: string
   file_name: string
-  required: boolean
-  type?: string
-  schema?: any
-  json_schema?: any
-  bson_schema?: any
-  json_type?: any
-  bson_type?: any
-  properties?: Record<string, TypeProperty>
-  additionalProperties?: boolean
-  items?: TypeProperty
   _locked: boolean
+  root: TypeProperty
 }
 
 const route = useRoute()
@@ -349,8 +342,8 @@ const lockType = () => {
 
 const handleTopLevelPropertyChange = (updated: any) => {
   if (!type.value) return
-  // Copy all top-level fields from updated to type.value
-  Object.assign(type.value, updated)
+  // Update the root property with the changes
+  type.value.root = updated
   autoSave()
 }
 
