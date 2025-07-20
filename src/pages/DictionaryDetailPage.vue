@@ -269,64 +269,52 @@
         <!-- Enum Type Content -->
         <div v-if="isEnumType()" class="pa-1">
           <PropertyTypeCard
-            title=""
+            :title="`${dictionary.file_name.replace('.yaml', '')}: ${dictionary.root.description || 'No description'}`"
             icon="mdi-format-list-checks"
             :is-sub-card="false"
           >
-            <template #title>
-              <div class="d-flex align-center justify-space-between w-100">
-                <!-- Left side: Icon, Name, Description -->
-                <div class="d-flex align-center flex-grow-1">
-                  <v-icon class="mr-3" size="20" color="white">mdi-format-list-checks</v-icon>
-                  <span class="text-h6 text-white mr-3">{{ dictionary.file_name.replace('.yaml', '') }}</span>
-                  <span class="text-h6 text-white flex-grow-1">{{ dictionary.root.description || 'No description' }}</span>
-                </div>
-                
-                <!-- Right side: Type, Enumerators, Star -->
-                <div class="d-flex align-center">
-                  <!-- Type Picker -->
-                  <div class="mr-3" style="min-width: 120px;">
-                    <DictionaryTypePicker
-                      v-model="dictionary.root.type"
-                      label="Type"
-                      density="compact"
-                      :disabled="dictionary._locked"
-                      :exclude-type="dictionary.file_name"
-                      class="items-type-picker"
-                    />
-                  </div>
-                  <!-- Enumerators Label and Picker -->
-                  <div class="d-flex align-center mr-3">
-                    <span class="text-white mr-2">Enumerators:</span>
-                    <EnumPicker
-                      v-model="dictionary.root.enums"
-                      label="Select Enum"
-                      density="compact"
-                      :disabled="dictionary._locked"
-                      class="flex-grow-1"
-                      style="min-width: 150px;"
-                    />
-                  </div>
-                  <!-- Required Icon -->
-                  <v-tooltip location="top">
-                    <template v-slot:activator="{ props }">
-                      <v-btn
-                        icon
-                        size="x-small"
-                        variant="text"
-                        :color="dictionary.root.required ? 'primary' : 'grey'"
-                        :disabled="dictionary._locked"
-                        v-bind="props"
-                        @click="dictionary.root.required = !dictionary.root.required; autoSave()"
-                        class="pa-0 ma-0"
-                      >
-                        <v-icon size="16">mdi-star</v-icon>
-                      </v-btn>
-                    </template>
-                    <span>Required</span>
-                  </v-tooltip>
-                </div>
+            <template #header-actions>
+              <!-- Type Picker -->
+              <div class="mr-3" style="min-width: 120px;">
+                <DictionaryTypePicker
+                  v-model="dictionary.root.type"
+                  label="Type"
+                  density="compact"
+                  :disabled="dictionary._locked"
+                  :exclude-type="dictionary.file_name"
+                  class="items-type-picker"
+                />
               </div>
+              <!-- Enumerators Label and Picker -->
+              <div class="d-flex align-center mr-3">
+                <span class="text-white mr-2">Enumerators:</span>
+                <EnumPicker
+                  v-model="dictionary.root.enums"
+                  label="Select Enum"
+                  density="compact"
+                  :disabled="dictionary._locked"
+                  class="flex-grow-1"
+                  style="min-width: 150px;"
+                />
+              </div>
+              <!-- Required Icon -->
+              <v-tooltip location="top">
+                <template v-slot:activator="{ props }">
+                  <v-btn
+                    icon
+                    size="x-small"
+                    variant="text"
+                    :color="dictionary.root.required ? 'primary' : 'grey'"
+                    :disabled="dictionary._locked"
+                    v-bind="props"
+                    @click="dictionary.root.required = !dictionary.root.required; autoSave()"
+                    class="pa-0 ma-0"
+                  >
+                    <v-icon size="16">mdi-star</v-icon>
+                  </v-btn>
+                </template>
+                <span>Required</span>
+              </v-tooltip>
             </template>
           </PropertyTypeCard>
         </div>
