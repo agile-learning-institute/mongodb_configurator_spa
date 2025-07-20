@@ -5,7 +5,7 @@
       'cursor-pointer': clickable,
       'secondary': isSecondary 
     }"
-    v-on="clickable ? { click: handleClick } : {}"
+    @click="handleClick"
   >
     <!-- Header section with customizable content -->
     <div class="header-section pa-2 d-flex justify-space-between align-center">
@@ -51,8 +51,9 @@ const emit = defineEmits<{
   click: []
 }>()
 
-const handleClick = () => {
-  if (props.clickable) {
+const handleClick = (event: Event) => {
+  // Only handle clicks if the card is clickable and the click was on the card itself
+  if (props.clickable && event.target === event.currentTarget) {
     emit('click')
   }
 }

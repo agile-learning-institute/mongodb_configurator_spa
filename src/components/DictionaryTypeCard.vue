@@ -149,7 +149,6 @@ const cancelEditName = () => {
 
 // Description editing functions
 const startEditDescription = () => {
-  console.log('startEditDescription called - disabled:', props.disabled)
   if (props.disabled) return
   editingDescriptionValue.value = props.description || ''
   editingDescription.value = true
@@ -159,7 +158,6 @@ const startEditDescription = () => {
 }
 
 const stopEditDescription = () => {
-  console.log('stopEditDescription called')
   editingDescription.value = false
   if (editingDescriptionValue.value !== props.description) {
     emit('update:description', editingDescriptionValue.value)
@@ -167,7 +165,6 @@ const stopEditDescription = () => {
 }
 
 const cancelEditDescription = () => {
-  console.log('cancelEditDescription called')
   editingDescription.value = false
   editingDescriptionValue.value = props.description || ''
 }

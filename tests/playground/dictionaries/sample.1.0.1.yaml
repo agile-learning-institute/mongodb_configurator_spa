@@ -7,7 +7,9 @@ root:
   additional_properties: false
   properties:
     property_123:
-      description: Description!!!
+      description: Description!!!adsfadsfasdf are really longDescription!!!adsfadsfasdf
+        are really longDescription!!!adsfadsfasdf are really longDescription!!!adsfadsfasdf
+        are really long
       type: word
       required: false
     property_2:
