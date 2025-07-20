@@ -2,8 +2,6 @@
   <BaseCard 
     :icon="icon" 
     :is-secondary="isSubCard"
-    :clickable="false"
-    :disable-click="true"
   >
     <!-- Title slot with name and description -->
     <template #title>
@@ -38,16 +36,8 @@
           v-if="!editingDescription"
           class="clickable-text ml-2 flex-grow-1 description-text"
           :class="isSubCard ? 'text-body-2 text-dark' : 'text-h6 text-white'"
-          @click="(event) => { 
-            console.log('🎯 Description span clicked!');
-            console.log('  - event.target:', event.target);
-            console.log('  - event.currentTarget:', event.currentTarget);
-            console.log('  - event.type:', event.type);
-            console.log('  - isSubCard:', props.isSubCard);
-            event.stopPropagation(); 
-            startEditDescription(); 
-          }"
-          style="min-width: 100px;"
+          @click="handleDescriptionClick"
+          style="min-width: 100px; position: relative; z-index: 100;"
           title="Click to edit description"
         >
           {{ description }}
@@ -215,9 +205,39 @@ const cancelEditDescription = () => {
   editingDescriptionValue.value = props.description || ''
   console.log('  ✅ Reset editingDescription to false')
 }
+
+const handleDescriptionClick = (event: Event) => {
+  console.log('🎯 Description span clicked!')
+  console.log('  - isSubCard:', props.isSubCard)
+  console.log('  - event:', event)
+  event.stopPropagation()
+  startEditDescription()
+}
 </script>
 
 <style scoped>
+/* Make description text more obvious */
+.description-text {
+  border: 1px dashed transparent;
+  transition: border-color 0.2s;
+  position: relative;
+  z-index: 100;
+  pointer-events: auto;
+  cursor: pointer;
+  display: inline-block;
+  min-height: 1.2em;
+}
+
+.description-text:hover {
+  border-color: rgba(255, 255, 255, 0.5);
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.description-text:active {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Ensure clickable areas are above other elements */
 .clickable-text {
   cursor: pointer;
   transition: background-color 0.2s;
@@ -227,6 +247,7 @@ const cancelEditDescription = () => {
   user-select: none;
   position: relative;
   z-index: 10;
+  pointer-events: auto;
 }
 
 .clickable-text:hover {
@@ -252,15 +273,5 @@ const cancelEditDescription = () => {
   bottom: 0;
   background: transparent;
   z-index: -1;
-}
-
-/* Make description text more obvious */
-.description-text {
-  border: 1px dashed transparent;
-  transition: border-color 0.2s;
-}
-
-.description-text:hover {
-  border-color: rgba(255, 255, 255, 0.5);
 }
 </style> 
