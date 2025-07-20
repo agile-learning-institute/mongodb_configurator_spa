@@ -100,24 +100,24 @@
           <div class="d-flex align-center">
             <!-- View Mode -->
             <span 
-              v-if="!editingTitle"
+              v-if="!editingCardTitle"
               class="text-h6 text-white mr-2 clickable-title"
-              @click.stop="startEditTitle"
+              @click.stop="startEditCardTitle"
             >
-              {{ dictionary.file_name.replace('.yaml', '') }}
+              {{ dictionary.title || dictionary.file_name.replace('.yaml', '') }}
             </span>
             <!-- Edit Mode -->
             <v-text-field
               v-else
-              v-model="dictionary.file_name"
+              v-model="dictionary.title"
               variant="outlined"
               density="compact"
               class="text-h6 text-white mr-2"
               :disabled="dictionary._locked"
-              @blur="stopEditTitle"
-              @keyup.enter="stopEditTitle"
-              @keyup.esc="cancelEditTitle"
-              ref="titleField"
+              @blur="stopEditCardTitle"
+              @keyup.enter="stopEditCardTitle"
+              @keyup.esc="cancelEditCardTitle"
+              ref="cardTitleField"
               hide-details
               autofocus
               style="min-width: 150px;"
@@ -379,9 +379,11 @@ const dictionary = ref<Dictionary | null>(null)
 const editingTitle = ref(false)
 const editingDescription = ref(false)
 const editingItemsDescription = ref(false)
+const editingCardTitle = ref(false)
 const titleField = ref<any>(null)
 const descriptionField = ref<any>(null)
 const itemsDescriptionField = ref<any>(null)
+const cardTitleField = ref<any>(null)
 
 // Dialog states
 const showUnlockDialog = ref(false)
@@ -528,6 +530,23 @@ const stopEditDescription = () => {
 
 const cancelEditDescription = () => {
   editingDescription.value = false
+}
+
+const startEditCardTitle = () => {
+  if (dictionary.value?._locked) return
+  editingCardTitle.value = true
+  nextTick(() => {
+    cardTitleField.value.focus()
+  })
+}
+
+const stopEditCardTitle = () => {
+  editingCardTitle.value = false
+  autoSave()
+}
+
+const cancelEditCardTitle = () => {
+  editingCardTitle.value = false
 }
 
 const startEditItemsDescription = () => {

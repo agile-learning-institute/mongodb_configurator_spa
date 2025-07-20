@@ -1,7 +1,7 @@
 file_name: sample.1.0.1.yaml
 _locked: false
 root:
-  description: A simple collection for testing
+  description: A simple collection for tests
   type: object
   required: false
   additional_properties: false
