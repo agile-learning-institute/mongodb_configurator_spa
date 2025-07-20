@@ -2,30 +2,6 @@ file_name: sample.1.0.1.yaml
 _locked: false
 root:
   description: A simple collection for testsasdf
-  type: object
+  type: enum
   required: false
-  additional_properties: false
-  properties:
-    property_123:
-      description: Description!!!adsfadsfasdf are really longDescription!!!adsfadsfasdf
-        are really longDescription!!!adsfadsfasdf are really longDescription!!!adsfadsfasdf
-        are really long
-      type: word
-      required: false
-    property_2:
-      description: ''
-      type: enum
-      required: false
-      enums: default_status
-    property_3:
-      description: ''
-      type: string
-      required: false
-    property_4:
-      description: ''
-      type: string
-      required: false
-    property_5:
-      description: ''
-      type: string
-      required: false
+  enums: null

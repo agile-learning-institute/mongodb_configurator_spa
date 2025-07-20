@@ -286,9 +286,9 @@
               :disabled="dictionary._locked"
               :exclude-type="dictionary.file_name"
             >
-              <template #extra>
-                <!-- Enumerators Label and Picker -->
-                <div class="d-flex align-center mr-3">
+              <template #header-actions>
+                <!-- Enumerators Picker -->
+                <div class="d-flex align-center">
                   <span class="text-white mr-2">Enumerators:</span>
                   <EnumPicker
                     v-model="dictionary.root.enums"
