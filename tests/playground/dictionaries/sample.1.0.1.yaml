@@ -17,3 +17,7 @@ root:
       type: enum
       required: false
       enums: null
+    property_3:
+      description: ''
+      type: string
+      required: false

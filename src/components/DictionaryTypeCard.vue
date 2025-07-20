@@ -37,7 +37,7 @@
           v-if="!editingDescription"
           class="clickable-text ml-2 flex-grow-1 description-text"
           :class="isSubCard ? 'text-body-2 text-dark' : 'text-h6 text-white'"
-          @click.stop="startEditDescription"
+          @click="(event) => { event.stopPropagation(); startEditDescription(); }"
           style="min-width: 100px;"
           title="Click to edit description"
         >

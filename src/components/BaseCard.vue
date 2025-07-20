@@ -53,8 +53,18 @@ const emit = defineEmits<{
 
 const handleClick = (event: Event) => {
   // Only handle clicks if the card is clickable and the click was on the card itself
-  if (props.clickable && event.target === event.currentTarget) {
-    emit('click')
+  // Check if the target is the card element or a direct child that should trigger card clicks
+  if (props.clickable) {
+    const target = event.target as HTMLElement
+    const cardElement = event.currentTarget as HTMLElement
+    
+    // Only emit if click is on the card background or specific card elements
+    // Don't emit for clicks on interactive elements like text fields, buttons, etc.
+    if (target === cardElement || 
+        target.classList.contains('base-card') ||
+        (target.parentElement === cardElement && !target.classList.contains('clickable-text'))) {
+      emit('click')
+    }
   }
 }
 
