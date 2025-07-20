@@ -35,10 +35,11 @@
         <!-- Description (editable) -->
         <span 
           v-if="!editingDescription"
-          class="clickable-text ml-2 flex-grow-1"
+          class="clickable-text ml-2 flex-grow-1 description-text"
           :class="isSubCard ? 'text-body-2 text-dark' : 'text-h6 text-white'"
           @click.stop="startEditDescription"
           style="min-width: 100px;"
+          title="Click to edit description"
         >
           {{ description }}
         </span>
@@ -148,6 +149,7 @@ const cancelEditName = () => {
 
 // Description editing functions
 const startEditDescription = () => {
+  console.log('startEditDescription called - disabled:', props.disabled)
   if (props.disabled) return
   editingDescriptionValue.value = props.description || ''
   editingDescription.value = true
@@ -157,6 +159,7 @@ const startEditDescription = () => {
 }
 
 const stopEditDescription = () => {
+  console.log('stopEditDescription called')
   editingDescription.value = false
   if (editingDescriptionValue.value !== props.description) {
     emit('update:description', editingDescriptionValue.value)
@@ -164,6 +167,7 @@ const stopEditDescription = () => {
 }
 
 const cancelEditDescription = () => {
+  console.log('cancelEditDescription called')
   editingDescription.value = false
   editingDescriptionValue.value = props.description || ''
 }
@@ -174,21 +178,45 @@ const cancelEditDescription = () => {
   cursor: pointer;
   transition: background-color 0.2s;
   display: inline-block;
-  padding: 2px 4px;
+  padding: 4px 8px;
   border-radius: 4px;
   user-select: none;
+  position: relative;
+  z-index: 10;
 }
 
 .clickable-text:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: rgba(255, 255, 255, 0.2);
 }
 
 .clickable-text:active {
-  background-color: rgba(255, 255, 255, 0.2);
+  background-color: rgba(255, 255, 255, 0.3);
 }
 
 /* Ensure text fields don't interfere with click events */
 .v-text-field {
   z-index: 1;
+}
+
+/* Debug styling to make clickable areas visible */
+.clickable-text::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: transparent;
+  z-index: -1;
+}
+
+/* Make description text more obvious */
+.description-text {
+  border: 1px dashed transparent;
+  transition: border-color 0.2s;
+}
+
+.description-text:hover {
+  border-color: rgba(255, 255, 255, 0.5);
 }
 </style> 
