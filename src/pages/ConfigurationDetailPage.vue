@@ -880,6 +880,10 @@ onMounted(() => {
 .editable-field :deep(.v-field__input) {
   padding: 0;
   min-height: auto;
+  font-size: inherit;
+  font-weight: inherit;
+  color: inherit;
+  line-height: inherit;
 }
 
 .editable-field :deep(.v-field__outline) {
@@ -890,10 +894,26 @@ onMounted(() => {
   padding: 0;
 }
 
+.editable-field :deep(.v-input__control) {
+  min-height: auto;
+}
+
+.editable-field :deep(.v-field__input) .v-field__input__wrapper {
+  padding: 0;
+}
+
 .editable-field:focus-within {
   background-color: rgba(46, 125, 50, 0.04);
   border-radius: 4px;
   padding: 4px;
   margin: -4px;
+}
+
+/* Ensure the text looks exactly like the original when not focused */
+.editable-field:not(:focus-within) :deep(.v-field__input) {
+  color: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
 }
 </style> 
