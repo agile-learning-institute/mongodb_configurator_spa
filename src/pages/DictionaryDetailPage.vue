@@ -604,4 +604,21 @@ onMounted(() => {
 .items-type-picker :deep(.v-field__label) {
   color: black !important;
 }
+
+/* Target the select component specifically */
+.items-type-picker :deep(.v-select) {
+  background-color: white !important;
+}
+
+.items-type-picker :deep(.v-select__selection) {
+  color: black !important;
+}
+
+.items-type-picker :deep(.v-field__outline) {
+  border-color: black !important;
+}
+
+.items-type-picker :deep(.v-field__outline--focused) {
+  border-color: black !important;
+}
 </style> 
