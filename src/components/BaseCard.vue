@@ -5,7 +5,7 @@
     @click="handleClick"
   >
     <!-- Header section with customizable content -->
-    <div class="header-section pa-4 d-flex justify-space-between align-center">
+    <div class="header-section pa-2 d-flex justify-space-between align-center">
       <div class="d-flex align-center">
         <v-icon v-if="icon" class="mr-3" size="24" color="white">{{ icon }}</v-icon>
         <div class="text-h6 text-white">{{ title }}</div>
