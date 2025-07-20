@@ -134,29 +134,29 @@
           
           <v-btn
             v-if="dictionary._locked"
-            color="white"
-            variant="text"
+            color="warning"
+            variant="elevated"
             @click="showUnlockDialog = true"
-            class="mr-2"
+            class="mr-2 font-weight-bold"
           >
             <v-icon start>mdi-lock-open</v-icon>
             Unlock
           </v-btn>
           <v-btn
             v-else
-            color="white"
-            variant="text"
+            color="info"
+            variant="elevated"
             @click="lockDictionary"
-            class="mr-2"
+            class="mr-2 font-weight-bold"
           >
             <v-icon start>mdi-lock</v-icon>
             Lock
           </v-btn>
           <v-btn
             color="error"
-            variant="text"
+            variant="elevated"
             @click="showDeleteDialog = true"
-            class="mr-2"
+            class="mr-2 font-weight-bold"
           >
             <v-icon start>mdi-delete</v-icon>
             Delete
@@ -172,11 +172,12 @@
         <template #header-actions>
           <v-btn
             v-if="isObjectType()"
-            color="primary"
-            variant="outlined"
+            color="success"
+            variant="elevated"
             size="small"
             @click="addProperty"
             :disabled="dictionary._locked"
+            class="font-weight-bold"
           >
             <v-icon start size="small">mdi-plus</v-icon>
             Add Property
