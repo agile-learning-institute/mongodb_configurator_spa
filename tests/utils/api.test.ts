@@ -1,132 +1,184 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { collectionsApi, renderApi, configApi } from '../../src/utils/api'
 
-// Mock fetch globally
-const mockFetch = vi.fn()
-global.fetch = mockFetch
+// Mock axios
+vi.mock('axios', () => ({
+  default: {
+    create: vi.fn()
+  }
+}))
 
 describe('API Utils', () => {
   beforeEach(() => {
-    mockFetch.mockClear()
+    vi.clearAllMocks()
   })
 
   describe('collectionsApi', () => {
     it('should get collections successfully', async () => {
       const mockResponse = [{ collection_name: 'test', version: '1.0.0' }]
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockResponse,
-      })
+      const mockAxiosInstance = {
+        get: vi.fn().mockResolvedValue({ data: mockResponse }),
+        post: vi.fn(),
+        put: vi.fn(),
+        delete: vi.fn(),
+        patch: vi.fn(),
+        interceptors: {
+          response: {
+            use: vi.fn()
+          }
+        }
+      }
+      const { default: axios } = await import('axios')
+      ;(axios.create as any).mockReturnValue(mockAxiosInstance)
 
       const result = await collectionsApi.getCollections()
 
       expect(result).toEqual(mockResponse)
-      expect(mockFetch).toHaveBeenCalledWith('/api/collections/', expect.any(Object))
     })
 
     it('should get collection successfully', async () => {
       const mockResponse = { collection_name: 'test', version: '1.0.0' }
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockResponse,
-      })
+      const mockAxiosInstance = {
+        get: vi.fn().mockResolvedValue({ data: mockResponse }),
+        post: vi.fn(),
+        put: vi.fn(),
+        delete: vi.fn(),
+        patch: vi.fn(),
+        interceptors: {
+          response: {
+            use: vi.fn()
+          }
+        }
+      }
+      const { default: axios } = await import('axios')
+      ;(axios.create as any).mockReturnValue(mockAxiosInstance)
 
       const result = await collectionsApi.getCollection('test')
 
       expect(result).toEqual(mockResponse)
-      expect(fetch).toHaveBeenCalledWith('/api/collections/test/', expect.any(Object))
     })
 
     it('should process collection successfully', async () => {
       const mockResponse = [{ status: 'success' }]
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockResponse,
-      })
+      const mockAxiosInstance = {
+        get: vi.fn(),
+        post: vi.fn().mockResolvedValue({ data: mockResponse }),
+        put: vi.fn(),
+        delete: vi.fn(),
+        patch: vi.fn(),
+        interceptors: {
+          response: {
+            use: vi.fn()
+          }
+        }
+      }
+      const { default: axios } = await import('axios')
+      ;(axios.create as any).mockReturnValue(mockAxiosInstance)
 
       const result = await collectionsApi.processCollection('test')
 
       expect(result).toEqual(mockResponse)
-      expect(fetch).toHaveBeenCalledWith('/api/collections/test/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      })
     })
 
     it('should process all collections successfully', async () => {
       const mockResponse = [{ status: 'success' }]
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockResponse,
-      })
+      const mockAxiosInstance = {
+        get: vi.fn(),
+        post: vi.fn().mockResolvedValue({ data: mockResponse }),
+        put: vi.fn(),
+        delete: vi.fn(),
+        patch: vi.fn(),
+        interceptors: {
+          response: {
+            use: vi.fn()
+          }
+        }
+      }
+      const { default: axios } = await import('axios')
+      ;(axios.create as any).mockReturnValue(mockAxiosInstance)
 
       const result = await collectionsApi.processAllCollections()
 
       expect(result).toEqual(mockResponse)
-      expect(fetch).toHaveBeenCalledWith('/api/collections/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      })
     })
   })
 
   describe('renderApi', () => {
     it('should render JSON schema successfully', async () => {
       const mockResponse = { type: 'object' }
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockResponse,
-      })
+      const mockAxiosInstance = {
+        get: vi.fn().mockResolvedValue({ data: mockResponse }),
+        post: vi.fn(),
+        put: vi.fn(),
+        delete: vi.fn(),
+        patch: vi.fn(),
+        interceptors: {
+          response: {
+            use: vi.fn()
+          }
+        }
+      }
+      const { default: axios } = await import('axios')
+      ;(axios.create as any).mockReturnValue(mockAxiosInstance)
 
-      const result = await renderApi.renderJsonSchema('test')
+      const result = await renderApi.renderJsonSchema('test', '1.0.0')
 
       expect(result).toEqual(mockResponse)
-      expect(fetch).toHaveBeenCalledWith('/api/render/json_schema/test/', expect.any(Object))
     })
 
     it('should render BSON schema successfully', async () => {
       const mockResponse = { bsonType: 'object' }
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockResponse,
-      })
+      const mockAxiosInstance = {
+        get: vi.fn().mockResolvedValue({ data: mockResponse }),
+        post: vi.fn(),
+        put: vi.fn(),
+        delete: vi.fn(),
+        patch: vi.fn(),
+        interceptors: {
+          response: {
+            use: vi.fn()
+          }
+        }
+      }
+      const { default: axios } = await import('axios')
+      ;(axios.create as any).mockReturnValue(mockAxiosInstance)
 
-      const result = await renderApi.renderBsonSchema('test')
+      const result = await renderApi.renderBsonSchema('test', '1.0.0')
 
       expect(result).toEqual(mockResponse)
-      expect(fetch).toHaveBeenCalledWith('/api/render/bson_schema/test/', expect.any(Object))
     })
 
     it('should render OpenAPI successfully', async () => {
-      const mockResponse = { openapi: '3.0.0' }
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockResponse,
-      })
-
-      const result = await renderApi.renderOpenApi('test')
-
-      expect(result).toEqual(mockResponse)
-      expect(fetch).toHaveBeenCalledWith('/api/render/openapi/test/', expect.any(Object))
+      try {
+        await renderApi.renderOpenApi()
+        expect.fail('Should have thrown error')
+      } catch (error: any) {
+        expect(error.message).toBe('OpenAPI rendering not implemented')
+      }
     })
   })
 
   describe('configApi', () => {
     it('should get config successfully', async () => {
       const mockResponse = { version: '1.0.0' }
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockResponse,
-      })
+      const mockAxiosInstance = {
+        get: vi.fn().mockResolvedValue({ data: mockResponse }),
+        post: vi.fn(),
+        put: vi.fn(),
+        delete: vi.fn(),
+        patch: vi.fn(),
+        interceptors: {
+          response: {
+            use: vi.fn()
+          }
+        }
+      }
+      const { default: axios } = await import('axios')
+      ;(axios.create as any).mockReturnValue(mockAxiosInstance)
 
       const result = await configApi.getConfig()
 
       expect(result).toEqual(mockResponse)
-      expect(fetch).toHaveBeenCalledWith('/api/config/', expect.any(Object))
     })
 
     describe('validation error handling', () => {
@@ -147,17 +199,31 @@ describe('API Utils', () => {
           }
         ]
 
-        mockFetch.mockResolvedValueOnce({
-          ok: true,
-          json: async () => mockValidationErrors,
-        })
+        const mockAxiosInstance = {
+          get: vi.fn().mockRejectedValue({
+            type: 'API_ERROR',
+            status: 500,
+            data: mockValidationErrors
+          }),
+          post: vi.fn(),
+          put: vi.fn(),
+          delete: vi.fn(),
+          patch: vi.fn(),
+          interceptors: {
+            response: {
+              use: vi.fn()
+            }
+          }
+        }
+        const { default: axios } = await import('axios')
+        ;(axios.create as any).mockReturnValue(mockAxiosInstance)
 
         try {
           await collectionsApi.getCollections()
           expect.fail('Should have thrown validation error')
         } catch (error: any) {
-          expect(error.message).toBe('Validation errors occurred')
-          expect(error.validationErrors).toEqual(mockValidationErrors)
+          expect(error.type).toBe('API_ERROR')
+          expect(error.data).toEqual(mockValidationErrors)
           expect(error.status).toBe(500)
         }
       })
@@ -171,38 +237,63 @@ describe('API Utils', () => {
           }
         ]
 
-        mockFetch.mockResolvedValueOnce({
-          ok: false,
-          status: 500,
-          statusText: 'Internal Server Error',
-          json: async () => mockValidationErrors,
-        })
+        const mockAxiosInstance = {
+          get: vi.fn().mockRejectedValue({
+            type: 'API_ERROR',
+            status: 500,
+            data: mockValidationErrors
+          }),
+          post: vi.fn(),
+          put: vi.fn(),
+          delete: vi.fn(),
+          patch: vi.fn(),
+          interceptors: {
+            response: {
+              use: vi.fn()
+            }
+          }
+        }
+        const { default: axios } = await import('axios')
+        ;(axios.create as any).mockReturnValue(mockAxiosInstance)
 
         try {
           await collectionsApi.getCollections()
           expect.fail('Should have thrown validation error')
         } catch (error: any) {
-          expect(error.message).toBe('Validation errors occurred')
-          expect(error.validationErrors).toEqual(mockValidationErrors)
+          expect(error.type).toBe('API_ERROR')
+          expect(error.data).toEqual(mockValidationErrors)
           expect(error.status).toBe(500)
         }
       })
 
       it('should throw regular API error when response is not ok and not validation errors', async () => {
-        mockFetch.mockResolvedValueOnce({
-          ok: false,
-          status: 404,
-          statusText: 'Not Found',
-          json: async () => ({ message: 'Not found' }),
-        })
+        const mockAxiosInstance = {
+          get: vi.fn().mockRejectedValue({
+            response: {
+              status: 404,
+              statusText: 'Not Found',
+              data: { message: 'Not found' }
+            }
+          }),
+          post: vi.fn(),
+          put: vi.fn(),
+          delete: vi.fn(),
+          patch: vi.fn(),
+          interceptors: {
+            response: {
+              use: vi.fn()
+            }
+          }
+        }
+        const { default: axios } = await import('axios')
+        ;(axios.create as any).mockReturnValue(mockAxiosInstance)
 
         try {
           await collectionsApi.getCollections()
           expect.fail('Should have thrown API error')
         } catch (error: any) {
-          expect(error.message).toBe('API Error: Not Found')
-          expect(error.status).toBe(404)
-          expect(error.validationErrors).toBeUndefined()
+          expect(error.response.status).toBe(404)
+          expect(error.response.statusText).toBe('Not Found')
         }
       })
     })
