@@ -27,5 +27,19 @@ root:
           enums: ''
     property_3:
       description: ''
-      type: string
+      type: enum
       required: false
+      enums: ''
+    property_4:
+      description: ''
+      type: enum_array
+      required: false
+      enums: ''
+    property_5:
+      description: ''
+      type: array
+      required: false
+      items:
+        description: Items in the list
+        type: word
+        required: false

@@ -125,6 +125,18 @@
               style="min-width: 150px;"
             />
           </div>
+          <!-- Items Enumerators Picker (for array types with enum items) -->
+          <div v-if="isListType() && (dictionary.root.items?.type === 'enum' || dictionary.root.items?.type === 'enum_array')" class="d-flex align-center mr-3">
+            <span class="text-white mr-2">Enumerators:</span>
+            <EnumPicker
+              v-model="dictionary.root.items.enums"
+              label="Select Enum"
+              density="compact"
+              :disabled="dictionary._locked"
+              class="flex-grow-1"
+              style="min-width: 150px;"
+            />
+          </div>
           <!-- Enum Picker (for enum types) -->
           <div v-if="isEnumType()" class="d-flex align-center mr-3">
             <span class="text-white mr-2">Enumerators:</span>
@@ -266,6 +278,18 @@
                     style="min-width: 150px;"
                   />
                 </div>
+                <!-- Items Enumerators Picker (only for array types with enum items) -->
+                <div v-if="(property.type === 'array' || property.type === 'list') && (property.items?.type === 'enum' || property.items?.type === 'enum_array')" class="d-flex align-center mr-3">
+                  <span class="text-dark mr-2">Enumerators:</span>
+                  <EnumPicker
+                    v-model="property.items.enums"
+                    label="Select Enum"
+                    density="compact"
+                    :disabled="dictionary._locked"
+                    class="flex-grow-1"
+                    style="min-width: 150px;"
+                  />
+                </div>
                 <!-- Enum Picker (only for enum types) -->
                 <div v-if="property.type === 'enum' || property.type === 'enum_array'" class="d-flex align-center mr-3">
                   <span class="text-dark mr-2">Enumerators:</span>
@@ -386,6 +410,18 @@
                             density="compact"
                             :disabled="dictionary._locked"
                             :exclude-type="dictionary.file_name"
+                            class="flex-grow-1"
+                            style="min-width: 150px;"
+                          />
+                        </div>
+                        <!-- Items Enumerators Picker (only for array types with enum items) -->
+                        <div v-if="(subProperty.type === 'array' || subProperty.type === 'list') && (subProperty.items?.type === 'enum' || subProperty.items?.type === 'enum_array')" class="d-flex align-center mr-3">
+                          <span class="text-dark mr-2">Enumerators:</span>
+                          <EnumPicker
+                            v-model="subProperty.items.enums"
+                            label="Select Enum"
+                            density="compact"
+                            :disabled="dictionary._locked"
                             class="flex-grow-1"
                             style="min-width: 150px;"
                           />
