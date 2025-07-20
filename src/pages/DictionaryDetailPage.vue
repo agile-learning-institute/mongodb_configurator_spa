@@ -91,28 +91,18 @@
       </div>
 
       <!-- Unified Dictionary Card -->
-      <BaseCard 
-        :title="getCardTitle()"
+      <DictionaryTypeCard
+        :name="dictionary.file_name.replace('.yaml', '')"
+        :description="descriptionValue"
+        :model-value="typeValue"
         :icon="getCardIcon()"
+        :is-sub-card="false"
+        :disabled="dictionary._locked"
+        :exclude-type="dictionary.file_name"
+        @update:description="descriptionValue = $event"
+        @update:model-value="typeValue = $event"
       >
-        <template #title>
-          <div class="d-flex align-center">
-            <span class="text-h6 text-white">{{ getCardTitle() }}</span>
-          </div>
-        </template>
-        
-        <template #header-actions>
-          <!-- Type Picker -->
-          <div class="mr-2" style="min-width: 120px;">
-            <DictionaryTypePicker
-              v-model="typeValue"
-              label="Type"
-              density="compact"
-              :disabled="dictionary._locked"
-              :exclude-type="dictionary.file_name"
-              class="items-type-picker"
-            />
-          </div>
+        <template #extra>
           <!-- Required Icon -->
           <v-tooltip location="top">
             <template v-slot:activator="{ props }">
@@ -330,7 +320,7 @@
             </template>
           </DictionaryTypeCard>
         </div>
-      </BaseCard>
+      </DictionaryTypeCard>
     </div>
 
     <!-- Unlock Dialog -->
@@ -369,9 +359,6 @@
 import { ref, onMounted, nextTick, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { apiService } from '@/utils/api'
-import DictionaryProperty from '@/components/DictionaryProperty.vue'
-import DictionaryTypePicker from '@/components/DictionaryTypePicker.vue'
-import BaseCard from '@/components/BaseCard.vue'
 import EnumPicker from '@/components/EnumPicker.vue'
 import DictionaryTypeCard from '@/components/DictionaryTypeCard.vue'
 
@@ -454,18 +441,6 @@ const isListType = () => {
 // Helper function to check if root is enum type
 const isEnumType = () => {
   return dictionary.value?.root.type === 'enum' || dictionary.value?.root.type === 'enum_array'
-}
-
-// Helper function to get card title based on type
-const getCardTitle = () => {
-  if (!dictionary.value) return ''
-  const fileName = dictionary.value.file_name.replace('.yaml', '')
-  const description = descriptionValue.value || 'No description provided'
-  
-  if (isObjectType()) return `${fileName}: ${description}`
-  if (isListType()) return `${fileName}: ${description} - items`
-  if (isEnumType()) return `${fileName}: ${description} - enum`
-  return `${fileName}: ${description}`
 }
 
 // Helper function to get card icon based on type
