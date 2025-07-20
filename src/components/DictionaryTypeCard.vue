@@ -3,6 +3,7 @@
     :icon="icon" 
     :is-secondary="isSubCard"
     :clickable="false"
+    :disable-click="true"
   >
     <!-- Title slot with name and description -->
     <template #title>
@@ -37,7 +38,7 @@
           v-if="!editingDescription"
           class="clickable-text ml-2 flex-grow-1 description-text"
           :class="isSubCard ? 'text-body-2 text-dark' : 'text-h6 text-white'"
-          @click="(event) => { event.stopPropagation(); startEditDescription(); }"
+          @click="(event) => { console.log('Description clicked!'); event.stopPropagation(); startEditDescription(); }"
           style="min-width: 100px;"
           title="Click to edit description"
         >
@@ -149,9 +150,11 @@ const cancelEditName = () => {
 
 // Description editing functions
 const startEditDescription = () => {
+  console.log('startEditDescription called - disabled:', props.disabled, 'isSubCard:', props.isSubCard)
   if (props.disabled) return
   editingDescriptionValue.value = props.description || ''
   editingDescription.value = true
+  console.log('Setting editingDescription to true')
   nextTick(() => {
     descriptionField.value?.focus()
   })

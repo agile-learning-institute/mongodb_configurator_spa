@@ -38,13 +38,15 @@ interface Props {
   icon?: string
   clickable?: boolean
   isSecondary?: boolean
+  disableClick?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
   title: '',
   icon: '',
   clickable: false,
-  isSecondary: false
+  isSecondary: false,
+  disableClick: false
 })
 
 const emit = defineEmits<{
@@ -52,6 +54,9 @@ const emit = defineEmits<{
 }>()
 
 const handleClick = (event: Event) => {
+  // Don't handle clicks if disabled
+  if (props.disableClick) return
+  
   // Only handle clicks if the card is clickable and the click was on the card itself
   // Check if the target is the card element or a direct child that should trigger card clicks
   if (props.clickable) {
