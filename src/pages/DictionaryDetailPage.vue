@@ -137,6 +137,20 @@
               style="min-width: 150px;"
             />
           </div>
+          <!-- Items Add Property Button (for array types with object items) -->
+          <div v-if="isListType() && dictionary.root.items?.type === 'object'" class="d-flex align-center mr-3">
+            <v-btn
+              color="success"
+              variant="elevated"
+              size="small"
+              @click="addArrayItemProperty"
+              :disabled="dictionary._locked"
+              class="font-weight-bold"
+            >
+              <v-icon start size="small">mdi-plus</v-icon>
+              Add Property
+            </v-btn>
+          </div>
           <!-- Enum Picker (for enum types) -->
           <div v-if="isEnumType()" class="d-flex align-center mr-3">
             <span class="text-white mr-2">Enumerators:</span>
@@ -290,6 +304,20 @@
                     style="min-width: 150px;"
                   />
                 </div>
+                <!-- Items Add Property Button (only for array types with object items) -->
+                <div v-if="(property.type === 'array' || property.type === 'list') && property.items?.type === 'object'" class="d-flex align-center mr-3">
+                  <v-btn
+                    color="success"
+                    variant="elevated"
+                    size="small"
+                    @click="addArraySubItemProperty(propertyName)"
+                    :disabled="dictionary._locked"
+                    class="font-weight-bold"
+                  >
+                    <v-icon start size="small">mdi-plus</v-icon>
+                    Add Property
+                  </v-btn>
+                </div>
                 <!-- Enum Picker (only for enum types) -->
                 <div v-if="property.type === 'enum' || property.type === 'enum_array'" class="d-flex align-center mr-3">
                   <span class="text-dark mr-2">Enumerators:</span>
@@ -426,6 +454,20 @@
                             style="min-width: 150px;"
                           />
                         </div>
+                        <!-- Items Add Property Button (only for array types with object items) -->
+                        <div v-if="(subProperty.type === 'array' || subProperty.type === 'list') && subProperty.items?.type === 'object'" class="d-flex align-center mr-3">
+                          <v-btn
+                            color="success"
+                            variant="elevated"
+                            size="small"
+                            @click="addArraySubSubItemProperty(propertyName, subPropertyName)"
+                            :disabled="dictionary._locked"
+                            class="font-weight-bold"
+                          >
+                            <v-icon start size="small">mdi-plus</v-icon>
+                            Add Property
+                          </v-btn>
+                        </div>
                         <!-- Enum Picker (only for enum types) -->
                         <div v-if="subProperty.type === 'enum' || subProperty.type === 'enum_array'" class="d-flex align-center mr-3">
                           <span class="text-dark mr-2">Enumerators:</span>
@@ -483,6 +525,144 @@
                 </div>
               </template>
             </DictionaryTypeCard>
+          </div>
+          
+          <!-- Array Type Content (for object items) -->
+          <div v-if="isListType() && dictionary.root.items?.type === 'object'" class="pa-1">
+            <!-- Array items properties -->
+            <div v-if="!dictionary.root.items.properties || Object.keys(dictionary.root.items.properties).length === 0" class="text-center pa-4">
+              <v-icon size="32" color="grey">mdi-cube-outline</v-icon>
+              <div class="text-body-2 text-medium-emphasis mt-2">No item properties defined</div>
+            </div>
+            
+            <div v-else>
+              <DictionaryTypeCard
+                v-for="(itemProperty, itemPropertyName) in dictionary.root.items.properties"
+                :key="itemPropertyName"
+                :name="itemPropertyName"
+                :description="itemProperty.description"
+                :model-value="itemProperty.type"
+                @update:model-value="(value) => { 
+                  itemProperty.type = value; 
+                  // Initialize type-specific properties
+                  if (value === 'array' || value === 'list') {
+                    if (!itemProperty.items) {
+                      itemProperty.items = { description: 'Items in the list', type: 'string', required: false }
+                    }
+                  } else if (value === 'object') {
+                    if (!itemProperty.properties) {
+                      itemProperty.properties = {}
+                    }
+                  } else if (value === 'enum' || value === 'enum_array') {
+                    if (!itemProperty.enums) {
+                      itemProperty.enums = ''
+                    }
+                  }
+                  autoSave() 
+                }"
+                @update:name="(value) => { 
+                  if (value && value !== itemPropertyName && dictionary?.root?.items?.properties) {
+                    const newProperties = { ...dictionary.root.items.properties }
+                    delete newProperties[itemPropertyName]
+                    newProperties[value] = itemProperty
+                    dictionary.root.items.properties = newProperties
+                    autoSave()
+                  }
+                }"
+                @update:description="(value) => { itemProperty.description = value; autoSave() }"
+                :icon="getPropertyIcon(itemProperty.type)"
+                :is-sub-card="true"
+                :disabled="dictionary._locked"
+                :exclude-type="dictionary.file_name"
+              >
+                <template #extra>
+                  <!-- Items Type Picker (only for array types) -->
+                  <div v-if="itemProperty.type === 'array' || itemProperty.type === 'list'" class="d-flex align-center mr-3">
+                    <span class="text-dark mr-2">Items Type:</span>
+                    <DictionaryTypePicker
+                      :model-value="itemProperty.items?.type || 'string'"
+                      @update:model-value="(value) => { 
+                        if (itemProperty.items) {
+                          itemProperty.items.type = value
+                        } else {
+                          itemProperty.items = { description: 'Items in the list', type: value, required: false }
+                        }
+                        autoSave()
+                      }"
+                      label="Type"
+                      density="compact"
+                      :disabled="dictionary._locked"
+                      :exclude-type="dictionary.file_name"
+                      class="flex-grow-1"
+                      style="min-width: 150px;"
+                    />
+                  </div>
+                  <!-- Items Enumerators Picker (only for array types with enum items) -->
+                  <div v-if="(itemProperty.type === 'array' || itemProperty.type === 'list') && (itemProperty.items?.type === 'enum' || itemProperty.items?.type === 'enum_array')" class="d-flex align-center mr-3">
+                    <span class="text-dark mr-2">Enumerators:</span>
+                    <EnumPicker
+                      v-model="itemProperty.items.enums"
+                      label="Select Enum"
+                      density="compact"
+                      :disabled="dictionary._locked"
+                      class="flex-grow-1"
+                      style="min-width: 150px;"
+                    />
+                  </div>
+                  <!-- Enum Picker (only for enum types) -->
+                  <div v-if="itemProperty.type === 'enum' || itemProperty.type === 'enum_array'" class="d-flex align-center mr-3">
+                    <span class="text-dark mr-2">Enumerators:</span>
+                    <EnumPicker
+                      v-model="itemProperty.enums"
+                      label="Select Enum"
+                      density="compact"
+                      :disabled="dictionary._locked"
+                      class="flex-grow-1"
+                      style="min-width: 150px;"
+                    />
+                  </div>
+                </template>
+                
+                <template #actions>
+                  <!-- Required Icon -->
+                  <v-tooltip location="top">
+                    <template v-slot:activator="{ props }">
+                      <v-btn
+                        icon
+                        size="x-small"
+                        variant="text"
+                        :color="itemProperty.required ? 'primary' : 'grey'"
+                        :disabled="dictionary._locked"
+                        v-bind="props"
+                        @click="itemProperty.required = !itemProperty.required; autoSave()"
+                        class="pa-0 ma-0 mr-2"
+                      >
+                        <v-icon size="16">mdi-star</v-icon>
+                      </v-btn>
+                    </template>
+                    <span>Required</span>
+                  </v-tooltip>
+                  <!-- Delete Button -->
+                  <v-tooltip location="top">
+                    <template v-slot:activator="{ props }">
+                      <v-btn
+                        icon
+                        size="x-small"
+                        variant="text"
+                        color="error"
+                        :disabled="dictionary._locked"
+                        v-bind="props"
+                        @click="deleteArrayItemProperty(itemPropertyName)"
+                        class="pa-0 ma-0"
+                      >
+                        <v-icon size="16">mdi-delete</v-icon>
+                      </v-btn>
+                    </template>
+                    <span>Delete Property</span>
+                  </v-tooltip>
+                </template>
+              </DictionaryTypeCard>
+            </div>
           </div>
         </template>
       </DictionaryTypeCard>
@@ -788,6 +968,97 @@ const deleteSubProperty = (propertyName: string, subPropertyName: string) => {
 
   if (property.properties) {
     delete property.properties[subPropertyName]
+    autoSave()
+  }
+}
+
+// Add property to array items (for object items)
+const addArrayItemProperty = () => {
+  if (!dictionary.value || dictionary.value._locked) return
+  
+  const itemsProperty = dictionary.value?.root.items
+  if (!itemsProperty || itemsProperty.type !== 'object') return
+
+  if (!itemsProperty.properties) {
+    itemsProperty.properties = {}
+  }
+  
+  // Generate a default sub-property name
+  const subPropertyName = `item_property_${Object.keys(itemsProperty.properties).length + 1}`
+  
+  itemsProperty.properties[subPropertyName] = {
+    description: '',
+    type: 'string',
+    required: false
+  }
+  
+  autoSave()
+}
+
+// Add sub-property to array items (for object items)
+const addArraySubItemProperty = (propertyName: string) => {
+  if (!dictionary.value || dictionary.value._locked) return
+  
+  const property = dictionary.value?.root.properties?.[propertyName]
+  if (!property || property.type !== 'array' && property.type !== 'list') return
+  
+  const itemsProperty = property.items
+  if (!itemsProperty || itemsProperty.type !== 'object') return
+
+  if (!itemsProperty.properties) {
+    itemsProperty.properties = {}
+  }
+  
+  // Generate a default sub-property name
+  const subPropertyName = `item_sub_property_${Object.keys(itemsProperty.properties).length + 1}`
+  
+  itemsProperty.properties[subPropertyName] = {
+    description: '',
+    type: 'string',
+    required: false
+  }
+  
+  autoSave()
+}
+
+// Add sub-property to array items (for object items)
+const addArraySubSubItemProperty = (propertyName: string, subPropertyName: string) => {
+  if (!dictionary.value || dictionary.value._locked) return
+  
+  const property = dictionary.value?.root.properties?.[propertyName]
+  if (!property || property.type !== 'array' && property.type !== 'list') return
+  
+  const subProperty = property.properties?.[subPropertyName]
+  if (!subProperty || subProperty.type !== 'array' && subProperty.type !== 'list') return
+  
+  const itemsProperty = subProperty.items
+  if (!itemsProperty || itemsProperty.type !== 'object') return
+
+  if (!itemsProperty.properties) {
+    itemsProperty.properties = {}
+  }
+  
+  // Generate a default sub-property name
+  const subSubPropertyName = `item_sub_sub_property_${Object.keys(itemsProperty.properties).length + 1}`
+  
+  itemsProperty.properties[subSubPropertyName] = {
+    description: '',
+    type: 'string',
+    required: false
+  }
+  
+  autoSave()
+}
+
+// Delete array item property function
+const deleteArrayItemProperty = (itemPropertyName: string) => {
+  if (!dictionary.value || dictionary.value._locked) return
+  
+  const itemsProperty = dictionary.value?.root.items
+  if (!itemsProperty) return
+
+  if (itemsProperty.properties) {
+    delete itemsProperty.properties[itemPropertyName]
     autoSave()
   }
 }
