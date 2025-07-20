@@ -1,20 +1,18 @@
 <template>
-  <BaseCard
-    :title="cardTitle"
-    :icon="icon"
+  <BaseCard 
+    :icon="icon" 
     :is-secondary="isSubCard"
     :clickable="false"
   >
+    <!-- Title slot with just the name -->
     <template #title>
       <div class="d-flex align-center">
-        <v-icon v-if="icon" class="mr-3" :size="isSubCard ? 16 : 20" :color="isSubCard ? 'dark' : 'white'">{{ icon }}</v-icon>
-        
         <!-- Name (editable) -->
         <span 
           v-if="!editingName"
           class="clickable-text mr-1"
           :class="isSubCard ? 'text-body-2 text-dark' : 'text-h6 text-white'"
-          @click="startEditName"
+          @click.stop="startEditName"
         >
           {{ name }}:
         </span>
@@ -32,33 +30,6 @@
           hide-details
           autofocus
           style="min-width: 120px; max-width: 200px;"
-        />
-        
-        <!-- Description (editable) -->
-        <span 
-          v-if="!editingDescription"
-          class="clickable-text flex-grow-1"
-          :class="isSubCard ? 'text-body-2 text-dark' : 'text-h6 text-white'"
-          @click.stop="startEditDescription"
-          style="min-width: 100px;"
-        >
-          {{ description }}
-        </span>
-        <v-text-field
-          v-else
-          v-model="editingDescriptionValue"
-          variant="outlined"
-          density="compact"
-          :class="isSubCard ? 'text-body-2 text-dark' : 'text-h6 text-white'"
-          :disabled="disabled"
-          @blur="stopEditDescription"
-          @keyup.enter="stopEditDescription"
-          @keyup.esc="cancelEditDescription"
-          ref="descriptionField"
-          hide-details
-          autofocus
-          class="flex-grow-1"
-          style="min-width: 150px;"
         />
       </div>
     </template>
@@ -84,13 +55,43 @@
       <slot name="actions" />
     </template>
     
+    <!-- Description as content -->
+    <div class="d-flex align-center pa-2">
+      <!-- Description (editable) -->
+      <span 
+        v-if="!editingDescription"
+        class="clickable-text flex-grow-1"
+        :class="isSubCard ? 'text-body-2 text-dark' : 'text-h6 text-white'"
+        @click.stop="startEditDescription"
+        style="min-width: 100px;"
+      >
+        {{ description }}
+      </span>
+      <v-text-field
+        v-else
+        v-model="editingDescriptionValue"
+        variant="outlined"
+        density="compact"
+        :class="isSubCard ? 'text-body-2 text-dark' : 'text-h6 text-white'"
+        :disabled="disabled"
+        @blur="stopEditDescription"
+        @keyup.enter="stopEditDescription"
+        @keyup.esc="cancelEditDescription"
+        ref="descriptionField"
+        hide-details
+        autofocus
+        class="flex-grow-1"
+        style="min-width: 150px;"
+      />
+    </div>
+    
     <!-- Content slot - only used for object types -->
     <slot name="content" />
   </BaseCard>
 </template>
 
 <script setup lang="ts">
-import { computed, ref, nextTick } from 'vue'
+import { ref, nextTick } from 'vue'
 import BaseCard from './BaseCard.vue'
 import DictionaryTypePicker from './DictionaryTypePicker.vue'
 
@@ -125,11 +126,6 @@ const editingNameValue = ref('')
 const editingDescriptionValue = ref('')
 const nameField = ref<any>(null)
 const descriptionField = ref<any>(null)
-
-// Computed card title (for fallback)
-const cardTitle = computed(() => {
-  return `${props.name}: ${props.description}`
-})
 
 // Name editing functions
 const startEditName = () => {
