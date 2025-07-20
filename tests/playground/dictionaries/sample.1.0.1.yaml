@@ -2,6 +2,9 @@ file_name: sample.1.0.1.yaml
 _locked: false
 root:
   description: A simple collection for testsasdf
-  type: enum
+  type: array
   required: false
-  enums: null
+  items:
+    description: ''
+    type: string
+    required: false

@@ -104,6 +104,27 @@
         @update:model-value="typeValue = $event"
       >
         <template #extra>
+          <!-- Items Type Picker (for array types) -->
+          <div v-if="isListType()" class="d-flex align-center mr-3">
+            <span class="text-white mr-2">Items Type:</span>
+            <DictionaryTypePicker
+              :model-value="dictionary.root.items?.type || 'string'"
+              @update:model-value="(value) => { 
+                if (dictionary?.root?.items) {
+                  dictionary.root.items.type = value
+                } else if (dictionary?.root) {
+                  dictionary.root.items = { description: 'Items in the list', type: value, required: false }
+                }
+                autoSave()
+              }"
+              label="Type"
+              density="compact"
+              :disabled="dictionary._locked"
+              :exclude-type="dictionary.file_name"
+              class="flex-grow-1"
+              style="min-width: 150px;"
+            />
+          </div>
           <!-- Enum Picker (for enum types) -->
           <div v-if="isEnumType()" class="d-flex align-center mr-3">
             <span class="text-white mr-2">Enumerators:</span>
@@ -255,35 +276,6 @@
               </template>
             </DictionaryTypeCard>
           </div>
-          
-          <!-- List Type Content -->
-          <div v-if="isListType()" class="pa-1">
-            <DictionaryTypeCard
-              name="Items"
-              :description="dictionary.root.items?.description || 'Items in the list'"
-              :model-value="dictionary.root.items?.type || ''"
-              @update:model-value="(value) => { 
-                if (dictionary?.root?.items) {
-                  dictionary.root.items.type = value
-                } else if (dictionary?.root) {
-                  dictionary.root.items = { description: 'Items in the list', type: value, required: false }
-                }
-                autoSave()
-              }"
-              @update:description="(value) => { 
-                if (dictionary?.root?.items) {
-                  dictionary.root.items.description = value
-                } else if (dictionary?.root) {
-                  dictionary.root.items = { description: value, type: 'string', required: false }
-                }
-                autoSave()
-              }"
-              icon="mdi-format-list-bulleted"
-              :is-sub-card="true"
-              :disabled="dictionary._locked"
-              :exclude-type="dictionary.file_name"
-            />
-          </div>
         </template>
       </DictionaryTypeCard>
     </div>
@@ -326,6 +318,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { apiService } from '@/utils/api'
 import EnumPicker from '@/components/EnumPicker.vue'
 import DictionaryTypeCard from '@/components/DictionaryTypeCard.vue'
+import DictionaryTypePicker from '@/components/DictionaryTypePicker.vue'
 
 interface DictionaryProperty {
   description: string
