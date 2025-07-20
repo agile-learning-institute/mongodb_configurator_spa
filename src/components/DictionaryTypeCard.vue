@@ -4,9 +4,9 @@
     :is-secondary="isSubCard"
     :clickable="false"
   >
-    <!-- Title slot with just the name -->
+    <!-- Title slot with name and description -->
     <template #title>
-      <div class="d-flex align-center">
+      <div class="d-flex align-center flex-grow-1">
         <!-- Name (editable) -->
         <span 
           v-if="!editingName"
@@ -31,6 +31,33 @@
           autofocus
           style="min-width: 120px; max-width: 200px;"
         />
+        
+        <!-- Description (editable) -->
+        <span 
+          v-if="!editingDescription"
+          class="clickable-text ml-2 flex-grow-1"
+          :class="isSubCard ? 'text-body-2 text-dark' : 'text-h6 text-white'"
+          @click.stop="startEditDescription"
+          style="min-width: 100px;"
+        >
+          {{ description }}
+        </span>
+        <v-text-field
+          v-else
+          v-model="editingDescriptionValue"
+          variant="outlined"
+          density="compact"
+          :class="isSubCard ? 'text-body-2 text-dark' : 'text-h6 text-white'"
+          :disabled="disabled"
+          @blur="stopEditDescription"
+          @keyup.enter="stopEditDescription"
+          @keyup.esc="cancelEditDescription"
+          ref="descriptionField"
+          hide-details
+          autofocus
+          class="ml-2 flex-grow-1"
+          style="min-width: 150px;"
+        />
       </div>
     </template>
     
@@ -54,36 +81,6 @@
       <!-- Actions slot for standard actions -->
       <slot name="actions" />
     </template>
-    
-    <!-- Description as content -->
-    <div class="d-flex align-center pa-2">
-      <!-- Description (editable) -->
-      <span 
-        v-if="!editingDescription"
-        class="clickable-text flex-grow-1"
-        :class="isSubCard ? 'text-body-2 text-dark' : 'text-h6 text-white'"
-        @click.stop="startEditDescription"
-        style="min-width: 100px;"
-      >
-        {{ description }}
-      </span>
-      <v-text-field
-        v-else
-        v-model="editingDescriptionValue"
-        variant="outlined"
-        density="compact"
-        :class="isSubCard ? 'text-body-2 text-dark' : 'text-h6 text-white'"
-        :disabled="disabled"
-        @blur="stopEditDescription"
-        @keyup.enter="stopEditDescription"
-        @keyup.esc="cancelEditDescription"
-        ref="descriptionField"
-        hide-details
-        autofocus
-        class="flex-grow-1"
-        style="min-width: 150px;"
-      />
-    </div>
     
     <!-- Content slot - only used for object types -->
     <slot name="content" />
