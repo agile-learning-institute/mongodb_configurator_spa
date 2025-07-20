@@ -90,45 +90,21 @@
         </div>
       </div>
 
-      <!-- Object Type Card (Properties) -->
+      <!-- Unified Dictionary Card -->
       <BaseCard 
-        v-if="isObjectType()"
-        title="Properties"
-        icon="mdi-cube-outline"
+        :title="getCardTitle()"
+        :icon="getCardIcon()"
       >
         <template #title>
           <div class="d-flex align-center">
+            <span class="text-h6 text-white mr-2">{{ getCardTitle() }}</span>
             <!-- View Mode -->
-            <span 
-              v-if="!editingCardTitle"
-              class="text-h6 text-white mr-2 clickable-title"
-              @click.stop="startEditCardTitle"
-            >
-              {{ dictionary.title || dictionary.file_name.replace('.yaml', '') }}
-            </span>
-            <!-- Edit Mode -->
-            <v-text-field
-              v-else
-              v-model="dictionary.title"
-              variant="outlined"
-              density="compact"
-              class="text-h6 text-white mr-2"
-              :disabled="dictionary._locked"
-              @blur="stopEditCardTitle"
-              @keyup.enter="stopEditCardTitle"
-              @keyup.esc="cancelEditCardTitle"
-              ref="cardTitleField"
-              hide-details
-              autofocus
-              style="min-width: 150px;"
-            />
-            <!-- Object Description (edit-in-place) -->
             <span 
               v-if="!editingDescription"
               class="text-h6 text-white clickable-description"
               @click.stop="startEditDescription"
             >
-              {{ dictionary.root.description || 'No description provided' }}
+              {{ descriptionValue || 'No description provided' }}
             </span>
             <!-- Edit Mode -->
             <v-text-field
@@ -150,7 +126,7 @@
         </template>
         
         <template #header-actions>
-          <!-- Object Type Picker -->
+          <!-- Type Picker -->
           <div class="mr-2" style="min-width: 120px;">
             <DictionaryTypePicker
               v-model="typeValue"
@@ -179,8 +155,8 @@
             </template>
             <span>Required</span>
           </v-tooltip>
-          <!-- Additional Properties Icon -->
-          <v-tooltip location="top">
+          <!-- Additional Properties Icon (for objects) -->
+          <v-tooltip v-if="isObjectType()" location="top">
             <template v-slot:activator="{ props }">
               <v-btn
                 icon
@@ -197,8 +173,9 @@
             </template>
             <span>Additional Properties</span>
           </v-tooltip>
-          <!-- Add Property Button -->
+          <!-- Add Property Button (for objects) -->
           <v-btn
+            v-if="isObjectType()"
             color="success"
             variant="elevated"
             size="small"
@@ -211,88 +188,28 @@
           </v-btn>
         </template>
         
-        <DictionaryProperty
-          property-name="root"
-          :property="dictionary.root"
-          :disabled="dictionary._locked"
-          :exclude-type="dictionary.file_name"
-          :top-level="true"
-          :top-level-name="dictionary.file_name.replace('.yaml', '')"
-          :hide-top-level-row="true"
-          :hide-properties-header="true"
-          @change="handleTopLevelPropertyChange"
-        />
-      </BaseCard>
-
-      <!-- Array Type Card (Items) -->
-      <BaseCard 
-        v-if="isListType()"
-        title="Items"
-        icon="mdi-format-list-bulleted"
-      >
-        <template #title>
-          <div class="d-flex align-center">
-            <span class="text-h6 text-white mr-2">Items</span>
-            <!-- View Mode -->
-            <span 
-              v-if="!editingItemsDescription"
-              class="text-h6 text-white clickable-description"
-              @click.stop="startEditItemsDescription"
-            >
-              {{ descriptionValue || 'No items description provided' }}
-            </span>
-            <!-- Edit Mode -->
-            <v-text-field
-              v-else
-              v-model="descriptionValue"
-              variant="outlined"
-              density="compact"
-              class="text-h6 text-white flex-grow-1"
-              :disabled="dictionary._locked"
-              @blur="stopEditItemsDescription"
-              @keyup.enter="stopEditItemsDescription"
-              @keyup.esc="cancelEditItemsDescription"
-              ref="itemsDescriptionField"
-              hide-details
-              autofocus
-              style="min-width: 200px;"
-            />
-          </div>
-        </template>
+        <!-- Content based on type -->
+        <!-- Object Type Content -->
+        <div v-if="isObjectType()" class="pa-1">
+          <DictionaryProperty
+            property-name="root"
+            :property="dictionary.root"
+            :disabled="dictionary._locked"
+            :exclude-type="dictionary.file_name"
+            :top-level="true"
+            :top-level-name="dictionary.file_name.replace('.yaml', '')"
+            :hide-top-level-row="true"
+            :hide-properties-header="true"
+            @change="handleTopLevelPropertyChange"
+          />
+        </div>
         
-        <template #header-actions>
-          <!-- Items Type Picker -->
-          <div class="mr-2" style="min-width: 120px;">
-            <DictionaryTypePicker
-              v-model="typeValue"
-              label="Items Type"
-              density="compact"
-              :disabled="dictionary._locked"
-              :exclude-type="dictionary.file_name"
-              class="items-type-picker"
-            />
-          </div>
-          <!-- Required Icon for Items -->
-          <v-tooltip location="top">
-            <template v-slot:activator="{ props }">
-              <v-btn
-                icon
-                size="x-small"
-                variant="text"
-                :color="dictionary.root.items?.required ? 'primary' : 'grey'"
-                :disabled="dictionary._locked"
-                v-bind="props"
-                @click="toggleItemsRequired"
-                class="pa-0 ma-0 mr-2"
-              >
-                <v-icon size="16">mdi-star</v-icon>
-              </v-btn>
-            </template>
-            <span>Required</span>
-          </v-tooltip>
-        </template>
+        <!-- Array Type Content -->
+        <div v-if="isListType()" class="pa-1">
+          <!-- No content for array types -->
+        </div>
         
-        <!-- Content for enum and enum_array types -->
+        <!-- Enum Type Content -->
         <div v-if="isEnumType()" class="pa-1">
           <div class="d-flex align-center mb-3">
             <span class="text-h6 font-weight-bold mr-3">Enum:</span>
@@ -378,12 +295,8 @@ const dictionary = ref<Dictionary | null>(null)
 // Edit mode states
 const editingTitle = ref(false)
 const editingDescription = ref(false)
-const editingItemsDescription = ref(false)
-const editingCardTitle = ref(false)
 const titleField = ref<any>(null)
 const descriptionField = ref<any>(null)
-const itemsDescriptionField = ref<any>(null)
-const cardTitleField = ref<any>(null)
 
 // Dialog states
 const showUnlockDialog = ref(false)
@@ -431,29 +344,38 @@ const isListType = () => {
   return dictionary.value?.root.type === 'list' || dictionary.value?.root.type === 'array'
 }
 
-// Helper function to check if items type is enum
+// Helper function to check if root is enum type
 const isEnumType = () => {
-  return dictionary.value?.root.items?.type === 'enum' || dictionary.value?.root.items?.type === 'enum_array'
+  return dictionary.value?.root.type === 'enum' || dictionary.value?.root.type === 'enum_array'
+}
+
+// Helper function to get card title based on type
+const getCardTitle = () => {
+  if (!dictionary.value) return ''
+  if (isObjectType()) return dictionary.value.title || dictionary.value.file_name.replace('.yaml', '')
+  if (isListType()) return 'Items'
+  if (isEnumType()) return 'Enums'
+  return 'Properties'
+}
+
+// Helper function to get card icon based on type
+const getCardIcon = () => {
+  if (!dictionary.value) return 'mdi-cube-outline'
+  if (isObjectType()) return 'mdi-cube-outline'
+  if (isListType()) return 'mdi-format-list-bulleted'
+  if (isEnumType()) return 'mdi-format-list-checks'
+  return 'mdi-cube-outline'
 }
 
 // Computed property for description field
 const descriptionValue = computed({
   get: () => {
     if (!dictionary.value) return ''
-    return isListType() 
-      ? (dictionary.value.root.items?.description || '')
-      : (dictionary.value.root.description || '')
+    return dictionary.value.root.description || ''
   },
   set: (value: string) => {
     if (!dictionary.value) return
-    if (isListType()) {
-      if (!dictionary.value.root.items) {
-        dictionary.value.root.items = { description: '', type: 'string', required: false }
-      }
-      dictionary.value.root.items.description = value
-    } else {
-      dictionary.value.root.description = value
-    }
+    dictionary.value.root.description = value
     autoSave()
   }
 })
@@ -462,20 +384,11 @@ const descriptionValue = computed({
 const typeValue = computed({
   get: () => {
     if (!dictionary.value) return ''
-    return isListType() 
-      ? (dictionary.value.root.items?.type || 'string')
-      : (dictionary.value.root.type || 'string')
+    return dictionary.value.root.type || 'string'
   },
   set: (value: string) => {
     if (!dictionary.value) return
-    if (isListType()) {
-      if (!dictionary.value.root.items) {
-        dictionary.value.root.items = { description: '', type: 'string', required: false }
-      }
-      dictionary.value.root.items.type = value
-    } else {
-      dictionary.value.root.type = value
-    }
+    dictionary.value.root.type = value
     autoSave()
   }
 })
@@ -484,14 +397,11 @@ const typeValue = computed({
 const enumValue = computed({
   get: () => {
     if (!dictionary.value) return ''
-    return dictionary.value.root.items?.enums || ''
+    return dictionary.value.root.enums || ''
   },
   set: (value: string) => {
     if (!dictionary.value) return
-    if (!dictionary.value.root.items) {
-      dictionary.value.root.items = { description: '', type: 'string', required: false }
-    }
-    dictionary.value.root.items.enums = value
+    dictionary.value.root.enums = value
     autoSave()
   }
 })
@@ -530,40 +440,6 @@ const stopEditDescription = () => {
 
 const cancelEditDescription = () => {
   editingDescription.value = false
-}
-
-const startEditCardTitle = () => {
-  if (dictionary.value?._locked) return
-  editingCardTitle.value = true
-  nextTick(() => {
-    cardTitleField.value.focus()
-  })
-}
-
-const stopEditCardTitle = () => {
-  editingCardTitle.value = false
-  autoSave()
-}
-
-const cancelEditCardTitle = () => {
-  editingCardTitle.value = false
-}
-
-const startEditItemsDescription = () => {
-  if (dictionary.value?._locked) return
-  editingItemsDescription.value = true
-  nextTick(() => {
-    itemsDescriptionField.value.focus()
-  })
-}
-
-const stopEditItemsDescription = () => {
-  editingItemsDescription.value = false
-  autoSave()
-}
-
-const cancelEditItemsDescription = () => {
-  editingItemsDescription.value = false
 }
 
 // Lock/unlock functionality
@@ -621,17 +497,7 @@ const addProperty = () => {
   autoSave()
 }
 
-// Toggle items required function
-const toggleItemsRequired = () => {
-  if (!dictionary.value || dictionary.value._locked) return
-  
-  if (!dictionary.value.root.items) {
-    dictionary.value.root.items = { description: '', type: 'string', required: false }
-  }
-  
-  dictionary.value.root.items.required = !dictionary.value.root.items.required
-  autoSave()
-}
+
 
 // Load dictionary on mount
 onMounted(() => {
