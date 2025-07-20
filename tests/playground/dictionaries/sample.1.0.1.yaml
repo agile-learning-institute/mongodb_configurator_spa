@@ -14,11 +14,6 @@ root:
       description: The name of the document
       type: sentence
       required: true
-    status:
-      description: The current status of the document
-      type: enum
-      required: true
-      enums: default_status
     property_4:
       description: Details about the sample
       type: array
@@ -33,3 +28,8 @@ root:
             description: A long description
             type: sentence
             required: false
+    status:
+      description: The current status of the document
+      type: enum
+      required: true
+      enums: default_status

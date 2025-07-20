@@ -98,7 +98,30 @@
       >
         <template #title>
           <div class="d-flex align-center">
-            <span class="text-h6 text-white mr-2">{{ dictionary.file_name.replace('.yaml', '') }}</span>
+            <!-- View Mode -->
+            <span 
+              v-if="!editingTitle"
+              class="text-h6 text-white mr-2 clickable-title"
+              @click="startEditTitle"
+            >
+              {{ dictionary.file_name.replace('.yaml', '') }}
+            </span>
+            <!-- Edit Mode -->
+            <v-text-field
+              v-else
+              v-model="dictionary.file_name"
+              variant="outlined"
+              density="compact"
+              class="text-h6 text-white mr-2"
+              :disabled="dictionary._locked"
+              @blur="stopEditTitle"
+              @keyup.enter="stopEditTitle"
+              @keyup.esc="cancelEditTitle"
+              ref="titleField"
+              hide-details
+              autofocus
+              style="min-width: 150px;"
+            />
             <!-- Object Description (edit-in-place) -->
             <span 
               v-if="!editingDescription"
