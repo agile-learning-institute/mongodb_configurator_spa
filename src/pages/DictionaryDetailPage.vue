@@ -232,6 +232,19 @@
               :exclude-type="dictionary.file_name"
             >
               <template #extra>
+                <!-- Add Property Button (for object types) -->
+                <v-btn
+                  v-if="property.type === 'object'"
+                  color="success"
+                  variant="elevated"
+                  size="small"
+                  @click="addSubProperty(propertyName)"
+                  :disabled="dictionary._locked"
+                  class="font-weight-bold mr-3"
+                >
+                  <v-icon start size="small">mdi-plus</v-icon>
+                  Add Property
+                </v-btn>
                 <!-- Items Type Picker (only for array types) -->
                 <div v-if="property.type === 'array' || property.type === 'list'" class="d-flex align-center mr-3">
                   <span class="text-dark mr-2">Items Type:</span>
@@ -430,20 +443,6 @@
                         </v-tooltip>
                       </template>
                     </DictionaryTypeCard>
-                  </div>
-                  
-                  <!-- Add Property Button -->
-                  <div class="d-flex justify-center mt-3">
-                    <v-btn
-                      color="success"
-                      variant="outlined"
-                      size="small"
-                      @click="addSubProperty(propertyName)"
-                      :disabled="dictionary._locked"
-                    >
-                      <v-icon start size="small">mdi-plus</v-icon>
-                      Add Property
-                    </v-btn>
                   </div>
                 </div>
               </template>

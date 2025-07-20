@@ -19,4 +19,13 @@ root:
       type: object
       required: false
       additional_properties: false
-      properties: {}
+      properties:
+        sub_property_1:
+          description: ''
+          type: enum
+          required: false
+          enums: ''
+    property_3:
+      description: ''
+      type: string
+      required: false
