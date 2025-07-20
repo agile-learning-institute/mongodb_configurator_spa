@@ -98,7 +98,7 @@
       >
         <template #title>
           <div class="d-flex align-center">
-            <span class="text-h6 text-white mr-2">Properties</span>
+            <span class="text-h6 text-white mr-2">{{ dictionary.file_name.replace('.yaml', '') }}</span>
             <!-- Object Description (edit-in-place) -->
             <span 
               v-if="!editingDescription"
