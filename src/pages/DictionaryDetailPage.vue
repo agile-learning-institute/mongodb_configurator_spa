@@ -182,8 +182,8 @@
           </v-btn>
           <!-- Items description and type picker for array types -->
           <div v-if="isListType()" class="d-flex align-center">
-            <!-- Items Description -->
-            <div class="mr-4" style="min-width: 200px;">
+            <!-- Items Description (inline with title) -->
+            <div class="mr-4">
               <v-text-field
                 v-model="descriptionValue"
                 placeholder="Items description"
@@ -192,6 +192,7 @@
                 hide-details
                 :disabled="dictionary._locked"
                 @update:model-value="autoSave"
+                class="items-description-field"
               />
             </div>
             <!-- Items Type Picker -->
@@ -202,6 +203,7 @@
                 density="compact"
                 :disabled="dictionary._locked"
                 :exclude-type="dictionary.file_name"
+                class="items-type-picker"
               />
             </div>
             <!-- Required Icon for Items -->
@@ -225,17 +227,20 @@
           </div>
         </template>
         
-        <DictionaryProperty
-          property-name="root"
-          :property="dictionary.root"
-          :disabled="dictionary._locked"
-          :exclude-type="dictionary.file_name"
-          :top-level="true"
-          :top-level-name="dictionary.file_name.replace('.yaml', '')"
-          :hide-top-level-row="true"
-          :hide-properties-header="true"
-          @change="handleTopLevelPropertyChange"
-        />
+        <!-- Only show content for object types -->
+        <div v-if="!isListType()">
+          <DictionaryProperty
+            property-name="root"
+            :property="dictionary.root"
+            :disabled="dictionary._locked"
+            :exclude-type="dictionary.file_name"
+            :top-level="true"
+            :top-level-name="dictionary.file_name.replace('.yaml', '')"
+            :hide-top-level-row="true"
+            :hide-properties-header="true"
+            @change="handleTopLevelPropertyChange"
+          />
+        </div>
       </BaseCard>
     </div>
 
@@ -534,5 +539,27 @@ onMounted(() => {
   border-radius: 4px;
   padding: 4px;
   margin: -4px;
+}
+
+/* Items description field styling */
+.items-description-field :deep(.v-field__outline) {
+  border-color: rgba(0, 0, 0, 0.6) !important;
+}
+
+.items-description-field :deep(.v-field__outline--focused) {
+  border-color: rgb(76, 175, 80) !important;
+}
+
+/* Items type picker styling for better contrast */
+.items-type-picker :deep(.v-field__outline) {
+  border-color: rgba(0, 0, 0, 0.6) !important;
+}
+
+.items-type-picker :deep(.v-field__outline--focused) {
+  border-color: rgb(76, 175, 80) !important;
+}
+
+.items-type-picker :deep(.v-field__input) {
+  color: rgba(0, 0, 0, 0.87) !important;
 }
 </style> 
