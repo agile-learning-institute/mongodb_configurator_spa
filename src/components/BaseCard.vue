@@ -54,8 +54,17 @@ const emit = defineEmits<{
 }>()
 
 const handleClick = (event: Event) => {
+  console.log('🃏 BaseCard handleClick called')
+  console.log('  - clickable:', props.clickable)
+  console.log('  - disableClick:', props.disableClick)
+  console.log('  - event.target:', event.target)
+  console.log('  - event.currentTarget:', event.currentTarget)
+  
   // Don't handle clicks if disabled
-  if (props.disableClick) return
+  if (props.disableClick) {
+    console.log('  ❌ Disabled, returning early')
+    return
+  }
   
   // Only handle clicks if the card is clickable and the click was on the card itself
   // Check if the target is the card element or a direct child that should trigger card clicks
@@ -63,13 +72,23 @@ const handleClick = (event: Event) => {
     const target = event.target as HTMLElement
     const cardElement = event.currentTarget as HTMLElement
     
+    console.log('  - target.classList:', target.classList.toString())
+    console.log('  - target === cardElement:', target === cardElement)
+    console.log('  - target.classList.contains("base-card"):', target.classList.contains('base-card'))
+    console.log('  - target.classList.contains("clickable-text"):', target.classList.contains('clickable-text'))
+    
     // Only emit if click is on the card background or specific card elements
     // Don't emit for clicks on interactive elements like text fields, buttons, etc.
     if (target === cardElement || 
         target.classList.contains('base-card') ||
         (target.parentElement === cardElement && !target.classList.contains('clickable-text'))) {
+      console.log('  ✅ Emitting card click')
       emit('click')
+    } else {
+      console.log('  ℹ️ Not emitting - click on interactive element')
     }
+  } else {
+    console.log('  ℹ️ Not clickable, not emitting')
   }
 }
 

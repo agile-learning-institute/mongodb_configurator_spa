@@ -38,7 +38,15 @@
           v-if="!editingDescription"
           class="clickable-text ml-2 flex-grow-1 description-text"
           :class="isSubCard ? 'text-body-2 text-dark' : 'text-h6 text-white'"
-          @click="(event) => { console.log('Description clicked!'); event.stopPropagation(); startEditDescription(); }"
+          @click="(event) => { 
+            console.log('🎯 Description span clicked!');
+            console.log('  - event.target:', event.target);
+            console.log('  - event.currentTarget:', event.currentTarget);
+            console.log('  - event.type:', event.type);
+            console.log('  - isSubCard:', props.isSubCard);
+            event.stopPropagation(); 
+            startEditDescription(); 
+          }"
           style="min-width: 100px;"
           title="Click to edit description"
         >
@@ -90,7 +98,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, nextTick } from 'vue'
+import { ref, nextTick, onMounted, watch } from 'vue'
 import BaseCard from './BaseCard.vue'
 import DictionaryTypePicker from './DictionaryTypePicker.vue'
 
@@ -126,6 +134,20 @@ const editingDescriptionValue = ref('')
 const nameField = ref<any>(null)
 const descriptionField = ref<any>(null)
 
+// Component lifecycle logging
+onMounted(() => {
+  console.log('🎬 DictionaryTypeCard mounted')
+  console.log('  - name:', props.name)
+  console.log('  - description:', props.description)
+  console.log('  - isSubCard:', props.isSubCard)
+  console.log('  - disabled:', props.disabled)
+})
+
+// Watch for editing state changes
+watch(editingDescription, (newVal, oldVal) => {
+  console.log('👀 editingDescription changed:', oldVal, '->', newVal)
+})
+
 // Name editing functions
 const startEditName = () => {
   if (props.disabled) return
@@ -150,26 +172,48 @@ const cancelEditName = () => {
 
 // Description editing functions
 const startEditDescription = () => {
-  console.log('startEditDescription called - disabled:', props.disabled, 'isSubCard:', props.isSubCard)
-  if (props.disabled) return
+  console.log('🔍 startEditDescription called')
+  console.log('  - disabled:', props.disabled)
+  console.log('  - isSubCard:', props.isSubCard)
+  console.log('  - description:', props.description)
+  console.log('  - current editingDescription:', editingDescription.value)
+  
+  if (props.disabled) {
+    console.log('  ❌ Disabled, returning early')
+    return
+  }
+  
   editingDescriptionValue.value = props.description || ''
   editingDescription.value = true
-  console.log('Setting editingDescription to true')
+  console.log('  ✅ Set editingDescription to true')
+  console.log('  - editingDescriptionValue:', editingDescriptionValue.value)
+  
   nextTick(() => {
+    console.log('  🔍 nextTick - focusing description field')
     descriptionField.value?.focus()
+    console.log('  - descriptionField ref:', descriptionField.value)
   })
 }
 
 const stopEditDescription = () => {
+  console.log('🔍 stopEditDescription called')
+  console.log('  - editingDescriptionValue:', editingDescriptionValue.value)
+  console.log('  - original description:', props.description)
+  
   editingDescription.value = false
   if (editingDescriptionValue.value !== props.description) {
+    console.log('  ✅ Emitting update:description')
     emit('update:description', editingDescriptionValue.value)
+  } else {
+    console.log('  ℹ️ No change, not emitting')
   }
 }
 
 const cancelEditDescription = () => {
+  console.log('🔍 cancelEditDescription called')
   editingDescription.value = false
   editingDescriptionValue.value = props.description || ''
+  console.log('  ✅ Reset editingDescription to false')
 }
 </script>
 
