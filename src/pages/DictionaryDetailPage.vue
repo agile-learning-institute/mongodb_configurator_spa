@@ -309,7 +309,142 @@
               <template #content>
                 <!-- Only show content for object properties -->
                 <div v-if="isPropertyObjectType(property)" class="pa-1">
-                  <!-- Object properties would go here recursively -->
+                  <!-- Recursive object properties -->
+                  <div v-if="!property.properties || Object.keys(property.properties).length === 0" class="text-center pa-4">
+                    <v-icon size="32" color="grey">mdi-cube-outline</v-icon>
+                    <div class="text-body-2 text-medium-emphasis mt-2">No properties defined</div>
+                  </div>
+                  
+                  <div v-else>
+                    <DictionaryTypeCard
+                      v-for="(subProperty, subPropertyName) in property.properties"
+                      :key="subPropertyName"
+                      :name="subPropertyName"
+                      :description="subProperty.description"
+                      :model-value="subProperty.type"
+                      @update:model-value="(value) => { 
+                        subProperty.type = value; 
+                        // Initialize type-specific properties
+                        if (value === 'array' || value === 'list') {
+                          if (!subProperty.items) {
+                            subProperty.items = { description: 'Items in the list', type: 'string', required: false }
+                          }
+                        } else if (value === 'object') {
+                          if (!subProperty.properties) {
+                            subProperty.properties = {}
+                          }
+                        } else if (value === 'enum' || value === 'enum_array') {
+                          if (!subProperty.enums) {
+                            subProperty.enums = ''
+                          }
+                        }
+                        autoSave() 
+                      }"
+                      @update:name="(value) => { 
+                        if (value && value !== subPropertyName && property?.properties) {
+                          const newProperties = { ...property.properties }
+                          delete newProperties[subPropertyName]
+                          newProperties[value] = subProperty
+                          property.properties = newProperties
+                          autoSave()
+                        }
+                      }"
+                      @update:description="(value) => { subProperty.description = value; autoSave() }"
+                      :icon="getPropertyIcon(subProperty.type)"
+                      :is-sub-card="true"
+                      :disabled="dictionary._locked"
+                      :exclude-type="dictionary.file_name"
+                    >
+                      <template #extra>
+                        <!-- Items Type Picker (only for array types) -->
+                        <div v-if="subProperty.type === 'array' || subProperty.type === 'list'" class="d-flex align-center mr-3">
+                          <span class="text-dark mr-2">Items Type:</span>
+                          <DictionaryTypePicker
+                            :model-value="subProperty.items?.type || 'string'"
+                            @update:model-value="(value) => { 
+                              if (subProperty.items) {
+                                subProperty.items.type = value
+                              } else {
+                                subProperty.items = { description: 'Items in the list', type: value, required: false }
+                              }
+                              autoSave()
+                            }"
+                            label="Type"
+                            density="compact"
+                            :disabled="dictionary._locked"
+                            :exclude-type="dictionary.file_name"
+                            class="flex-grow-1"
+                            style="min-width: 150px;"
+                          />
+                        </div>
+                        <!-- Enum Picker (only for enum types) -->
+                        <div v-if="subProperty.type === 'enum' || subProperty.type === 'enum_array'" class="d-flex align-center mr-3">
+                          <span class="text-dark mr-2">Enumerators:</span>
+                          <EnumPicker
+                            v-model="subProperty.enums"
+                            label="Select Enum"
+                            density="compact"
+                            :disabled="dictionary._locked"
+                            class="flex-grow-1"
+                            style="min-width: 150px;"
+                          />
+                        </div>
+                      </template>
+                      
+                      <template #actions>
+                        <!-- Required Icon -->
+                        <v-tooltip location="top">
+                          <template v-slot:activator="{ props }">
+                            <v-btn
+                              icon
+                              size="x-small"
+                              variant="text"
+                              :color="subProperty.required ? 'primary' : 'grey'"
+                              :disabled="dictionary._locked"
+                              v-bind="props"
+                              @click="subProperty.required = !subProperty.required; autoSave()"
+                              class="pa-0 ma-0 mr-2"
+                            >
+                              <v-icon size="16">mdi-star</v-icon>
+                            </v-btn>
+                          </template>
+                          <span>Required</span>
+                        </v-tooltip>
+                        <!-- Delete Button -->
+                        <v-tooltip location="top">
+                          <template v-slot:activator="{ props }">
+                            <v-btn
+                              icon
+                              size="x-small"
+                              variant="text"
+                              color="error"
+                              :disabled="dictionary._locked"
+                              v-bind="props"
+                              @click="deleteSubProperty(propertyName, subPropertyName)"
+                              class="pa-0 ma-0"
+                            >
+                              <v-icon size="16">mdi-delete</v-icon>
+                            </v-btn>
+                          </template>
+                          <span>Delete Property</span>
+                        </v-tooltip>
+                      </template>
+                    </DictionaryTypeCard>
+                  </div>
+                  
+                  <!-- Add Property Button -->
+                  <div class="d-flex justify-center mt-3">
+                    <v-btn
+                      color="success"
+                      variant="outlined"
+                      size="small"
+                      @click="addSubProperty(propertyName)"
+                      :disabled="dictionary._locked"
+                    >
+                      <v-icon start size="small">mdi-plus</v-icon>
+                      Add Property
+                    </v-btn>
+                  </div>
                 </div>
               </template>
             </DictionaryTypeCard>
@@ -582,6 +717,42 @@ const deleteProperty = (propertyName: string) => {
   
   if (dictionary.value.root.properties) {
     delete dictionary.value.root.properties[propertyName]
+    autoSave()
+  }
+}
+
+// Add sub-property function
+const addSubProperty = (propertyName: string) => {
+  if (!dictionary.value || dictionary.value._locked) return
+  
+  const property = dictionary.value?.root.properties?.[propertyName]
+  if (!property) return
+
+  if (!property.properties) {
+    property.properties = {}
+  }
+  
+  // Generate a default sub-property name
+  const subPropertyName = `sub_property_${Object.keys(property.properties).length + 1}`
+  
+  property.properties[subPropertyName] = {
+    description: '',
+    type: 'string',
+    required: false
+  }
+  
+  autoSave()
+}
+
+// Delete sub-property function
+const deleteSubProperty = (propertyName: string, subPropertyName: string) => {
+  if (!dictionary.value || dictionary.value._locked) return
+  
+  const property = dictionary.value?.root.properties?.[propertyName]
+  if (!property) return
+
+  if (property.properties) {
+    delete property.properties[subPropertyName]
     autoSave()
   }
 }
