@@ -45,8 +45,8 @@
           <v-card-text class="pa-4">
             <DictionaryProperty
               property-name="root"
-              :property="{ ...dictionary, type: dictionary.type || '' }"
-                :disabled="dictionary._locked"
+              :property="dictionary.root"
+              :disabled="dictionary._locked"
               :exclude-type="dictionary.file_name"
               :top-level="true"
               :top-level-name="dictionary.file_name.replace('.yaml', '')"
@@ -83,16 +83,15 @@ interface DictionaryProperty {
   required: boolean
   enums?: string
   ref?: string
+  properties?: Record<string, DictionaryProperty>
+  items?: DictionaryProperty
+  additionalProperties?: boolean
 }
 
 interface Dictionary {
-  description: string
   file_name: string
-  type: string
-  additionalProperties: boolean
-  required: boolean
-  properties: Record<string, DictionaryProperty>
   _locked: boolean
+  root: DictionaryProperty
 }
 
 const route = useRoute()
@@ -213,8 +212,8 @@ const lockDictionary = () => {
 
 const handleTopLevelPropertyChange = (updated: any) => {
   if (!dictionary.value) return
-  // Copy all top-level fields from updated to dictionary.value
-  Object.assign(dictionary.value, updated)
+  // Update the root property with the changes
+  dictionary.value.root = updated
   autoSave()
 }
 </script> 

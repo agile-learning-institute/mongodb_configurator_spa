@@ -260,28 +260,33 @@ export const apiService = {
     return response.data
   },
 
-  // Database
+  // Database operations
   async dropDatabase() {
     const response = await apiClient.delete(API_ENDPOINTS.DATABASE)
     return response.data
   },
 
-  // Health
+  // Health check
   async getHealth() {
     const response = await apiClient.get(API_ENDPOINTS.HEALTH)
     return response.data
   },
-
-  // Events - removed as these endpoints don't exist in OpenAPI
-  // async getEvents() {
-  //   const response = await apiClient.get(API_ENDPOINTS.EVENTS)
-  //   return response.data
-  // },
-
-  // async clearEvents() {
-  //   const response = await apiClient.delete(API_ENDPOINTS.EVENTS)
-  //   return response.data
-  // },
 }
 
-export default apiClient 
+// Export specific API modules for tests
+export const collectionsApi = {
+  getCollections: apiService.getConfigurations,
+  getCollection: apiService.getConfiguration,
+  processCollection: apiService.processConfiguration,
+  processAllCollections: apiService.processAllConfigurations,
+}
+
+export const renderApi = {
+  renderJsonSchema: apiService.downloadJsonSchema,
+  renderBsonSchema: apiService.downloadBsonSchema,
+  renderOpenApi: () => Promise.reject(new Error('OpenAPI rendering not implemented')),
+}
+
+export const configApi = {
+  getConfig: apiService.getConfig,
+} 

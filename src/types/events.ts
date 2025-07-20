@@ -10,4 +10,12 @@ export interface ConfiguratorEvent {
 
 export interface ConfiguratorEvents {
   events: ConfiguratorEvent[]
+}
+
+export interface VersionConfig {
+  version: string
+  test_data?: string
+  add_indexes?: any[]
+  drop_indexes?: string[]
+  aggregations?: any[]
 } 

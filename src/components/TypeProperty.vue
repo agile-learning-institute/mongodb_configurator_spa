@@ -155,6 +155,71 @@
       </div>
     </div>
 
+    <!-- Primitive Type Section (for schema, json_type, bson_type) -->
+    <div v-if="isPrimitiveType()" class="primitive-type-section ml-8 mb-2">
+      <div class="d-flex align-center mb-3">
+        <div class="text-h6 font-weight-bold mr-3">Schema Definition</div>
+        <v-btn
+          color="primary"
+          variant="outlined"
+          size="small"
+          @click="toggleSchemaType"
+          :disabled="disabled"
+        >
+          <v-icon start size="small">mdi-cog</v-icon>
+          Toggle Schema Type
+        </v-btn>
+      </div>
+      
+      <!-- Universal Schema -->
+      <div v-if="property.schema" class="mb-3">
+        <div class="d-flex align-center mb-2">
+          <span class="text-subtitle-2 font-weight-bold mr-2">Universal Schema:</span>
+        </div>
+        <v-textarea
+          v-model="schemaJson"
+          placeholder="Enter JSON schema..."
+          variant="outlined"
+          density="compact"
+          rows="4"
+          :disabled="disabled"
+          @update:model-value="handleSchemaChange"
+        />
+      </div>
+      
+      <!-- JSON Schema -->
+      <div v-if="property.json_type" class="mb-3">
+        <div class="d-flex align-center mb-2">
+          <span class="text-subtitle-2 font-weight-bold mr-2">JSON Schema:</span>
+        </div>
+        <v-textarea
+          v-model="jsonTypeJson"
+          placeholder="Enter JSON schema..."
+          variant="outlined"
+          density="compact"
+          rows="4"
+          :disabled="disabled"
+          @update:model-value="handleJsonTypeChange"
+        />
+      </div>
+      
+      <!-- BSON Schema -->
+      <div v-if="property.bson_type" class="mb-3">
+        <div class="d-flex align-center mb-2">
+          <span class="text-subtitle-2 font-weight-bold mr-2">BSON Schema:</span>
+        </div>
+        <v-textarea
+          v-model="bsonTypeJson"
+          placeholder="Enter BSON schema..."
+          variant="outlined"
+          density="compact"
+          rows="4"
+          :disabled="disabled"
+          @update:model-value="handleBsonTypeChange"
+        />
+      </div>
+    </div>
+
   </div>
 </template>
 
@@ -163,18 +228,24 @@ import { ref } from 'vue'
 import TypePicker from './TypePicker.vue'
 
 interface PropertyItems {
-  type: string
+  type?: string
   description: string
-  required: boolean
+  required?: boolean
+  schema?: any
+  json_type?: any
+  bson_type?: any
 }
 
 interface Property {
   description: string
-  type: string
-  required: boolean
+  type?: string
+  required?: boolean
   additionalProperties?: boolean
   items?: PropertyItems
   properties?: Record<string, Property>
+  schema?: any
+  json_type?: any
+  bson_type?: any
 }
 
 interface Props {
@@ -199,6 +270,27 @@ const emit = defineEmits<{
 // Editable property name for non-top-level properties
 const editablePropertyName = ref(props.propertyName || '')
 
+// JSON string representations for editing primitive types
+const schemaJson = ref('')
+const jsonTypeJson = ref('')
+const bsonTypeJson = ref('')
+
+// Initialize JSON strings when property changes
+const initializeJsonStrings = () => {
+  if (props.property.schema) {
+    schemaJson.value = JSON.stringify(props.property.schema, null, 2)
+  }
+  if (props.property.json_type) {
+    jsonTypeJson.value = JSON.stringify(props.property.json_type, null, 2)
+  }
+  if (props.property.bson_type) {
+    bsonTypeJson.value = JSON.stringify(props.property.bson_type, null, 2)
+  }
+}
+
+// Initialize on mount
+initializeJsonStrings()
+
 // Property name formatting (remove .yaml extension)
 // const getPropertyName = (): string => {
 //   return props.propertyName.replace(/\.yaml$/, '') || ''
@@ -211,6 +303,10 @@ const isListType = (): boolean => {
 
 const isObjectType = (): boolean => {
   return props.property.type === 'object'
+}
+
+const isPrimitiveType = (): boolean => {
+  return props.property.schema || props.property.json_type || props.property.bson_type
 }
 
 // const isCustomType = (): boolean => {
@@ -297,6 +393,50 @@ const handlePropertyChange = (propertyName: string, updatedProperty: Property) =
   if (props.property.properties) {
     props.property.properties[propertyName] = updatedProperty
     emit('change', props.property)
+  }
+}
+
+const toggleSchemaType = () => {
+  // Toggle between schema types
+  if (props.property.schema) {
+    delete props.property.schema
+    props.property.json_type = JSON.parse(schemaJson.value || '{}')
+  } else if (props.property.json_type) {
+    delete props.property.json_type
+    props.property.bson_type = JSON.parse(jsonTypeJson.value || '{}')
+  } else if (props.property.bson_type) {
+    delete props.property.bson_type
+    props.property.schema = JSON.parse(bsonTypeJson.value || '{}')
+  } else {
+    props.property.schema = {}
+  }
+  emit('change', props.property)
+}
+
+const handleSchemaChange = (value: string) => {
+  try {
+    props.property.schema = JSON.parse(value)
+    emit('change', props.property)
+  } catch (e) {
+    // Invalid JSON, don't update
+  }
+}
+
+const handleJsonTypeChange = (value: string) => {
+  try {
+    props.property.json_type = JSON.parse(value)
+    emit('change', props.property)
+  } catch (e) {
+    // Invalid JSON, don't update
+  }
+}
+
+const handleBsonTypeChange = (value: string) => {
+  try {
+    props.property.bson_type = JSON.parse(value)
+    emit('change', props.property)
+  } catch (e) {
+    // Invalid JSON, don't update
   }
 }
 </script>
