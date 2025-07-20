@@ -1,46 +1,44 @@
 <template>
-  <v-card class="mb-4 status-card">
-    <v-card-title class="status-header d-flex justify-space-between align-center">
-      <div>
-        <v-icon class="mr-2" color="white">{{ statusIcon }}</v-icon>
-        <span class="text-white">{{ title }}</span>
-      </div>
+  <BaseCard 
+    :title="title"
+    :icon="statusIcon"
+    class="mb-4"
+  >
+    <template #header-actions>
       <v-chip
         :color="statusColor"
         small
       >
         {{ status }}
       </v-chip>
-    </v-card-title>
+    </template>
+
+    <div v-if="message" class="mb-3">
+      <p>{{ message }}</p>
+    </div>
     
-    <v-card-text class="status-content">
-      <div v-if="message" class="mb-3">
-        <p>{{ message }}</p>
-      </div>
-      
-      <div v-if="progress !== null" class="mb-3">
-        <v-progress-linear
-          :value="progress"
-          :color="progressColor"
-          height="8"
-          rounded
-        />
-        <p class="text-caption mt-1">{{ progress }}% complete</p>
-      </div>
-      
-      <div v-if="details" class="mt-3">
-        <v-expansion-panels>
-          <v-expansion-panel>
-            <v-expansion-panel-title>
-              Details
-            </v-expansion-panel-title>
-            <v-expansion-panel-text>
-              <pre class="text-caption">{{ details }}</pre>
-            </v-expansion-panel-text>
-          </v-expansion-panel>
-        </v-expansion-panels>
-      </div>
-    </v-card-text>
+    <div v-if="progress !== null" class="mb-3">
+      <v-progress-linear
+        :value="progress"
+        :color="progressColor"
+        height="8"
+        rounded
+      />
+      <p class="text-caption mt-1">{{ progress }}% complete</p>
+    </div>
+    
+    <div v-if="details" class="mt-3">
+      <v-expansion-panels>
+        <v-expansion-panel>
+          <v-expansion-panel-title>
+            Details
+          </v-expansion-panel-title>
+          <v-expansion-panel-text>
+            <pre class="text-caption">{{ details }}</pre>
+          </v-expansion-panel-text>
+        </v-expansion-panel>
+      </v-expansion-panels>
+    </div>
     
     <v-card-actions v-if="showActions" class="status-actions">
       <v-btn
@@ -65,11 +63,12 @@
         Dismiss
       </v-btn>
     </v-card-actions>
-  </v-card>
+  </BaseCard>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import BaseCard from './BaseCard.vue'
 
 interface Props {
   title: string
@@ -130,23 +129,9 @@ const progressColor = computed(() => {
   if (props.progress < 100) return 'info'
   return 'success'
 })
-</script> 
+</script>
 
 <style scoped>
-.status-card {
-  border-radius: 12px !important;
-  overflow: hidden;
-}
-
-.status-header {
-  background: linear-gradient(135deg, #2E7D32 0%, #388E3C 100%);
-  border-radius: 12px 12px 0 0;
-}
-
-.status-content {
-  background: linear-gradient(135deg, #F1F8E9 0%, #E8F5E8 100%);
-}
-
 .status-actions {
   background: linear-gradient(135deg, #F1F8E9 0%, #E8F5E8 100%);
   border-top: 1px solid rgba(46, 125, 50, 0.1);

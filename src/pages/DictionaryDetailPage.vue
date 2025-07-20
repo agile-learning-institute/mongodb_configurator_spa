@@ -15,46 +15,44 @@
 
     <!-- Dictionary detail -->
     <div v-else-if="dictionary">
-        <v-card class="mb-4">
-          <v-card-title class="d-flex justify-space-between align-center pa-4" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
-            <div class="d-flex align-center">
-              <h2 class="text-h5 mb-0">Dictionary</h2>
-        </div>
-        <div class="d-flex align-center">
-              <v-btn
-            v-if="dictionary._locked"
-                color="white"
-                variant="text"
-                @click="showUnlockDialog = true"
-          >
-                <v-icon start>mdi-lock</v-icon>
-            Locked
-              </v-btn>
+      <BaseCard 
+        title="Dictionary"
+        icon="mdi-book-open-variant"
+      >
+        <template #header-actions>
           <v-btn
-                v-else
-                color="white"
-                variant="text"
-                @click="lockDictionary"
+            v-if="dictionary._locked"
+            color="white"
+            variant="text"
+            @click="showUnlockDialog = true"
           >
-                <v-icon start>mdi-lock</v-icon>
-                Lock
+            <v-icon start>mdi-lock</v-icon>
+            Locked
           </v-btn>
-        </div>
-          </v-card-title>
-          
-          <v-card-text class="pa-4">
-            <DictionaryProperty
-              property-name="root"
-              :property="dictionary.root"
-              :disabled="dictionary._locked"
-              :exclude-type="dictionary.file_name"
-              :top-level="true"
-              :top-level-name="dictionary.file_name.replace('.yaml', '')"
-              @change="handleTopLevelPropertyChange"
-              />
-        </v-card-text>
-      </v-card>
-      </div>
+          <v-btn
+            v-else
+            color="white"
+            variant="text"
+            @click="lockDictionary"
+          >
+            <v-icon start>mdi-lock</v-icon>
+            Lock
+          </v-btn>
+        </template>
+
+        <DictionaryProperty
+          property-name="root"
+          :property="dictionary.root"
+          :disabled="dictionary._locked"
+          :exclude-type="dictionary.file_name"
+          :top-level="true"
+          :top-level-name="dictionary.file_name.replace('.yaml', '')"
+          @change="handleTopLevelPropertyChange"
+        />
+      </BaseCard>
+    </div>
+
+    <!-- Unlock Dialog -->
     <v-dialog v-model="showUnlockDialog" max-width="400">
       <v-card>
         <v-card-title>Unlock Dictionary?</v-card-title>
@@ -76,6 +74,7 @@ import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { apiService } from '@/utils/api'
 import DictionaryProperty from '@/components/DictionaryProperty.vue'
+import BaseCard from '@/components/BaseCard.vue'
 
 interface DictionaryProperty {
   description: string

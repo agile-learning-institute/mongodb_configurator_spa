@@ -1,17 +1,12 @@
 <template>
-  <v-card class="event-card mb-3" :class="getStatusClass()">
-    <v-card-title class="event-header d-flex align-center py-3">
+  <BaseCard 
+    :title="event.type"
+    :icon="getStatusIcon()"
+    class="event-card mb-3"
+    :class="getStatusClass()"
+  >
+    <template #header-actions>
       <div class="d-flex align-center flex-grow-1">
-        <!-- Status Icon -->
-        <v-icon 
-          :color="getStatusColor()" 
-          class="mr-3"
-          size="20"
-        >
-          {{ getStatusIcon() }}
-        </v-icon>
-        
-        <!-- Event Type and ID -->
         <div class="flex-grow-1">
           <div class="text-subtitle-1 font-weight-medium text-white">
             {{ event.type }}
@@ -44,90 +39,89 @@
       >
         <v-icon size="16">mdi-close</v-icon>
       </v-btn>
-    </v-card-title>
+    </template>
+
+    <!-- Timestamps -->
+    <div class="d-flex align-center mb-3">
+      <v-icon size="16" color="grey" class="mr-2">mdi-clock-outline</v-icon>
+      <span class="text-caption text-medium-emphasis">
+        Started: {{ formatDateTime(event.starts) }}
+      </span>
+      <v-spacer />
+      <span v-if="event.ends" class="text-caption text-medium-emphasis">
+        Ended: {{ formatDateTime(event.ends) }}
+      </span>
+      <span v-else class="text-caption text-warning">
+        In Progress...
+      </span>
+    </div>
     
-    <v-card-text class="event-content pt-0 pb-3">
-      <!-- Timestamps -->
-      <div class="d-flex align-center mb-3">
-        <v-icon size="16" color="grey" class="mr-2">mdi-clock-outline</v-icon>
-        <span class="text-caption text-medium-emphasis">
-          Started: {{ formatDateTime(event.starts) }}
-        </span>
-        <v-spacer />
-        <span v-if="event.ends" class="text-caption text-medium-emphasis">
-          Ended: {{ formatDateTime(event.ends) }}
-        </span>
-        <span v-else class="text-caption text-warning">
-          In Progress...
-        </span>
+    <!-- Event Data -->
+    <div v-if="event.data" class="mb-3">
+      <div class="text-caption text-medium-emphasis mb-1">Event Data:</div>
+      <v-card variant="outlined" class="pa-2">
+        <pre class="text-caption mb-0" style="white-space: pre-wrap; font-family: monospace;">{{ JSON.stringify(event.data, null, 2) }}</pre>
+      </v-card>
+    </div>
+    
+    <!-- Sub-events -->
+    <div v-if="event.sub_events && event.sub_events.length > 0" class="mt-3">
+      <div class="d-flex align-center justify-space-between mb-2">
+        <div class="text-caption text-medium-emphasis">
+          Sub-events ({{ event.sub_events.length }}):
+        </div>
+        <v-btn
+          size="small"
+          variant="text"
+          @click="subEventsExpanded = !subEventsExpanded"
+          class="text-caption"
+        >
+          <v-icon size="16" class="mr-1">
+            {{ subEventsExpanded ? 'mdi-chevron-up' : 'mdi-chevron-down' }}
+          </v-icon>
+          {{ subEventsExpanded ? 'Collapse' : 'Expand' }}
+        </v-btn>
       </div>
       
-      <!-- Event Data -->
-      <div v-if="event.data" class="mb-3">
-        <div class="text-caption text-medium-emphasis mb-1">Event Data:</div>
-        <v-card variant="outlined" class="pa-2">
-          <pre class="text-caption mb-0" style="white-space: pre-wrap; font-family: monospace;">{{ JSON.stringify(event.data, null, 2) }}</pre>
-        </v-card>
-      </div>
-      
-      <!-- Sub-events -->
-      <div v-if="event.sub_events && event.sub_events.length > 0" class="mt-3">
-        <div class="d-flex align-center justify-space-between mb-2">
-          <div class="text-caption text-medium-emphasis">
-            Sub-events ({{ event.sub_events.length }}):
-          </div>
-          <v-btn
-            size="small"
-            variant="text"
-            @click="subEventsExpanded = !subEventsExpanded"
+      <!-- Sub-events Summary (always visible) -->
+      <div class="mb-2">
+        <div class="d-flex flex-wrap gap-1">
+          <v-chip
+            v-for="subEvent in event.sub_events"
+            :key="subEvent.id"
+            :color="getSubEventStatusColor(subEvent.status)"
+            size="x-small"
+            variant="tonal"
             class="text-caption"
           >
-            <v-icon size="16" class="mr-1">
-              {{ subEventsExpanded ? 'mdi-chevron-up' : 'mdi-chevron-down' }}
+            <v-icon size="12" class="mr-1">
+              {{ getSubEventStatusIcon(subEvent.status) }}
             </v-icon>
-            {{ subEventsExpanded ? 'Collapse' : 'Expand' }}
-          </v-btn>
+            {{ subEvent.type }}
+          </v-chip>
         </div>
-        
-        <!-- Sub-events Summary (always visible) -->
-        <div class="mb-2">
-          <div class="d-flex flex-wrap gap-1">
-            <v-chip
-              v-for="subEvent in event.sub_events"
-              :key="subEvent.id"
-              :color="getSubEventStatusColor(subEvent.status)"
-              size="x-small"
-              variant="tonal"
-              class="text-caption"
-            >
-              <v-icon size="12" class="mr-1">
-                {{ getSubEventStatusIcon(subEvent.status) }}
-              </v-icon>
-              {{ subEvent.type }}
-            </v-chip>
-          </div>
-        </div>
-        
-        <!-- Expanded Sub-events -->
-        <v-expand-transition>
-          <div v-if="subEventsExpanded" class="ml-4">
-            <EventCard
-              v-for="subEvent in event.sub_events"
-              :key="subEvent.id"
-              :event="subEvent"
-              :is-sub-event="true"
-              class="mb-2"
-            />
-          </div>
-        </v-expand-transition>
       </div>
-    </v-card-text>
-  </v-card>
+      
+      <!-- Expanded Sub-events -->
+      <v-expand-transition>
+        <div v-if="subEventsExpanded" class="ml-4">
+          <EventCard
+            v-for="subEvent in event.sub_events"
+            :key="subEvent.id"
+            :event="subEvent"
+            :is-sub-event="true"
+            class="mb-2"
+          />
+        </div>
+      </v-expand-transition>
+    </div>
+  </BaseCard>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue'
 import type { ConfiguratorEvent } from '@/types/events'
+import BaseCard from './BaseCard.vue'
 
 interface Props {
   event: ConfiguratorEvent
@@ -223,19 +217,8 @@ const getStatusClass = () => {
 
 <style scoped>
 .event-card {
-  border-radius: 12px !important;
-  overflow: hidden;
   border-left: 4px solid transparent;
   transition: all 0.2s ease;
-}
-
-.event-header {
-  background: linear-gradient(135deg, #2E7D32 0%, #388E3C 100%);
-  border-radius: 12px 12px 0 0;
-}
-
-.event-content {
-  background: linear-gradient(135deg, #F1F8E9 0%, #E8F5E8 100%);
 }
 
 .event-success {
