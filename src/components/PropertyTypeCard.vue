@@ -23,7 +23,7 @@
     </div>
 
     <!-- Content section -->
-    <div class="content-section pa-2">
+    <div v-if="$slots.default" class="content-section pa-2">
       <slot />
     </div>
   </v-card>
