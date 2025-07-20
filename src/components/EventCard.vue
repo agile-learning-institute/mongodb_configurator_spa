@@ -31,6 +31,19 @@
       >
         {{ event.status }}
       </v-chip>
+      
+      <!-- Remove Button (only show if not a sub-event) -->
+      <v-btn
+        v-if="!isSubEvent"
+        icon
+        size="small"
+        variant="text"
+        color="grey"
+        @click="$emit('remove', event.id)"
+        class="ml-2"
+      >
+        <v-icon size="16">mdi-close</v-icon>
+      </v-btn>
     </v-card-title>
     
     <v-card-text class="pt-0 pb-3">
@@ -102,6 +115,7 @@
               v-for="subEvent in event.sub_events"
               :key="subEvent.id"
               :event="subEvent"
+              :is-sub-event="true"
               class="mb-2"
             />
           </div>
@@ -112,14 +126,21 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import type { ConfiguratorEvent } from '@/types/events'
 
 interface Props {
   event: ConfiguratorEvent
+  isSubEvent?: boolean
 }
 
-const props = defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {
+  isSubEvent: false
+})
+
+defineEmits<{
+  remove: [eventId: string]
+}>()
 
 // Sub-events expansion state (start collapsed)
 const subEventsExpanded = ref(false)

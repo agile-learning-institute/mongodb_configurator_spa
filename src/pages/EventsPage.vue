@@ -5,14 +5,6 @@
       <v-progress-circular indeterminate size="64"></v-progress-circular>
     </div>
 
-    <!-- Error state -->
-    <div v-else-if="error" class="pa-4">
-      <v-alert type="error">
-        {{ error }}
-        <v-btn @click="loadEvents" class="mt-2">Retry</v-btn>
-      </v-alert>
-    </div>
-
     <!-- Events display -->
     <div v-else>
       <!-- Header -->
@@ -22,15 +14,6 @@
           <p class="text-body-1 text-medium-emphasis">Processing and validation events</p>
         </div>
         <div class="d-flex align-center">
-          <v-btn
-            color="primary"
-            @click="loadEvents"
-            :loading="loading"
-            class="mr-2"
-          >
-            <v-icon start>mdi-refresh</v-icon>
-            Refresh
-          </v-btn>
           <v-btn
             color="secondary"
             @click="clearEvents"
@@ -82,6 +65,7 @@
             v-for="event in events"
             :key="event.id"
             :event="event"
+            @remove="removeEvent"
           />
         </div>
       </div>
@@ -93,20 +77,51 @@
         <div class="text-body-2 text-medium-emphasis mt-2">
           Events will appear here when processing operations are performed
         </div>
+        
+        <v-card class="mt-6">
+          <v-card-title>
+            <v-icon class="mr-2">mdi-information</v-icon>
+            How to Trigger Events
+          </v-card-title>
+          <v-card-text>
+            <v-list>
+              <v-list-item>
+                <v-list-item-title>Process All Configurations</v-list-item-title>
+                <v-list-item-subtitle>
+                  Go to Configurations page and click "Process All"
+                </v-list-item-subtitle>
+              </v-list-item>
+              
+              <v-list-item>
+                <v-list-item-title>Drop Database</v-list-item-title>
+                <v-list-item-subtitle>
+                  Go to Admin page and click "Drop Database" (with confirmation)
+                </v-list-item-subtitle>
+              </v-list-item>
+              
+              <v-list-item>
+                <v-list-item-title>Process Individual Configuration</v-list-item-title>
+                <v-list-item-subtitle>
+                  Go to any Configuration detail page and click "Process"
+                </v-list-item-subtitle>
+              </v-list-item>
+            </v-list>
+          </v-card-text>
+        </v-card>
       </div>
     </div>
   </v-container>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
-import { apiService } from '@/utils/api'
+import { computed } from 'vue'
+import { useEvents } from '@/composables/useEvents'
 import EventCard from '@/components/EventCard.vue'
-import type { ConfiguratorEvent } from '@/types/events'
 
-const loading = ref(false)
-const error = ref<string | null>(null)
-const events = ref<ConfiguratorEvent[]>([])
+const { storedEvents, clearEvents, removeEvent } = useEvents()
+
+// Use stored events
+const events = computed(() => storedEvents.value)
 
 // Computed properties for event counts
 const pendingCount = computed(() => 
@@ -121,37 +136,6 @@ const failureCount = computed(() =>
   events.value.filter(e => e.status === 'FAILURE').length
 )
 
-// Load events
-const loadEvents = async () => {
-  loading.value = true
-  error.value = null
-  
-  try {
-    // Note: This endpoint doesn't exist yet, we'll need to implement it
-    // For now, we'll use a mock or placeholder
-    const data = await apiService.getEvents()
-    events.value = data.events || []
-  } catch (err: any) {
-    error.value = err.message || 'Failed to load events'
-    console.error('Failed to load events:', err)
-  } finally {
-    loading.value = false
-  }
-}
-
-// Clear all events
-const clearEvents = async () => {
-  try {
-    await apiService.clearEvents()
-    events.value = []
-  } catch (err: any) {
-    error.value = err.message || 'Failed to clear events'
-    console.error('Failed to clear events:', err)
-  }
-}
-
-// Load events on mount
-onMounted(() => {
-  loadEvents()
-})
+// Loading state (always false since events are stored in memory)
+const loading = computed(() => false)
 </script> 

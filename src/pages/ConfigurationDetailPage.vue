@@ -451,7 +451,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed, watch } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { apiService } from '@/utils/api'
 import FileCard from '@/components/FileCard.vue'
@@ -508,7 +508,7 @@ const loadingMigrations = ref(false)
 const newDropIndex = ref('')
 
 // Migrations
-const newMigration = ref('')
+// const newMigration = ref('')
 
 // New file dialogs
 const showNewTestDataDialog = ref(false)
@@ -618,17 +618,17 @@ const removeDropIndex = (name: string) => {
 }
 
 // Migrations Management
-const addMigration = () => {
-  const name = newMigration.value
-  if (!name) return
-  
-  const currentVersion = getCurrentVersion()
-  if (!currentVersion.migrations.includes(name)) {
-    currentVersion.migrations.push(name)
-    newMigration.value = ''
-    autoSave()
-  }
-}
+// const addMigration = () => {
+//   const name = newMigration.value
+//   if (!name) return
+//   
+//   const currentVersion = getCurrentVersion()
+//   if (!currentVersion.migrations.includes(name)) {
+//     currentVersion.migrations.push(name)
+//     newMigration.value = ''
+//     autoSave()
+//   }
+// }
 
 const removeMigration = (name: string) => {
   const currentVersion = getCurrentVersion()

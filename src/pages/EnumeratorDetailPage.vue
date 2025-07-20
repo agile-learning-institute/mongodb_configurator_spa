@@ -114,7 +114,7 @@
                 <v-expansion-panel-text>
                     <div class="ml-4">
                       <div
-                        v-for="(value, key) in enumeration"
+                        v-for="(_, key) in enumeration"
                       :key="key"
                         class="d-flex align-center mb-2"
                     >
@@ -230,18 +230,18 @@ const loadEnumerator = async () => {
 }
 
 // Get next version number for new enumerators
-const getNextVersion = async (): Promise<number> => {
-  try {
-    const enumerators = await apiService.getEnumerators()
-    if (enumerators.length === 0) return 0
-    
-    const maxVersion = Math.max(...enumerators.map((e: any) => e.version || 0))
-    return maxVersion + 1
-  } catch (err) {
-    console.error('Failed to get next version:', err)
-    return 0
-  }
-}
+// const getNextVersion = async (): Promise<number> => {
+//   try {
+//     const enumerators = await apiService.getEnumerators()
+//     if (enumerators.length === 0) return 0
+//     
+//     const maxVersion = Math.max(...enumerators.map((e: any) => e.version || 0))
+//     return maxVersion + 1
+//   } catch (err) {
+//     console.error('Failed to get next version:', err)
+//     return 0
+//   }
+// }
 
 // Auto-save functionality
 const autoSave = async () => {
@@ -260,21 +260,21 @@ const autoSave = async () => {
 }
 
 // Manual save
-const saveEnumerator = async () => {
-  if (!enumerator.value) return
-  
-  saving.value = true
-  try {
-    const fileName = route.params.fileName as string
-    await apiService.saveEnumerator(fileName, enumerator.value)
-    // Could add success notification here
-  } catch (err: any) {
-    error.value = err.message || 'Failed to save enumerator'
-    console.error('Failed to save enumerator:', err)
-  } finally {
-    saving.value = false
-  }
-}
+// const saveEnumerator = async () => {
+//   if (!enumerator.value) return
+//   
+//   saving.value = true
+//   try {
+//     const fileName = route.params.fileName as string
+//     await apiService.saveEnumerator(fileName, enumerator.value)
+//     // Could add success notification here
+//   } catch (err: any) {
+//     error.value = err.message || 'Failed to save enumerator'
+//     console.error('Failed to save enumerator:', err)
+//   } finally {
+//     saving.value = false
+//   }
+// }
 
 // Add new enumeration
 const addEnumeration = () => {

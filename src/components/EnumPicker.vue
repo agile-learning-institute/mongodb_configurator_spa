@@ -49,13 +49,13 @@
             <h4 class="mb-3">Select Enumerator:</h4>
             <div class="d-flex flex-wrap gap-2">
               <v-chip
-                v-for="(enumeratorDict, enumeratorName) in selectedEnumeratorData.enumerators"
+                v-for="(_, enumeratorName) in selectedEnumeratorData.enumerators"
                 :key="enumeratorName"
-                :color="modelValue === enumeratorName ? 'primary' : undefined"
+                :color="modelValue === String(enumeratorName) ? 'primary' : undefined"
                 variant="outlined"
                 size="default"
                 class="cursor-pointer pa-2"
-                @click="selectEnum(enumeratorName)"
+                @click="selectEnum(String(enumeratorName))"
               >
                 <v-icon start size="18">mdi-format-list-checks</v-icon>
                 {{ enumeratorName }}
@@ -86,7 +86,7 @@ interface Props {
   density?: 'default' | 'compact' | 'comfortable'
 }
 
-const props = withDefaults(defineProps<Props>(), {
+withDefaults(defineProps<Props>(), {
   label: 'Enum',
   disabled: false,
   error: '',

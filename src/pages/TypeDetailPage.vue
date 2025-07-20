@@ -75,7 +75,7 @@
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { apiService } from '@/utils/api'
-import TypePicker from '@/components/TypePicker.vue'
+// import TypePicker from '@/components/TypePicker.vue'
 import TypeProperty from '@/components/TypeProperty.vue'
 
 interface TypeProperty {
@@ -115,9 +115,9 @@ const jsonSchemaJson = ref('')
 const bsonSchemaJson = ref('')
 
 // JSON validation errors
-const schemaError = ref('')
-const jsonSchemaError = ref('')
-const bsonSchemaError = ref('')
+// const schemaError = ref('')
+// const jsonSchemaError = ref('')
+// const bsonSchemaError = ref('')
 
 // Load type data
 const loadType = async () => {
@@ -163,168 +163,168 @@ const autoSave = async () => {
 }
 
 // Manual save
-const saveType = async () => {
-  if (!type.value) return
-  
-  saving.value = true
-  try {
-    await apiService.saveType(type.value.file_name, type.value)
-    // Could add success notification here
-  } catch (err: any) {
-    error.value = err.message || 'Failed to save type'
-    console.error('Failed to save type:', err)
-  } finally {
-    saving.value = false
-  }
-}
+// const saveType = async () => {
+//   if (!type.value) return
+//   
+//   saving.value = true
+//   try {
+//     await apiService.saveType(type.value.file_name, type.value)
+//     // Could add success notification here
+//   } catch (err: any) {
+//     error.value = err.message || 'Failed to save type'
+//     console.error('Failed to save type:', err)
+//   } finally {
+//     saving.value = false
+//   }
+// }
 
-const primitiveTypes = [
-  'identity', 'word', 'sentence', 'email', 'url', 
-  'ip_address', 'us_phone', 'date_time', 'markdown',
-  'street_address', 'state_code', 'count', 'identifier',
-  'breadcrumb', 'appointment'
-];
+// const primitiveTypes = [
+//   'identity', 'word', 'sentence', 'email', 'url', 
+//   'ip_address', 'us_phone', 'date_time', 'markdown',
+//   'street_address', 'state_code', 'count', 'identifier',
+//   'breadcrumb', 'appointment'
+// ];
 
-const getTypeCategory = (): string => {
-  if (!type.value) return 'unknown';
+// const getTypeCategory = (): string => {
+//   if (!type.value) return 'unknown';
 
-  if (type.value.schema) return 'simple_primitive';
-  if (type.value.json_schema || type.value.bson_schema || type.value.json_type || type.value.bson_type) return 'complex_primitive';
-  if (type.value.properties) return 'object';
-  if (type.value.items) return 'array';
-  if (primitiveTypes.includes(type.value.type || '')) return 'property_primitive';
+//   if (type.value.schema) return 'simple_primitive';
+//   if (type.value.json_schema || type.value.bson_schema || type.value.json_type || type.value.bson_type) return 'complex_primitive';
+//   if (type.value.properties) return 'object';
+//   if (type.value.items) return 'array';
+//   if (primitiveTypes.includes(type.value.type || '')) return 'property_primitive';
 
-  return 'unknown';
-};
+//   return 'unknown';
+// };
 
-const getTypeCategoryTitle = (): string => {
-  const category = getTypeCategory();
-  switch (category) {
-    case 'simple_primitive': return 'Simple Primitive Type';
-    case 'complex_primitive': return 'Complex Primitive Type';
-    case 'object': return 'Object Type';
-    case 'array': return 'Array Type';
-    case 'property_primitive': return 'Primitive Property Type';
-    default: return 'Unknown Type Category';
-  }
-};
+// const getTypeCategoryTitle = (): string => {
+//   const category = getTypeCategory();
+//   switch (category) {
+//     case 'simple_primitive': return 'Simple Primitive Type';
+//     case 'complex_primitive': return 'Complex Primitive Type';
+//     case 'object': return 'Object Type';
+//     case 'array': return 'Array Type';
+//     case 'property_primitive': return 'Primitive Property Type';
+//     default: return 'Unknown Type Category';
+//   }
+// };
 
-const getTypeCategoryDescription = (): string => {
-  const category = getTypeCategory();
-  switch (category) {
-    case 'simple_primitive': return 'This type has a simple schema definition with basic JSON schema properties.';
-    case 'complex_primitive': return 'This type has both JSON and BSON schema definitions for complex validation.';
-    case 'object': return 'This type defines an object structure with named properties.';
-    case 'array': return 'This type defines an array structure with a specific item type.';
-    case 'property_primitive': return 'This type is a primitive property (e.g., word, count, email, etc.).';
-    default: return 'Unable to determine the type category. Please ensure the type has proper structure.';
-  }
-};
+// const getTypeCategoryDescription = (): string => {
+//   const category = getTypeCategory();
+//   switch (category) {
+//     case 'simple_primitive': return 'This type has a simple schema definition with basic JSON schema properties.';
+//     case 'complex_primitive': return 'This type has both JSON and BSON schema definitions for complex validation.';
+//     case 'object': return 'This type defines an object structure with named properties.';
+//     case 'array': return 'This type defines an array structure with a specific item type.';
+//     case 'property_primitive': return 'This type is a primitive property (e.g., word, count, email, etc.).';
+//     default: return 'Unable to determine the type category. Please ensure the type has proper structure.';
+//   }
+// };
 
-const isSimplePrimitive = (): boolean => {
-  return getTypeCategory() === 'simple_primitive'
-}
+// const isSimplePrimitive = (): boolean => {
+//   return getTypeCategory() === 'simple_primitive'
+// }
 
-const isComplexPrimitive = (): boolean => {
-  return getTypeCategory() === 'complex_primitive'
-}
+// const isComplexPrimitive = (): boolean => {
+//   return getTypeCategory() === 'complex_primitive'
+// }
 
-const isObject = (): boolean => {
-  return getTypeCategory() === 'object'
-}
+// const isObject = (): boolean => {
+//   return getTypeCategory() === 'object'
+// }
 
-const isArray = (): boolean => {
-  return getTypeCategory() === 'array'
-}
+// const isArray = (): boolean => {
+//   return getTypeCategory() === 'array'
+// }
 
 // JSON schema updates
-const updateSchema = () => {
-  if (!type.value) return
-  
-  try {
-    const parsed = JSON.parse(schemaJson.value)
-    type.value.schema = parsed
-    schemaError.value = ''
-    autoSave()
-  } catch (err: any) {
-    schemaError.value = 'Invalid JSON: ' + err.message
-  }
-}
+// const updateSchema = () => {
+//   if (!type.value) return
+//   
+//   try {
+//     const parsed = JSON.parse(schemaJson.value)
+//     type.value.schema = parsed
+//     schemaError.value = ''
+//     autoSave()
+//   } catch (err: any) {
+//     schemaError.value = 'Invalid JSON: ' + err.message
+//   }
+// }
 
-const updateJsonSchema = () => {
-  if (!type.value) return
-  
-  try {
-    const parsed = JSON.parse(jsonSchemaJson.value)
-    type.value.json_schema = parsed
-    jsonSchemaError.value = ''
-    autoSave()
-  } catch (err: any) {
-    jsonSchemaError.value = 'Invalid JSON: ' + err.message
-  }
-}
+// const updateJsonSchema = () => {
+//   if (!type.value) return
+//   
+//   try {
+//     const parsed = JSON.parse(jsonSchemaJson.value)
+//     type.value.json_schema = parsed
+//     jsonSchemaError.value = ''
+//     autoSave()
+//   } catch (err: any) {
+//     jsonSchemaError.value = 'Invalid JSON: ' + err.message
+//   }
+// }
 
-const updateBsonSchema = () => {
-  if (!type.value) return
-  
-  try {
-    const parsed = JSON.parse(bsonSchemaJson.value)
-    type.value.bson_schema = parsed
-    bsonSchemaError.value = ''
-    autoSave()
-  } catch (err: any) {
-    bsonSchemaError.value = 'Invalid JSON: ' + err.message
-  }
-}
+// const updateBsonSchema = () => {
+//   if (!type.value) return
+//   
+//   try {
+//     const parsed = JSON.parse(bsonSchemaJson.value)
+//     type.value.bson_schema = parsed
+//     bsonSchemaError.value = ''
+//     autoSave()
+//   } catch (err: any) {
+//     bsonSchemaError.value = 'Invalid JSON: ' + err.message
+//   }
+// }
 
 // Object property management
-const addProperty = () => {
-  if (!type.value || type.value._locked) return
-  
-  if (!type.value.properties) {
-    type.value.properties = {}
-  }
-  
-  const propertyName = `new_property_${Object.keys(type.value.properties!).length + 1}`
-  type.value.properties![propertyName] = {
-    description: '',
-    type: 'string',
-    required: false,
-    additionalProperties: false
-  }
-  
-  autoSave()
-}
+// const addProperty = () => {
+//   if (!type.value || type.value._locked) return
+//   
+//   if (!type.value.properties) {
+//     type.value.properties = {}
+//   }
+//   
+//   const propertyName = `new_property_${Object.keys(type.value.properties!).length + 1}`
+//   type.value.properties![propertyName] = {
+//     description: '',
+//     type: 'string',
+//     required: false,
+//     additionalProperties: false
+//   }
+//   
+//   autoSave()
+// }
 
-const handlePropertyChange = (propertyName: string, updatedProperty: any) => {
-  if (!type.value || type.value._locked) return
-  
-  if (type.value.properties) {
-    type.value.properties[propertyName] = updatedProperty
-  }
-  autoSave()
-}
+// const handlePropertyChange = (propertyName: string, updatedProperty: any) => {
+//   if (!type.value || type.value._locked) return
+//   
+//   if (type.value.properties) {
+//     type.value.properties[propertyName] = updatedProperty
+//   }
+//   autoSave()
+// }
 
-const deleteProperty = (propertyName: string) => {
-  if (!type.value || type.value._locked) return
-  
-  if (type.value.properties) {
-  delete type.value.properties[propertyName]
-  }
-  autoSave()
-}
+// const deleteProperty = (propertyName: string) => {
+//   if (!type.value || type.value._locked) return
+//   
+//   if (type.value.properties) {
+//   delete type.value.properties[propertyName]
+//   }
+//   autoSave()
+// }
 
-const handleTypePropertyChange = (updatedProperty: any) => {
-  if (!type.value || type.value._locked) return
-  
-  // Update the type with the property changes
-  type.value.description = updatedProperty.description
-  type.value.required = updatedProperty.required
-  type.value.additionalProperties = updatedProperty.additionalProperties
-  type.value.properties = updatedProperty.properties
-  
-  autoSave()
-}
+// const handleTypePropertyChange = (updatedProperty: any) => {
+//   if (!type.value || type.value._locked) return
+//   
+//   // Update the type with the property changes
+//   type.value.description = updatedProperty.description
+//   type.value.required = updatedProperty.required
+//   type.value.additionalProperties = updatedProperty.additionalProperties
+//   type.value.properties = updatedProperty.properties
+//   
+//   autoSave()
+// }
 
 const showUnlockDialog = ref(false)
 
@@ -341,11 +341,11 @@ const lockType = () => {
   autoSave()
 }
 
-const handleItemsChange = (updatedItems: any) => {
-  if (!type.value) return
-  type.value.items = updatedItems
-  autoSave()
-}
+// const handleItemsChange = (updatedItems: any) => {
+//   if (!type.value) return
+//   type.value.items = updatedItems
+//   autoSave()
+// }
 
 const handleTopLevelPropertyChange = (updated: any) => {
   if (!type.value) return

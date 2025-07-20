@@ -25,7 +25,7 @@
     <div v-else>
       <v-expansion-panels v-model="expandedPanel" :multiple="allowMultiple">
         <v-expansion-panel
-          v-for="(item, index) in modelValue"
+          v-for="(_, index) in modelValue"
           :key="index"
           class="mb-2"
         >
@@ -83,7 +83,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, computed, onMounted } from 'vue'
+import { ref, watch, onMounted } from 'vue'
 
 interface Props {
   modelValue: any[]

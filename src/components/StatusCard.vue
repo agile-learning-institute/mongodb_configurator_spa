@@ -84,7 +84,7 @@ const props = withDefaults(defineProps<Props>(), {
   showActions: true
 })
 
-const emit = defineEmits<{
+defineEmits<{
   retry: []
   view: []
   dismiss: []

@@ -23,11 +23,10 @@
         </div>
       </div>
       
-      <template v-slot:action="{ attrs }">
+      <template v-slot:actions>
         <v-btn
           v-if="event.dismissible"
           text
-          v-bind="attrs"
           @click="removeEvent(event.id)"
         >
           Close
@@ -90,11 +89,27 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import { injectEvents } from '@/composables/useEvents'
+import { ref } from 'vue'
 import StatusCard from './StatusCard.vue'
 
-const events = injectEvents()
+// Props for events data
+interface Props {
+  events?: any[]
+  processingEvents?: any[]
+}
+
+withDefaults(defineProps<Props>(), {
+  events: () => [],
+  processingEvents: () => []
+})
+
+// Emits for event handling
+const emit = defineEmits<{
+  removeEvent: [id: string]
+  removeProcessingEvent: [id: string]
+  retryProcessing: [id: string]
+  viewResults: [id: string]
+}>()
 
 const showProcessingPanel = ref(false)
 const detailsDialog = ref({
@@ -126,14 +141,20 @@ const showDetails = (event: any) => {
   }
 }
 
+const removeEvent = (id: string) => {
+  emit('removeEvent', id)
+}
+
+const removeProcessingEvent = (id: string) => {
+  emit('removeProcessingEvent', id)
+}
+
 const retryProcessing = (id: string) => {
-  // Emit retry event for parent to handle
-  events.removeProcessingEvent(id)
+  emit('retryProcessing', id)
 }
 
 const viewResults = (id: string) => {
-  // Emit view results event for parent to handle
-  events.removeProcessingEvent(id)
+  emit('viewResults', id)
 }
 
 // Expose panel toggle for parent components

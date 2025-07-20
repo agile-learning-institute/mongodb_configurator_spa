@@ -268,9 +268,9 @@ const emit = defineEmits<{
 const editablePropertyName = ref(props.propertyName || '')
 
 // Property name formatting (remove .yaml extension)
-const getPropertyName = (): string => {
-  return props.propertyName.replace(/\.yaml$/, '') || ''
-}
+// const getPropertyName = (): string => {
+//   return props.propertyName.replace(/\.yaml$/, '') || ''
+// }
 
 // Property type detection
 const isListType = (): boolean => {
@@ -285,9 +285,9 @@ const isEnumType = (): boolean => {
   return props.property.type === 'enum' || props.property.type === 'enum_array'
 }
 
-const isCustomType = (): boolean => {
-  return !isListType() && !isObjectType() && !isEnumType()
-}
+// const isCustomType = (): boolean => {
+//   return !isListType() && !isObjectType() && !isEnumType()
+// }
 
 // Event handlers
 const handleChange = () => {

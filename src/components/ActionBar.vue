@@ -104,7 +104,7 @@ interface Props {
   filterOptions?: Array<{ text: string; value: string }>
 }
 
-const props = withDefaults(defineProps<Props>(), {
+withDefaults(defineProps<Props>(), {
   disabled: false,
   hasSelection: false,
   showFilters: true,
@@ -122,7 +122,7 @@ const props = withDefaults(defineProps<Props>(), {
   ]
 })
 
-const emit = defineEmits<{
+defineEmits<{
   upload: []
   download: []
   process: []

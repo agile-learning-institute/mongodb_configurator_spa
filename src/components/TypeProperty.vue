@@ -159,7 +159,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import TypePicker from './TypePicker.vue'
 
 interface PropertyItems {
@@ -200,9 +200,9 @@ const emit = defineEmits<{
 const editablePropertyName = ref(props.propertyName || '')
 
 // Property name formatting (remove .yaml extension)
-const getPropertyName = (): string => {
-  return props.propertyName.replace(/\.yaml$/, '') || ''
-}
+// const getPropertyName = (): string => {
+//   return props.propertyName.replace(/\.yaml$/, '') || ''
+// }
 
 // Property type detection
 const isListType = (): boolean => {
@@ -213,9 +213,9 @@ const isObjectType = (): boolean => {
   return props.property.type === 'object'
 }
 
-const isCustomType = (): boolean => {
-  return !isListType() && !isObjectType()
-}
+// const isCustomType = (): boolean => {
+//   return !isListType() && !isObjectType()
+// }
 
 // Event handlers
 const handleChange = () => {

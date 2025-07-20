@@ -72,8 +72,8 @@ export const API_ENDPOINTS = {
   // Health
   HEALTH: '/health',
   
-  // Events
-  EVENTS: '/events/',
+  // Events - removed as this endpoint doesn't exist in OpenAPI
+  // EVENTS: '/events/',
 } as const
 
 // API service functions
@@ -254,6 +254,12 @@ export const apiService = {
     return response.data
   },
 
+  // Lock all configurations
+  async lockAllConfigurations() {
+    const response = await apiClient.patch(API_ENDPOINTS.CONFIGURATIONS)
+    return response.data
+  },
+
   // Database
   async dropDatabase() {
     const response = await apiClient.delete(API_ENDPOINTS.DATABASE)
@@ -266,16 +272,16 @@ export const apiService = {
     return response.data
   },
 
-  // Events
-  async getEvents() {
-    const response = await apiClient.get(API_ENDPOINTS.EVENTS)
-    return response.data
-  },
+  // Events - removed as these endpoints don't exist in OpenAPI
+  // async getEvents() {
+  //   const response = await apiClient.get(API_ENDPOINTS.EVENTS)
+  //   return response.data
+  // },
 
-  async clearEvents() {
-    const response = await apiClient.delete(API_ENDPOINTS.EVENTS)
-    return response.data
-  },
+  // async clearEvents() {
+  //   const response = await apiClient.delete(API_ENDPOINTS.EVENTS)
+  //   return response.data
+  // },
 }
 
 export default apiClient 

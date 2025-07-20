@@ -101,24 +101,24 @@ const saving = ref(false)
 const error = ref<string | null>(null)
 const dictionary = ref<Dictionary | null>(null)
 
-const propertyTypes = [
-  'string',
-  'number',
-  'boolean',
-  'object',
-  'array',
-  'identity',
-  'word',
-  'sentence',
-  'email',
-  'url',
-  'ip_address',
-  'us_phone',
-  'date_time',
-  'markdown',
-  'enum',
-  'ref'
-]
+// const propertyTypes = [
+//   'string',
+//   'number',
+//   'boolean',
+//   'object',
+//   'array',
+//   'identity',
+//   'word',
+//   'sentence',
+//   'email',
+//   'url',
+//   'ip_address',
+//   'us_phone',
+//   'date_time',
+//   'markdown',
+//   'enum',
+//   'ref'
+// ]
 
 // Load dictionary data
 const loadDictionary = async () => {
@@ -153,42 +153,42 @@ const autoSave = async () => {
 }
 
 // Manual save
-const saveDictionary = async () => {
-  if (!dictionary.value) return
-  
-  saving.value = true
-  try {
-    await apiService.saveDictionary(dictionary.value.file_name, dictionary.value)
-    // Could add success notification here
-  } catch (err: any) {
-    error.value = err.message || 'Failed to save dictionary'
-    console.error('Failed to save dictionary:', err)
-  } finally {
-    saving.value = false
-  }
-}
+// const saveDictionary = async () => {
+//   if (!dictionary.value) return
+//   
+//   saving.value = true
+//   try {
+//     await apiService.saveDictionary(dictionary.value.file_name, dictionary.value)
+//     // Could add success notification here
+//   } catch (err: any) {
+//     error.value = err.message || 'Failed to save dictionary'
+//     console.error('Failed to save dictionary:', err)
+//   } finally {
+//     saving.value = false
+//   }
+// }
 
 // Add new property
-const addProperty = () => {
-  if (!dictionary.value || dictionary.value._locked) return
-  
-  const propertyName = `new_property_${Object.keys(dictionary.value.properties).length + 1}`
-  dictionary.value.properties[propertyName] = {
-    description: '',
-    type: 'string',
-    required: false
-  }
-  
-  autoSave()
-}
+// const addProperty = () => {
+//   if (!dictionary.value || dictionary.value._locked) return
+//   
+//   const propertyName = `new_property_${Object.keys(dictionary.value.properties).length + 1}`
+//   dictionary.value.properties[propertyName] = {
+//     description: '',
+//     type: 'string',
+//     required: false
+//   }
+//   
+//   autoSave()
+// }
 
 // Delete property
-const deleteProperty = (propertyName: string) => {
-  if (!dictionary.value || dictionary.value._locked) return
-  
-  delete dictionary.value.properties[propertyName]
-  autoSave()
-}
+// const deleteProperty = (propertyName: string) => {
+//   if (!dictionary.value || dictionary.value._locked) return
+//   
+//   delete dictionary.value.properties[propertyName]
+//   autoSave()
+// }
 
 // Load dictionary on mount
 onMounted(() => {
