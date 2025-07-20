@@ -132,6 +132,20 @@
             <span>Additional Properties</span>
           </v-tooltip>
           
+          <!-- Add Property Button (for objects) -->
+          <v-btn
+            v-if="isObjectType()"
+            color="primary"
+            variant="outlined"
+            size="small"
+            @click="addProperty"
+            :disabled="dictionary._locked"
+            class="mr-2"
+          >
+            <v-icon start size="small">mdi-plus</v-icon>
+            Add Property
+          </v-btn>
+          
           <v-btn
             v-if="dictionary._locked"
             color="white"
@@ -169,20 +183,6 @@
         title="Properties"
         icon="mdi-cube-outline"
       >
-        <template #header-actions>
-          <v-btn
-            v-if="isObjectType()"
-            color="primary"
-            variant="outlined"
-            size="small"
-            @click="addProperty"
-            :disabled="dictionary._locked"
-          >
-            <v-icon start size="small">mdi-plus</v-icon>
-            Add Property
-          </v-btn>
-        </template>
-        
         <DictionaryProperty
           property-name="root"
           :property="dictionary.root"
