@@ -6,12 +6,12 @@ root:
   required: false
   additional_properties: false
   properties:
+    property_123:
+      description: Description!!!
+      type: word
+      required: false
     property_2:
       description: ''
       type: enum
       required: false
       enums: null
-    property_123:
-      description: ''
-      type: word
-      required: false

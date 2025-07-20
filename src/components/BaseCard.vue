@@ -5,7 +5,7 @@
       'cursor-pointer': clickable,
       'secondary': isSecondary 
     }"
-    @click="handleClick"
+    v-on="clickable ? { click: handleClick } : {}"
   >
     <!-- Header section with customizable content -->
     <div class="header-section pa-2 d-flex justify-space-between align-center">
