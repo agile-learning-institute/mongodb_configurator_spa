@@ -172,7 +172,8 @@
             :key="propertyName"
             :name="propertyName"
             :description="property.description"
-            :type="property.type"
+            :model-value="property.type"
+            @update:model-value="(value) => { property.type = value; autoSave() }"
             :icon="getPropertyIcon(property.type)"
             :is-sub-card="true"
             :disabled="dictionary._locked"
@@ -246,7 +247,15 @@
           <DictionaryTypeCard
             name="Items"
             description=""
-            :type="dictionary.root.items?.type || ''"
+            :model-value="dictionary.root.items?.type || ''"
+            @update:model-value="(value) => { 
+              if (dictionary?.root?.items) {
+                dictionary.root.items.type = value
+              } else if (dictionary?.root) {
+                dictionary.root.items = { description: 'Items in the list', type: value, required: false }
+              }
+              autoSave()
+            }"
             icon="mdi-format-list-bulleted"
             :is-sub-card="false"
             :disabled="dictionary._locked"
@@ -259,7 +268,8 @@
           <DictionaryTypeCard
             :name="dictionary.file_name.replace('.yaml', '')"
             :description="dictionary.root.description"
-            :type="dictionary.root.type"
+            :model-value="dictionary.root.type"
+            @update:model-value="(value) => { if (dictionary?.root) dictionary.root.type = value; autoSave() }"
             icon="mdi-format-list-checks"
             :is-sub-card="false"
             :disabled="dictionary._locked"

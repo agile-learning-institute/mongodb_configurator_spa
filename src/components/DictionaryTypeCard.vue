@@ -9,7 +9,8 @@
       <!-- Type Picker -->
       <div class="mr-3" style="min-width: 120px;">
         <DictionaryTypePicker
-          v-model="type"
+          :model-value="modelValue"
+          @update:model-value="(value) => emit('update:modelValue', value)"
           label="Type"
           density="compact"
           :disabled="disabled"
@@ -38,7 +39,7 @@ import DictionaryTypePicker from './DictionaryTypePicker.vue'
 interface Props {
   name: string
   description?: string
-  type: string
+  modelValue: string
   icon?: string
   isSubCard?: boolean
   disabled?: boolean
@@ -52,6 +53,10 @@ const props = withDefaults(defineProps<Props>(), {
   disabled: false,
   excludeType: ''
 })
+
+const emit = defineEmits<{
+  'update:modelValue': [value: string]
+}>()
 
 // Computed card title
 const cardTitle = computed(() => {
