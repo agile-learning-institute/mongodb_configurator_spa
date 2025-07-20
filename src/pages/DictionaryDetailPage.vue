@@ -169,6 +169,20 @@
         title="Properties"
         icon="mdi-cube-outline"
       >
+        <template #header-actions>
+          <v-btn
+            v-if="isObjectType()"
+            color="primary"
+            variant="outlined"
+            size="small"
+            @click="addProperty"
+            :disabled="dictionary._locked"
+          >
+            <v-icon start size="small">mdi-plus</v-icon>
+            Add Property
+          </v-btn>
+        </template>
+        
         <DictionaryProperty
           property-name="root"
           :property="dictionary.root"
@@ -177,6 +191,7 @@
           :top-level="true"
           :top-level-name="dictionary.file_name.replace('.yaml', '')"
           :hide-top-level-row="true"
+          :hide-properties-header="true"
           @change="handleTopLevelPropertyChange"
         />
       </BaseCard>
@@ -362,6 +377,26 @@ const handleTopLevelPropertyChange = (updated: any) => {
   if (!dictionary.value) return
   // Update the root property with the changes
   dictionary.value.root = updated
+  autoSave()
+}
+
+// Add property function
+const addProperty = () => {
+  if (!dictionary.value || dictionary.value._locked) return
+  
+  if (!dictionary.value.root.properties) {
+    dictionary.value.root.properties = {}
+  }
+  
+  // Generate a default property name
+  const propertyName = `property_${Object.keys(dictionary.value.root.properties).length + 1}`
+  
+  dictionary.value.root.properties[propertyName] = {
+    description: '',
+    type: 'string',
+    required: false
+  }
+  
   autoSave()
 }
 

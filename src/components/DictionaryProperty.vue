@@ -139,7 +139,7 @@
 
     <!-- Object Properties Section -->
     <div v-if="isObjectType()" class="object-properties-section ml-8 mb-2">
-      <div class="d-flex align-center mb-3">
+      <div v-if="!props.hidePropertiesHeader" class="d-flex align-center mb-3">
         <div class="text-h6 font-weight-bold mr-3">Properties</div>
         <v-btn
           color="primary"
@@ -252,12 +252,13 @@ interface Props {
   excludeType?: string
 }
 
-const props = withDefaults(defineProps<Props & { topLevel?: boolean; topLevelName?: string; hideTopLevelRow?: boolean }>(), {
+const props = withDefaults(defineProps<Props & { topLevel?: boolean; topLevelName?: string; hideTopLevelRow?: boolean; hidePropertiesHeader?: boolean }>(), {
   disabled: false,
   excludeType: '',
   topLevel: false,
   topLevelName: '',
-  hideTopLevelRow: false
+  hideTopLevelRow: false,
+  hidePropertiesHeader: false
 })
 
 const emit = defineEmits<{
