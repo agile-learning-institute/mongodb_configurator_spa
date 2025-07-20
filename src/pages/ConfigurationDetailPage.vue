@@ -17,9 +17,35 @@
     <div v-else-if="configuration">
       <!-- Header -->
       <div class="d-flex justify-space-between align-center mb-6">
-        <div>
-          <h1 class="text-h4">{{ configuration.title }}</h1>
-          <p class="text-body-1 text-medium-emphasis">{{ configuration.description }}</p>
+        <div class="flex-grow-1">
+          <!-- Editable Title -->
+          <div class="mb-2">
+            <v-text-field
+              v-model="configuration.title"
+              variant="plain"
+              density="compact"
+              class="text-h4"
+              :class="{ 'editable-field': !configuration._locked }"
+              :disabled="configuration._locked"
+              @update:model-value="autoSave"
+              @click="!configuration._locked && $event.target.focus()"
+              hide-details
+            />
+          </div>
+          <!-- Editable Description -->
+          <div>
+            <v-text-field
+              v-model="configuration.description"
+              variant="plain"
+              density="compact"
+              class="text-body-1 text-medium-emphasis"
+              :class="{ 'editable-field': !configuration._locked }"
+              :disabled="configuration._locked"
+              @update:model-value="autoSave"
+              @click="!configuration._locked && $event.target.focus()"
+              hide-details
+            />
+          </div>
         </div>
         <div class="d-flex align-center">
           <v-chip
@@ -49,31 +75,6 @@
           </v-btn>
         </div>
       </div>
-
-      <!-- Configuration editing -->
-      <v-card class="mb-6">
-        <v-card-title>Configuration Settings</v-card-title>
-        <v-card-text>
-          <v-row>
-            <v-col cols="12" md="6">
-              <v-text-field
-                v-model="configuration.title"
-                label="Title"
-                :disabled="configuration._locked"
-                @update:model-value="autoSave"
-              />
-            </v-col>
-            <v-col cols="12" md="6">
-              <v-text-field
-                v-model="configuration.description"
-                label="Description"
-                :disabled="configuration._locked"
-                @update:model-value="autoSave"
-              />
-            </v-col>
-          </v-row>
-        </v-card-text>
-      </v-card>
 
       <!-- Version tabs -->
       <v-tabs v-model="activeVersion" class="mb-6">
@@ -870,3 +871,29 @@ onMounted(() => {
   loadMigrationFiles()
 })
 </script> 
+
+<style scoped>
+.editable-field {
+  cursor: text;
+}
+
+.editable-field :deep(.v-field__input) {
+  padding: 0;
+  min-height: auto;
+}
+
+.editable-field :deep(.v-field__outline) {
+  display: none;
+}
+
+.editable-field :deep(.v-field__field) {
+  padding: 0;
+}
+
+.editable-field:focus-within {
+  background-color: rgba(46, 125, 50, 0.04);
+  border-radius: 4px;
+  padding: 4px;
+  margin: -4px;
+}
+</style> 
