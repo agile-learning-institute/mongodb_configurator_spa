@@ -4,16 +4,13 @@
     :class="{ 'sub-card': isSubCard }"
   >
     <!-- Header section with customizable content -->
-    <div class="header-section pa-2 d-flex justify-space-between align-center">
+    <div class="header-section pa-2 d-flex justify-space-between align-center" :class="{ 'no-content': !$slots.default }">
       <div class="d-flex align-center">
         <v-icon v-if="icon" class="mr-3" :size="isSubCard ? 16 : 20" :color="isSubCard ? 'dark' : 'white'">{{ icon }}</v-icon>
         <!-- Custom title template or default title -->
         <slot name="title" :title="title">
           <div :class="isSubCard ? 'text-body-2 text-dark' : 'text-body-1 text-white'">{{ title }}</div>
         </slot>
-        
-        <!-- Custom title actions (for type pickers, etc.) -->
-        <slot name="header-actions" />
       </div>
       
       <!-- Action buttons on header background -->
@@ -56,6 +53,10 @@ withDefaults(defineProps<Props>(), {
 .header-section {
   background: linear-gradient(135deg, #4CAF50 0%, #66BB6A 100%);
   border-radius: 8px 8px 0 0;
+}
+
+.header-section.no-content {
+  border-radius: 8px;
 }
 
 .property-type-card.sub-card .header-section {
