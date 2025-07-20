@@ -6,5 +6,6 @@ root:
   required: false
   items:
     description: a word in the list
-    type: word
+    type: enum
     required: false
+    enums: null

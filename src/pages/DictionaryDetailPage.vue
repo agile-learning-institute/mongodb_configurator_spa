@@ -263,7 +263,19 @@
           </v-tooltip>
         </template>
         
-        <!-- Array types don't show content -->
+        <!-- Content for enum and enum_array types -->
+        <div v-if="isEnumType()" class="pa-4">
+          <div class="d-flex align-center mb-3">
+            <span class="text-h6 font-weight-bold mr-3">Enum:</span>
+            <EnumPicker
+              v-model="enumValue"
+              label="Select Enum"
+              density="compact"
+              :disabled="dictionary._locked"
+              class="flex-grow-1"
+            />
+          </div>
+        </div>
       </BaseCard>
     </div>
 
@@ -306,6 +318,7 @@ import { apiService } from '@/utils/api'
 import DictionaryProperty from '@/components/DictionaryProperty.vue'
 import DictionaryTypePicker from '@/components/DictionaryTypePicker.vue'
 import BaseCard from '@/components/BaseCard.vue'
+import EnumPicker from '@/components/EnumPicker.vue'
 
 interface DictionaryProperty {
   description: string
@@ -387,6 +400,11 @@ const isListType = () => {
   return dictionary.value?.root.type === 'list' || dictionary.value?.root.type === 'array'
 }
 
+// Helper function to check if items type is enum
+const isEnumType = () => {
+  return dictionary.value?.root.items?.type === 'enum' || dictionary.value?.root.items?.type === 'enum_array'
+}
+
 // Computed property for description field
 const descriptionValue = computed({
   get: () => {
@@ -431,6 +449,21 @@ const typeValue = computed({
   }
 })
 
+// Computed property for enum field
+const enumValue = computed({
+  get: () => {
+    if (!dictionary.value) return ''
+    return dictionary.value.root.items?.enums || ''
+  },
+  set: (value: string) => {
+    if (!dictionary.value) return
+    if (!dictionary.value.root.items) {
+      dictionary.value.root.items = { description: '', type: 'string', required: false }
+    }
+    dictionary.value.root.items.enums = value
+    autoSave()
+  }
+})
 
 
 // Edit mode functions
