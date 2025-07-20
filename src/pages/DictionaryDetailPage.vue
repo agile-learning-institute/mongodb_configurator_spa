@@ -204,7 +204,30 @@
         <template #title>
           <div class="d-flex align-center">
             <span class="text-h6 text-white mr-2">Items</span>
-            <span class="text-body-2 text-white text-opacity-80">{{ descriptionValue || 'No items description provided' }}</span>
+            <!-- View Mode -->
+            <span 
+              v-if="!editingItemsDescription"
+              class="text-h6 text-white clickable-description"
+              @click="startEditItemsDescription"
+            >
+              {{ descriptionValue || 'No items description provided' }}
+            </span>
+            <!-- Edit Mode -->
+            <v-text-field
+              v-else
+              v-model="descriptionValue"
+              variant="outlined"
+              density="compact"
+              class="text-h6 text-white"
+              :disabled="dictionary._locked"
+              @blur="stopEditItemsDescription"
+              @keyup.enter="stopEditItemsDescription"
+              @keyup.esc="cancelEditItemsDescription"
+              ref="itemsDescriptionField"
+              hide-details
+              autofocus
+              style="max-width: 300px;"
+            />
           </div>
         </template>
         
@@ -313,8 +336,10 @@ const dictionary = ref<Dictionary | null>(null)
 // Edit mode states
 const editingTitle = ref(false)
 const editingDescription = ref(false)
+const editingItemsDescription = ref(false)
 const titleField = ref<any>(null)
 const descriptionField = ref<any>(null)
+const itemsDescriptionField = ref<any>(null)
 
 // Dialog states
 const showUnlockDialog = ref(false)
@@ -441,6 +466,23 @@ const stopEditDescription = () => {
 
 const cancelEditDescription = () => {
   editingDescription.value = false
+}
+
+const startEditItemsDescription = () => {
+  if (dictionary.value?._locked) return
+  editingItemsDescription.value = true
+  nextTick(() => {
+    itemsDescriptionField.value.focus()
+  })
+}
+
+const stopEditItemsDescription = () => {
+  editingItemsDescription.value = false
+  autoSave()
+}
+
+const cancelEditItemsDescription = () => {
+  editingItemsDescription.value = false
 }
 
 // Lock/unlock functionality
