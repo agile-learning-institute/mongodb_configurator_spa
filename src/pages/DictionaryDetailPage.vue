@@ -593,33 +593,15 @@ onMounted(() => {
 }
 
 /* Items type picker styling for better contrast */
-.items-type-picker :deep(.v-field__outline) {
-  border-color: rgba(0, 0, 0, 0.9) !important;
-  border-width: 3px !important;
-}
-
-.items-type-picker :deep(.v-field__outline--focused) {
-  border-color: rgb(76, 175, 80) !important;
-  border-width: 3px !important;
+.items-type-picker :deep(.v-field) {
+  background-color: white !important;
 }
 
 .items-type-picker :deep(.v-field__input) {
-  color: rgba(0, 0, 0, 0.98) !important;
-  font-weight: 600 !important;
+  color: black !important;
 }
 
 .items-type-picker :deep(.v-field__label) {
-  color: rgba(0, 0, 0, 0.9) !important;
-  font-weight: 600 !important;
-}
-
-/* Light background for type picker pill */
-.items-type-picker :deep(.v-field) {
-  background-color: rgba(255, 255, 255, 0.95) !important;
-  border-radius: 8px !important;
-}
-
-.items-type-picker :deep(.v-field--variant-outlined) {
-  background-color: rgba(255, 255, 255, 0.95) !important;
+  color: black !important;
 }
 </style> 
