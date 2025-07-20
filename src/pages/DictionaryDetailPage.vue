@@ -164,7 +164,7 @@
 
       <!-- Properties/Items Card -->
       <BaseCard 
-        :title="isListType() ? 'Items' : 'Properties'"
+        :title="isObjectType() ? 'Properties' : ''"
         :icon="isListType() ? 'mdi-format-list-bulleted' : 'mdi-cube-outline'"
       >
         <template #header-actions>
