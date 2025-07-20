@@ -215,6 +215,27 @@
               :exclude-type="dictionary.file_name"
             >
               <template #extra>
+                <!-- Items Type Picker (only for array types) -->
+                <div v-if="property.type === 'array' || property.type === 'list'" class="d-flex align-center mr-3">
+                  <span class="text-dark mr-2">Items Type:</span>
+                  <DictionaryTypePicker
+                    :model-value="property.items?.type || 'string'"
+                    @update:model-value="(value) => { 
+                      if (property.items) {
+                        property.items.type = value
+                      } else {
+                        property.items = { description: 'Items in the list', type: value, required: false }
+                      }
+                      autoSave()
+                    }"
+                    label="Type"
+                    density="compact"
+                    :disabled="dictionary._locked"
+                    :exclude-type="dictionary.file_name"
+                    class="flex-grow-1"
+                    style="min-width: 150px;"
+                  />
+                </div>
                 <!-- Enum Picker (only for enum types) -->
                 <div v-if="property.type === 'enum' || property.type === 'enum_array'" class="d-flex align-center mr-3">
                   <span class="text-dark mr-2">Enumerators:</span>
