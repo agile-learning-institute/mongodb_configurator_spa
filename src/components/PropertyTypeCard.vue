@@ -11,6 +11,9 @@
         <slot name="title" :title="title">
           <div :class="isSubCard ? 'text-body-2 text-dark' : 'text-body-1 text-white'">{{ title }}</div>
         </slot>
+        
+        <!-- Custom title actions (for type pickers, etc.) -->
+        <slot name="header-actions" />
       </div>
       
       <!-- Action buttons on header background -->

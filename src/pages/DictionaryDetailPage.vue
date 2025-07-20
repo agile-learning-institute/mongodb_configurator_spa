@@ -174,7 +174,7 @@
             :icon="getPropertyIcon(property.type)"
             :is-sub-card="true"
           >
-            <template #header-actions>
+            <template #title-actions>
               <!-- Type Picker -->
               <div class="mr-2" style="min-width: 120px;">
                 <DictionaryTypePicker
@@ -224,47 +224,56 @@
               </v-tooltip>
             </template>
             
-            <!-- Recursive content based on property type -->
+            <!-- Only show content for object properties -->
             <div v-if="isPropertyObjectType(property)" class="pa-1">
               <!-- Object properties would go here recursively -->
             </div>
-            
-            <div v-if="isPropertyListType(property)" class="pa-1">
-              <!-- List items would go here -->
-            </div>
-            
-            <div v-if="isPropertyEnumType(property)" class="pa-1">
-              <div class="d-flex align-center mb-3">
-                <span class="text-body-2 font-weight-bold mr-3">Enum:</span>
+          </PropertyTypeCard>
+        </div>
+        
+        <!-- List Type Content -->
+        <div v-if="isListType()" class="pa-1">
+          <PropertyTypeCard
+            title="Items"
+            icon="mdi-format-list-bulleted"
+            :is-sub-card="false"
+          >
+            <template #header-actions>
+              <!-- Items Type Picker -->
+              <div class="mr-2" style="min-width: 120px;">
+                <DictionaryTypePicker
+                  v-model="itemsType"
+                  label="Type"
+                  density="compact"
+                  :disabled="dictionary._locked"
+                  :exclude-type="dictionary.file_name"
+                  class="items-type-picker"
+                />
+              </div>
+            </template>
+          </PropertyTypeCard>
+        </div>
+        
+        <!-- Enum Type Content -->
+        <div v-if="isEnumType()" class="pa-1">
+          <PropertyTypeCard
+            title="Enums"
+            icon="mdi-format-list-checks"
+            :is-sub-card="false"
+          >
+            <template #header-actions>
+              <!-- Enum Picker -->
+              <div class="mr-2" style="min-width: 120px;">
                 <EnumPicker
-                  v-model="property.enums"
+                  v-model="dictionary.root.enums"
                   label="Select Enum"
                   density="compact"
                   :disabled="dictionary._locked"
                   class="flex-grow-1"
                 />
               </div>
-            </div>
+            </template>
           </PropertyTypeCard>
-        </div>
-        
-        <!-- Array Type Content -->
-        <div v-if="isListType()" class="pa-1">
-          <!-- No content for array types -->
-        </div>
-        
-        <!-- Enum Type Content -->
-        <div v-if="isEnumType()" class="pa-1">
-          <div class="d-flex align-center mb-3">
-            <span class="text-h6 font-weight-bold mr-3">Enum:</span>
-            <EnumPicker
-              v-model="enumValue"
-              label="Select Enum"
-              density="compact"
-              :disabled="dictionary._locked"
-              class="flex-grow-1"
-            />
-          </div>
         </div>
       </BaseCard>
     </div>
@@ -426,16 +435,6 @@ const isPropertyObjectType = (property: DictionaryProperty) => {
   return property.type === 'object'
 }
 
-// Helper function to check if property is list type
-const isPropertyListType = (property: DictionaryProperty) => {
-  return property.type === 'list' || property.type === 'array'
-}
-
-// Helper function to check if property is enum type
-const isPropertyEnumType = (property: DictionaryProperty) => {
-  return property.type === 'enum' || property.type === 'enum_array'
-}
-
 // Computed property for description field
 const descriptionValue = computed({
   get: () => {
@@ -480,15 +479,23 @@ const typeValue = computed({
   }
 })
 
-// Computed property for enum field
-const enumValue = computed({
+// Computed property for items type
+const itemsType = computed({
   get: () => {
-    if (!dictionary.value) return ''
-    return dictionary.value.root.enums || ''
+    if (!dictionary.value?.root?.items) return ''
+    return dictionary.value.root.items.type || ''
   },
   set: (value: string) => {
-    if (!dictionary.value) return
-    dictionary.value.root.enums = value
+    if (!dictionary.value?.root) return
+    if (!dictionary.value.root.items) {
+      dictionary.value.root.items = { 
+        description: 'Items in the list',
+        type: value,
+        required: false
+      }
+    } else {
+      dictionary.value.root.items.type = value
+    }
     autoSave()
   }
 })
