@@ -104,6 +104,18 @@
         @update:model-value="typeValue = $event"
       >
         <template #extra>
+          <!-- Enum Picker (for enum types) -->
+          <div v-if="isEnumType()" class="d-flex align-center mr-3">
+            <span class="text-white mr-2">Enumerators:</span>
+            <EnumPicker
+              v-model="dictionary.root.enums"
+              label="Select Enum"
+              density="compact"
+              :disabled="dictionary._locked"
+              class="flex-grow-1"
+              style="min-width: 150px;"
+            />
+          </div>
           <!-- Required Icon -->
           <v-tooltip location="top">
             <template v-slot:activator="{ props }">
@@ -271,36 +283,6 @@
               :disabled="dictionary._locked"
               :exclude-type="dictionary.file_name"
             />
-          </div>
-          
-          <!-- Enum Type Content -->
-          <div v-if="isEnumType()" class="pa-1">
-            <DictionaryTypeCard
-              :name="dictionary.file_name.replace('.yaml', '')"
-              :description="dictionary.root.description"
-              :model-value="dictionary.root.type"
-              @update:model-value="(value) => { if (dictionary?.root) dictionary.root.type = value; autoSave() }"
-              @update:description="(value) => { if (dictionary?.root) dictionary.root.description = value; autoSave() }"
-              icon="mdi-format-list-checks"
-              :is-sub-card="true"
-              :disabled="dictionary._locked"
-              :exclude-type="dictionary.file_name"
-            >
-              <template #extra>
-                <!-- Enumerators Picker -->
-                <div class="d-flex align-center mr-3">
-                  <span class="text-dark mr-2">Enumerators:</span>
-                  <EnumPicker
-                    v-model="dictionary.root.enums"
-                    label="Select Enum"
-                    density="compact"
-                    :disabled="dictionary._locked"
-                    class="flex-grow-1"
-                    style="min-width: 150px;"
-                  />
-                </div>
-              </template>
-            </DictionaryTypeCard>
           </div>
         </template>
       </DictionaryTypeCard>
