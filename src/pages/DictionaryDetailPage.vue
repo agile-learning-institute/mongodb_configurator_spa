@@ -15,31 +15,109 @@
 
     <!-- Dictionary detail -->
     <div v-else-if="dictionary">
-      <BaseCard 
-        title="Dictionary"
-        icon="mdi-book-open-variant"
-      >
-        <template #header-actions>
+      <!-- Header -->
+      <div class="d-flex justify-space-between align-center mb-6">
+        <div class="flex-grow-1">
+          <!-- Editable Title -->
+          <div class="mb-2">
+            <!-- View Mode -->
+            <h1 
+              v-if="!editingTitle" 
+              class="text-h4 clickable-title"
+              @click="startEditTitle"
+            >
+              {{ dictionary.title || dictionary.file_name.replace('.yaml', '') }}
+            </h1>
+            <!-- Edit Mode -->
+            <v-text-field
+              v-else
+              v-model="dictionary.title"
+              variant="outlined"
+              density="compact"
+              class="text-h4"
+              :disabled="dictionary._locked"
+              @update:model-value="autoSave"
+              @blur="stopEditTitle"
+              @keyup.enter="stopEditTitle"
+              @keyup.esc="cancelEditTitle"
+              ref="titleField"
+              hide-details
+              autofocus
+            />
+          </div>
+          <!-- Editable Description -->
+          <div>
+            <!-- View Mode -->
+            <p 
+              v-if="!editingDescription" 
+              class="text-body-1 text-medium-emphasis clickable-description"
+              @click="startEditDescription"
+            >
+              {{ dictionary.description || 'No description provided' }}
+            </p>
+            <!-- Edit Mode -->
+            <v-text-field
+              v-else
+              v-model="dictionary.description"
+              variant="outlined"
+              density="compact"
+              class="text-body-1 text-medium-emphasis"
+              :disabled="dictionary._locked"
+              @update:model-value="autoSave"
+              @blur="stopEditDescription"
+              @keyup.enter="stopEditDescription"
+              @keyup.esc="cancelEditDescription"
+              ref="descriptionField"
+              hide-details
+              autofocus
+            />
+          </div>
+        </div>
+        <div class="d-flex align-center">
+          <v-chip
+            v-if="dictionary._locked"
+            color="warning"
+            class="mr-2"
+          >
+            Locked
+          </v-chip>
           <v-btn
             v-if="dictionary._locked"
             color="white"
             variant="text"
             @click="showUnlockDialog = true"
+            class="mr-2"
           >
-            <v-icon start>mdi-lock</v-icon>
-            Locked
+            <v-icon start>mdi-lock-open</v-icon>
+            Unlock
           </v-btn>
           <v-btn
             v-else
             color="white"
             variant="text"
             @click="lockDictionary"
+            class="mr-2"
           >
             <v-icon start>mdi-lock</v-icon>
             Lock
           </v-btn>
-        </template>
+          <v-btn
+            color="error"
+            variant="text"
+            @click="showDeleteDialog = true"
+            class="mr-2"
+          >
+            <v-icon start>mdi-delete</v-icon>
+            Delete
+          </v-btn>
+        </div>
+      </div>
 
+      <!-- Properties Card -->
+      <BaseCard 
+        title="Properties"
+        icon="mdi-cube-outline"
+      >
         <DictionaryProperty
           property-name="root"
           :property="dictionary.root"
@@ -66,12 +144,27 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <!-- Delete Dialog -->
+    <v-dialog v-model="showDeleteDialog" max-width="400">
+      <v-card>
+        <v-card-title>Delete Dictionary?</v-card-title>
+        <v-card-text>
+          This action cannot be undone. Are you sure you want to delete this dictionary?
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer />
+          <v-btn @click="showDeleteDialog = false">Cancel</v-btn>
+          <v-btn color="error" @click="deleteDictionary">Delete</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
+import { ref, onMounted, nextTick } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { apiService } from '@/utils/api'
 import DictionaryProperty from '@/components/DictionaryProperty.vue'
 import BaseCard from '@/components/BaseCard.vue'
@@ -89,34 +182,28 @@ interface DictionaryProperty {
 
 interface Dictionary {
   file_name: string
+  title?: string
+  description?: string
   _locked: boolean
   root: DictionaryProperty
 }
 
 const route = useRoute()
+const router = useRouter()
 const loading = ref(false)
 const saving = ref(false)
 const error = ref<string | null>(null)
 const dictionary = ref<Dictionary | null>(null)
 
-// const propertyTypes = [
-//   'string',
-//   'number',
-//   'boolean',
-//   'object',
-//   'array',
-//   'identity',
-//   'word',
-//   'sentence',
-//   'email',
-//   'url',
-//   'ip_address',
-//   'us_phone',
-//   'date_time',
-//   'markdown',
-//   'enum',
-//   'ref'
-// ]
+// Edit mode states
+const editingTitle = ref(false)
+const editingDescription = ref(false)
+const titleField = ref<any>(null)
+const descriptionField = ref<any>(null)
+
+// Dialog states
+const showUnlockDialog = ref(false)
+const showDeleteDialog = ref(false)
 
 // Load dictionary data
 const loadDictionary = async () => {
@@ -150,52 +237,42 @@ const autoSave = async () => {
   }
 }
 
-// Manual save
-// const saveDictionary = async () => {
-//   if (!dictionary.value) return
-//   
-//   saving.value = true
-//   try {
-//     await apiService.saveDictionary(dictionary.value.file_name, dictionary.value)
-//     // Could add success notification here
-//   } catch (err: any) {
-//     error.value = err.message || 'Failed to save dictionary'
-//     console.error('Failed to save dictionary:', err)
-//   } finally {
-//     saving.value = false
-//   }
-// }
+// Edit mode functions
+const startEditTitle = () => {
+  if (dictionary.value?._locked) return
+  editingTitle.value = true
+  nextTick(() => {
+    titleField.value.focus()
+  })
+}
 
-// Add new property
-// const addProperty = () => {
-//   if (!dictionary.value || dictionary.value._locked) return
-//   
-//   const propertyName = `new_property_${Object.keys(dictionary.value.properties).length + 1}`
-//   dictionary.value.properties[propertyName] = {
-//     description: '',
-//     type: 'string',
-//     required: false
-//   }
-//   
-//   autoSave()
-// }
+const stopEditTitle = () => {
+  editingTitle.value = false
+  autoSave()
+}
 
-// Delete property
-// const deleteProperty = (propertyName: string) => {
-//   if (!dictionary.value || dictionary.value._locked) return
-//   
-//   delete dictionary.value.properties[propertyName]
-//   autoSave()
-// }
+const cancelEditTitle = () => {
+  editingTitle.value = false
+}
 
-// Load dictionary on mount
-onMounted(() => {
-  loadDictionary()
-})
+const startEditDescription = () => {
+  if (dictionary.value?._locked) return
+  editingDescription.value = true
+  nextTick(() => {
+    descriptionField.value.focus()
+  })
+}
+
+const stopEditDescription = () => {
+  editingDescription.value = false
+  autoSave()
+}
+
+const cancelEditDescription = () => {
+  editingDescription.value = false
+}
 
 // Lock/unlock functionality
-const showUnlockDialog = ref(false)
-
 const unlockDictionary = () => {
   if (!dictionary.value) return
   dictionary.value._locked = false
@@ -209,10 +286,55 @@ const lockDictionary = () => {
   autoSave()
 }
 
+// Delete functionality
+const deleteDictionary = async () => {
+  if (!dictionary.value) return
+  
+  try {
+    await apiService.deleteDictionary(dictionary.value.file_name)
+    showDeleteDialog.value = false
+    router.push('/dictionaries')
+  } catch (err: any) {
+    error.value = err.message || 'Failed to delete dictionary'
+    console.error('Failed to delete dictionary:', err)
+  }
+}
+
 const handleTopLevelPropertyChange = (updated: any) => {
   if (!dictionary.value) return
   // Update the root property with the changes
   dictionary.value.root = updated
   autoSave()
 }
-</script> 
+
+// Load dictionary on mount
+onMounted(() => {
+  loadDictionary()
+})
+</script>
+
+<style scoped>
+.clickable-title {
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.clickable-title:hover {
+  background-color: rgba(46, 125, 50, 0.04);
+  border-radius: 4px;
+  padding: 4px;
+  margin: -4px;
+}
+
+.clickable-description {
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.clickable-description:hover {
+  background-color: rgba(46, 125, 50, 0.04);
+  border-radius: 4px;
+  padding: 4px;
+  margin: -4px;
+}
+</style> 
