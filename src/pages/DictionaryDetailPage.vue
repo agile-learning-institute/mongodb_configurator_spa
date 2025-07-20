@@ -371,11 +371,21 @@ const getCardIcon = () => {
 const descriptionValue = computed({
   get: () => {
     if (!dictionary.value) return ''
+    if (isListType()) {
+      return dictionary.value.root.items?.description || ''
+    }
     return dictionary.value.root.description || ''
   },
   set: (value: string) => {
     if (!dictionary.value) return
-    dictionary.value.root.description = value
+    if (isListType()) {
+      if (!dictionary.value.root.items) {
+        dictionary.value.root.items = { description: '', type: 'string', required: false }
+      }
+      dictionary.value.root.items.description = value
+    } else {
+      dictionary.value.root.description = value
+    }
     autoSave()
   }
 })
@@ -389,6 +399,14 @@ const typeValue = computed({
   set: (value: string) => {
     if (!dictionary.value) return
     dictionary.value.root.type = value
+    
+    // Ensure items property exists for array/list types
+    if (value === 'array' || value === 'list') {
+      if (!dictionary.value.root.items) {
+        dictionary.value.root.items = { description: '', type: 'string', required: false }
+      }
+    }
+    
     autoSave()
   }
 })
