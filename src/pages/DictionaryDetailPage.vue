@@ -176,7 +176,7 @@
           >
             <template #title-actions>
               <!-- Type Picker -->
-              <div class="mr-2" style="min-width: 120px;">
+              <div class="mr-3" style="min-width: 120px;">
                 <DictionaryTypePicker
                   v-model="property.type"
                   label="Type"
@@ -184,6 +184,18 @@
                   :disabled="dictionary._locked"
                   :exclude-type="dictionary.file_name"
                   class="items-type-picker"
+                />
+              </div>
+              <!-- Enum Picker (only for enum types) -->
+              <div v-if="property.type === 'enum' || property.type === 'enum_array'" class="d-flex align-center mr-3">
+                <span class="text-dark mr-2">Enumerators:</span>
+                <EnumPicker
+                  v-model="property.enums"
+                  label="Select Enum"
+                  density="compact"
+                  :disabled="dictionary._locked"
+                  class="flex-grow-1"
+                  style="min-width: 150px;"
                 />
               </div>
               <!-- Required Icon -->
@@ -257,7 +269,7 @@
         <!-- Enum Type Content -->
         <div v-if="isEnumType()" class="pa-1">
           <PropertyTypeCard
-            title="Enums"
+            :title="`${dictionary.file_name.replace('.yaml', '')}: ${dictionary.root.description || 'No description'}`"
             icon="mdi-format-list-checks"
             :is-sub-card="false"
           >
