@@ -1,7 +1,7 @@
 <template>
   <v-app>
     <!-- App Bar -->
-    <v-app-bar color="primary" theme="dark">
+    <v-app-bar color="primary" theme="dark" class="app-header">
       <v-app-bar-nav-icon @click="toggleDrawer" />
       <v-toolbar-title>MongoDB Configurator</v-toolbar-title>
       <v-spacer></v-spacer>
@@ -224,3 +224,9 @@ const navItems = [
   { title: 'Migrations', icon: 'mdi-swap-horizontal', to: '/migrations' },
 ]
 </script> 
+
+<style scoped>
+.app-header {
+  background: linear-gradient(135deg, #2E7D32 0%, #388E3C 100%) !important;
+}
+</style> 
