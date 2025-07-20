@@ -593,32 +593,17 @@ onMounted(() => {
 }
 
 /* Items type picker styling for better contrast */
-.items-type-picker :deep(.v-field) {
+.items-type-picker :deep(.v-chip) {
   background-color: white !important;
-}
-
-.items-type-picker :deep(.v-field__input) {
   color: black !important;
-}
-
-.items-type-picker :deep(.v-field__label) {
-  color: black !important;
-}
-
-/* Target the select component specifically */
-.items-type-picker :deep(.v-select) {
-  background-color: white !important;
-}
-
-.items-type-picker :deep(.v-select__selection) {
-  color: black !important;
-}
-
-.items-type-picker :deep(.v-field__outline) {
   border-color: black !important;
 }
 
-.items-type-picker :deep(.v-field__outline--focused) {
-  border-color: black !important;
+.items-type-picker :deep(.v-chip__content) {
+  color: black !important;
+}
+
+.items-type-picker :deep(.v-chip__prepend) {
+  color: black !important;
 }
 </style> 
