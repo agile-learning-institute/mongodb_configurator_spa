@@ -75,8 +75,6 @@
 </template>
 
 <script setup lang="ts">
-import { apiService } from '@/utils/api'
-
 interface VersionConfig {
   version: string
   test_data?: string
