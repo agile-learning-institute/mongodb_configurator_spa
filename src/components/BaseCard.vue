@@ -8,7 +8,10 @@
     <div class="header-section pa-2 d-flex justify-space-between align-center">
       <div class="d-flex align-center">
         <v-icon v-if="icon" class="mr-3" size="24" color="white">{{ icon }}</v-icon>
-        <div class="text-h6 text-white">{{ title }}</div>
+        <!-- Custom title template or default title -->
+        <slot name="title" :title="title">
+          <div class="text-h6 text-white">{{ title }}</div>
+        </slot>
       </div>
       
       <!-- Action buttons on header background -->

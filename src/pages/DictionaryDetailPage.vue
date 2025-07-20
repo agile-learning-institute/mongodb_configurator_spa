@@ -201,11 +201,14 @@
         title="Items"
         icon="mdi-format-list-bulleted"
       >
-        <template #header-actions>
-          <!-- Items Description (edit-in-place) -->
-          <div class="mr-4">
-            <span class="text-body-1 text-medium-emphasis">{{ descriptionValue || 'No items description provided' }}</span>
+        <template #title>
+          <div class="d-flex align-center">
+            <span class="text-h6 text-white mr-2">Items</span>
+            <span class="text-body-2 text-white text-opacity-80">{{ descriptionValue || 'No items description provided' }}</span>
           </div>
+        </template>
+        
+        <template #header-actions>
           <!-- Items Type Picker -->
           <div class="mr-2" style="min-width: 120px;">
             <DictionaryTypePicker
@@ -549,32 +552,32 @@ onMounted(() => {
 
 /* Items type picker styling for better contrast */
 .items-type-picker :deep(.v-field__outline) {
-  border-color: rgba(0, 0, 0, 0.8) !important;
-  border-width: 2px !important;
+  border-color: rgba(0, 0, 0, 0.9) !important;
+  border-width: 3px !important;
 }
 
 .items-type-picker :deep(.v-field__outline--focused) {
   border-color: rgb(76, 175, 80) !important;
-  border-width: 2px !important;
+  border-width: 3px !important;
 }
 
 .items-type-picker :deep(.v-field__input) {
-  color: rgba(0, 0, 0, 0.95) !important;
-  font-weight: 500 !important;
+  color: rgba(0, 0, 0, 0.98) !important;
+  font-weight: 600 !important;
 }
 
 .items-type-picker :deep(.v-field__label) {
-  color: rgba(0, 0, 0, 0.8) !important;
-  font-weight: 500 !important;
+  color: rgba(0, 0, 0, 0.9) !important;
+  font-weight: 600 !important;
 }
 
 /* Light background for type picker pill */
 .items-type-picker :deep(.v-field) {
-  background-color: rgba(255, 255, 255, 0.9) !important;
+  background-color: rgba(255, 255, 255, 0.95) !important;
   border-radius: 8px !important;
 }
 
 .items-type-picker :deep(.v-field--variant-outlined) {
-  background-color: rgba(255, 255, 255, 0.9) !important;
+  background-color: rgba(255, 255, 255, 0.95) !important;
 }
 </style> 
