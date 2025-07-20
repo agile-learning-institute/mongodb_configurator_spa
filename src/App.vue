@@ -1,13 +1,32 @@
 <template>
-  <v-app>
-    <v-main>
+  <AppLayout>
+    <template #default>
       <router-view />
-    </v-main>
-  </v-app>
+    </template>
+  </AppLayout>
+  
+  <!-- Global Event Dialog -->
+  <EventDialog
+    v-model="showEventDialog"
+    :event="currentEvent"
+    :message="eventMessage"
+    :title="eventTitle"
+    :subtitle="eventSubtitle"
+  />
 </template>
 
 <script setup lang="ts">
-// App component with router view
+import AppLayout from '@/components/AppLayout.vue'
+import EventDialog from '@/components/EventDialog.vue'
+import { useEvents } from '@/composables/useEvents'
+
+const {
+  showEventDialog,
+  currentEvent,
+  eventMessage,
+  eventTitle,
+  eventSubtitle
+} = useEvents()
 </script>
 
 <style>

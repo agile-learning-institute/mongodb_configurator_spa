@@ -1,5 +1,5 @@
 {
-  "name": "stage0_mongodb_spa",
+  "name": "mongodb_configurator_spa",
   "version": "1.0.0",
   "description": "The Mongo schema manager single page application allows data engineers to test and validate MongoDB configurations. Once these configurations have been validated, they can be packaged and deployed to manage the database configuration.",
   "type": "module",
@@ -12,11 +12,14 @@
     "test:run": "vitest run",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
     "format": "prettier --write src/",
-    "container": "docker build -t ghcr.io/agile-learning-institute/stage0_mongodb_spa:latest ."
+    "container": "docker build -t ghcr.io/agile-learning-institute/mongodb_configurator_spa:latest .",
+    "api": "npm run down && docker-compose --profile configurator-api up -d",
+    "service": "npm run down && docker-compose --profile configurator up -d",
+    "down": "docker-compose down configurator_spa configurator_api mongodb"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/agile-learning-institute/stage0_mongodb_spa.git"
+    "url": "git+https://github.com/agile-learning-institute/mongodb_configurator_spa.git"
   },
   "keywords": [
     "vue",
@@ -28,9 +31,9 @@
   "author": "Agile Learning Institute",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/agile-learning-institute/stage0_mongodb_spa/issues"
+    "url": "https://github.com/agile-learning-institute/mongodb_configurator_spa/issues"
   },
-  "homepage": "https://github.com/agile-learning-institute/stage0_mongodb_spa#readme",
+  "homepage": "https://github.com/agile-learning-institute/mongodb_configurator_spa#readme",
   "dependencies": {
     "@mdi/font": "^7.4.47",
     "axios": "^1.10.0",

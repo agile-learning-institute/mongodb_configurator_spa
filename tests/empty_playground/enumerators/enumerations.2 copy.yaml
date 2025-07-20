@@ -1,0 +1,15 @@
+name: Enumerations
+status: Active
+version: 2
+enumerators:
+  default_status:
+    active: Not Deleted
+    archived: Soft Delete Indicator
+    draft: Draft
+  media_type:
+    image: Image
+    video: Video
+    audio: Audio
+    document: Document
+    other: Other
+_locked: false

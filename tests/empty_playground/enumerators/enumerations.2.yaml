@@ -1,0 +1,21 @@
+name: Enumerations
+status: Active
+version: 2
+enumerators:
+  default_status:
+    active: Not Deleted
+    archived: Soft Delete Indicator
+    draft: Draft
+  media_typea:
+    audio: Audio
+    document: Document
+    image: Image
+    other: Other
+    video: Video
+  wMaynaeaasdfsadf:
+    How about this: asfasdfas
+  Super_Status:
+    name_me_1: new_value
+    name_me_2: new_value
+  name_me_1: {}
+_locked: false

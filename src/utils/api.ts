@@ -1,83 +1,287 @@
-import type { Collection, CollectionConfig, Config, ValidationError } from '../types'
+import axios, { AxiosInstance, AxiosResponse } from 'axios'
 
-// Use relative URLs to work with Vite proxy in development
-const API_BASE = import.meta.env.VITE_API_BASE || ''
+// Environment-based configuration
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api'
+const API_TIMEOUT = 30000 // 30 seconds
 
-class ApiError extends Error {
-  constructor(message: string, public status?: number, public validationErrors?: ValidationError[]) {
-    super(message)
-    this.name = 'ApiError'
+// API client configuration
+const apiClient: AxiosInstance = axios.create({
+  baseURL: API_BASE_URL,
+  timeout: API_TIMEOUT,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  // Force relative URLs
+  withCredentials: false,
+})
+
+// Response interceptor for error handling
+apiClient.interceptors.response.use(
+  (response: AxiosResponse) => response,
+  (error) => {
+    // All API errors return 500 with Event objects
+    if (error.response?.status === 500) {
+      // Return the event data for popup display
+      return Promise.reject({
+        type: 'API_ERROR',
+        status: 500,
+        data: error.response.data,
+      })
+    }
+    return Promise.reject(error)
   }
-}
+)
 
-async function apiRequest<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
-  const url = `${API_BASE}${endpoint}`
+// API endpoints
+export const API_ENDPOINTS = {
+  // Configuration
+  CONFIG: '/config/',
   
-  const response = await fetch(url, {
-    headers: {
-      'Content-Type': 'application/json',
-      ...options.headers,
-    },
-    ...options,
-  })
+  // Configurations
+  CONFIGURATIONS: '/configurations/',
+  CONFIGURATION: (fileName: string) => `/configurations/${fileName}/`,
+  NEW_COLLECTION: (name: string) => `/configurations/collection/${name}/`,
+  JSON_SCHEMA: (fileName: string, version: string) => 
+    `/configurations/json_schema/${fileName}/${version}/`,
+  BSON_SCHEMA: (fileName: string, version: string) => 
+    `/configurations/bson_schema/${fileName}/${version}/`,
+  
+  // Dictionaries
+  DICTIONARIES: '/dictionaries/',
+  DICTIONARY: (fileName: string) => `/dictionaries/${fileName}/`,
+  
+  // Types
+  TYPES: '/types/',
+  TYPE: (fileName: string) => `/types/${fileName}/`,
+  
+  // Test Data
+  TEST_DATA: '/test_data/',
+  TEST_DATA_FILE: (fileName: string) => `/test_data/${fileName}/`,
+  
+  // Migrations
+  MIGRATIONS: '/migrations/',
+  MIGRATION: (fileName: string) => `/migrations/${fileName}/`,
+  
+  // Enumerators
+  ENUMERATORS: '/enumerators/',
+  ENUMERATOR: (fileName: string) => `/enumerators/${fileName}/`,
+  
+  // Database
+  DATABASE: '/database/',
+  
+  // Health
+  HEALTH: '/health',
+  
+  // Events - removed as this endpoint doesn't exist in OpenAPI
+  // EVENTS: '/events/',
+} as const
 
-  let data: any = undefined
-  try {
-    data = await response.json()
-  } catch (e) {
-    // If response is not JSON, ignore
-  }
-
-  // If the response is a validation error array, always throw as validation error
-  if (Array.isArray(data) && data.length > 0 && data[0].error_id) {
-    throw new ApiError('Validation errors occurred', response.status ?? 500, data)
-  }
-
-  if (!response.ok) {
-    throw new ApiError(`API Error: ${response.statusText}`, response.status)
-  }
-
-  return data
-}
-
-export const collectionsApi = {
-  async getCollections(): Promise<Collection[]> {
-    return apiRequest<Collection[]>('/api/collections/')
+// API service functions
+export const apiService = {
+  // Configuration
+  async getConfig() {
+    const response = await apiClient.get(API_ENDPOINTS.CONFIG)
+    return response.data
   },
 
-  async getCollection(name: string): Promise<CollectionConfig> {
-    return apiRequest<CollectionConfig>(`/api/collections/${name}/`)
+  // Configurations
+  async getConfigurations() {
+    const response = await apiClient.get(API_ENDPOINTS.CONFIGURATIONS)
+    return response.data
   },
 
-  async processCollection(name: string): Promise<any> {
-    return apiRequest<any>(`/api/collections/${name}/`, {
-      method: 'POST'
+  async getConfiguration(fileName: string) {
+    const response = await apiClient.get(API_ENDPOINTS.CONFIGURATION(fileName))
+    return response.data
+  },
+
+  async saveConfiguration(fileName: string, data: any) {
+    const response = await apiClient.put(API_ENDPOINTS.CONFIGURATION(fileName), data)
+    return response.data
+  },
+
+  async deleteConfiguration(fileName: string) {
+    const response = await apiClient.delete(API_ENDPOINTS.CONFIGURATION(fileName))
+    return response.data
+  },
+
+  async processConfiguration(fileName: string) {
+    const response = await apiClient.post(API_ENDPOINTS.CONFIGURATION(fileName))
+    return response.data
+  },
+
+  async processAllConfigurations() {
+    const response = await apiClient.post(API_ENDPOINTS.CONFIGURATIONS)
+    return response.data
+  },
+
+  async createNewCollection(name: string) {
+    const response = await apiClient.post(API_ENDPOINTS.NEW_COLLECTION(name))
+    return response.data
+  },
+
+  async downloadJsonSchema(fileName: string, version: string) {
+    const response = await apiClient.get(API_ENDPOINTS.JSON_SCHEMA(fileName, version), {
+      responseType: 'blob'
     })
+    return response.data
   },
 
-  async processAllCollections(): Promise<any> {
-    return apiRequest<any>('/api/collections/', {
-      method: 'POST'
+  async downloadBsonSchema(fileName: string, version: string) {
+    const response = await apiClient.get(API_ENDPOINTS.BSON_SCHEMA(fileName, version), {
+      responseType: 'blob'
     })
-  }
-}
-
-export const renderApi = {
-  async renderJsonSchema(schemaName: string): Promise<any> {
-    return apiRequest(`/api/render/json_schema/${schemaName}/`)
+    return response.data
   },
 
-  async renderBsonSchema(schemaName: string): Promise<any> {
-    return apiRequest(`/api/render/bson_schema/${schemaName}/`)
+  // Dictionaries
+  async getDictionaries() {
+    const response = await apiClient.get(API_ENDPOINTS.DICTIONARIES)
+    return response.data
   },
 
-  async renderOpenApi(schemaName: string): Promise<any> {
-    return apiRequest(`/api/render/openapi/${schemaName}/`)
-  }
+  async getDictionary(fileName: string) {
+    const response = await apiClient.get(API_ENDPOINTS.DICTIONARY(fileName))
+    return response.data
+  },
+
+  async saveDictionary(fileName: string, data: any) {
+    const response = await apiClient.put(API_ENDPOINTS.DICTIONARY(fileName), data)
+    return response.data
+  },
+
+  async deleteDictionary(fileName: string) {
+    const response = await apiClient.delete(API_ENDPOINTS.DICTIONARY(fileName))
+    return response.data
+  },
+
+  async lockAllDictionaries() {
+    const response = await apiClient.patch(API_ENDPOINTS.DICTIONARIES)
+    return response.data
+  },
+
+  // Types
+  async getTypes() {
+    const response = await apiClient.get(API_ENDPOINTS.TYPES)
+    return response.data
+  },
+
+  async getType(fileName: string) {
+    const response = await apiClient.get(API_ENDPOINTS.TYPE(fileName))
+    return response.data
+  },
+
+  async saveType(fileName: string, data: any) {
+    const response = await apiClient.put(API_ENDPOINTS.TYPE(fileName), data)
+    return response.data
+  },
+
+  async deleteType(fileName: string) {
+    const response = await apiClient.delete(API_ENDPOINTS.TYPE(fileName))
+    return response.data
+  },
+
+  async lockAllTypes() {
+    const response = await apiClient.patch(API_ENDPOINTS.TYPES)
+    return response.data
+  },
+
+  // Test Data
+  async getTestData() {
+    const response = await apiClient.get(API_ENDPOINTS.TEST_DATA)
+    return response.data
+  },
+
+  async getTestDataFile(fileName: string) {
+    const response = await apiClient.get(API_ENDPOINTS.TEST_DATA_FILE(fileName))
+    return response.data
+  },
+
+  async saveTestDataFile(fileName: string, data: any) {
+    const response = await apiClient.put(API_ENDPOINTS.TEST_DATA_FILE(fileName), data)
+    return response.data
+  },
+
+  async deleteTestDataFile(fileName: string) {
+    const response = await apiClient.delete(API_ENDPOINTS.TEST_DATA_FILE(fileName))
+    return response.data
+  },
+
+  // Migrations
+  async getMigrations() {
+    const response = await apiClient.get(API_ENDPOINTS.MIGRATIONS)
+    return response.data
+  },
+
+  async getMigration(fileName: string) {
+    const response = await apiClient.get(API_ENDPOINTS.MIGRATION(fileName))
+    return response.data
+  },
+
+  async saveMigration(fileName: string, data: any) {
+    const response = await apiClient.put(API_ENDPOINTS.MIGRATION(fileName), data)
+    return response.data
+  },
+
+  async deleteMigration(fileName: string) {
+    const response = await apiClient.delete(API_ENDPOINTS.MIGRATION(fileName))
+    return response.data
+  },
+
+  // Enumerators
+  async getEnumerators() {
+    const response = await apiClient.get(API_ENDPOINTS.ENUMERATORS)
+    return response.data
+  },
+
+  async getEnumerator(fileName: string) {
+    const response = await apiClient.get(API_ENDPOINTS.ENUMERATOR(fileName))
+    return response.data
+  },
+
+  async saveEnumerator(fileName: string, data: any) {
+    const response = await apiClient.put(API_ENDPOINTS.ENUMERATOR(fileName), data)
+    return response.data
+  },
+
+  async deleteEnumerator(fileName: string) {
+    const response = await apiClient.delete(API_ENDPOINTS.ENUMERATOR(fileName))
+    return response.data
+  },
+
+  async lockAllEnumerators() {
+    const response = await apiClient.patch(API_ENDPOINTS.ENUMERATORS)
+    return response.data
+  },
+
+  // Lock all configurations
+  async lockAllConfigurations() {
+    const response = await apiClient.patch(API_ENDPOINTS.CONFIGURATIONS)
+    return response.data
+  },
+
+  // Database
+  async dropDatabase() {
+    const response = await apiClient.delete(API_ENDPOINTS.DATABASE)
+    return response.data
+  },
+
+  // Health
+  async getHealth() {
+    const response = await apiClient.get(API_ENDPOINTS.HEALTH)
+    return response.data
+  },
+
+  // Events - removed as these endpoints don't exist in OpenAPI
+  // async getEvents() {
+  //   const response = await apiClient.get(API_ENDPOINTS.EVENTS)
+  //   return response.data
+  // },
+
+  // async clearEvents() {
+  //   const response = await apiClient.delete(API_ENDPOINTS.EVENTS)
+  //   return response.data
+  // },
 }
 
-export const configApi = {
-  async getConfig(): Promise<Config> {
-    return apiRequest<Config>('/api/config/')
-  }
-} 
+export default apiClient 
