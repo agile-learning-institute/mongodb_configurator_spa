@@ -174,6 +174,16 @@
             :description="property.description"
             :model-value="property.type"
             @update:model-value="(value) => { property.type = value; autoSave() }"
+            @update:name="(value) => { 
+              if (value && value !== propertyName && dictionary?.root?.properties) {
+                const newProperties = { ...dictionary.root.properties }
+                delete newProperties[propertyName]
+                newProperties[value] = property
+                dictionary.root.properties = newProperties
+                autoSave()
+              }
+            }"
+            @update:description="(value) => { property.description = value; autoSave() }"
             :icon="getPropertyIcon(property.type)"
             :is-sub-card="true"
             :disabled="dictionary._locked"
@@ -270,6 +280,14 @@
             :description="dictionary.root.description"
             :model-value="dictionary.root.type"
             @update:model-value="(value) => { if (dictionary?.root) dictionary.root.type = value; autoSave() }"
+            @update:name="(value) => { 
+              if (value && dictionary?.file_name) {
+                const newFileName = value + '.yaml'
+                // Note: This would require additional logic to rename the file
+                console.log('File rename not implemented yet:', dictionary.file_name, '->', newFileName)
+              }
+            }"
+            @update:description="(value) => { if (dictionary?.root) dictionary.root.description = value; autoSave() }"
             icon="mdi-format-list-checks"
             :is-sub-card="false"
             :disabled="dictionary._locked"
