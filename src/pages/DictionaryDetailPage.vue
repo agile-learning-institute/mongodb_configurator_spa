@@ -184,16 +184,8 @@
           <div v-if="isListType()" class="d-flex align-center">
             <!-- Items Description (inline with title) -->
             <div class="mr-4">
-              <v-text-field
-                v-model="descriptionValue"
-                placeholder="Items description"
-                density="compact"
-                variant="outlined"
-                hide-details
-                :disabled="dictionary._locked"
-                @update:model-value="autoSave"
-                class="items-description-field"
-              />
+              <span class="text-h6 font-weight-bold mr-2">Items</span>
+              <span class="text-body-1 text-medium-emphasis">{{ descriptionValue || 'No items description provided' }}</span>
             </div>
             <!-- Items Type Picker -->
             <div class="mr-2" style="min-width: 120px;">
@@ -552,14 +544,22 @@ onMounted(() => {
 
 /* Items type picker styling for better contrast */
 .items-type-picker :deep(.v-field__outline) {
-  border-color: rgba(0, 0, 0, 0.6) !important;
+  border-color: rgba(0, 0, 0, 0.8) !important;
+  border-width: 2px !important;
 }
 
 .items-type-picker :deep(.v-field__outline--focused) {
   border-color: rgb(76, 175, 80) !important;
+  border-width: 2px !important;
 }
 
 .items-type-picker :deep(.v-field__input) {
-  color: rgba(0, 0, 0, 0.87) !important;
+  color: rgba(0, 0, 0, 0.95) !important;
+  font-weight: 500 !important;
+}
+
+.items-type-picker :deep(.v-field__label) {
+  color: rgba(0, 0, 0, 0.8) !important;
+  font-weight: 500 !important;
 }
 </style> 
