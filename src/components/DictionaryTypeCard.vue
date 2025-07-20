@@ -39,7 +39,8 @@
           v-if="!editingDescription"
           class="clickable-text flex-grow-1"
           :class="isSubCard ? 'text-body-2 text-dark' : 'text-h6 text-white'"
-          @click="startEditDescription"
+          @click.stop="startEditDescription"
+          style="min-width: 100px;"
         >
           {{ description }}
         </span>
@@ -57,6 +58,7 @@
           hide-details
           autofocus
           class="flex-grow-1"
+          style="min-width: 150px;"
         />
       </div>
     </template>
@@ -178,15 +180,22 @@ const cancelEditDescription = () => {
 .clickable-text {
   cursor: pointer;
   transition: background-color 0.2s;
+  display: inline-block;
+  padding: 2px 4px;
+  border-radius: 4px;
+  user-select: none;
 }
 
 .clickable-text:hover {
   background-color: rgba(255, 255, 255, 0.1);
-  border-radius: 4px;
-  padding: 2px 4px;
 }
 
 .clickable-text:active {
   background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Ensure text fields don't interfere with click events */
+.v-text-field {
+  z-index: 1;
 }
 </style> 
