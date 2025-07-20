@@ -20,13 +20,15 @@
     </div>
 
     <!-- Content section -->
-    <div v-if="$slots.default" class="content-section pa-2">
+    <div v-if="hasContent" class="content-section pa-2">
       <slot />
     </div>
   </v-card>
 </template>
 
 <script setup lang="ts">
+import { computed, useSlots } from 'vue'
+
 interface Props {
   title?: string
   icon?: string
@@ -37,6 +39,11 @@ withDefaults(defineProps<Props>(), {
   title: '',
   icon: '',
   isSubCard: false
+})
+
+// Check if there's content in the default slot
+const hasContent = computed(() => {
+  return !!useSlots().default
 })
 </script>
 
