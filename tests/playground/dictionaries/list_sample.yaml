@@ -1,0 +1,6 @@
+file_name: list_sample.yaml
+_locked: false
+root:
+  description: A root List for testing
+  type: word
+  required: false

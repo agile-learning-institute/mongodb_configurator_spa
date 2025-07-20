@@ -97,31 +97,7 @@
       >
         <template #title>
           <div class="d-flex align-center">
-            <span class="text-h6 text-white mr-2">{{ getCardTitle() }}</span>
-            <!-- View Mode -->
-            <span 
-              v-if="!editingDescription"
-              class="text-h6 text-white clickable-description"
-              @click.stop="startEditDescription"
-            >
-              {{ descriptionValue || 'No description provided' }}
-            </span>
-            <!-- Edit Mode -->
-            <v-text-field
-              v-else
-              v-model="descriptionValue"
-              variant="outlined"
-              density="compact"
-              class="text-h6 text-white flex-grow-1"
-              :disabled="dictionary._locked"
-              @blur="stopEditDescription"
-              @keyup.enter="stopEditDescription"
-              @keyup.esc="cancelEditDescription"
-              ref="descriptionField"
-              hide-details
-              autofocus
-              style="min-width: 200px;"
-            />
+            <span class="text-h6 text-white">{{ getCardTitle() }}</span>
           </div>
         </template>
         
@@ -191,17 +167,85 @@
         <!-- Content based on type -->
         <!-- Object Type Content -->
         <div v-if="isObjectType()" class="pa-1">
-          <DictionaryProperty
-            property-name="root"
-            :property="dictionary.root"
-            :disabled="dictionary._locked"
-            :exclude-type="dictionary.file_name"
-            :top-level="true"
-            :top-level-name="dictionary.file_name.replace('.yaml', '')"
-            :hide-top-level-row="true"
-            :hide-properties-header="true"
-            @change="handleTopLevelPropertyChange"
-          />
+          <PropertyTypeCard
+            v-for="(property, propertyName) in dictionary.root.properties"
+            :key="propertyName"
+            :title="`${propertyName}: ${property.description || 'No description'}`"
+            :icon="getPropertyIcon(property.type)"
+            :is-sub-card="true"
+          >
+            <template #header-actions>
+              <!-- Type Picker -->
+              <div class="mr-2" style="min-width: 120px;">
+                <DictionaryTypePicker
+                  v-model="property.type"
+                  label="Type"
+                  density="compact"
+                  :disabled="dictionary._locked"
+                  :exclude-type="dictionary.file_name"
+                  class="items-type-picker"
+                />
+              </div>
+              <!-- Required Icon -->
+              <v-tooltip location="top">
+                <template v-slot:activator="{ props }">
+                  <v-btn
+                    icon
+                    size="x-small"
+                    variant="text"
+                    :color="property.required ? 'primary' : 'grey'"
+                    :disabled="dictionary._locked"
+                    v-bind="props"
+                    @click="property.required = !property.required; autoSave()"
+                    class="pa-0 ma-0 mr-2"
+                  >
+                    <v-icon size="16">mdi-star</v-icon>
+                  </v-btn>
+                </template>
+                <span>Required</span>
+              </v-tooltip>
+              <!-- Delete Button -->
+              <v-tooltip location="top">
+                <template v-slot:activator="{ props }">
+                  <v-btn
+                    icon
+                    size="x-small"
+                    variant="text"
+                    color="error"
+                    :disabled="dictionary._locked"
+                    v-bind="props"
+                    @click="deleteProperty(propertyName)"
+                    class="pa-0 ma-0"
+                  >
+                    <v-icon size="16">mdi-delete</v-icon>
+                  </v-btn>
+                </template>
+                <span>Delete Property</span>
+              </v-tooltip>
+            </template>
+            
+            <!-- Recursive content based on property type -->
+            <div v-if="isPropertyObjectType(property)" class="pa-1">
+              <!-- Object properties would go here recursively -->
+            </div>
+            
+            <div v-if="isPropertyListType(property)" class="pa-1">
+              <!-- List items would go here -->
+            </div>
+            
+            <div v-if="isPropertyEnumType(property)" class="pa-1">
+              <div class="d-flex align-center mb-3">
+                <span class="text-body-2 font-weight-bold mr-3">Enum:</span>
+                <EnumPicker
+                  v-model="property.enums"
+                  label="Select Enum"
+                  density="compact"
+                  :disabled="dictionary._locked"
+                  class="flex-grow-1"
+                />
+              </div>
+            </div>
+          </PropertyTypeCard>
         </div>
         
         <!-- Array Type Content -->
@@ -265,6 +309,7 @@ import DictionaryProperty from '@/components/DictionaryProperty.vue'
 import DictionaryTypePicker from '@/components/DictionaryTypePicker.vue'
 import BaseCard from '@/components/BaseCard.vue'
 import EnumPicker from '@/components/EnumPicker.vue'
+import PropertyTypeCard from '@/components/PropertyTypeCard.vue'
 
 interface DictionaryProperty {
   description: string
@@ -294,9 +339,7 @@ const dictionary = ref<Dictionary | null>(null)
 
 // Edit mode states
 const editingTitle = ref(false)
-const editingDescription = ref(false)
 const titleField = ref<any>(null)
-const descriptionField = ref<any>(null)
 
 // Dialog states
 const showUnlockDialog = ref(false)
@@ -352,10 +395,13 @@ const isEnumType = () => {
 // Helper function to get card title based on type
 const getCardTitle = () => {
   if (!dictionary.value) return ''
-  if (isObjectType()) return dictionary.value.title || dictionary.value.file_name.replace('.yaml', '')
-  if (isListType()) return 'Items'
-  if (isEnumType()) return 'Enums'
-  return 'Properties'
+  const fileName = dictionary.value.file_name.replace('.yaml', '')
+  const description = descriptionValue.value || 'No description provided'
+  
+  if (isObjectType()) return `${fileName}: ${description}`
+  if (isListType()) return `${fileName}: ${description} - items`
+  if (isEnumType()) return `${fileName}: ${description} - enum`
+  return `${fileName}: ${description}`
 }
 
 // Helper function to get card icon based on type
@@ -365,6 +411,29 @@ const getCardIcon = () => {
   if (isListType()) return 'mdi-format-list-bulleted'
   if (isEnumType()) return 'mdi-format-list-checks'
   return 'mdi-cube-outline'
+}
+
+// Helper function to get icon based on property type
+const getPropertyIcon = (type: string) => {
+  if (type === 'object') return 'mdi-cube-outline'
+  if (type === 'list' || type === 'array') return 'mdi-format-list-bulleted'
+  if (type === 'enum' || type === 'enum_array') return 'mdi-format-list-checks'
+  return 'mdi-shape'
+}
+
+// Helper function to check if property is object type
+const isPropertyObjectType = (property: DictionaryProperty) => {
+  return property.type === 'object'
+}
+
+// Helper function to check if property is list type
+const isPropertyListType = (property: DictionaryProperty) => {
+  return property.type === 'list' || property.type === 'array'
+}
+
+// Helper function to check if property is enum type
+const isPropertyEnumType = (property: DictionaryProperty) => {
+  return property.type === 'enum' || property.type === 'enum_array'
 }
 
 // Computed property for description field
@@ -443,23 +512,6 @@ const cancelEditTitle = () => {
   editingTitle.value = false
 }
 
-const startEditDescription = () => {
-  if (dictionary.value?._locked) return
-  editingDescription.value = true
-  nextTick(() => {
-    descriptionField.value.focus()
-  })
-}
-
-const stopEditDescription = () => {
-  editingDescription.value = false
-  autoSave()
-}
-
-const cancelEditDescription = () => {
-  editingDescription.value = false
-}
-
 // Lock/unlock functionality
 const unlockDictionary = () => {
   if (!dictionary.value) return
@@ -488,12 +540,7 @@ const deleteDictionary = async () => {
   }
 }
 
-const handleTopLevelPropertyChange = (updated: any) => {
-  if (!dictionary.value) return
-  // Update the root property with the changes
-  dictionary.value.root = updated
-  autoSave()
-}
+
 
 // Add property function
 const addProperty = () => {
@@ -515,6 +562,15 @@ const addProperty = () => {
   autoSave()
 }
 
+// Delete property function
+const deleteProperty = (propertyName: string) => {
+  if (!dictionary.value || dictionary.value._locked) return
+  
+  if (dictionary.value.root.properties) {
+    delete dictionary.value.root.properties[propertyName]
+    autoSave()
+  }
+}
 
 
 // Load dictionary on mount

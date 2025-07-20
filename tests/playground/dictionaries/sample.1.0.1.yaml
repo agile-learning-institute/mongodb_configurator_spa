@@ -2,13 +2,9 @@ file_name: sample.1.0.1.yaml
 _locked: false
 root:
   description: A simple collection for tests
-  type: object
+  type: array
   required: false
-  additional_properties: false
-  properties:
-    property_1:
-      description: Descriptoin
-      type: object
-      required: false
-      additional_properties: false
-      properties: {}
+  items:
+    description: ''
+    type: string
+    required: false
