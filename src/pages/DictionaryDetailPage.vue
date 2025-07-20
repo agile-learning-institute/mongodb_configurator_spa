@@ -53,12 +53,12 @@
               class="text-body-1 text-medium-emphasis clickable-description"
               @click="startEditDescription"
             >
-              {{ dictionary.description || 'No description provided' }}
+              {{ dictionary.root.description || 'No description provided' }}
             </p>
             <!-- Edit Mode -->
             <v-text-field
               v-else
-              v-model="dictionary.description"
+              v-model="dictionary.root.description"
               variant="outlined"
               density="compact"
               class="text-body-1 text-medium-emphasis"
@@ -81,6 +81,57 @@
           >
             Locked
           </v-chip>
+          
+          <!-- Type Selector -->
+          <div class="mr-2" style="min-width: 120px;">
+            <DictionaryTypePicker
+              v-model="dictionary.root.type"
+              label="Type"
+              density="compact"
+              :disabled="dictionary._locked"
+              :exclude-type="dictionary.file_name"
+              @update:model-value="autoSave"
+            />
+          </div>
+          
+          <!-- Required Icon -->
+          <v-tooltip location="top">
+            <template v-slot:activator="{ props }">
+              <v-btn
+                icon
+                size="x-small"
+                variant="text"
+                :color="dictionary.root.required ? 'primary' : 'grey'"
+                :disabled="dictionary._locked"
+                v-bind="props"
+                @click="dictionary.root.required = !dictionary.root.required; autoSave()"
+                class="pa-0 ma-0 mr-1"
+              >
+                <v-icon size="16">mdi-star</v-icon>
+              </v-btn>
+            </template>
+            <span>Required</span>
+          </v-tooltip>
+          
+          <!-- Additional Properties Icon (for objects) -->
+          <v-tooltip v-if="isObjectType()" location="top">
+            <template v-slot:activator="{ props }">
+              <v-btn
+                icon
+                size="x-small"
+                variant="text"
+                :color="dictionary.root.additionalProperties ? 'primary' : 'grey'"
+                :disabled="dictionary._locked"
+                v-bind="props"
+                @click="dictionary.root.additionalProperties = !dictionary.root.additionalProperties; autoSave()"
+                class="pa-0 ma-0 mr-2"
+              >
+                <v-icon size="16">mdi-plus-circle</v-icon>
+              </v-btn>
+            </template>
+            <span>Additional Properties</span>
+          </v-tooltip>
+          
           <v-btn
             v-if="dictionary._locked"
             color="white"
@@ -113,80 +164,6 @@
         </div>
       </div>
 
-      <!-- Top-level Property Info Row -->
-      <div class="d-flex align-center mb-4 pa-4 bg-light-green-lighten-5 rounded">
-        <!-- Property Name -->
-        <div class="mr-4">
-          <span class="text-h5 font-weight-bold">{{ dictionary.file_name.replace('.yaml', '') }}</span>
-        </div>
-        
-        <!-- Description -->
-        <div class="flex-grow-1 mr-4">
-          <v-text-field
-            v-model="dictionary.root.description"
-            placeholder="Description"
-            density="compact"
-            variant="outlined"
-            hide-details
-            :disabled="dictionary._locked"
-            @update:model-value="autoSave"
-          />
-        </div>
-        
-        <!-- Right-aligned controls -->
-        <div class="d-flex align-center">
-          <!-- Type Selector -->
-          <div class="mr-2" style="min-width: 120px;">
-            <DictionaryTypePicker
-              v-model="dictionary.root.type"
-              label="Type"
-              density="compact"
-              :disabled="dictionary._locked"
-              :exclude-type="dictionary.file_name"
-              @update:model-value="autoSave"
-            />
-          </div>
-          
-          <!-- Required Icon -->
-          <v-tooltip location="top">
-            <template v-slot:activator="{ props }">
-              <v-btn
-                icon
-                size="x-small"
-                variant="text"
-                :color="dictionary.root.required ? 'primary' : 'grey'"
-                :disabled="dictionary._locked"
-                v-bind="props"
-                @click="dictionary.root.required = !dictionary.root.required; autoSave()"
-                class="pa-0 ma-0"
-              >
-                <v-icon size="16">mdi-star</v-icon>
-              </v-btn>
-            </template>
-            <span>Required</span>
-          </v-tooltip>
-          
-          <!-- Additional Properties Icon (for objects) -->
-          <v-tooltip v-if="isObjectType()" location="top">
-            <template v-slot:activator="{ props }">
-              <v-btn
-                icon
-                size="x-small"
-                variant="text"
-                :color="dictionary.root.additionalProperties ? 'primary' : 'grey'"
-                :disabled="dictionary._locked"
-                v-bind="props"
-                @click="dictionary.root.additionalProperties = !dictionary.root.additionalProperties; autoSave()"
-                class="pa-0 ma-0"
-              >
-                <v-icon size="16">mdi-plus-circle</v-icon>
-              </v-btn>
-            </template>
-            <span>Additional Properties</span>
-          </v-tooltip>
-        </div>
-      </div>
-
       <!-- Properties Card -->
       <BaseCard 
         title="Properties"
@@ -199,6 +176,7 @@
           :exclude-type="dictionary.file_name"
           :top-level="true"
           :top-level-name="dictionary.file_name.replace('.yaml', '')"
+          :hide-top-level-row="true"
           @change="handleTopLevelPropertyChange"
         />
       </BaseCard>

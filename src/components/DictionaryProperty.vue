@@ -1,7 +1,7 @@
 <template>
   <div class="property-row">
     <!-- Compact Single Row Layout -->
-    <div class="d-flex align-center mb-2">
+    <div v-if="!props.hideTopLevelRow || !props.topLevel" class="d-flex align-center mb-2">
       <!-- Property Name (filename without .yaml) -->
       <div class="property-name mr-4">
         <span v-if="topLevel" class="text-h5 font-weight-bold">{{ topLevelName }}</span>
@@ -252,11 +252,12 @@ interface Props {
   excludeType?: string
 }
 
-const props = withDefaults(defineProps<Props & { topLevel?: boolean; topLevelName?: string }>(), {
+const props = withDefaults(defineProps<Props & { topLevel?: boolean; topLevelName?: string; hideTopLevelRow?: boolean }>(), {
   disabled: false,
   excludeType: '',
   topLevel: false,
-  topLevelName: ''
+  topLevelName: '',
+  hideTopLevelRow: false
 })
 
 const emit = defineEmits<{
