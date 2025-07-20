@@ -262,16 +262,47 @@
             :is-sub-card="false"
           >
             <template #header-actions>
-              <!-- Enum Picker -->
-              <div class="mr-2" style="min-width: 120px;">
+              <!-- Type Picker -->
+              <div class="mr-3" style="min-width: 120px;">
+                <DictionaryTypePicker
+                  v-model="dictionary.root.type"
+                  label="Type"
+                  density="compact"
+                  :disabled="dictionary._locked"
+                  :exclude-type="dictionary.file_name"
+                  class="items-type-picker"
+                />
+              </div>
+              <!-- Enumerators Label and Picker -->
+              <div class="d-flex align-center mr-3">
+                <span class="text-white mr-2">Enumerators:</span>
                 <EnumPicker
                   v-model="dictionary.root.enums"
                   label="Select Enum"
                   density="compact"
                   :disabled="dictionary._locked"
                   class="flex-grow-1"
+                  style="min-width: 150px;"
                 />
               </div>
+              <!-- Required Icon -->
+              <v-tooltip location="top">
+                <template v-slot:activator="{ props }">
+                  <v-btn
+                    icon
+                    size="x-small"
+                    variant="text"
+                    :color="dictionary.root.required ? 'primary' : 'grey'"
+                    :disabled="dictionary._locked"
+                    v-bind="props"
+                    @click="dictionary.root.required = !dictionary.root.required; autoSave()"
+                    class="pa-0 ma-0"
+                  >
+                    <v-icon size="16">mdi-star</v-icon>
+                  </v-btn>
+                </template>
+                <span>Required</span>
+              </v-tooltip>
             </template>
           </PropertyTypeCard>
         </div>

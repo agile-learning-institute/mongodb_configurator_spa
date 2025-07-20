@@ -2,9 +2,6 @@ file_name: sample.1.0.1.yaml
 _locked: false
 root:
   description: A simple collection for tests
-  type: array
+  type: enum
   required: false
-  items:
-    description: ''
-    type: string
-    required: false
+  enums: null
