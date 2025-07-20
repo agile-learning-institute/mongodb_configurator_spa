@@ -15,163 +15,164 @@
 
     <!-- Enumerator detail -->
     <div v-else-if="enumerator">
-      <v-card class="mb-4">
-        <v-card-title class="d-flex justify-space-between align-center pa-4" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
-          <div class="d-flex align-center">
-            <h2 class="text-h5 mb-0">{{ (route.params.fileName as string)?.replace('.yaml', '') || 'Enumerator' }}</h2>
-        </div>
-        <div class="d-flex align-center">
-            <v-btn
+      <BaseCard 
+        :title="(route.params.fileName as string)?.replace('.yaml', '') || 'Enumerator'"
+        icon="mdi-format-list-bulleted"
+      >
+        <template #header-actions>
+          <v-btn
             v-if="enumerator._locked"
-              color="white"
-              variant="text"
-              @click="showUnlockDialog = true"
+            color="white"
+            variant="text"
+            @click="showUnlockDialog = true"
           >
-              <v-icon start>mdi-lock</v-icon>
+            <v-icon start>mdi-lock</v-icon>
             Locked
-            </v-btn>
-          <v-btn
-              v-else
-              color="white"
-              variant="text"
-              @click="lockEnumerator"
-          >
-              <v-icon start>mdi-lock</v-icon>
-              Lock
           </v-btn>
-          </div>
-        </v-card-title>
-        
-        <v-card-text class="pa-4">
-          <!-- Version Info -->
-          <div class="mb-4">
-            <div class="d-flex align-center mb-3">
-              <div class="text-h6 font-weight-bold mr-3">Version:</div>
-              <div class="text-body-1">{{ enumerator.version }}</div>
-        </div>
-      </div>
+          <v-btn
+            v-else
+            color="white"
+            variant="text"
+            @click="lockEnumerator"
+          >
+            <v-icon start>mdi-lock</v-icon>
+            Lock
+          </v-btn>
+        </template>
 
-      <!-- Enumerations -->
-          <div class="mb-4">
-            <div class="d-flex align-center mb-3">
-              <div class="text-h6 font-weight-bold mr-3">Enumerations</div>
-          <v-btn
-            color="primary"
-            variant="outlined"
-                size="small"
-            @click="addEnumeration"
-            :disabled="enumerator._locked"
-          >
-                <v-icon start size="small">mdi-plus</v-icon>
-                Add
-          </v-btn>
-            </div>
-            
-            <div v-if="!enumerator.enumerators || Object.keys(enumerator.enumerators).length === 0" class="text-center pa-4">
-              <v-icon size="32" color="grey">mdi-format-list-bulleted</v-icon>
-              <div class="text-body-2 text-medium-emphasis mt-2">No enumerations defined</div>
+        <!-- Version Info -->
+        <div class="mb-4">
+          <div class="d-flex align-center mb-3">
+            <div class="text-h6 font-weight-bold mr-3">Version:</div>
+            <div class="text-body-1">{{ enumerator.version }}</div>
+          </div>
+        </div>
+
+        <!-- Enumerators -->
+        <div>
+          <div class="d-flex align-center mb-3">
+            <div class="text-h6 font-weight-bold mr-3">Enumerators</div>
+            <v-btn
+              color="primary"
+              variant="outlined"
+              size="small"
+              @click="addEnumeration"
+              :disabled="enumerator._locked"
+            >
+              <v-icon start size="small">mdi-plus</v-icon>
+              Add Enumerator
+            </v-btn>
+          </div>
+          
+          <div v-if="!enumerator.enumerators || Object.keys(enumerator.enumerators).length === 0" class="text-center pa-4">
+            <v-icon size="32" color="grey">mdi-format-list-bulleted</v-icon>
+            <div class="text-body-2 text-medium-emphasis mt-2">No enumerators defined</div>
           </div>
           
           <div v-else>
-              <v-expansion-panels v-model="expandedPanels" multiple>
+            <v-expansion-panels v-model="expandedPanels">
               <v-expansion-panel
-                v-for="(enumeration, enumName) in enumerator.enumerators"
+                v-for="(enumValues, enumName, index) in enumerator.enumerators"
                 :key="enumName"
-                  class="mb-2"
+                :value="index"
               >
                 <v-expansion-panel-title>
-                  <div class="d-flex justify-space-between align-center w-100">
-                      <div class="d-flex align-center">
-                        <v-text-field
-                          v-model="editableEnumNames[enumName]"
-                          placeholder="Name me"
-                          density="compact"
-                          variant="outlined"
-                          hide-details
-                          :disabled="enumerator._locked"
-                          @blur="updateEnumName(enumName, editableEnumNames[enumName])"
-                          class="mr-2"
-                          style="min-width: 300px; max-width: 500px;"
-                        />
-                        <span class="text-caption text-medium-emphasis">
-                          ({{ Object.keys(enumeration).length }} values)
-                        </span>
-                      </div>
+                  <div class="d-flex align-center justify-space-between w-100">
+                    <div class="d-flex align-center">
+                      <v-text-field
+                        v-model="editableEnumNames[enumName]"
+                        density="compact"
+                        variant="outlined"
+                        hide-details
+                        :disabled="enumerator._locked"
+                        class="mr-3"
+                        style="min-width: 200px;"
+                        @update:model-value="handleEnumNameChange(enumName, $event)"
+                      />
+                      <v-chip size="small" color="primary">
+                        {{ Object.keys(enumValues).length }} values
+                      </v-chip>
+                    </div>
                     <v-btn
+                      v-if="!enumerator._locked"
                       icon
-                        size="x-small"
+                      size="small"
                       variant="text"
                       color="error"
                       @click.stop="deleteEnumeration(enumName)"
-                      :disabled="enumerator._locked"
-                        class="pa-0 ma-0"
                     >
-                        <v-icon size="16">mdi-delete</v-icon>
+                      <v-icon size="16">mdi-delete</v-icon>
                     </v-btn>
                   </div>
                 </v-expansion-panel-title>
-                  
+                
                 <v-expansion-panel-text>
-                    <div class="ml-4">
+                  <div class="mb-3">
+                    <div class="d-flex align-center mb-2">
+                      <div class="text-subtitle-2 font-weight-bold mr-3">Values:</div>
+                    </div>
+                    
+                    <div v-if="!enumValues || Object.keys(enumValues).length === 0" class="text-center pa-2">
+                      <div class="text-body-2 text-medium-emphasis">No values defined</div>
+                    </div>
+                    
+                    <div v-else>
                       <div
-                        v-for="(_, key) in enumeration"
-                      :key="key"
+                        v-for="(_, key) in enumValues"
+                        :key="key"
                         class="d-flex align-center mb-2"
-                    >
+                      >
                         <v-text-field
                           v-model="editableKeys[`${enumName}_${key}`]"
-                          placeholder="Name me"
                           density="compact"
                           variant="outlined"
                           hide-details
                           :disabled="enumerator._locked"
-                          @blur="updateKey(enumName, key, editableKeys[`${enumName}_${key}`])"
                           class="mr-2"
-                          style="width: 150px;"
+                          style="min-width: 150px;"
+                          @update:model-value="handleKeyChange(enumName, key, $event)"
                         />
-                            <v-text-field
-                              v-model="enumeration[key]"
-                          placeholder="Value"
-                              density="compact"
+                        <v-text-field
+                          v-model="enumValues[key]"
+                          density="compact"
                           variant="outlined"
                           hide-details
-                              :disabled="enumerator._locked"
-                              @update:model-value="autoSave"
-                          class="flex-grow-1 mr-2"
-                          style="max-width: 300px;"
-                            />
-                          <v-btn
-                            icon
-                          size="x-small"
-                            variant="text"
-                            color="error"
-                            @click="deleteEnumValue(enumName, key)"
-                            :disabled="enumerator._locked"
-                          class="pa-0 ma-0"
-                          >
+                          :disabled="enumerator._locked"
+                          class="mr-2"
+                          style="min-width: 200px;"
+                          @update:model-value="handleValueChange(enumName, key, $event)"
+                        />
+                        <v-btn
+                          v-if="!enumerator._locked"
+                          icon
+                          size="small"
+                          variant="text"
+                          color="error"
+                          @click="deleteEnumValue(enumName, key)"
+                        >
                           <v-icon size="16">mdi-delete</v-icon>
                         </v-btn>
                       </div>
-                      
-                      <v-btn
-                        color="primary"
-                        variant="outlined"
-                        size="x-small"
-                        @click="addEnumValue(enumName)"
-                        :disabled="enumerator._locked"
-                        class="mt-2"
-                      >
-                        <v-icon start size="small">mdi-plus</v-icon>
-                        Add Value
-                          </v-btn>
-                        </div>
+                    </div>
+                    
+                    <v-btn
+                      color="primary"
+                      variant="outlined"
+                      size="x-small"
+                      @click="addEnumValue(enumName)"
+                      :disabled="enumerator._locked"
+                      class="mt-2"
+                    >
+                      <v-icon start size="small">mdi-plus</v-icon>
+                      Add Value
+                    </v-btn>
+                  </div>
                 </v-expansion-panel-text>
               </v-expansion-panel>
             </v-expansion-panels>
-            </div>
           </div>
-        </v-card-text>
-      </v-card>
+        </div>
+      </BaseCard>
     </div>
     
     <!-- Unlock Dialog -->
@@ -195,6 +196,7 @@
 import { ref, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { apiService } from '@/utils/api'
+import BaseCard from '@/components/BaseCard.vue'
 
 interface Enumerator {
   version: number
@@ -345,29 +347,29 @@ const unlockEnumerator = () => {
 }
 
 // Editable name/key management
-const updateEnumName = (oldName: string, newName: string) => {
+const handleEnumNameChange = (enumName: string, newName: string) => {
   if (!enumerator.value || enumerator.value._locked) return
   
   // Validate the new name
   if (!newName || newName.trim() === '') {
     // Reset to original name if empty
-    editableEnumNames.value[oldName] = oldName
+    editableEnumNames.value[enumName] = enumName
     return
   }
   
-  if (newName && newName !== oldName) {
+  if (newName && newName !== enumName) {
     // Create new enumeration with new name
-    enumerator.value.enumerators[newName] = enumerator.value.enumerators[oldName]
+    enumerator.value.enumerators[newName] = enumerator.value.enumerators[enumName]
     // Delete old enumeration
-    delete enumerator.value.enumerators[oldName]
+    delete enumerator.value.enumerators[enumName]
     // Update editable names
     editableEnumNames.value[newName] = newName
-    delete editableEnumNames.value[oldName]
+    delete editableEnumNames.value[enumName]
     autoSave()
   }
 }
 
-const updateKey = (enumName: string, oldKey: string, newKey: string) => {
+const handleKeyChange = (enumName: string, oldKey: string, newKey: string) => {
   if (!enumerator.value || enumerator.value._locked) return
   
   // Validate the new key
@@ -387,6 +389,12 @@ const updateKey = (enumName: string, oldKey: string, newKey: string) => {
     delete editableKeys.value[`${enumName}_${oldKey}`]
     autoSave()
   }
+}
+
+const handleValueChange = (enumName: string, key: string, newValue: string) => {
+  if (!enumerator.value || enumerator.value._locked) return
+  enumerator.value.enumerators[enumName][key] = newValue
+  autoSave()
 }
 
 // Initialize editable names and keys when data loads

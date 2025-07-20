@@ -15,47 +15,42 @@
 
     <!-- Test data detail -->
     <div v-else-if="testData">
-      <!-- Header Card -->
-      <v-card class="mb-4">
-        <v-card-title class="d-flex justify-space-between align-center">
-          <div class="d-flex align-center">
-            <h2 class="text-h5 mb-0">{{ fileName }}</h2>
-        </div>
-        <div class="d-flex align-center">
-            <v-btn
-            v-if="locked"
-              color="white"
-              variant="text"
-              @click="showUnlockDialog = true"
-          >
-              <v-icon start>mdi-lock</v-icon>
-            Locked
-            </v-btn>
+      <BaseCard 
+        :title="fileName"
+        icon="mdi-file-document"
+      >
+        <template #header-actions>
           <v-btn
-              v-else
-              color="white"
-              variant="text"
-              @click="lockTestData"
+            v-if="locked"
+            color="white"
+            variant="text"
+            @click="showUnlockDialog = true"
           >
-              <v-icon start>mdi-lock</v-icon>
-              Lock
+            <v-icon start>mdi-lock</v-icon>
+            Locked
           </v-btn>
-        </div>
-        </v-card-title>
-        
-        <v-card-text class="pa-4">
-          <JsonArrayEditor
-            v-model="testData"
-            title="Test Data"
-            item-label="Document"
-            :disabled="locked"
-            :auto-save="autoSave"
-            :allow-multiple="false"
-            size-mode="percentage"
-            :percentage="70"
-          />
-        </v-card-text>
-      </v-card>
+          <v-btn
+            v-else
+            color="white"
+            variant="text"
+            @click="lockTestData"
+          >
+            <v-icon start>mdi-lock</v-icon>
+            Lock
+          </v-btn>
+        </template>
+
+        <JsonArrayEditor
+          v-model="testData"
+          title="Test Data"
+          item-label="Document"
+          :disabled="locked"
+          :auto-save="autoSave"
+          :allow-multiple="false"
+          size-mode="percentage"
+          :percentage="70"
+        />
+      </BaseCard>
     </div>
     
     <!-- Unlock Dialog -->
@@ -80,6 +75,7 @@ import { ref, onMounted, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { apiService } from '@/utils/api'
 import JsonArrayEditor from '@/components/JsonArrayEditor.vue'
+import BaseCard from '@/components/BaseCard.vue'
 
 const route = useRoute()
 const loading = ref(false)

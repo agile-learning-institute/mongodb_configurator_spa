@@ -15,46 +15,44 @@
 
     <!-- Type detail -->
     <div v-else-if="type">
-      <v-card class="mb-4">
-        <v-card-title class="d-flex justify-space-between align-center pa-4" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
-          <div class="d-flex align-center">
-            <h2 class="text-h5 mb-0">Custom Type</h2>
-        </div>
-        <div class="d-flex align-center">
-            <v-btn
-            v-if="type._locked"
-              color="white"
-              variant="text"
-              @click="showUnlockDialog = true"
-          >
-              <v-icon start>mdi-lock</v-icon>
-            Locked
-            </v-btn>
+      <BaseCard 
+        title="Custom Type"
+        icon="mdi-shape"
+      >
+        <template #header-actions>
           <v-btn
-              v-else
-              color="white"
-              variant="text"
-              @click="lockType"
+            v-if="type._locked"
+            color="white"
+            variant="text"
+            @click="showUnlockDialog = true"
           >
-              <v-icon start>mdi-lock</v-icon>
-              Lock
+            <v-icon start>mdi-lock</v-icon>
+            Locked
           </v-btn>
-        </div>
-        </v-card-title>
-        
-        <v-card-text class="pa-4">
-          <TypeProperty
-            property-name="root"
-            :property="type.root"
-            :disabled="type._locked"
-            :exclude-type="type.file_name"
-            :top-level="true"
-            :top-level-name="type.file_name.replace('.yaml', '')"
-            @change="handleTopLevelPropertyChange"
-              />
-        </v-card-text>
-      </v-card>
+          <v-btn
+            v-else
+            color="white"
+            variant="text"
+            @click="lockType"
+          >
+            <v-icon start>mdi-lock</v-icon>
+            Lock
+          </v-btn>
+        </template>
+
+        <TypeProperty
+          property-name="root"
+          :property="type.root"
+          :disabled="type._locked"
+          :exclude-type="type.file_name"
+          :top-level="true"
+          :top-level-name="type.file_name.replace('.yaml', '')"
+          @change="handleTopLevelPropertyChange"
+        />
+      </BaseCard>
     </div>
+
+    <!-- Unlock Dialog -->
     <v-dialog v-model="showUnlockDialog" max-width="400">
       <v-card>
         <v-card-title>Unlock Type?</v-card-title>
@@ -77,6 +75,7 @@ import { useRoute } from 'vue-router'
 import { apiService } from '@/utils/api'
 // import TypePicker from '@/components/TypePicker.vue'
 import TypeProperty from '@/components/TypeProperty.vue'
+import BaseCard from '@/components/BaseCard.vue'
 
 interface TypeProperty {
   description: string
