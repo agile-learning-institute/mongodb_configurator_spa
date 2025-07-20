@@ -99,6 +99,7 @@
         :is-sub-card="false"
         :disabled="dictionary._locked"
         :exclude-type="dictionary.file_name"
+        :disable-name-editing="true"
         @update:description="descriptionValue = $event"
         @update:model-value="typeValue = $event"
       >

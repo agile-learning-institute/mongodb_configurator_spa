@@ -8,10 +8,17 @@
       <div class="d-flex align-center flex-grow-1">
         <!-- Name (editable) -->
         <span 
-          v-if="!editingName"
+          v-if="!editingName && !disableNameEditing"
           class="clickable-text mr-1"
           :class="isSubCard ? 'text-body-2 text-dark' : 'text-h6 text-white'"
           @click.stop="startEditName"
+        >
+          {{ name }}:
+        </span>
+        <span 
+          v-else-if="!editingName && disableNameEditing"
+          class="mr-1"
+          :class="isSubCard ? 'text-body-2 text-dark' : 'text-h6 text-white'"
         >
           {{ name }}:
         </span>
@@ -100,6 +107,7 @@ interface Props {
   isSubCard?: boolean
   disabled?: boolean
   excludeType?: string
+  disableNameEditing?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -107,7 +115,8 @@ const props = withDefaults(defineProps<Props>(), {
   icon: 'mdi-cube-outline',
   isSubCard: false,
   disabled: false,
-  excludeType: ''
+  excludeType: '',
+  disableNameEditing: false
 })
 
 const emit = defineEmits<{

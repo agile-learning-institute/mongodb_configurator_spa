@@ -21,3 +21,7 @@ root:
       description: ''
       type: string
       required: false
+    property_4:
+      description: ''
+      type: string
+      required: false
