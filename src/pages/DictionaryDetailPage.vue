@@ -167,25 +167,18 @@
         <!-- Content based on type -->
         <!-- Object Type Content -->
         <div v-if="isObjectType()" class="pa-1">
-          <PropertyTypeCard
+          <DictionaryTypeCard
             v-for="(property, propertyName) in dictionary.root.properties"
             :key="propertyName"
-            :title="`${propertyName}: ${property.description || 'No description'}`"
+            :name="propertyName"
+            :description="property.description"
+            :type="property.type"
             :icon="getPropertyIcon(property.type)"
             :is-sub-card="true"
+            :disabled="dictionary._locked"
+            :exclude-type="dictionary.file_name"
           >
-            <template #title-actions>
-              <!-- Type Picker -->
-              <div class="mr-3" style="min-width: 120px;">
-                <DictionaryTypePicker
-                  v-model="property.type"
-                  label="Type"
-                  density="compact"
-                  :disabled="dictionary._locked"
-                  :exclude-type="dictionary.file_name"
-                  class="items-type-picker"
-                />
-              </div>
+            <template #extra>
               <!-- Enum Picker (only for enum types) -->
               <div v-if="property.type === 'enum' || property.type === 'enum_array'" class="d-flex align-center mr-3">
                 <span class="text-dark mr-2">Enumerators:</span>
@@ -198,6 +191,9 @@
                   style="min-width: 150px;"
                 />
               </div>
+            </template>
+            
+            <template #actions>
               <!-- Required Icon -->
               <v-tooltip location="top">
                 <template v-slot:activator="{ props }">
@@ -236,55 +232,40 @@
               </v-tooltip>
             </template>
             
-            <!-- Only show content for object properties -->
-            <div v-if="isPropertyObjectType(property)" class="pa-1">
-              <!-- Object properties would go here recursively -->
-            </div>
-          </PropertyTypeCard>
+            <template #content>
+              <!-- Only show content for object properties -->
+              <div v-if="isPropertyObjectType(property)" class="pa-1">
+                <!-- Object properties would go here recursively -->
+              </div>
+            </template>
+          </DictionaryTypeCard>
         </div>
         
         <!-- List Type Content -->
         <div v-if="isListType()" class="pa-1">
-          <PropertyTypeCard
-            title="Items"
+          <DictionaryTypeCard
+            name="Items"
+            description=""
+            :type="dictionary.root.items?.type || ''"
             icon="mdi-format-list-bulleted"
             :is-sub-card="false"
-          >
-            <template #header-actions>
-              <!-- Items Type Picker -->
-              <div class="mr-2" style="min-width: 120px;">
-                <DictionaryTypePicker
-                  v-model="itemsType"
-                  label="Type"
-                  density="compact"
-                  :disabled="dictionary._locked"
-                  :exclude-type="dictionary.file_name"
-                  class="items-type-picker"
-                />
-              </div>
-            </template>
-          </PropertyTypeCard>
+            :disabled="dictionary._locked"
+            :exclude-type="dictionary.file_name"
+          />
         </div>
         
         <!-- Enum Type Content -->
         <div v-if="isEnumType()" class="pa-1">
-          <PropertyTypeCard
-            :title="`${dictionary.file_name.replace('.yaml', '')}: ${dictionary.root.description || 'No description'}`"
+          <DictionaryTypeCard
+            :name="dictionary.file_name.replace('.yaml', '')"
+            :description="dictionary.root.description"
+            :type="dictionary.root.type"
             icon="mdi-format-list-checks"
             :is-sub-card="false"
+            :disabled="dictionary._locked"
+            :exclude-type="dictionary.file_name"
           >
-            <template #header-actions>
-              <!-- Type Picker -->
-              <div class="mr-3" style="min-width: 120px;">
-                <DictionaryTypePicker
-                  v-model="dictionary.root.type"
-                  label="Type"
-                  density="compact"
-                  :disabled="dictionary._locked"
-                  :exclude-type="dictionary.file_name"
-                  class="items-type-picker"
-                />
-              </div>
+            <template #extra>
               <!-- Enumerators Label and Picker -->
               <div class="d-flex align-center mr-3">
                 <span class="text-white mr-2">Enumerators:</span>
@@ -297,6 +278,9 @@
                   style="min-width: 150px;"
                 />
               </div>
+            </template>
+            
+            <template #actions>
               <!-- Required Icon -->
               <v-tooltip location="top">
                 <template v-slot:activator="{ props }">
@@ -316,9 +300,7 @@
                 <span>Required</span>
               </v-tooltip>
             </template>
-            <!-- Explicitly no content -->
-            <template #default></template>
-          </PropertyTypeCard>
+          </DictionaryTypeCard>
         </div>
       </BaseCard>
     </div>
@@ -363,7 +345,7 @@ import DictionaryProperty from '@/components/DictionaryProperty.vue'
 import DictionaryTypePicker from '@/components/DictionaryTypePicker.vue'
 import BaseCard from '@/components/BaseCard.vue'
 import EnumPicker from '@/components/EnumPicker.vue'
-import PropertyTypeCard from '@/components/PropertyTypeCard.vue'
+import DictionaryTypeCard from '@/components/DictionaryTypeCard.vue'
 
 interface DictionaryProperty {
   description: string
@@ -524,26 +506,7 @@ const typeValue = computed({
   }
 })
 
-// Computed property for items type
-const itemsType = computed({
-  get: () => {
-    if (!dictionary.value?.root?.items) return ''
-    return dictionary.value.root.items.type || ''
-  },
-  set: (value: string) => {
-    if (!dictionary.value?.root) return
-    if (!dictionary.value.root.items) {
-      dictionary.value.root.items = { 
-        description: 'Items in the list',
-        type: value,
-        required: false
-      }
-    } else {
-      dictionary.value.root.items.type = value
-    }
-    autoSave()
-  }
-})
+
 
 
 // Edit mode functions
