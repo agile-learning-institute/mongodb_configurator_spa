@@ -162,14 +162,14 @@
         </div>
       </div>
 
-      <!-- Properties/Items Card -->
+      <!-- Object Type Card (Properties) -->
       <BaseCard 
-        :title="isObjectType() ? 'Properties' : ''"
-        :icon="isListType() ? 'mdi-format-list-bulleted' : 'mdi-cube-outline'"
+        v-if="isObjectType()"
+        title="Properties"
+        icon="mdi-cube-outline"
       >
         <template #header-actions>
           <v-btn
-            v-if="isObjectType()"
             color="success"
             variant="elevated"
             size="small"
@@ -180,59 +180,64 @@
             <v-icon start size="small">mdi-plus</v-icon>
             Add Property
           </v-btn>
-          <!-- Items description and type picker for array types -->
-          <div v-if="isListType()" class="d-flex align-center">
-            <!-- Items Description (inline with title) -->
-            <div class="mr-4">
-              <span class="text-h6 font-weight-bold">Items</span>
-              <span class="text-body-1 text-medium-emphasis ml-2">{{ descriptionValue || 'No items description provided' }}</span>
-            </div>
-            <!-- Items Type Picker -->
-            <div class="mr-2" style="min-width: 120px;">
-              <DictionaryTypePicker
-                v-model="typeValue"
-                label="Items Type"
-                density="compact"
-                :disabled="dictionary._locked"
-                :exclude-type="dictionary.file_name"
-                class="items-type-picker"
-              />
-            </div>
-            <!-- Required Icon for Items -->
-            <v-tooltip location="top">
-              <template v-slot:activator="{ props }">
-                <v-btn
-                  icon
-                  size="x-small"
-                  variant="text"
-                  :color="dictionary.root.items?.required ? 'primary' : 'grey'"
-                  :disabled="dictionary._locked"
-                  v-bind="props"
-                  @click="toggleItemsRequired"
-                  class="pa-0 ma-0 mr-2"
-                >
-                  <v-icon size="16">mdi-star</v-icon>
-                </v-btn>
-              </template>
-              <span>Required</span>
-            </v-tooltip>
-          </div>
         </template>
         
-        <!-- Only show content for object types -->
-        <div v-if="!isListType()">
-          <DictionaryProperty
-            property-name="root"
-            :property="dictionary.root"
-            :disabled="dictionary._locked"
-            :exclude-type="dictionary.file_name"
-            :top-level="true"
-            :top-level-name="dictionary.file_name.replace('.yaml', '')"
-            :hide-top-level-row="true"
-            :hide-properties-header="true"
-            @change="handleTopLevelPropertyChange"
-          />
-        </div>
+        <DictionaryProperty
+          property-name="root"
+          :property="dictionary.root"
+          :disabled="dictionary._locked"
+          :exclude-type="dictionary.file_name"
+          :top-level="true"
+          :top-level-name="dictionary.file_name.replace('.yaml', '')"
+          :hide-top-level-row="true"
+          :hide-properties-header="true"
+          @change="handleTopLevelPropertyChange"
+        />
+      </BaseCard>
+
+      <!-- Array Type Card (Items) -->
+      <BaseCard 
+        v-if="isListType()"
+        title="Items"
+        icon="mdi-format-list-bulleted"
+      >
+        <template #header-actions>
+          <!-- Items Description (edit-in-place) -->
+          <div class="mr-4">
+            <span class="text-body-1 text-medium-emphasis">{{ descriptionValue || 'No items description provided' }}</span>
+          </div>
+          <!-- Items Type Picker -->
+          <div class="mr-2" style="min-width: 120px;">
+            <DictionaryTypePicker
+              v-model="typeValue"
+              label="Items Type"
+              density="compact"
+              :disabled="dictionary._locked"
+              :exclude-type="dictionary.file_name"
+              class="items-type-picker"
+            />
+          </div>
+          <!-- Required Icon for Items -->
+          <v-tooltip location="top">
+            <template v-slot:activator="{ props }">
+              <v-btn
+                icon
+                size="x-small"
+                variant="text"
+                :color="dictionary.root.items?.required ? 'primary' : 'grey'"
+                :disabled="dictionary._locked"
+                v-bind="props"
+                @click="toggleItemsRequired"
+                class="pa-0 ma-0 mr-2"
+              >
+                <v-icon size="16">mdi-star</v-icon>
+              </v-btn>
+            </template>
+            <span>Required</span>
+          </v-tooltip>
+        </template>
+        
+        <!-- Array types don't show content -->
       </BaseCard>
     </div>
 
