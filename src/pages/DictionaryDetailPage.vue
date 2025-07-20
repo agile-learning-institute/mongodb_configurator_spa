@@ -53,17 +53,16 @@
               class="text-body-1 text-medium-emphasis clickable-description"
               @click="startEditDescription"
             >
-              {{ dictionary.root.description || 'No description provided' }}
+              {{ isListType() ? (dictionary.root.items?.description || 'No items description provided') : (dictionary.root.description || 'No description provided') }}
             </p>
             <!-- Edit Mode -->
             <v-text-field
               v-else
-              v-model="dictionary.root.description"
+              v-model="descriptionValue"
               variant="outlined"
               density="compact"
               class="text-body-1 text-medium-emphasis"
               :disabled="dictionary._locked"
-              @update:model-value="autoSave"
               @blur="stopEditDescription"
               @keyup.enter="stopEditDescription"
               @keyup.esc="cancelEditDescription"
@@ -85,12 +84,11 @@
           <!-- Type Selector -->
           <div class="mr-2" style="min-width: 120px;">
             <DictionaryTypePicker
-              v-model="dictionary.root.type"
-              label="Type"
+              v-model="typeValue"
+              :label="isListType() ? 'Items Type' : 'Type'"
               density="compact"
               :disabled="dictionary._locked"
               :exclude-type="dictionary.file_name"
-              @update:model-value="autoSave"
             />
           </div>
           
@@ -164,10 +162,10 @@
         </div>
       </div>
 
-      <!-- Properties Card -->
+      <!-- Properties/Items Card -->
       <BaseCard 
-        title="Properties"
-        icon="mdi-cube-outline"
+        :title="isListType() ? 'Items' : 'Properties'"
+        :icon="isListType() ? 'mdi-format-list-bulleted' : 'mdi-cube-outline'"
       >
         <template #header-actions>
           <v-btn
@@ -181,6 +179,18 @@
           >
             <v-icon start size="small">mdi-plus</v-icon>
             Add Property
+          </v-btn>
+          <v-btn
+            v-if="isListType()"
+            color="success"
+            variant="elevated"
+            size="small"
+            @click="editItems"
+            :disabled="dictionary._locked"
+            class="font-weight-bold"
+          >
+            <v-icon start size="small">mdi-pencil</v-icon>
+            Edit Items
           </v-btn>
         </template>
         
@@ -231,7 +241,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, nextTick } from 'vue'
+import { ref, onMounted, nextTick, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { apiService } from '@/utils/api'
 import DictionaryProperty from '@/components/DictionaryProperty.vue'
@@ -310,6 +320,57 @@ const autoSave = async () => {
 const isObjectType = () => {
   return dictionary.value?.root.type === 'object'
 }
+
+// Helper function to check if root is list type
+const isListType = () => {
+  return dictionary.value?.root.type === 'list'
+}
+
+// Computed property for description field
+const descriptionValue = computed({
+  get: () => {
+    if (!dictionary.value) return ''
+    return isListType() 
+      ? (dictionary.value.root.items?.description || '')
+      : (dictionary.value.root.description || '')
+  },
+  set: (value: string) => {
+    if (!dictionary.value) return
+    if (isListType()) {
+      if (!dictionary.value.root.items) {
+        dictionary.value.root.items = { description: '', type: 'string', required: false }
+      }
+      dictionary.value.root.items.description = value
+    } else {
+      dictionary.value.root.description = value
+    }
+    autoSave()
+  }
+})
+
+// Computed property for type field
+const typeValue = computed({
+  get: () => {
+    if (!dictionary.value) return ''
+    return isListType() 
+      ? (dictionary.value.root.items?.type || 'string')
+      : (dictionary.value.root.type || 'string')
+  },
+  set: (value: string) => {
+    if (!dictionary.value) return
+    if (isListType()) {
+      if (!dictionary.value.root.items) {
+        dictionary.value.root.items = { description: '', type: 'string', required: false }
+      }
+      dictionary.value.root.items.type = value
+    } else {
+      dictionary.value.root.type = value
+    }
+    autoSave()
+  }
+})
+
+
 
 // Edit mode functions
 const startEditTitle = () => {
@@ -399,6 +460,13 @@ const addProperty = () => {
   }
   
   autoSave()
+}
+
+// Edit items function (placeholder, will be implemented later)
+const editItems = () => {
+  console.log('Edit Items clicked')
+  // In a real application, you would navigate to a new page or modal for editing items
+  // For now, we'll just log the action.
 }
 
 // Load dictionary on mount
