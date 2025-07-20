@@ -149,3 +149,208 @@ npm run down
 ### Error Handling
 - All endpoints return 200 or 500 with Event objects
 - 500 responses and processing events displayed in popup dialogs
+
+## Architecture Review & Remediation Plan
+
+### Current State Analysis
+
+#### Critical Issues Identified
+
+1. **Massive Component Files**: 
+   - `DictionaryProperty.vue` (467 lines)
+   - `TypeProperty.vue` (490 lines) 
+   - `DictionaryDetailPage.vue` (1121 lines)
+   - These violate single responsibility principle
+
+2. **Code Duplication**:
+   - `DictionaryProperty` and `TypeProperty` share ~90% identical code
+   - Detail pages have repetitive header patterns (lock/delete buttons)
+   - File listing patterns repeated across multiple pages
+
+3. **Poor Separation of Concerns**:
+   - Property components handle both UI and business logic
+   - Detail pages mix data fetching, state management, and UI rendering
+   - No clear abstraction for common patterns
+
+4. **Inconsistent Component Architecture**:
+   - Some components use slots, others use props
+   - Mixed patterns for event handling
+   - No standardized approach to styling variants
+
+5. **Missing Abstractions**:
+   - No base detail page component
+   - No unified property editing interface
+   - No standardized file header component
+
+#### Component Architecture Issues
+
+1. **BaseCard Limitations**:
+   - Only supports light/dark variants
+   - No support for different content layouts
+   - Limited customization options
+
+2. **Property Components**:
+   - Massive files with complex conditional rendering
+   - Business logic mixed with presentation
+   - No clear type system for property types
+
+3. **Detail Pages**:
+   - Repetitive patterns not abstracted
+   - Inconsistent error handling
+   - Mixed concerns (data fetching + UI)
+
+### Remediation Strategy
+
+#### Phase 1: Foundation Components (Week 1)
+
+1. **Enhanced BaseCard System**
+   ```typescript
+   // New component hierarchy:
+   BaseCard (core layout)
+   ├── ContentCard (standard content)
+   ├── PropertyCard (property editing)
+   ├── FileCard (file display)
+   └── DetailCard (detail page wrapper)
+   ```
+
+2. **Unified Property Interface**
+   ```typescript
+   interface PropertyEditor {
+     property: Property
+     disabled?: boolean
+     excludeType?: string
+     topLevel?: boolean
+     onUpdate: (property: Property) => void
+     onDelete?: () => void
+   }
+   ```
+
+3. **Standardized Detail Page Layout**
+   ```typescript
+   interface DetailPageProps {
+     title: string
+     icon: string
+     loading: boolean
+     error?: string
+     locked?: boolean
+     onLock?: () => void
+     onUnlock?: () => void
+     onDelete?: () => void
+   }
+   ```
+
+#### Phase 2: Component Refactoring (Week 2)
+
+1. **Extract Common Property Logic**
+   - Create `usePropertyEditor` composable
+   - Separate UI components from business logic
+   - Standardize property type handling
+
+2. **Unified File Header Component**
+   ```vue
+   <FileHeader
+     :title="title"
+     :locked="locked"
+     :editing="editing"
+     @lock="handleLock"
+     @unlock="handleUnlock"
+     @delete="handleDelete"
+     @edit="handleEdit"
+   />
+   ```
+
+3. **Standardized JSON Editor**
+   - Extract common JSON editing patterns
+   - Create reusable `JsonDocumentEditor`
+   - Standardize error handling
+
+#### Phase 3: Page Optimization (Week 3)
+
+1. **Base Detail Page Component**
+   - Abstract common detail page patterns
+   - Standardize loading/error states
+   - Unified action handling
+
+2. **List Page Optimization**
+   - Extract common file listing patterns
+   - Standardize file card usage
+   - Unified search/filter functionality
+
+3. **Composable Extraction**
+   - `useDetailPage` for common detail page logic
+   - `useFileList` for list page patterns
+   - `usePropertyEditing` for property editing
+
+#### Phase 4: Advanced Features (Week 4)
+
+1. **Type-Safe Property System**
+   - Define strict property type interfaces
+   - Type-safe property editors
+   - Validation integration
+
+2. **Theme System Enhancement**
+   - CSS custom properties for theming
+   - Dark/light mode support
+   - Component variant system
+
+3. **Performance Optimization**
+   - Lazy loading for large property trees
+   - Virtual scrolling for long lists
+   - Memoization for expensive computations
+
+### Implementation Plan
+
+#### Week 1: Foundation
+- [x] Create enhanced BaseCard variants
+- [x] Implement unified property interface
+- [x] Build standardized detail page layout
+- [x] Extract common file header component
+
+#### Week 2: Component Refactoring  
+- [x] Refactor DictionaryProperty and TypeProperty
+- [x] Create usePropertyEditor composable
+- [x] Implement unified JSON editor
+- [x] Standardize error handling patterns
+
+#### Week 3: Page Optimization
+- [x] Create base detail page component
+- [x] Optimize list pages
+- [x] Extract common composables
+- [x] Standardize data fetching patterns
+
+#### Week 4: Advanced Features
+- [ ] Implement type-safe property system
+- [ ] Enhance theme system
+- [ ] Performance optimizations
+- [ ] Final testing and documentation
+
+### Success Metrics
+
+1. **Code Quality**:
+   - No component > 200 lines
+   - < 20% code duplication
+   - 100% TypeScript coverage
+
+2. **Maintainability**:
+   - Clear component hierarchy
+   - Standardized patterns
+   - Comprehensive documentation
+
+3. **Developer Experience**:
+   - Consistent API across components
+   - Clear prop interfaces
+   - Intuitive component composition
+
+4. **Performance**:
+   - < 100ms component render times
+   - Efficient re-rendering
+   - Minimal bundle size impact
+
+### Risk Mitigation
+
+1. **Incremental Migration**: Refactor one component at a time
+2. **Backward Compatibility**: Maintain existing APIs during transition
+3. **Comprehensive Testing**: Ensure no functional regressions
+4. **Documentation**: Update docs with each change
+
+This refactoring will transform the codebase from a collection of large, tightly-coupled components into a maintainable, reusable component library that supports future feature development with minimal code changes.
