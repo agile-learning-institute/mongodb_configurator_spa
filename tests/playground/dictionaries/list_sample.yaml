@@ -6,6 +6,7 @@ root:
   required: false
   items:
     description: a word in the list
-    type: enum_array
+    type: object
     required: false
-    enums: default_status
+    additional_properties: false
+    properties: {}

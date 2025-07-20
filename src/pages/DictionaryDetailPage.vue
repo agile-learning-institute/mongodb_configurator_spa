@@ -45,32 +45,7 @@
               autofocus
             />
           </div>
-          <!-- Editable Description (only for object types) -->
-          <div v-if="!isListType()">
-            <!-- View Mode -->
-            <p 
-              v-if="!editingDescription" 
-              class="text-body-1 text-medium-emphasis clickable-description"
-              @click="startEditDescription"
-            >
-              {{ dictionary.root.description || 'No description provided' }}
-            </p>
-            <!-- Edit Mode -->
-            <v-text-field
-              v-else
-              v-model="descriptionValue"
-              variant="outlined"
-              density="compact"
-              class="text-body-1 text-medium-emphasis"
-              :disabled="dictionary._locked"
-              @blur="stopEditDescription"
-              @keyup.enter="stopEditDescription"
-              @keyup.esc="cancelEditDescription"
-              ref="descriptionField"
-              hide-details
-              autofocus
-            />
-          </div>
+
         </div>
         <div class="d-flex align-center">
           <v-chip
@@ -81,54 +56,7 @@
             Locked
           </v-chip>
           
-          <!-- Type Selector (only for object types) -->
-          <div v-if="!isListType()" class="mr-2" style="min-width: 120px;">
-            <DictionaryTypePicker
-              v-model="typeValue"
-              label="Type"
-              density="compact"
-              :disabled="dictionary._locked"
-              :exclude-type="dictionary.file_name"
-            />
-          </div>
-          
-          <!-- Required Icon -->
-          <v-tooltip location="top">
-            <template v-slot:activator="{ props }">
-              <v-btn
-                icon
-                size="x-small"
-                variant="text"
-                :color="dictionary.root.required ? 'primary' : 'grey'"
-                :disabled="dictionary._locked"
-                v-bind="props"
-                @click="dictionary.root.required = !dictionary.root.required; autoSave()"
-                class="pa-0 ma-0 mr-1"
-              >
-                <v-icon size="16">mdi-star</v-icon>
-              </v-btn>
-            </template>
-            <span>Required</span>
-          </v-tooltip>
-          
-          <!-- Additional Properties Icon (for objects) -->
-          <v-tooltip v-if="isObjectType()" location="top">
-            <template v-slot:activator="{ props }">
-              <v-btn
-                icon
-                size="x-small"
-                variant="text"
-                :color="dictionary.root.additionalProperties ? 'primary' : 'grey'"
-                :disabled="dictionary._locked"
-                v-bind="props"
-                @click="dictionary.root.additionalProperties = !dictionary.root.additionalProperties; autoSave()"
-                class="pa-0 ma-0 mr-2"
-              >
-                <v-icon size="16">mdi-plus-circle</v-icon>
-              </v-btn>
-            </template>
-            <span>Additional Properties</span>
-          </v-tooltip>
+
           
           <v-btn
             v-if="dictionary._locked"
@@ -168,7 +96,85 @@
         title="Properties"
         icon="mdi-cube-outline"
       >
+        <template #title>
+          <div class="d-flex align-center">
+            <span class="text-h6 text-white mr-2">Properties</span>
+            <!-- Object Description (edit-in-place) -->
+            <span 
+              v-if="!editingDescription"
+              class="text-h6 text-white clickable-description"
+              @click="startEditDescription"
+            >
+              {{ dictionary.root.description || 'No description provided' }}
+            </span>
+            <!-- Edit Mode -->
+            <v-text-field
+              v-else
+              v-model="descriptionValue"
+              variant="outlined"
+              density="compact"
+              class="text-h6 text-white flex-grow-1"
+              :disabled="dictionary._locked"
+              @blur="stopEditDescription"
+              @keyup.enter="stopEditDescription"
+              @keyup.esc="cancelEditDescription"
+              ref="descriptionField"
+              hide-details
+              autofocus
+              style="min-width: 200px;"
+            />
+          </div>
+        </template>
+        
         <template #header-actions>
+          <!-- Object Type Picker -->
+          <div class="mr-2" style="min-width: 120px;">
+            <DictionaryTypePicker
+              v-model="typeValue"
+              label="Type"
+              density="compact"
+              :disabled="dictionary._locked"
+              :exclude-type="dictionary.file_name"
+              class="items-type-picker"
+            />
+          </div>
+          <!-- Required Icon -->
+          <v-tooltip location="top">
+            <template v-slot:activator="{ props }">
+              <v-btn
+                icon
+                size="x-small"
+                variant="text"
+                :color="dictionary.root.required ? 'primary' : 'grey'"
+                :disabled="dictionary._locked"
+                v-bind="props"
+                @click="dictionary.root.required = !dictionary.root.required; autoSave()"
+                class="pa-0 ma-0 mr-2"
+              >
+                <v-icon size="16">mdi-star</v-icon>
+              </v-btn>
+            </template>
+            <span>Required</span>
+          </v-tooltip>
+          <!-- Additional Properties Icon -->
+          <v-tooltip location="top">
+            <template v-slot:activator="{ props }">
+              <v-btn
+                icon
+                size="x-small"
+                variant="text"
+                :color="dictionary.root.additionalProperties ? 'primary' : 'grey'"
+                :disabled="dictionary._locked"
+                v-bind="props"
+                @click="dictionary.root.additionalProperties = !dictionary.root.additionalProperties; autoSave()"
+                class="pa-0 ma-0 mr-2"
+              >
+                <v-icon size="16">mdi-plus-circle</v-icon>
+              </v-btn>
+            </template>
+            <span>Additional Properties</span>
+          </v-tooltip>
+          <!-- Add Property Button -->
           <v-btn
             color="success"
             variant="elevated"
