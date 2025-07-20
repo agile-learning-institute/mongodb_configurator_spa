@@ -45,15 +45,15 @@
               autofocus
             />
           </div>
-          <!-- Editable Description -->
-          <div>
+          <!-- Editable Description (only for object types) -->
+          <div v-if="!isListType()">
             <!-- View Mode -->
             <p 
               v-if="!editingDescription" 
               class="text-body-1 text-medium-emphasis clickable-description"
               @click="startEditDescription"
             >
-              {{ isListType() ? (dictionary.root.items?.description || 'No items description provided') : (dictionary.root.description || 'No description provided') }}
+              {{ dictionary.root.description || 'No description provided' }}
             </p>
             <!-- Edit Mode -->
             <v-text-field
@@ -81,11 +81,11 @@
             Locked
           </v-chip>
           
-          <!-- Type Selector -->
-          <div class="mr-2" style="min-width: 120px;">
+          <!-- Type Selector (only for object types) -->
+          <div v-if="!isListType()" class="mr-2" style="min-width: 120px;">
             <DictionaryTypePicker
               v-model="typeValue"
-              :label="isListType() ? 'Items Type' : 'Type'"
+              label="Type"
               density="compact"
               :disabled="dictionary._locked"
               :exclude-type="dictionary.file_name"
@@ -180,18 +180,49 @@
             <v-icon start size="small">mdi-plus</v-icon>
             Add Property
           </v-btn>
-          <v-btn
-            v-if="isListType()"
-            color="success"
-            variant="elevated"
-            size="small"
-            @click="editItems"
-            :disabled="dictionary._locked"
-            class="font-weight-bold"
-          >
-            <v-icon start size="small">mdi-pencil</v-icon>
-            Edit Items
-          </v-btn>
+          <!-- Items description and type picker for array types -->
+          <div v-if="isListType()" class="d-flex align-center">
+            <!-- Items Description -->
+            <div class="mr-4" style="min-width: 200px;">
+              <v-text-field
+                v-model="descriptionValue"
+                placeholder="Items description"
+                density="compact"
+                variant="outlined"
+                hide-details
+                :disabled="dictionary._locked"
+                @update:model-value="autoSave"
+              />
+            </div>
+            <!-- Items Type Picker -->
+            <div class="mr-2" style="min-width: 120px;">
+              <DictionaryTypePicker
+                v-model="typeValue"
+                label="Items Type"
+                density="compact"
+                :disabled="dictionary._locked"
+                :exclude-type="dictionary.file_name"
+              />
+            </div>
+            <!-- Required Icon for Items -->
+            <v-tooltip location="top">
+              <template v-slot:activator="{ props }">
+                <v-btn
+                  icon
+                  size="x-small"
+                  variant="text"
+                  :color="dictionary.root.items?.required ? 'primary' : 'grey'"
+                  :disabled="dictionary._locked"
+                  v-bind="props"
+                  @click="toggleItemsRequired"
+                  class="pa-0 ma-0 mr-2"
+                >
+                  <v-icon size="16">mdi-star</v-icon>
+                </v-btn>
+              </template>
+              <span>Required</span>
+            </v-tooltip>
+          </div>
         </template>
         
         <DictionaryProperty
@@ -462,11 +493,16 @@ const addProperty = () => {
   autoSave()
 }
 
-// Edit items function (placeholder, will be implemented later)
-const editItems = () => {
-  console.log('Edit Items clicked')
-  // In a real application, you would navigate to a new page or modal for editing items
-  // For now, we'll just log the action.
+// Toggle items required function
+const toggleItemsRequired = () => {
+  if (!dictionary.value || dictionary.value._locked) return
+  
+  if (!dictionary.value.root.items) {
+    dictionary.value.root.items = { description: '', type: 'string', required: false }
+  }
+  
+  dictionary.value.root.items.required = !dictionary.value.root.items.required
+  autoSave()
 }
 
 // Load dictionary on mount
