@@ -323,7 +323,7 @@ const isObjectType = () => {
 
 // Helper function to check if root is list type
 const isListType = () => {
-  return dictionary.value?.root.type === 'list'
+  return dictionary.value?.root.type === 'list' || dictionary.value?.root.type === 'array'
 }
 
 // Computed property for description field
