@@ -16,7 +16,7 @@ root:
       description: ''
       type: enum
       required: false
-      enums: null
+      enums: default_status
     property_3:
       description: ''
       type: string

@@ -248,7 +248,7 @@
           <div v-if="isListType()" class="pa-1">
             <DictionaryTypeCard
               name="Items"
-              description=""
+              :description="dictionary.root.items?.description || 'Items in the list'"
               :model-value="dictionary.root.items?.type || ''"
               @update:model-value="(value) => { 
                 if (dictionary?.root?.items) {
@@ -258,8 +258,16 @@
                 }
                 autoSave()
               }"
+              @update:description="(value) => { 
+                if (dictionary?.root?.items) {
+                  dictionary.root.items.description = value
+                } else if (dictionary?.root) {
+                  dictionary.root.items = { description: value, type: 'string', required: false }
+                }
+                autoSave()
+              }"
               icon="mdi-format-list-bulleted"
-              :is-sub-card="false"
+              :is-sub-card="true"
               :disabled="dictionary._locked"
               :exclude-type="dictionary.file_name"
             />
@@ -272,16 +280,9 @@
               :description="dictionary.root.description"
               :model-value="dictionary.root.type"
               @update:model-value="(value) => { if (dictionary?.root) dictionary.root.type = value; autoSave() }"
-              @update:name="(value) => { 
-                if (value && dictionary?.file_name) {
-                  const newFileName = value + '.yaml'
-                  // Note: This would require additional logic to rename the file
-                  console.log('File rename not implemented yet:', dictionary.file_name, '->', newFileName)
-                }
-              }"
               @update:description="(value) => { if (dictionary?.root) dictionary.root.description = value; autoSave() }"
               icon="mdi-format-list-checks"
-              :is-sub-card="false"
+              :is-sub-card="true"
               :disabled="dictionary._locked"
               :exclude-type="dictionary.file_name"
             >
