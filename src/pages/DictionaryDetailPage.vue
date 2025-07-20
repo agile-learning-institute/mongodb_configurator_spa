@@ -218,7 +218,7 @@
               v-model="descriptionValue"
               variant="outlined"
               density="compact"
-              class="text-h6 text-white"
+              class="text-h6 text-white flex-grow-1"
               :disabled="dictionary._locked"
               @blur="stopEditItemsDescription"
               @keyup.enter="stopEditItemsDescription"
@@ -226,7 +226,7 @@
               ref="itemsDescriptionField"
               hide-details
               autofocus
-              style="max-width: 300px;"
+              style="min-width: 200px;"
             />
           </div>
         </template>
