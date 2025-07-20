@@ -156,171 +156,152 @@
         </template>
         
         <!-- Content based on type -->
-        <!-- Object Type Content -->
-        <div v-if="isObjectType()" class="pa-1">
-          <DictionaryTypeCard
-            v-for="(property, propertyName) in dictionary.root.properties"
-            :key="propertyName"
-            :name="propertyName"
-            :description="property.description"
-            :model-value="property.type"
-            @update:model-value="(value) => { property.type = value; autoSave() }"
-            @update:name="(value) => { 
-              if (value && value !== propertyName && dictionary?.root?.properties) {
-                const newProperties = { ...dictionary.root.properties }
-                delete newProperties[propertyName]
-                newProperties[value] = property
-                dictionary.root.properties = newProperties
+        <template #content>
+          <!-- Object Type Content -->
+          <div v-if="isObjectType()" class="pa-1">
+            <DictionaryTypeCard
+              v-for="(property, propertyName) in dictionary.root.properties"
+              :key="propertyName"
+              :name="propertyName"
+              :description="property.description"
+              :model-value="property.type"
+              @update:model-value="(value) => { property.type = value; autoSave() }"
+              @update:name="(value) => { 
+                if (value && value !== propertyName && dictionary?.root?.properties) {
+                  const newProperties = { ...dictionary.root.properties }
+                  delete newProperties[propertyName]
+                  newProperties[value] = property
+                  dictionary.root.properties = newProperties
+                  autoSave()
+                }
+              }"
+              @update:description="(value) => { property.description = value; autoSave() }"
+              :icon="getPropertyIcon(property.type)"
+              :is-sub-card="true"
+              :disabled="dictionary._locked"
+              :exclude-type="dictionary.file_name"
+            >
+              <template #extra>
+                <!-- Enum Picker (only for enum types) -->
+                <div v-if="property.type === 'enum' || property.type === 'enum_array'" class="d-flex align-center mr-3">
+                  <span class="text-dark mr-2">Enumerators:</span>
+                  <EnumPicker
+                    v-model="property.enums"
+                    label="Select Enum"
+                    density="compact"
+                    :disabled="dictionary._locked"
+                    class="flex-grow-1"
+                    style="min-width: 150px;"
+                  />
+                </div>
+              </template>
+              
+              <template #actions>
+                <!-- Required Icon -->
+                <v-tooltip location="top">
+                  <template v-slot:activator="{ props }">
+                    <v-btn
+                      icon
+                      size="x-small"
+                      variant="text"
+                      :color="property.required ? 'primary' : 'grey'"
+                      :disabled="dictionary._locked"
+                      v-bind="props"
+                      @click="property.required = !property.required; autoSave()"
+                      class="pa-0 ma-0 mr-2"
+                    >
+                      <v-icon size="16">mdi-star</v-icon>
+                    </v-btn>
+                  </template>
+                  <span>Required</span>
+                </v-tooltip>
+                <!-- Delete Button -->
+                <v-tooltip location="top">
+                  <template v-slot:activator="{ props }">
+                    <v-btn
+                      icon
+                      size="x-small"
+                      variant="text"
+                      color="error"
+                      :disabled="dictionary._locked"
+                      v-bind="props"
+                      @click="deleteProperty(propertyName)"
+                      class="pa-0 ma-0"
+                    >
+                      <v-icon size="16">mdi-delete</v-icon>
+                    </v-btn>
+                  </template>
+                  <span>Delete Property</span>
+                </v-tooltip>
+              </template>
+              
+              <template #content>
+                <!-- Only show content for object properties -->
+                <div v-if="isPropertyObjectType(property)" class="pa-1">
+                  <!-- Object properties would go here recursively -->
+                </div>
+              </template>
+            </DictionaryTypeCard>
+          </div>
+          
+          <!-- List Type Content -->
+          <div v-if="isListType()" class="pa-1">
+            <DictionaryTypeCard
+              name="Items"
+              description=""
+              :model-value="dictionary.root.items?.type || ''"
+              @update:model-value="(value) => { 
+                if (dictionary?.root?.items) {
+                  dictionary.root.items.type = value
+                } else if (dictionary?.root) {
+                  dictionary.root.items = { description: 'Items in the list', type: value, required: false }
+                }
                 autoSave()
-              }
-            }"
-            @update:description="(value) => { property.description = value; autoSave() }"
-            :icon="getPropertyIcon(property.type)"
-            :is-sub-card="true"
-            :disabled="dictionary._locked"
-            :exclude-type="dictionary.file_name"
-          >
-            <template #extra>
-              <!-- Enum Picker (only for enum types) -->
-              <div v-if="property.type === 'enum' || property.type === 'enum_array'" class="d-flex align-center mr-3">
-                <span class="text-dark mr-2">Enumerators:</span>
-                <EnumPicker
-                  v-model="property.enums"
-                  label="Select Enum"
-                  density="compact"
-                  :disabled="dictionary._locked"
-                  class="flex-grow-1"
-                  style="min-width: 150px;"
-                />
-              </div>
-            </template>
-            
-            <template #actions>
-              <!-- Required Icon -->
-              <v-tooltip location="top">
-                <template v-slot:activator="{ props }">
-                  <v-btn
-                    icon
-                    size="x-small"
-                    variant="text"
-                    :color="property.required ? 'primary' : 'grey'"
+              }"
+              icon="mdi-format-list-bulleted"
+              :is-sub-card="false"
+              :disabled="dictionary._locked"
+              :exclude-type="dictionary.file_name"
+            />
+          </div>
+          
+          <!-- Enum Type Content -->
+          <div v-if="isEnumType()" class="pa-1">
+            <DictionaryTypeCard
+              :name="dictionary.file_name.replace('.yaml', '')"
+              :description="dictionary.root.description"
+              :model-value="dictionary.root.type"
+              @update:model-value="(value) => { if (dictionary?.root) dictionary.root.type = value; autoSave() }"
+              @update:name="(value) => { 
+                if (value && dictionary?.file_name) {
+                  const newFileName = value + '.yaml'
+                  // Note: This would require additional logic to rename the file
+                  console.log('File rename not implemented yet:', dictionary.file_name, '->', newFileName)
+                }
+              }"
+              @update:description="(value) => { if (dictionary?.root) dictionary.root.description = value; autoSave() }"
+              icon="mdi-format-list-checks"
+              :is-sub-card="false"
+              :disabled="dictionary._locked"
+              :exclude-type="dictionary.file_name"
+            >
+              <template #extra>
+                <!-- Enumerators Label and Picker -->
+                <div class="d-flex align-center mr-3">
+                  <span class="text-white mr-2">Enumerators:</span>
+                  <EnumPicker
+                    v-model="dictionary.root.enums"
+                    label="Select Enum"
+                    density="compact"
                     :disabled="dictionary._locked"
-                    v-bind="props"
-                    @click="property.required = !property.required; autoSave()"
-                    class="pa-0 ma-0 mr-2"
-                  >
-                    <v-icon size="16">mdi-star</v-icon>
-                  </v-btn>
-                </template>
-                <span>Required</span>
-              </v-tooltip>
-              <!-- Delete Button -->
-              <v-tooltip location="top">
-                <template v-slot:activator="{ props }">
-                  <v-btn
-                    icon
-                    size="x-small"
-                    variant="text"
-                    color="error"
-                    :disabled="dictionary._locked"
-                    v-bind="props"
-                    @click="deleteProperty(propertyName)"
-                    class="pa-0 ma-0"
-                  >
-                    <v-icon size="16">mdi-delete</v-icon>
-                  </v-btn>
-                </template>
-                <span>Delete Property</span>
-              </v-tooltip>
-            </template>
-            
-            <template #content>
-              <!-- Only show content for object properties -->
-              <div v-if="isPropertyObjectType(property)" class="pa-1">
-                <!-- Object properties would go here recursively -->
-              </div>
-            </template>
-          </DictionaryTypeCard>
-        </div>
-        
-        <!-- List Type Content -->
-        <div v-if="isListType()" class="pa-1">
-          <DictionaryTypeCard
-            name="Items"
-            description=""
-            :model-value="dictionary.root.items?.type || ''"
-            @update:model-value="(value) => { 
-              if (dictionary?.root?.items) {
-                dictionary.root.items.type = value
-              } else if (dictionary?.root) {
-                dictionary.root.items = { description: 'Items in the list', type: value, required: false }
-              }
-              autoSave()
-            }"
-            icon="mdi-format-list-bulleted"
-            :is-sub-card="false"
-            :disabled="dictionary._locked"
-            :exclude-type="dictionary.file_name"
-          />
-        </div>
-        
-        <!-- Enum Type Content -->
-        <div v-if="isEnumType()" class="pa-1">
-          <DictionaryTypeCard
-            :name="dictionary.file_name.replace('.yaml', '')"
-            :description="dictionary.root.description"
-            :model-value="dictionary.root.type"
-            @update:model-value="(value) => { if (dictionary?.root) dictionary.root.type = value; autoSave() }"
-            @update:name="(value) => { 
-              if (value && dictionary?.file_name) {
-                const newFileName = value + '.yaml'
-                // Note: This would require additional logic to rename the file
-                console.log('File rename not implemented yet:', dictionary.file_name, '->', newFileName)
-              }
-            }"
-            @update:description="(value) => { if (dictionary?.root) dictionary.root.description = value; autoSave() }"
-            icon="mdi-format-list-checks"
-            :is-sub-card="false"
-            :disabled="dictionary._locked"
-            :exclude-type="dictionary.file_name"
-          >
-            <template #extra>
-              <!-- Enumerators Label and Picker -->
-              <div class="d-flex align-center mr-3">
-                <span class="text-white mr-2">Enumerators:</span>
-                <EnumPicker
-                  v-model="dictionary.root.enums"
-                  label="Select Enum"
-                  density="compact"
-                  :disabled="dictionary._locked"
-                  class="flex-grow-1"
-                  style="min-width: 150px;"
-                />
-              </div>
-            </template>
-            
-            <template #actions>
-              <!-- Required Icon -->
-              <v-tooltip location="top">
-                <template v-slot:activator="{ props }">
-                  <v-btn
-                    icon
-                    size="x-small"
-                    variant="text"
-                    :color="dictionary.root.required ? 'primary' : 'grey'"
-                    :disabled="dictionary._locked"
-                    v-bind="props"
-                    @click="dictionary.root.required = !dictionary.root.required; autoSave()"
-                    class="pa-0 ma-0"
-                  >
-                    <v-icon size="16">mdi-star</v-icon>
-                  </v-btn>
-                </template>
-                <span>Required</span>
-              </v-tooltip>
-            </template>
-          </DictionaryTypeCard>
-        </div>
+                    class="flex-grow-1"
+                    style="min-width: 150px;"
+                  />
+                </div>
+              </template>
+            </DictionaryTypeCard>
+          </div>
+        </template>
       </DictionaryTypeCard>
     </div>
 

@@ -1,7 +1,7 @@
 file_name: sample.1.0.1.yaml
 _locked: false
 root:
-  description: A simple collection for tests
+  description: A simple collection for testsasdf
   type: object
   required: false
   additional_properties: false
@@ -22,6 +22,10 @@ root:
       type: string
       required: false
     property_4:
+      description: ''
+      type: string
+      required: false
+    property_5:
       description: ''
       type: string
       required: false
