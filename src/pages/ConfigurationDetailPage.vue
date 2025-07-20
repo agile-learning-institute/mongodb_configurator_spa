@@ -20,30 +20,56 @@
         <div class="flex-grow-1">
           <!-- Editable Title -->
           <div class="mb-2">
+            <!-- View Mode -->
+            <h1 
+              v-if="!editingTitle" 
+              class="text-h4 clickable-title"
+              @click="startEditTitle"
+            >
+              {{ configuration.title }}
+            </h1>
+            <!-- Edit Mode -->
             <v-text-field
+              v-else
               v-model="configuration.title"
-              variant="plain"
+              variant="outlined"
               density="compact"
               class="text-h4"
-              :class="{ 'editable-field': !configuration._locked }"
               :disabled="configuration._locked"
               @update:model-value="autoSave"
-              @click="!configuration._locked && $event.target.focus()"
+              @blur="stopEditTitle"
+              @keyup.enter="stopEditTitle"
+              @keyup.esc="cancelEditTitle"
+              ref="titleField"
               hide-details
+              autofocus
             />
           </div>
           <!-- Editable Description -->
           <div>
+            <!-- View Mode -->
+            <p 
+              v-if="!editingDescription" 
+              class="text-body-1 text-medium-emphasis clickable-description"
+              @click="startEditDescription"
+            >
+              {{ configuration.description }}
+            </p>
+            <!-- Edit Mode -->
             <v-text-field
+              v-else
               v-model="configuration.description"
-              variant="plain"
+              variant="outlined"
               density="compact"
               class="text-body-1 text-medium-emphasis"
-              :class="{ 'editable-field': !configuration._locked }"
               :disabled="configuration._locked"
               @update:model-value="autoSave"
-              @click="!configuration._locked && $event.target.focus()"
+              @blur="stopEditDescription"
+              @keyup.enter="stopEditDescription"
+              @keyup.esc="cancelEditDescription"
+              ref="descriptionField"
               hide-details
+              autofocus
             />
           </div>
         </div>
@@ -55,16 +81,6 @@
           >
             Locked
           </v-chip>
-          <v-btn
-            color="primary"
-            @click="saveConfiguration"
-            :loading="saving"
-            :disabled="configuration._locked"
-            class="mr-2"
-          >
-            <v-icon start>mdi-content-save</v-icon>
-            Save
-          </v-btn>
           <v-btn
             color="secondary"
             @click="processConfiguration"
@@ -452,7 +468,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, nextTick } from 'vue'
 import { useRoute } from 'vue-router'
 import { apiService } from '@/utils/api'
 import FileCard from '@/components/FileCard.vue'
@@ -529,6 +545,12 @@ const showMigrationMenu = ref(false)
 // Selected items for choosers
 const selectedTestData = ref<string | null>(null)
 const selectedMigration = ref<string | null>(null)
+
+// Edit mode states
+const editingTitle = ref(false)
+const editingDescription = ref(false)
+const titleField = ref<any>(null)
+const descriptionField = ref<any>(null)
 
 // Load configuration data
 const loadConfiguration = async () => {
@@ -753,34 +775,7 @@ const autoSave = async () => {
   }
 }
 
-// Manual save
-const saveConfiguration = async () => {
-  if (!configuration.value) return
-  
-  saving.value = true
-  try {
-    await apiService.saveConfiguration(configuration.value.file_name, configuration.value)
-    // Could add success notification here
-  } catch (err: any) {
-    console.error('Failed to save configuration:', err)
-    
-    // Handle API errors with event data
-    if (err.type === 'API_ERROR' && err.data) {
-      if (err.data.id && err.data.type && err.data.status) {
-        const { showEvent } = useEvents()
-        showEvent(err.data, 'Save Error', 'Configuration save failed')
-      } else {
-        const { showError } = useEvents()
-        showError(err.message || 'Failed to save configuration', 'Save Error', 'Configuration save failed')
-      }
-    } else {
-      const { showError } = useEvents()
-      showError(err.message || 'Failed to save configuration', 'Save Error', 'Configuration save failed')
-    }
-  } finally {
-    saving.value = false
-  }
-}
+
 
 // Process configuration
 const processConfiguration = async () => {
@@ -862,6 +857,42 @@ const downloadBsonSchema = async () => {
   }
 }
 
+// Edit mode functions
+const startEditTitle = () => {
+  editingTitle.value = true
+  nextTick(() => {
+    titleField.value.focus()
+  })
+}
+
+const stopEditTitle = () => {
+  editingTitle.value = false
+  autoSave()
+}
+
+const cancelEditTitle = () => {
+  editingTitle.value = false
+  // Revert to original title if needed, or just stop editing
+  // For now, we'll just stop editing
+}
+
+const startEditDescription = () => {
+  editingDescription.value = true
+  nextTick(() => {
+    descriptionField.value.focus()
+  })
+}
+
+const stopEditDescription = () => {
+  editingDescription.value = false
+  autoSave()
+}
+
+const cancelEditDescription = () => {
+  editingDescription.value = false
+  // Revert to original description if needed, or just stop editing
+  // For now, we'll just stop editing
+}
 
 
 // Load configuration on mount
@@ -873,6 +904,30 @@ onMounted(() => {
 </script> 
 
 <style scoped>
+.clickable-title {
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.clickable-title:hover {
+  background-color: rgba(46, 125, 50, 0.04);
+  border-radius: 4px;
+  padding: 4px;
+  margin: -4px;
+}
+
+.clickable-description {
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.clickable-description:hover {
+  background-color: rgba(46, 125, 50, 0.04);
+  border-radius: 4px;
+  padding: 4px;
+  margin: -4px;
+}
+
 .editable-field {
   cursor: text;
 }
