@@ -6,10 +6,10 @@
     <!-- Header section with customizable content -->
     <div class="header-section pa-2 d-flex justify-space-between align-center">
       <div class="d-flex align-center">
-        <v-icon v-if="icon" class="mr-3" :size="isSubCard ? 16 : 20" color="white">{{ icon }}</v-icon>
+        <v-icon v-if="icon" class="mr-3" :size="isSubCard ? 16 : 20" :color="isSubCard ? 'dark' : 'white'">{{ icon }}</v-icon>
         <!-- Custom title template or default title -->
         <slot name="title" :title="title">
-          <div :class="isSubCard ? 'text-body-2' : 'text-body-1'" class="text-white">{{ title }}</div>
+          <div :class="isSubCard ? 'text-body-2 text-dark' : 'text-body-1 text-white'">{{ title }}</div>
         </slot>
       </div>
       
