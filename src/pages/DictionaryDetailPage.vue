@@ -264,7 +264,7 @@
         </template>
         
         <!-- Content for enum and enum_array types -->
-        <div v-if="isEnumType()" class="pa-4">
+        <div v-if="isEnumType()" class="pa-1">
           <div class="d-flex align-center mb-3">
             <span class="text-h6 font-weight-bold mr-3">Enum:</span>
             <EnumPicker
