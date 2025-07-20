@@ -184,8 +184,8 @@
           <div v-if="isListType()" class="d-flex align-center">
             <!-- Items Description (inline with title) -->
             <div class="mr-4">
-              <span class="text-h6 font-weight-bold mr-2">Items</span>
-              <span class="text-body-1 text-medium-emphasis">{{ descriptionValue || 'No items description provided' }}</span>
+              <span class="text-h6 font-weight-bold">Items</span>
+              <span class="text-body-1 text-medium-emphasis ml-2">{{ descriptionValue || 'No items description provided' }}</span>
             </div>
             <!-- Items Type Picker -->
             <div class="mr-2" style="min-width: 120px;">
@@ -561,5 +561,15 @@ onMounted(() => {
 .items-type-picker :deep(.v-field__label) {
   color: rgba(0, 0, 0, 0.8) !important;
   font-weight: 500 !important;
+}
+
+/* Light background for type picker pill */
+.items-type-picker :deep(.v-field) {
+  background-color: rgba(255, 255, 255, 0.9) !important;
+  border-radius: 8px !important;
+}
+
+.items-type-picker :deep(.v-field--variant-outlined) {
+  background-color: rgba(255, 255, 255, 0.9) !important;
 }
 </style> 

@@ -5,6 +5,6 @@ root:
   type: array
   required: false
   items:
-    description: ist items
+    description: a word in the list
     type: word
     required: false
