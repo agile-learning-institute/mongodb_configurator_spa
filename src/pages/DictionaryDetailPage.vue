@@ -198,7 +198,24 @@
               :name="propertyName"
               :description="property.description"
               :model-value="property.type"
-              @update:model-value="(value) => { property.type = value; autoSave() }"
+              @update:model-value="(value) => { 
+                property.type = value; 
+                // Initialize type-specific properties
+                if (value === 'array' || value === 'list') {
+                  if (!property.items) {
+                    property.items = { description: 'Items in the list', type: 'string', required: false }
+                  }
+                } else if (value === 'object') {
+                  if (!property.properties) {
+                    property.properties = {}
+                  }
+                } else if (value === 'enum' || value === 'enum_array') {
+                  if (!property.enums) {
+                    property.enums = ''
+                  }
+                }
+                autoSave() 
+              }"
               @update:name="(value) => { 
                 if (value && value !== propertyName && dictionary?.root?.properties) {
                   const newProperties = { ...dictionary.root.properties }
