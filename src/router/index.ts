@@ -3,6 +3,7 @@ import { useConfig } from '@/composables/useConfig'
 
 // Lazy-loaded page components
 const WelcomePage = () => import('@/pages/WelcomePage.vue')
+const AdminPage = () => import('@/pages/AdminPage.vue')
 const ConfigurationsPage = () => import('@/pages/ConfigurationsPage.vue')
 const ConfigurationDetailPage = () => import('@/pages/ConfigurationDetailPage.vue')
 const DictionariesPage = () => import('@/pages/DictionariesPage.vue')
@@ -22,6 +23,12 @@ const routes = [
     name: 'Welcome',
     component: WelcomePage,
     meta: { title: 'Welcome' }
+  },
+  {
+    path: '/admin',
+    name: 'Admin',
+    component: AdminPage,
+    meta: { title: 'Admin' }
   },
   {
     path: '/configurations',

@@ -8,10 +8,10 @@
       
       <!-- Process All Button -->
       <v-btn
-        color="success"
+        color="white"
         variant="elevated"
         size="large"
-        class="mr-3"
+        class="mr-3 process-btn"
         @click="processAllConfigurations"
         :loading="processing"
         :disabled="processing"
@@ -22,15 +22,21 @@
       
       <!-- Drop Database Button -->
       <v-btn
-        color="error"
+        color="white"
         variant="elevated"
         size="large"
+        class="mr-3 drop-btn"
         @click="showDropDatabaseDialog = true"
         :loading="dropping"
         :disabled="dropping"
       >
         <v-icon start>mdi-delete</v-icon>
         Drop Database
+      </v-btn>
+      
+      <!-- Admin Button -->
+      <v-btn icon to="/admin" title="Admin" class="admin-btn">
+        <v-icon>mdi-cog</v-icon>
       </v-btn>
     </v-app-bar>
 
@@ -228,5 +234,39 @@ const navItems = [
 <style scoped>
 .app-header {
   background: linear-gradient(135deg, #2E7D32 0%, #388E3C 100%) !important;
+}
+
+.process-btn {
+  background: linear-gradient(135deg, #4CAF50 0%, #66BB6A 100%) !important;
+  color: white !important;
+  font-weight: 600 !important;
+  text-transform: none !important;
+  box-shadow: 0 4px 8px rgba(76, 175, 80, 0.3) !important;
+}
+
+.process-btn:hover {
+  background: linear-gradient(135deg, #66BB6A 0%, #81C784 100%) !important;
+  box-shadow: 0 6px 12px rgba(76, 175, 80, 0.4) !important;
+}
+
+.drop-btn {
+  background: linear-gradient(135deg, #F44336 0%, #EF5350 100%) !important;
+  color: white !important;
+  font-weight: 600 !important;
+  text-transform: none !important;
+  box-shadow: 0 4px 8px rgba(244, 67, 54, 0.3) !important;
+}
+
+.drop-btn:hover {
+  background: linear-gradient(135deg, #EF5350 0%, #E57373 100%) !important;
+  box-shadow: 0 6px 12px rgba(244, 67, 54, 0.4) !important;
+}
+
+.admin-btn {
+  color: white !important;
+}
+
+.admin-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
 }
 </style> 
