@@ -102,7 +102,7 @@
             <span 
               v-if="!editingTitle"
               class="text-h6 text-white mr-2 clickable-title"
-              @click="startEditTitle"
+              @click.stop="startEditTitle"
             >
               {{ dictionary.file_name.replace('.yaml', '') }}
             </span>
@@ -126,7 +126,7 @@
             <span 
               v-if="!editingDescription"
               class="text-h6 text-white clickable-description"
-              @click="startEditDescription"
+              @click.stop="startEditDescription"
             >
               {{ dictionary.root.description || 'No description provided' }}
             </span>
@@ -237,7 +237,7 @@
             <span 
               v-if="!editingItemsDescription"
               class="text-h6 text-white clickable-description"
-              @click="startEditItemsDescription"
+              @click.stop="startEditItemsDescription"
             >
               {{ descriptionValue || 'No items description provided' }}
             </span>
