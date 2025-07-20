@@ -1,6 +1,6 @@
 <template>
   <v-card class="event-card mb-3" :class="getStatusClass()">
-    <v-card-title class="d-flex align-center py-3">
+    <v-card-title class="event-header d-flex align-center py-3">
       <div class="d-flex align-center flex-grow-1">
         <!-- Status Icon -->
         <v-icon 
@@ -13,10 +13,10 @@
         
         <!-- Event Type and ID -->
         <div class="flex-grow-1">
-          <div class="text-subtitle-1 font-weight-medium">
+          <div class="text-subtitle-1 font-weight-medium text-white">
             {{ event.type }}
           </div>
-          <div class="text-caption text-medium-emphasis">
+          <div class="text-caption text-white text-opacity-70">
             {{ event.id }}
           </div>
         </div>
@@ -38,7 +38,7 @@
         icon
         size="small"
         variant="text"
-        color="grey"
+        color="white"
         @click="$emit('remove', event.id)"
         class="ml-2"
       >
@@ -46,7 +46,7 @@
       </v-btn>
     </v-card-title>
     
-    <v-card-text class="pt-0 pb-3">
+    <v-card-text class="event-content pt-0 pb-3">
       <!-- Timestamps -->
       <div class="d-flex align-center mb-3">
         <v-icon size="16" color="grey" class="mr-2">mdi-clock-outline</v-icon>
@@ -223,8 +223,19 @@ const getStatusClass = () => {
 
 <style scoped>
 .event-card {
+  border-radius: 12px !important;
+  overflow: hidden;
   border-left: 4px solid transparent;
   transition: all 0.2s ease;
+}
+
+.event-header {
+  background: linear-gradient(135deg, #2E7D32 0%, #388E3C 100%);
+  border-radius: 12px 12px 0 0;
+}
+
+.event-content {
+  background: linear-gradient(135deg, #F1F8E9 0%, #E8F5E8 100%);
 }
 
 .event-success {
@@ -243,13 +254,12 @@ const getStatusClass = () => {
 }
 
 .event-card:hover {
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 8px rgba(46, 125, 50, 0.15);
 }
 
 pre {
   font-size: 0.75rem;
   line-height: 1.4;
-  max-height: 200px;
-  overflow-y: auto;
+  margin: 0;
 }
 </style> 

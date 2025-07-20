@@ -1,6 +1,6 @@
 <template>
   <v-card 
-    class="mb-3" 
+    class="mb-3 file-card" 
     :class="{ 'cursor-pointer': showEdit && !file._locked }"
     @click="handleCardClick"
   >
@@ -77,7 +77,7 @@
     </div>
 
     <!-- Content section -->
-    <div class="pa-4">
+    <div class="content-section pa-4">
       <div v-if="!isSectionCard" class="d-flex align-center text-caption text-medium-emphasis">
         <span class="mr-4">Created: {{ formatDate(file.created_at) }}</span>
         <span class="mr-4">Updated: {{ formatDate(file.updated_at) }}</span>
@@ -184,11 +184,20 @@ const formatFileSize = (bytes: number) => {
 }
 
 .cursor-pointer:hover {
-  background-color: rgba(0, 0, 0, 0.04);
+  background-color: rgba(46, 125, 50, 0.04);
+}
+
+.file-card {
+  border-radius: 12px !important;
+  overflow: hidden;
 }
 
 .header-section {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-radius: 4px 4px 0 0;
+  background: linear-gradient(135deg, #2E7D32 0%, #388E3C 100%);
+  border-radius: 12px 12px 0 0;
+}
+
+.content-section {
+  background: linear-gradient(135deg, #F1F8E9 0%, #E8F5E8 100%);
 }
 </style> 

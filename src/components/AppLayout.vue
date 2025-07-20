@@ -5,8 +5,32 @@
       <v-app-bar-nav-icon @click="toggleDrawer" />
       <v-toolbar-title>MongoDB Configurator</v-toolbar-title>
       <v-spacer></v-spacer>
-      <v-btn icon to="/admin" title="Admin">
-        <v-icon>mdi-cog</v-icon>
+      
+      <!-- Process All Button -->
+      <v-btn
+        color="success"
+        variant="elevated"
+        size="large"
+        class="mr-3"
+        @click="processAllConfigurations"
+        :loading="processing"
+        :disabled="processing"
+      >
+        <v-icon start>mdi-cog</v-icon>
+        Process All
+      </v-btn>
+      
+      <!-- Drop Database Button -->
+      <v-btn
+        color="error"
+        variant="elevated"
+        size="large"
+        @click="showDropDatabaseDialog = true"
+        :loading="dropping"
+        :disabled="dropping"
+      >
+        <v-icon start>mdi-delete</v-icon>
+        Drop Database
       </v-btn>
     </v-app-bar>
 
@@ -15,36 +39,11 @@
       v-model="drawer" 
       location="left" 
       width="260"
-      permanent
-      :rail="!drawer"
+      :permanent="$vuetify.display.mdAndUp"
+      :temporary="$vuetify.display.smAndDown"
+      :rail="!drawer && $vuetify.display.mdAndUp"
     >
       <v-list density="compact" nav>
-        <!-- Database Operations -->
-        <v-list-item>
-          <v-list-item-title class="text-h6">Database Operations</v-list-item-title>
-        </v-list-item>
-        <v-divider></v-divider>
-        
-        <!-- Process All Button -->
-        <v-list-item @click="processAllConfigurations" :disabled="processing">
-          <template v-slot:prepend>
-            <v-progress-circular v-if="processing" indeterminate size="20" color="primary" />
-            <v-icon v-else color="primary">mdi-cog</v-icon>
-          </template>
-          <v-list-item-title>Process All</v-list-item-title>
-        </v-list-item>
-        
-        <!-- Drop Database Button -->
-        <v-list-item @click="showDropDatabaseDialog = true" :disabled="dropping">
-          <template v-slot:prepend>
-            <v-progress-circular v-if="dropping" indeterminate size="20" color="error" />
-            <v-icon v-else color="error">mdi-delete</v-icon>
-          </template>
-          <v-list-item-title class="text-error">Drop Database</v-list-item-title>
-        </v-list-item>
-        
-        <v-divider></v-divider>
-        
         <!-- Navigation Items -->
         <v-list-item v-for="item in navItems" :key="item.title" :to="item.to" link>
           <template v-slot:prepend>
@@ -223,7 +222,5 @@ const navItems = [
   { title: 'Enumerators', icon: 'mdi-format-list-bulleted', to: '/enumerators' },
   { title: 'Test Data', icon: 'mdi-file-document', to: '/test_data' },
   { title: 'Migrations', icon: 'mdi-swap-horizontal', to: '/migrations' },
-  { title: 'Events', icon: 'mdi-calendar-clock', to: '/events' },
-  { title: 'Admin', icon: 'mdi-cog', to: '/admin' },
 ]
 </script> 

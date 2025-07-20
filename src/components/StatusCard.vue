@@ -1,9 +1,9 @@
 <template>
-  <v-card class="mb-4">
-    <v-card-title class="d-flex justify-space-between align-center">
+  <v-card class="mb-4 status-card">
+    <v-card-title class="status-header d-flex justify-space-between align-center">
       <div>
-        <v-icon class="mr-2">{{ statusIcon }}</v-icon>
-        {{ title }}
+        <v-icon class="mr-2" color="white">{{ statusIcon }}</v-icon>
+        <span class="text-white">{{ title }}</span>
       </div>
       <v-chip
         :color="statusColor"
@@ -13,7 +13,7 @@
       </v-chip>
     </v-card-title>
     
-    <v-card-text>
+    <v-card-text class="status-content">
       <div v-if="message" class="mb-3">
         <p>{{ message }}</p>
       </div>
@@ -42,7 +42,7 @@
       </div>
     </v-card-text>
     
-    <v-card-actions v-if="showActions">
+    <v-card-actions v-if="showActions" class="status-actions">
       <v-btn
         v-if="status === 'error'"
         color="primary"
@@ -131,3 +131,24 @@ const progressColor = computed(() => {
   return 'success'
 })
 </script> 
+
+<style scoped>
+.status-card {
+  border-radius: 12px !important;
+  overflow: hidden;
+}
+
+.status-header {
+  background: linear-gradient(135deg, #2E7D32 0%, #388E3C 100%);
+  border-radius: 12px 12px 0 0;
+}
+
+.status-content {
+  background: linear-gradient(135deg, #F1F8E9 0%, #E8F5E8 100%);
+}
+
+.status-actions {
+  background: linear-gradient(135deg, #F1F8E9 0%, #E8F5E8 100%);
+  border-top: 1px solid rgba(46, 125, 50, 0.1);
+}
+</style> 
