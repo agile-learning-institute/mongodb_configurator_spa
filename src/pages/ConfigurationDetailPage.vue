@@ -313,7 +313,15 @@ const downloadJsonSchema = async (version: string) => {
   if (!configuration.value) return
   
   try {
-    await apiService.downloadJsonSchema(configuration.value.file_name, version)
+    const blob = await apiService.downloadJsonSchema(configuration.value.file_name, version)
+    const url = window.URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `${configuration.value.file_name}_${version}_json_schema.json`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    window.URL.revokeObjectURL(url)
   } catch (err: any) {
     error.value = err.message || 'Failed to download JSON schema'
     console.error('Failed to download JSON schema:', err)
@@ -324,7 +332,15 @@ const downloadBsonSchema = async (version: string) => {
   if (!configuration.value) return
   
   try {
-    await apiService.downloadBsonSchema(configuration.value.file_name, version)
+    const blob = await apiService.downloadBsonSchema(configuration.value.file_name, version)
+    const url = window.URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `${configuration.value.file_name}_${version}_bson_schema.json`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    window.URL.revokeObjectURL(url)
   } catch (err: any) {
     error.value = err.message || 'Failed to download BSON schema'
     console.error('Failed to download BSON schema:', err)
