@@ -1,571 +1,196 @@
 <template>
-  <v-container>
-    <!-- Loading state -->
-    <div v-if="loading" class="d-flex justify-center align-center pa-8">
-      <v-progress-circular indeterminate size="64"></v-progress-circular>
-    </div>
-
-    <!-- Error state -->
-    <div v-else-if="error" class="pa-4">
-      <v-alert type="error">
-        {{ error }}
-        <v-btn @click="loadConfiguration" class="mt-2">Retry</v-btn>
-      </v-alert>
-    </div>
-
-    <!-- Configuration detail -->
-    <div v-else-if="configuration">
-      <!-- Header -->
-      <div class="d-flex justify-space-between align-center mb-6">
-        <div class="flex-grow-1">
-          <!-- Editable Title -->
-          <div class="mb-2">
-            <!-- View Mode -->
-            <h1 
-              v-if="!editingTitle" 
-              class="text-h4 clickable-title"
-              @click="startEditTitle"
-            >
-              {{ configuration.title }}
-            </h1>
-            <!-- Edit Mode -->
-            <v-text-field
-              v-else
-              v-model="configuration.title"
-              variant="outlined"
-              density="compact"
-              class="text-h4"
-              :disabled="configuration._locked"
-              @update:model-value="autoSave"
-              @blur="stopEditTitle"
-              @keyup.enter="stopEditTitle"
-              @keyup.esc="cancelEditTitle"
-              ref="titleField"
-              hide-details
-              autofocus
-            />
-          </div>
-          <!-- Editable Description -->
-          <div>
-            <!-- View Mode -->
-            <p 
-              v-if="!editingDescription" 
-              class="text-body-1 text-medium-emphasis clickable-description"
-              @click="startEditDescription"
-            >
-              {{ configuration.description }}
-            </p>
-            <!-- Edit Mode -->
-            <v-text-field
-              v-else
-              v-model="configuration.description"
-              variant="outlined"
-              density="compact"
-              class="text-body-1 text-medium-emphasis"
-              :disabled="configuration._locked"
-              @update:model-value="autoSave"
-              @blur="stopEditDescription"
-              @keyup.enter="stopEditDescription"
-              @keyup.esc="cancelEditDescription"
-              ref="descriptionField"
-              hide-details
-              autofocus
-            />
-          </div>
-        </div>
-        <div class="d-flex align-center">
-          <v-chip
-            v-if="configuration._locked"
-            color="warning"
-            class="mr-2"
-          >
-            Locked
-          </v-chip>
-          <v-btn
-            color="secondary"
-            @click="processConfiguration"
-            :loading="processing"
-          >
-            <v-icon start>mdi-cog</v-icon>
-            Process
-          </v-btn>
-        </div>
-      </div>
-
-      <!-- Version tabs -->
-      <v-tabs v-model="activeVersion" class="mb-6">
-        <v-tab
-          v-for="version in configuration.versions"
-          :key="version.version"
-          :value="version.version"
+  <DetailPageLayout
+    :loading="loading"
+    :error="error"
+    :data="configuration"
+    :title="configuration?.title || ''"
+    :file-name="configuration?.file_name || ''"
+    file-type="Configuration"
+    :locked="configuration?._locked || false"
+    :disabled="configuration?._locked || false"
+    v-model:show-delete-dialog="showDeleteDialog"
+    v-model:show-unlock-dialog="showUnlockDialog"
+    @retry="loadConfiguration"
+    @lock="lockConfiguration"
+    @unlock="unlockConfiguration"
+    @delete="handleDelete"
+    @title-change="handleTitleChange"
+    @confirm-delete="confirmDelete"
+    @cancel-delete="cancelDelete"
+    @confirm-unlock="confirmUnlock"
+    @cancel-unlock="cancelUnlock"
+  >
+    <template #default="{ data: configuration }">
+      <!-- Configuration Content -->
+      <div class="configuration-content">
+        <!-- Description -->
+        <BaseCard 
+          title="Description"
+          icon="mdi-information"
+          :is-secondary="true"
+          compact
         >
-          {{ version.version }}
-        </v-tab>
-      </v-tabs>
+          <v-text-field
+            v-model="configuration.description"
+            placeholder="Enter configuration description..."
+            variant="outlined"
+            density="compact"
+            :disabled="configuration._locked"
+            @update:model-value="autoSave"
+          />
+        </BaseCard>
 
-      <!-- Version content -->
-      <div v-if="activeVersion">
-        <!-- Version Wrapper Card -->
-        <FileCard
-          :file="{ name: `Version ${activeVersion}`, created_at: '', updated_at: '', size: 0 }"
-          file-type="configuration"
-          :show-edit="false"
-          :show-delete="false"
-          :show-lock="false"
-          :show-actions="false"
-          :is-section-card="true"
-          :expanded="true"
-          class="mb-4"
+        <!-- Version Management -->
+        <BaseCard 
+          title="Version Management"
+          icon="mdi-tag-multiple"
+          :is-secondary="false"
         >
-          <template #actions>
-              <v-btn
-                size="small"
-              variant="text"
-              color="white"
-                @click="downloadJsonSchema"
-              :disabled="configuration._locked"
-              title="Download JSON Schema"
+          <div class="version-tabs">
+            <v-tabs v-model="activeVersion" class="mb-4">
+              <v-tab
+                v-for="version in configuration.versions"
+                :key="version.version"
+                :value="version.version"
               >
-              <v-icon start size="18">mdi-download</v-icon>
-              JSON
-              </v-btn>
-              <v-btn
-                size="small"
-              variant="text"
-              color="white"
-                @click="downloadBsonSchema"
-              :disabled="configuration._locked"
-              title="Download BSON Schema"
-              >
-              <v-icon start size="18">mdi-download</v-icon>
-              BSON
-            </v-btn>
-          </template>
-          <template #default>
-            <!-- Test Data Card -->
-            <FileCard
-              :file="{ name: 'Test Data', created_at: '', updated_at: '', size: 0 }"
-              file-type="test-data"
-              :show-edit="false"
-              :show-delete="false"
-              :show-lock="false"
-              :show-actions="false"
-              :is-section-card="true"
-              :expanded="true"
-              class="mb-4"
-            >
-              <template #actions>
-                <v-menu
-                  v-model="showTestDataMenu"
-                  :close-on-content-click="false"
-                  location="bottom end"
-                >
-                  <template v-slot:activator="{ props }">
-                    <v-btn
-                      icon
-                      size="small"
-                      variant="text"
-                      color="white"
-                      v-bind="props"
-                      :disabled="configuration._locked"
-                      title="Select Test Data"
-                    >
-                      <v-icon size="18">mdi-plus</v-icon>
-                    </v-btn>
-                  </template>
-                  <v-list min-width="300">
-                    <v-list-item
-                      v-for="file in testDataFiles"
-                      :key="file.name"
-                      @click="selectTestData(file.name)"
-                    >
-                      <v-list-item-title>{{ file.name }}</v-list-item-title>
-                    </v-list-item>
-                    <v-divider />
-                    <v-list-item @click="showNewTestDataDialog = true; showTestDataMenu = false">
-                      <v-list-item-title class="text-primary">
-                        <v-icon start size="small">mdi-plus</v-icon>
-                        New Test Data File
-                      </v-list-item-title>
-                    </v-list-item>
-                  </v-list>
-                </v-menu>
+                {{ version.version }}
+              </v-tab>
+            </v-tabs>
+
+            <div v-if="activeVersion" class="version-content">
+              <div class="d-flex align-center mb-4">
+                <h3 class="text-h6 mr-4">Version {{ activeVersion }}</h3>
+                <v-spacer />
                 <v-btn
-                  v-if="getCurrentVersion().test_data"
-                  icon
+                  color="primary"
+                  variant="outlined"
                   size="small"
-                  variant="text"
-                  color="white"
-                  @click="removeTestData"
+                  @click="downloadJsonSchema"
                   :disabled="configuration._locked"
-                  title="Clear Test Data"
                 >
-                  <v-icon size="18">mdi-close-circle</v-icon>
-              </v-btn>
-              </template>
-              <template #default>
-                <div v-if="getCurrentVersion().test_data" class="d-flex align-center">
-                  <v-chip color="primary" class="mr-2">
-                    {{ getCurrentVersion().test_data }}
-                  </v-chip>
-            </div>
-                <div v-else class="text-medium-emphasis">
-                  No test data file selected
-            </div>
-              </template>
-            </FileCard>
-
-            <!-- Add Indexes Card -->
-            <FileCard
-              :file="{ name: 'Add Indexes', created_at: '', updated_at: '', size: 0 }"
-              file-type="configuration"
-              :show-edit="false"
-              :show-delete="false"
-              :show-lock="false"
-              :show-actions="false"
-              :is-section-card="true"
-              :show-expand="true"
-              :expanded="indexesExpanded"
-              class="mb-4"
-              @toggle-expand="indexesExpanded = !indexesExpanded"
-            >
-              <template #collapsed>
-                <span v-if="getCurrentVersion().add_indexes.length > 0">
-                  {{ getCurrentVersion().add_indexes.length }} Index{{ getCurrentVersion().add_indexes.length === 1 ? '' : 'es' }} to Add
-                </span>
-                <span v-else>
-                  No Indexes to Add
-                </span>
-              </template>
-              <template #default>
-                <JsonArrayEditor
-                  v-model="getCurrentVersion().add_indexes"
-                  title=""
-                  item-label="Index"
+                  <v-icon start size="small">mdi-download</v-icon>
+                  JSON Schema
+                </v-btn>
+                <v-btn
+                  color="primary"
+                  variant="outlined"
+                  size="small"
+                  class="ml-2"
+                  @click="downloadBsonSchema"
                   :disabled="configuration._locked"
-                  :auto-save="autoSave"
-                  :allow-multiple="false"
-                  size-mode="fit-content"
-                />
-              </template>
-            </FileCard>
-
-            <!-- Drop Indexes Card -->
-            <FileCard
-              :file="{ name: 'Drop Indexes', created_at: '', updated_at: '', size: 0 }"
-              file-type="configuration"
-              :show-edit="false"
-              :show-delete="false"
-              :show-lock="false"
-              :show-actions="false"
-              :is-section-card="true"
-              :expanded="true"
-              class="mb-4"
-            >
-              <template #actions>
-                <v-menu
-                  v-model="showDropIndexMenu"
-                  :close-on-content-click="false"
-                  location="bottom end"
                 >
-                  <template v-slot:activator="{ props }">
-                    <v-btn
-                      icon
-                      size="small"
-                      variant="text"
-                      color="white"
-                      v-bind="props"
-                      :disabled="configuration._locked"
-                      title="Add Drop Index"
-                    >
-                      <v-icon size="18">mdi-plus</v-icon>
-                    </v-btn>
-                  </template>
-                  <v-card min-width="300">
-                    <v-card-text>
-                      <v-text-field
-                        v-model="newDropIndex"
-                        label="Index Name"
-                        placeholder="idx_old_field"
-                        :disabled="configuration._locked"
-                        @keyup.enter="addDropIndex"
-                      />
-                      <div class="d-flex justify-end mt-2">
-                        <v-btn
-                          color="primary"
-                          @click="addDropIndex"
-                          :disabled="!newDropIndex.trim() || configuration._locked"
-                          size="small"
-                        >
-                          Add
-                        </v-btn>
-                      </div>
-                    </v-card-text>
-                    </v-card>
-                </v-menu>
-              </template>
-              <template #default>
-                <div v-if="getCurrentVersion().drop_indexes.length > 0" class="d-flex flex-wrap">
-              <v-chip
-                v-for="index in getCurrentVersion().drop_indexes"
-                :key="index.name"
-                color="error"
-                class="mr-2 mb-2"
-                    closable
-                    @click:close="removeDropIndex(index.name)"
-                    :disabled="configuration._locked"
-              >
-                {{ index.name }}
-              </v-chip>
-            </div>
-                <div v-else class="text-medium-emphasis">
-                  No indexes to drop
-                </div>
-              </template>
-            </FileCard>
+                  <v-icon start size="small">mdi-download</v-icon>
+                  BSON Schema
+                </v-btn>
+              </div>
 
-            <!-- Migrations Card -->
-            <FileCard
-              :file="{ name: 'Migrations', created_at: '', updated_at: '', size: 0 }"
-              file-type="migration"
-              :show-edit="false"
-              :show-delete="false"
-              :show-lock="false"
-              :show-actions="false"
-              :is-section-card="true"
-              :expanded="true"
-              class="mb-4"
-            >
-              <template #actions>
-                <v-menu
-                  v-model="showMigrationMenu"
-                  :close-on-content-click="false"
-                  location="bottom end"
-                >
-                  <template v-slot:activator="{ props }">
-                    <v-btn
-                      icon
-                      size="small"
-                      variant="text"
-                      color="white"
-                      v-bind="props"
-                      :disabled="configuration._locked"
-                      title="Add Migration"
-                    >
-                      <v-icon size="18">mdi-plus</v-icon>
-                    </v-btn>
-                  </template>
-                  <v-list min-width="300">
-                    <v-list-item
-                      v-for="file in migrationFiles"
-                      :key="file.name"
-                      @click="selectMigration(file.name)"
-                    >
-                      <v-list-item-title>{{ file.name }}</v-list-item-title>
-                    </v-list-item>
-                    <v-divider />
-                    <v-list-item @click="showNewMigrationDialog = true; showMigrationMenu = false">
-                      <v-list-item-title class="text-primary">
-                        <v-icon start size="small">mdi-plus</v-icon>
-                        New Migration File
-                      </v-list-item-title>
-                    </v-list-item>
-                  </v-list>
-                </v-menu>
-              </template>
-              <template #default>
-                <div v-if="getCurrentVersion().migrations.length > 0" class="d-flex flex-wrap">
-              <v-chip
-                v-for="migration in getCurrentVersion().migrations"
-                :key="migration"
-                color="info"
-                class="mr-2 mb-2"
-                    closable
-                    @click:close="removeMigration(migration)"
-                    :disabled="configuration._locked"
-              >
-                {{ migration }}
-              </v-chip>
+              <!-- Version details -->
+              <div class="version-details">
+                <p class="text-body-2 text-medium-emphasis">
+                  Created: {{ formatDate(activeVersionData?.created_at) }}
+                </p>
+                <p class="text-body-2 text-medium-emphasis">
+                  Status: {{ activeVersionData?.status || 'Unknown' }}
+                </p>
+              </div>
             </div>
-                <div v-else class="text-medium-emphasis">
-                  No migrations defined
-                </div>
-              </template>
-            </FileCard>
-          </template>
-        </FileCard>
+          </div>
+        </BaseCard>
+
+        <!-- Processing Status -->
+        <BaseCard 
+          title="Processing"
+          icon="mdi-cog"
+          :is-secondary="true"
+          compact
+        >
+          <div class="d-flex align-center">
+            <v-btn
+              color="secondary"
+              @click="processConfiguration"
+              :loading="processing"
+              :disabled="configuration._locked"
+            >
+              <v-icon start>mdi-cog</v-icon>
+              Process Configuration
+            </v-btn>
+            <v-spacer />
+            <v-chip
+              v-if="processing"
+              color="info"
+              size="small"
+            >
+              Processing...
+            </v-chip>
+          </div>
+        </BaseCard>
       </div>
-    </div>
+    </template>
 
-    <!-- New Test Data Dialog -->
-    <v-dialog v-model="showNewTestDataDialog" max-width="500px">
-      <v-card>
-        <v-card-title>Create New Test Data File</v-card-title>
-        <v-card-text>
-          <v-text-field
-            v-model="newTestDataFileName"
-            label="File Name"
-            :error="!!newTestDataError"
-            :error-messages="newTestDataError || undefined"
-            placeholder="sample.1.0.0.1.json"
-            :disabled="creatingTestData"
-          />
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer />
-          <v-btn
-            @click="showNewTestDataDialog = false"
-            :disabled="creatingTestData"
-          >
-            Cancel
-          </v-btn>
-          <v-btn
-            color="primary"
-            @click="createTestDataFile"
-            :loading="creatingTestData"
-            :disabled="!newTestDataFileName.trim()"
-          >
-            Create
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-
-    <!-- New Migration Dialog -->
-    <v-dialog v-model="showNewMigrationDialog" max-width="500px">
-      <v-card>
-        <v-card-title>Create New Migration File</v-card-title>
-        <v-card-text>
-          <v-text-field
-            v-model="newMigrationFileName"
-            label="File Name"
-            :error="!!newMigrationError"
-            :error-messages="newMigrationError || undefined"
-            placeholder="migration.json"
-            :disabled="creatingMigration"
-          />
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer />
-          <v-btn
-            @click="showNewMigrationDialog = false"
-            :disabled="creatingMigration"
-          >
-            Cancel
-          </v-btn>
-          <v-btn
-            color="primary"
-            @click="createMigrationFile"
-            :loading="creatingMigration"
-            :disabled="!newMigrationFileName.trim()"
-          >
-            Create
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-  </v-container>
+    <template #header-actions>
+      <v-btn
+        color="secondary"
+        @click="processConfiguration"
+        :loading="processing"
+        :disabled="configuration?._locked"
+      >
+        <v-icon start>mdi-cog</v-icon>
+        Process
+      </v-btn>
+    </template>
+  </DetailPageLayout>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, nextTick } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { apiService } from '@/utils/api'
-import FileCard from '@/components/FileCard.vue'
-import JsonArrayEditor from '@/components/JsonArrayEditor.vue'
-import { useEvents } from '@/composables/useEvents'
+import DetailPageLayout from '@/components/DetailPageLayout.vue'
+import BaseCard from '@/components/BaseCard.vue'
 
 interface ConfigurationVersion {
   version: string
-  test_data: string
-  add_indexes: Array<{
-    key: Record<string, number>
-    options?: Record<string, any>
-  }>
-  drop_indexes: Array<{
-    name: string
-  }>
-  migrations: string[]
+  created_at: string
+  status: string
 }
 
 interface Configuration {
+  file_name: string
   title: string
   description: string
-  file_name: string
   _locked: boolean
   versions: ConfigurationVersion[]
-}
-
-interface FileInfo {
-  name: string
-  created_at: string
-  updated_at: string
-  size: number
-  _locked?: boolean
 }
 
 const route = useRoute()
 const loading = ref(false)
 const saving = ref(false)
+const processing = ref(false)
 const error = ref<string | null>(null)
 const configuration = ref<Configuration | null>(null)
+const showDeleteDialog = ref(false)
+const showUnlockDialog = ref(false)
 const activeVersion = ref<string>('')
-const processing = ref(false)
 
-// JSON editor states
-const indexesExpanded = ref(false) // Start collapsed
+// Computed properties
+const activeVersionData = computed(() => {
+  if (!configuration.value || !activeVersion.value) return null
+  return configuration.value.versions.find(v => v.version === activeVersion.value)
+})
 
-// File lists
-const testDataFiles = ref<FileInfo[]>([])
-const migrationFiles = ref<FileInfo[]>([])
-const loadingTestData = ref(false)
-const loadingMigrations = ref(false)
-
-// Drop indexes
-const newDropIndex = ref('')
-
-// Migrations
-// const newMigration = ref('')
-
-// New file dialogs
-const showNewTestDataDialog = ref(false)
-const showNewMigrationDialog = ref(false)
-const newTestDataFileName = ref('')
-const newMigrationFileName = ref('')
-const newTestDataError = ref<string | null>(null)
-const newMigrationError = ref<string | null>(null)
-const creatingTestData = ref(false)
-const creatingMigration = ref(false)
-
-// Menu states
-const showTestDataMenu = ref(false)
-const showDropIndexMenu = ref(false)
-const showMigrationMenu = ref(false)
-
-// Selected items for choosers
-const selectedTestData = ref<string | null>(null)
-const selectedMigration = ref<string | null>(null)
-
-// Edit mode states
-const editingTitle = ref(false)
-const editingDescription = ref(false)
-const titleField = ref<any>(null)
-const descriptionField = ref<any>(null)
-
-// Load configuration data
+// Methods
 const loadConfiguration = async () => {
   loading.value = true
   error.value = null
   
   try {
     const fileName = route.params.fileName as string
-    const data = await apiService.getConfiguration(fileName)
-    configuration.value = data
+    configuration.value = await apiService.getConfiguration(fileName)
     
-    // Set active version to the first one
-    if (data.versions && data.versions.length > 0) {
-      activeVersion.value = data.versions[0].version
-    }
+         // Set active version to the first one if available
+     if (configuration.value?.versions && configuration.value.versions.length > 0) {
+       activeVersion.value = configuration.value.versions[0].version
+     }
   } catch (err: any) {
     error.value = err.message || 'Failed to load configuration'
     console.error('Failed to load configuration:', err)
@@ -574,264 +199,77 @@ const loadConfiguration = async () => {
   }
 }
 
-// Get current version data
-const getCurrentVersion = (): ConfigurationVersion => {
-  return configuration.value?.versions.find(v => v.version === activeVersion.value) || {
-    version: '',
-    test_data: '',
-    add_indexes: [],
-    drop_indexes: [],
-    migrations: []
-  }
-}
-
-
-
-// Test Data File Management
-const loadTestDataFiles = async () => {
-  loadingTestData.value = true
-  try {
-    const data = await apiService.getTestData()
-    testDataFiles.value = (data || []).map((file: any) => ({
-      name: file.file_name,
-      created_at: file.created_at,
-      updated_at: file.updated_at,
-      size: file.size,
-      _locked: file._locked || false
-    }))
-  } catch (err: any) {
-    console.error('Failed to load test data files:', err)
-  } finally {
-    loadingTestData.value = false
-  }
-}
-
-const selectTestData = (name: string) => {
-  getCurrentVersion().test_data = name
-  selectedTestData.value = name
-  showTestDataMenu.value = false
-  autoSave()
-}
-
-const removeTestData = () => {
-  getCurrentVersion().test_data = ''
-  autoSave()
-}
-
-
-
-// Drop Indexes Management
-const addDropIndex = () => {
-  const name = newDropIndex.value.trim()
-  if (!name) return
-  
-  const currentVersion = getCurrentVersion()
-  if (!currentVersion.drop_indexes.find((idx: { name: string }) => idx.name === name)) {
-    currentVersion.drop_indexes.push({ name })
-    newDropIndex.value = ''
-    showDropIndexMenu.value = false
-    autoSave()
-  }
-}
-
-const removeDropIndex = (name: string) => {
-  const currentVersion = getCurrentVersion()
-  currentVersion.drop_indexes = currentVersion.drop_indexes.filter((idx: { name: string }) => idx.name !== name)
-  autoSave()
-}
-
-// Migrations Management
-// const addMigration = () => {
-//   const name = newMigration.value
-//   if (!name) return
-//   
-//   const currentVersion = getCurrentVersion()
-//   if (!currentVersion.migrations.includes(name)) {
-//     currentVersion.migrations.push(name)
-//     newMigration.value = ''
-//     autoSave()
-//   }
-// }
-
-const removeMigration = (name: string) => {
-  const currentVersion = getCurrentVersion()
-  currentVersion.migrations = currentVersion.migrations.filter((m: string) => m !== name)
-  autoSave()
-}
-
-// Load migration files
-const loadMigrationFiles = async () => {
-  loadingMigrations.value = true
-  try {
-    const data = await apiService.getMigrations()
-    migrationFiles.value = (data || []).map((file: any) => ({
-      name: file.file_name,
-      created_at: file.created_at,
-      updated_at: file.updated_at,
-      size: file.size,
-      _locked: file._locked || false
-    }))
-  } catch (err: any) {
-    console.error('Failed to load migration files:', err)
-  } finally {
-    loadingMigrations.value = false
-  }
-}
-
-const selectMigration = (name: string) => {
-  const currentVersion = getCurrentVersion()
-  if (!currentVersion.migrations.includes(name)) {
-    currentVersion.migrations.push(name)
-    selectedMigration.value = name
-    showMigrationMenu.value = false
-    autoSave()
-  }
-}
-
-const createTestDataFile = async () => {
-  const fileName = newTestDataFileName.value.trim()
-  if (!fileName) return
-  
-  creatingTestData.value = true
-  try {
-    // Create empty test data file
-    await apiService.saveTestDataFile(fileName, [])
-    
-    // Refresh test data files list
-    await loadTestDataFiles()
-    
-    // Set as selected
-    getCurrentVersion().test_data = fileName
-    autoSave()
-    
-    // Close dialog
-    showNewTestDataDialog.value = false
-    newTestDataFileName.value = ''
-    newTestDataError.value = null
-    
-  } catch (err: any) {
-    newTestDataError.value = err.message || 'Failed to create test data file'
-  } finally {
-    creatingTestData.value = false
-  }
-}
-
-const createMigrationFile = async () => {
-  const fileName = newMigrationFileName.value.trim()
-  if (!fileName) return
-  
-  creatingMigration.value = true
-  try {
-    // Create empty migration file
-    await apiService.saveMigration(fileName, [])
-    
-    // Refresh migration files list
-    await loadMigrationFiles()
-    
-    // Add to current version
-    const currentVersion = getCurrentVersion()
-    if (!currentVersion.migrations.includes(fileName)) {
-      currentVersion.migrations.push(fileName)
-      autoSave()
-    }
-    
-    // Close dialog
-    showNewMigrationDialog.value = false
-    newMigrationFileName.value = ''
-    newMigrationError.value = null
-    
-  } catch (err: any) {
-    newMigrationError.value = err.message || 'Failed to create migration file'
-  } finally {
-    creatingMigration.value = false
-  }
-}
-
-// Auto-save functionality
 const autoSave = async () => {
-  if (!configuration.value || configuration.value._locked) return
+  if (!configuration.value) return
   
   saving.value = true
+  error.value = null
+  
   try {
     await apiService.saveConfiguration(configuration.value.file_name, configuration.value)
   } catch (err: any) {
+    error.value = err.message || 'Failed to save configuration'
     console.error('Failed to save configuration:', err)
-    
-    // Handle API errors with event data
-    if (err.type === 'API_ERROR' && err.data) {
-      if (err.data.id && err.data.type && err.data.status) {
-        const { showEvent } = useEvents()
-        showEvent(err.data, 'Save Error', 'Configuration save failed')
-      } else {
-        const { showError } = useEvents()
-        showError(err.message || 'Failed to save configuration', 'Save Error', 'Configuration save failed')
-      }
-    } else {
-      const { showError } = useEvents()
-      showError(err.message || 'Failed to save configuration', 'Save Error', 'Configuration save failed')
-    }
   } finally {
     saving.value = false
   }
 }
 
+const handleTitleChange = async (newTitle: string) => {
+  if (configuration.value) {
+    configuration.value.title = newTitle
+    await autoSave()
+  }
+}
 
+const lockConfiguration = async () => {
+  if (!configuration.value) return
+  
+  try {
+    // Note: Lock API endpoint may not be implemented yet
+    configuration.value._locked = true
+  } catch (err: any) {
+    error.value = err.message || 'Failed to lock configuration'
+    console.error('Failed to lock configuration:', err)
+  }
+}
 
-// Process configuration
+const unlockConfiguration = async () => {
+  if (!configuration.value) return
+  
+  try {
+    // Note: Unlock API endpoint may not be implemented yet
+    configuration.value._locked = false
+    showUnlockDialog.value = false
+  } catch (err: any) {
+    error.value = err.message || 'Failed to unlock configuration'
+    console.error('Failed to unlock configuration:', err)
+  }
+}
+
 const processConfiguration = async () => {
   if (!configuration.value) return
   
   processing.value = true
+  error.value = null
+  
   try {
-    const result = await apiService.processConfiguration(configuration.value.file_name)
-    
-    // Check if the response contains event data (successful processing with events)
-    if (result && result.id && result.type && result.status) {
-      // This is a ConfiguratorEvent from successful processing
-      const { showEvent } = useEvents()
-      showEvent(result, 'Processing Complete', 'Configuration processing completed successfully')
-    }
-    // If no event data, processing completed silently (no popup needed)
-    
+    await apiService.processConfiguration(configuration.value.file_name)
+    // Reload configuration to get updated status
+    await loadConfiguration()
   } catch (err: any) {
+    error.value = err.message || 'Failed to process configuration'
     console.error('Failed to process configuration:', err)
-    
-    // Handle API errors with event data
-    if (err.type === 'API_ERROR' && err.data) {
-      // Check if the error data contains an event
-      if (err.data.id && err.data.type && err.data.status) {
-        // This is a ConfiguratorEvent
-        const { showEvent } = useEvents()
-        showEvent(err.data, 'Processing Error', 'Configuration processing failed')
-      } else {
-        // Generic error
-        const { showError } = useEvents()
-        showError(err.message || 'Failed to process configuration', 'Processing Error', 'Configuration processing failed')
-      }
-    } else {
-      // Generic error
-      const { showError } = useEvents()
-      showError(err.message || 'Failed to process configuration', 'Processing Error', 'Configuration processing failed')
-    }
   } finally {
     processing.value = false
   }
 }
 
-// Download schema functions
 const downloadJsonSchema = async () => {
   if (!configuration.value || !activeVersion.value) return
   
   try {
-    const blob = await apiService.downloadJsonSchema(configuration.value.file_name, activeVersion.value)
-    const url = window.URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `${configuration.value.file_name}_${activeVersion.value}_schema.json`
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
-    window.URL.revokeObjectURL(url)
+    await apiService.downloadJsonSchema(configuration.value.file_name, activeVersion.value)
   } catch (err: any) {
     error.value = err.message || 'Failed to download JSON schema'
     console.error('Failed to download JSON schema:', err)
@@ -842,133 +280,69 @@ const downloadBsonSchema = async () => {
   if (!configuration.value || !activeVersion.value) return
   
   try {
-    const blob = await apiService.downloadBsonSchema(configuration.value.file_name, activeVersion.value)
-    const url = window.URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `${configuration.value.file_name}_${activeVersion.value}_schema.bson`
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
-    window.URL.revokeObjectURL(url)
+    await apiService.downloadBsonSchema(configuration.value.file_name, activeVersion.value)
   } catch (err: any) {
     error.value = err.message || 'Failed to download BSON schema'
     console.error('Failed to download BSON schema:', err)
   }
 }
 
-// Edit mode functions
-const startEditTitle = () => {
-  editingTitle.value = true
-  nextTick(() => {
-    titleField.value.focus()
-  })
+const handleDelete = () => {
+  showDeleteDialog.value = true
 }
 
-const stopEditTitle = () => {
-  editingTitle.value = false
-  autoSave()
+const confirmDelete = async () => {
+  if (!configuration.value) return
+  
+  try {
+    await apiService.deleteConfiguration(configuration.value.file_name)
+    // Navigate back to configurations list
+    window.location.href = '/configurations'
+  } catch (err: any) {
+    error.value = err.message || 'Failed to delete configuration'
+    console.error('Failed to delete configuration:', err)
+  }
 }
 
-const cancelEditTitle = () => {
-  editingTitle.value = false
-  // Revert to original title if needed, or just stop editing
-  // For now, we'll just stop editing
+const cancelDelete = () => {
+  showDeleteDialog.value = false
 }
 
-const startEditDescription = () => {
-  editingDescription.value = true
-  nextTick(() => {
-    descriptionField.value.focus()
-  })
+const confirmUnlock = () => {
+  unlockConfiguration()
 }
 
-const stopEditDescription = () => {
-  editingDescription.value = false
-  autoSave()
+const cancelUnlock = () => {
+  showUnlockDialog.value = false
 }
 
-const cancelEditDescription = () => {
-  editingDescription.value = false
-  // Revert to original description if needed, or just stop editing
-  // For now, we'll just stop editing
+const formatDate = (dateString?: string) => {
+  if (!dateString) return 'Unknown'
+  return new Date(dateString).toLocaleDateString()
 }
-
 
 // Load configuration on mount
 onMounted(() => {
   loadConfiguration()
-  loadTestDataFiles()
-  loadMigrationFiles()
 })
-</script> 
+</script>
 
 <style scoped>
-.clickable-title {
-  cursor: pointer;
-  transition: background-color 0.2s ease;
+.configuration-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
-.clickable-title:hover {
-  background-color: rgba(46, 125, 50, 0.04);
-  border-radius: 4px;
-  padding: 4px;
-  margin: -4px;
+.version-tabs {
+  width: 100%;
 }
 
-.clickable-description {
-  cursor: pointer;
-  transition: background-color 0.2s ease;
+.version-content {
+  padding: 16px 0;
 }
 
-.clickable-description:hover {
-  background-color: rgba(46, 125, 50, 0.04);
-  border-radius: 4px;
-  padding: 4px;
-  margin: -4px;
-}
-
-.editable-field {
-  cursor: text;
-}
-
-.editable-field :deep(.v-field__input) {
-  padding: 0;
-  min-height: auto;
-  font-size: inherit;
-  font-weight: inherit;
-  color: inherit;
-  line-height: inherit;
-}
-
-.editable-field :deep(.v-field__outline) {
-  display: none;
-}
-
-.editable-field :deep(.v-field__field) {
-  padding: 0;
-}
-
-.editable-field :deep(.v-input__control) {
-  min-height: auto;
-}
-
-.editable-field :deep(.v-field__input) .v-field__input__wrapper {
-  padding: 0;
-}
-
-.editable-field:focus-within {
-  background-color: rgba(46, 125, 50, 0.04);
-  border-radius: 4px;
-  padding: 4px;
-  margin: -4px;
-}
-
-/* Ensure the text looks exactly like the original when not focused */
-.editable-field:not(:focus-within) :deep(.v-field__input) {
-  color: inherit;
-  font-size: inherit;
-  font-weight: inherit;
-  line-height: inherit;
+.version-details {
+  margin-top: 16px;
 }
 </style> 
