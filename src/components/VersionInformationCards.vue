@@ -200,10 +200,18 @@ const loadMigrationFiles = async () => {
 
 // Add/Remove methods
 const addDropIndex = () => {
+  // Prompt for index name to drop
+  const indexName = prompt('Enter index name to drop:')
+  if (!indexName || !indexName.trim()) {
+    return // User cancelled or entered empty name
+  }
+  
   if (!props.version.drop_indexes) {
     props.version.drop_indexes = []
   }
-  props.version.drop_indexes.push('')
+  
+  // Add the index name to drop
+  props.version.drop_indexes.push(indexName.trim())
   props.onUpdate()
 }
 
