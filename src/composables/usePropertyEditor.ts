@@ -88,6 +88,15 @@ export function usePropertyEditor(
     
     if (type !== 'array' && type !== 'list') {
       delete property.items
+    } else {
+      // If changing to array, ensure items is set
+      if (!property.items) {
+        property.items = {
+          type: 'word',
+          description: '',
+          required: false
+        }
+      }
     }
     
     if (type !== 'enum' && type !== 'enum_array') {

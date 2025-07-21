@@ -18,6 +18,7 @@ import ObjectPropertyEditor from './ObjectPropertyEditor.vue'
 import ArrayPropertyEditor from './EnumArrayPropertyEditor.vue'
 import EnumPropertyEditor from './EnumPropertyEditor.vue'
 import CustomPropertyEditor from './CustomPropertyEditor.vue'
+import ArrayOfCustomPropertyEditor from './ArrayOfCustomPropertyEditor.vue'
 import { type Property } from '@/composables/usePropertyEditor'
 
 const props = defineProps<{
@@ -35,17 +36,20 @@ const emit = defineEmits<{
 
 const selectedComponent = computed(() => {
   const type = property.type
-  switch (type) {
-    case 'object':
-      return ObjectPropertyEditor
-    case 'array':
-      return ArrayPropertyEditor
-    case 'enum':
-    case 'enum_array':
-      return EnumPropertyEditor
-    default:
-      return CustomPropertyEditor
+  if (type === 'object') return ObjectPropertyEditor
+  if (type === 'array') {
+    // If items.type is 'object', use ArrayOfObjectPropertyEditor (to be implemented in Goal 6)
+    // If items.type is 'array', use ArrayOfArrayPropertyEditor (to be implemented in Goal 5)
+    // If items.type is 'enum' or 'enum_array', use EnumArrayPropertyEditor
+    // Otherwise, use ArrayOfCustomPropertyEditor
+    const itemsType = property.items?.type
+    if (itemsType === 'object') return ObjectPropertyEditor // placeholder for ArrayOfObjectPropertyEditor
+    if (itemsType === 'array') return ObjectPropertyEditor // placeholder for ArrayOfArrayPropertyEditor
+    if (itemsType === 'enum' || itemsType === 'enum_array') return ArrayPropertyEditor
+    return ArrayOfCustomPropertyEditor
   }
+  if (type === 'enum' || type === 'enum_array') return EnumPropertyEditor
+  return CustomPropertyEditor
 })
 
 function handlePropertyChange(updatedProperty: Property) {

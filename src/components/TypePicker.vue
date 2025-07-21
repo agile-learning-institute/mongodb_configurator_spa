@@ -65,6 +65,7 @@ interface Props {
   error?: string
   density?: 'default' | 'compact' | 'comfortable'
   excludeType?: string // Current type file name to exclude
+  excludeTypeList?: string[] // Additional types to exclude
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -72,7 +73,8 @@ const props = withDefaults(defineProps<Props>(), {
   disabled: false,
   error: '',
   density: 'default',
-  excludeType: ''
+  excludeType: '',
+  excludeTypeList: () => []
 })
 
 const emit = defineEmits<{
@@ -120,8 +122,10 @@ const allTypes = computed(() => [
 
 const filteredTypes = computed(() => {
   const excludeName = props.excludeType.replace('.yaml', '')
+  const excludeList = props.excludeTypeList || []
   return allTypes.value.filter(type => 
-    type !== excludeName && 
+    type !== excludeName &&
+    !excludeList.includes(type) &&
     type !== 'pick a type' &&
     type.toLowerCase().includes(searchQuery.value.toLowerCase())
   )
