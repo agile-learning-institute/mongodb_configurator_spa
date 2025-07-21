@@ -22,22 +22,36 @@
   >
     <template #default="{ data: dictionary }">
       <!-- Dictionary Content -->
-      <BaseCard 
-        title="Dictionary Properties"
-        icon="mdi-shape"
-        :is-secondary="false"
-      >
-        <PropertyEditor
-          :property="dictionary.root"
-          property-name="root"
-          :disabled="dictionary._locked"
-          :exclude-type="dictionary.file_name"
-          :top-level="true"
-          :top-level-name="dictionary.file_name.replace('.yaml', '')"
-          type-picker-component="DictionaryTypePicker"
-          @change="handleRootPropertyChange"
-        />
-      </BaseCard>
+      <div v-if="dictionary">
+        <BaseCard 
+          title="Dictionary Properties"
+          icon="mdi-shape"
+          :is-secondary="false"
+        >
+          <div v-if="dictionary.root" class="pa-4">
+            <PropertyEditor
+              :property="dictionary.root"
+              property-name="root"
+              :disabled="dictionary._locked"
+              :exclude-type="dictionary.file_name"
+              :top-level="true"
+              :top-level-name="dictionary.file_name.replace('.yaml', '')"
+              type-picker-component="DictionaryTypePicker"
+              @change="handleRootPropertyChange"
+            />
+          </div>
+          <div v-else class="pa-4">
+            <v-alert type="error">
+              No root property found in dictionary
+            </v-alert>
+          </div>
+        </BaseCard>
+      </div>
+      <div v-else>
+        <v-alert type="warning">
+          No dictionary data available
+        </v-alert>
+      </div>
     </template>
   </DetailPageLayout>
 </template>
@@ -90,7 +104,9 @@ const loadDictionary = async () => {
   
   try {
     const fileName = route.params.fileName as string
+    console.log('Loading dictionary:', fileName)
     dictionary.value = await apiService.getDictionary(fileName)
+    console.log('Dictionary loaded:', dictionary.value)
   } catch (err: any) {
     error.value = err.message || 'Failed to load dictionary'
     console.error('Failed to load dictionary:', err)
@@ -185,6 +201,7 @@ const cancelUnlock = () => {
 
 // Load dictionary on mount
 onMounted(() => {
+  console.log('DictionaryDetailPage mounted')
   loadDictionary()
 })
 </script>
