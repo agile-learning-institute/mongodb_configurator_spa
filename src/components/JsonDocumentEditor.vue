@@ -117,7 +117,7 @@ const emit = defineEmits<{
 const jsonText = ref('')
 const jsonError = ref('')
 const isUpdating = ref(false)
-const collapsed = ref(false)
+const collapsed = ref(true)
 
 // Computed properties
 const hasValidJson = computed(() => !jsonError.value && jsonText.value.trim() !== '')
