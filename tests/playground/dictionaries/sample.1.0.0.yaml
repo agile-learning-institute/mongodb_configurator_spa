@@ -2,5 +2,7 @@ file_name: sample.1.0.0.yaml
 _locked: false
 root:
   description: A simple collection for testing
-  type: sentence
+  type: enum_array
   required: true
+  enums:
+  - default_status

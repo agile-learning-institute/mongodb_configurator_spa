@@ -92,7 +92,8 @@ const primitiveTypes = [
   'breadcrumb', 'appointment'
 ]
 
-const structuralTypes = ['object', 'array']
+// Add enum and enum_array to the list of structural types
+const structuralTypes = ['object', 'array', 'enum', 'enum_array']
 
 // Load available types from API
 const loadTypes = async () => {
