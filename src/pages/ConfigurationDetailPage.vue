@@ -1,26 +1,39 @@
 <template>
-  <DetailPageLayout
-    :loading="loading"
-    :error="error"
-    :data="configuration"
-    :title="configuration?.title || ''"
-    :file-name="configuration?.file_name || ''"
-    file-type="Configuration"
-    :locked="configuration?._locked || false"
-    :disabled="configuration?._locked || false"
-    v-model:show-delete-dialog="showDeleteDialog"
-    v-model:show-unlock-dialog="showUnlockDialog"
-    @retry="loadConfiguration"
-    @lock="lockConfiguration"
-    @unlock="unlockConfiguration"
-    @delete="handleDelete"
-    @title-change="handleTitleChange"
-    @confirm-delete="confirmDelete"
-    @cancel-delete="cancelDelete"
-    @confirm-unlock="confirmUnlock"
-    @cancel-unlock="cancelUnlock"
-  >
-    <template #default="{ data: configuration }">
+  <v-container>
+    <!-- Loading state -->
+    <div v-if="loading" class="d-flex justify-center align-center pa-8">
+      <v-progress-circular indeterminate size="64"></v-progress-circular>
+    </div>
+
+    <!-- Error state -->
+    <div v-else-if="error" class="pa-4">
+      <v-alert type="error">
+        {{ error }}
+        <v-btn @click="loadConfiguration" class="mt-2">Retry</v-btn>
+      </v-alert>
+    </div>
+
+    <!-- Content -->
+    <div v-else-if="configuration">
+      <!-- File Header -->
+      <div class="d-flex align-center justify-space-between mb-4">
+        <div>
+          <h1 class="text-h4">{{ configuration.title }}</h1>
+          <p class="text-body-2 text-medium-emphasis">{{ configuration.file_name }}</p>
+        </div>
+        <div class="d-flex gap-2">
+          <v-btn
+            color="secondary"
+            @click="processAllVersions"
+            :loading="processing"
+            :disabled="hasAnyVersionLocked"
+          >
+            <v-icon start>mdi-cog</v-icon>
+            Process All
+          </v-btn>
+        </div>
+      </div>
+
       <!-- Configuration Content -->
       <div class="configuration-content">
         <!-- Description -->
@@ -35,7 +48,6 @@
             placeholder="Enter configuration description..."
             variant="outlined"
             density="compact"
-            :disabled="configuration._locked"
             @update:model-value="autoSave"
           />
         </BaseCard>
@@ -53,112 +65,111 @@
                 :key="version.version"
                 :value="version.version"
               >
-                {{ version.version }}
+                <div class="d-flex align-center">
+                  <span>{{ version.version }}</span>
+                  <v-icon 
+                    v-if="version._locked" 
+                    size="small" 
+                    color="warning" 
+                    class="ml-1"
+                  >
+                    mdi-lock
+                  </v-icon>
+                </div>
               </v-tab>
             </v-tabs>
 
-            <div v-if="activeVersion" class="version-content">
-              <div class="d-flex align-center mb-4">
-                <h3 class="text-h6 mr-4">Version {{ activeVersion }}</h3>
-                <v-spacer />
-                <v-btn
-                  color="primary"
-                  variant="outlined"
-                  size="small"
-                  @click="downloadJsonSchema"
-                  :disabled="configuration._locked"
-                >
-                  <v-icon start size="small">mdi-download</v-icon>
-                  JSON Schema
-                </v-btn>
-                <v-btn
-                  color="primary"
-                  variant="outlined"
-                  size="small"
-                  class="ml-2"
-                  @click="downloadBsonSchema"
-                  :disabled="configuration._locked"
-                >
-                  <v-icon start size="small">mdi-download</v-icon>
-                  BSON Schema
-                </v-btn>
-              </div>
+            <div v-if="activeVersion && activeVersionData" class="version-content">
+              <!-- Version Configuration Component -->
+              <VersionConfiguration
+                :version="activeVersionData"
+                :collection-name="configuration.file_name"
+                @render-json="downloadJsonSchema"
+                @render-bson="downloadBsonSchema"
+                @render-openapi="downloadOpenApi"
+              />
 
-              <!-- Version details -->
-              <div class="version-details">
-                <p class="text-body-2 text-medium-emphasis">
-                  Created: {{ formatDate(activeVersionData?.created_at) }}
-                </p>
-                <p class="text-body-2 text-medium-emphasis">
-                  Status: {{ activeVersionData?.status || 'Unknown' }}
-                </p>
+              <!-- Version-specific actions -->
+              <div class="version-actions mt-4">
+                <v-divider class="mb-4" />
+                
+                <div class="d-flex align-center justify-space-between">
+                  <div class="d-flex align-center">
+                    <h4 class="text-h6 mr-4">Version Actions</h4>
+                    <v-chip
+                      v-if="activeVersionData._locked"
+                      color="warning"
+                      size="small"
+                    >
+                      <v-icon start size="small">mdi-lock</v-icon>
+                      Locked
+                    </v-chip>
+                  </div>
+                  
+                  <div class="d-flex gap-2">
+                    <v-btn
+                      v-if="!activeVersionData._locked"
+                      color="warning"
+                      variant="outlined"
+                      size="small"
+                      @click="lockVersion"
+                    >
+                      <v-icon start size="small">mdi-lock</v-icon>
+                      Lock Version
+                    </v-btn>
+                    
+                    <v-btn
+                      v-if="activeVersionData._locked"
+                      color="success"
+                      variant="outlined"
+                      size="small"
+                      @click="unlockVersion"
+                    >
+                      <v-icon start size="small">mdi-lock-open</v-icon>
+                      Unlock Version
+                    </v-btn>
+                    
+                    <v-btn
+                      color="secondary"
+                      size="small"
+                      @click="processVersion"
+                      :loading="processing"
+                      :disabled="activeVersionData._locked"
+                    >
+                      <v-icon start size="small">mdi-cog</v-icon>
+                      Process Version
+                    </v-btn>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </BaseCard>
-
-        <!-- Processing Status -->
-        <BaseCard 
-          title="Processing"
-          icon="mdi-cog"
-          :is-secondary="true"
-          compact
-        >
-          <div class="d-flex align-center">
-            <v-btn
-              color="secondary"
-              @click="processConfiguration"
-              :loading="processing"
-              :disabled="configuration._locked"
-            >
-              <v-icon start>mdi-cog</v-icon>
-              Process Configuration
-            </v-btn>
-            <v-spacer />
-            <v-chip
-              v-if="processing"
-              color="info"
-              size="small"
-            >
-              Processing...
-            </v-chip>
-          </div>
-        </BaseCard>
       </div>
-    </template>
-
-    <template #header-actions>
-      <v-btn
-        color="secondary"
-        @click="processConfiguration"
-        :loading="processing"
-        :disabled="configuration?._locked"
-      >
-        <v-icon start>mdi-cog</v-icon>
-        Process
-      </v-btn>
-    </template>
-  </DetailPageLayout>
+    </div>
+  </v-container>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { apiService } from '@/utils/api'
-import DetailPageLayout from '@/components/DetailPageLayout.vue'
 import BaseCard from '@/components/BaseCard.vue'
+import VersionConfiguration from '@/components/VersionConfiguration.vue'
 
 interface ConfigurationVersion {
   version: string
-  created_at: string
-  status: string
+  _locked: boolean
+  test_data?: string
+  add_indexes?: any[]
+  drop_indexes?: string[]
+  migrations?: string[]
 }
 
 interface Configuration {
   file_name: string
   title: string
   description: string
-  _locked: boolean
   versions: ConfigurationVersion[]
 }
 
@@ -168,14 +179,17 @@ const saving = ref(false)
 const processing = ref(false)
 const error = ref<string | null>(null)
 const configuration = ref<Configuration | null>(null)
-const showDeleteDialog = ref(false)
-const showUnlockDialog = ref(false)
 const activeVersion = ref<string>('')
 
 // Computed properties
 const activeVersionData = computed(() => {
   if (!configuration.value || !activeVersion.value) return null
   return configuration.value.versions.find(v => v.version === activeVersion.value)
+})
+
+const hasAnyVersionLocked = computed(() => {
+  if (!configuration.value) return false
+  return configuration.value.versions.some(v => v._locked)
 })
 
 // Methods
@@ -185,12 +199,15 @@ const loadConfiguration = async () => {
   
   try {
     const fileName = route.params.fileName as string
+    console.log('Loading configuration for:', fileName)
     configuration.value = await apiService.getConfiguration(fileName)
+    console.log('Configuration loaded:', configuration.value)
     
-         // Set active version to the first one if available
-     if (configuration.value?.versions && configuration.value.versions.length > 0) {
-       activeVersion.value = configuration.value.versions[0].version
-     }
+    // Set active version to the first one if available
+    if (configuration.value?.versions && configuration.value.versions.length > 0) {
+      activeVersion.value = configuration.value.versions[0].version
+      console.log('Active version set to:', activeVersion.value)
+    }
   } catch (err: any) {
     error.value = err.message || 'Failed to load configuration'
     console.error('Failed to load configuration:', err)
@@ -215,39 +232,52 @@ const autoSave = async () => {
   }
 }
 
-const handleTitleChange = async (newTitle: string) => {
-  if (configuration.value) {
-    configuration.value.title = newTitle
+const lockVersion = async () => {
+  if (!activeVersionData.value) return
+  
+  try {
+    // Note: This would need to be implemented in the API
+    activeVersionData.value._locked = true
     await autoSave()
+  } catch (err: any) {
+    error.value = err.message || 'Failed to lock version'
+    console.error('Failed to lock version:', err)
   }
 }
 
-const lockConfiguration = async () => {
-  if (!configuration.value) return
+const unlockVersion = async () => {
+  if (!activeVersionData.value) return
   
   try {
-    // Note: Lock API endpoint may not be implemented yet
-    configuration.value._locked = true
+    // Note: This would need to be implemented in the API
+    activeVersionData.value._locked = false
+    await autoSave()
   } catch (err: any) {
-    error.value = err.message || 'Failed to lock configuration'
-    console.error('Failed to lock configuration:', err)
+    error.value = err.message || 'Failed to unlock version'
+    console.error('Failed to unlock version:', err)
   }
 }
 
-const unlockConfiguration = async () => {
-  if (!configuration.value) return
+const processVersion = async () => {
+  if (!configuration.value || !activeVersion.value) return
+  
+  processing.value = true
+  error.value = null
   
   try {
-    // Note: Unlock API endpoint may not be implemented yet
-    configuration.value._locked = false
-    showUnlockDialog.value = false
+    // Note: This would need to be implemented in the API to process specific version
+    await apiService.processConfiguration(configuration.value.file_name)
+    // Reload configuration to get updated status
+    await loadConfiguration()
   } catch (err: any) {
-    error.value = err.message || 'Failed to unlock configuration'
-    console.error('Failed to unlock configuration:', err)
+    error.value = err.message || 'Failed to process version'
+    console.error('Failed to process version:', err)
+  } finally {
+    processing.value = false
   }
 }
 
-const processConfiguration = async () => {
+const processAllVersions = async () => {
   if (!configuration.value) return
   
   processing.value = true
@@ -265,60 +295,38 @@ const processConfiguration = async () => {
   }
 }
 
-const downloadJsonSchema = async () => {
-  if (!configuration.value || !activeVersion.value) return
+const downloadJsonSchema = async (version: string) => {
+  if (!configuration.value) return
   
   try {
-    await apiService.downloadJsonSchema(configuration.value.file_name, activeVersion.value)
+    await apiService.downloadJsonSchema(configuration.value.file_name, version)
   } catch (err: any) {
     error.value = err.message || 'Failed to download JSON schema'
     console.error('Failed to download JSON schema:', err)
   }
 }
 
-const downloadBsonSchema = async () => {
-  if (!configuration.value || !activeVersion.value) return
+const downloadBsonSchema = async (version: string) => {
+  if (!configuration.value) return
   
   try {
-    await apiService.downloadBsonSchema(configuration.value.file_name, activeVersion.value)
+    await apiService.downloadBsonSchema(configuration.value.file_name, version)
   } catch (err: any) {
     error.value = err.message || 'Failed to download BSON schema'
     console.error('Failed to download BSON schema:', err)
   }
 }
 
-const handleDelete = () => {
-  showDeleteDialog.value = true
-}
-
-const confirmDelete = async () => {
+const downloadOpenApi = async (_version: string) => {
   if (!configuration.value) return
   
   try {
-    await apiService.deleteConfiguration(configuration.value.file_name)
-    // Navigate back to configurations list
-    window.location.href = '/configurations'
+    // Note: OpenAPI rendering not implemented in API yet
+    error.value = 'OpenAPI schema rendering not implemented yet'
   } catch (err: any) {
-    error.value = err.message || 'Failed to delete configuration'
-    console.error('Failed to delete configuration:', err)
+    error.value = err.message || 'Failed to download OpenAPI schema'
+    console.error('Failed to download OpenAPI schema:', err)
   }
-}
-
-const cancelDelete = () => {
-  showDeleteDialog.value = false
-}
-
-const confirmUnlock = () => {
-  unlockConfiguration()
-}
-
-const cancelUnlock = () => {
-  showUnlockDialog.value = false
-}
-
-const formatDate = (dateString?: string) => {
-  if (!dateString) return 'Unknown'
-  return new Date(dateString).toLocaleDateString()
 }
 
 // Load configuration on mount
@@ -342,7 +350,8 @@ onMounted(() => {
   padding: 16px 0;
 }
 
-.version-details {
-  margin-top: 16px;
+.version-actions {
+  border-top: 1px solid rgba(0, 0, 0, 0.12);
+  padding-top: 16px;
 }
 </style> 

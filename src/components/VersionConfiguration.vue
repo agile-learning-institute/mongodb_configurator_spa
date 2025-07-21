@@ -32,9 +32,9 @@
           <span>{{ version.drop_indexes.length }} index(es)</span>
         </div>
         
-        <div v-if="version.aggregations && version.aggregations.length > 0" class="d-flex align-center mb-2">
-          <span class="text-subtitle-2 font-weight-bold mr-2">Aggregations:</span>
-          <span>{{ version.aggregations.length }} aggregation(s)</span>
+        <div v-if="version.migrations && version.migrations.length > 0" class="d-flex align-center mb-2">
+          <span class="text-subtitle-2 font-weight-bold mr-2">Migrations:</span>
+          <span>{{ version.migrations.length }} migration(s)</span>
         </div>
       </div>
       
@@ -80,7 +80,7 @@ interface VersionConfig {
   test_data?: string
   add_indexes?: any[]
   drop_indexes?: string[]
-  aggregations?: any[]
+  migrations?: string[]
 }
 
 interface Props {
