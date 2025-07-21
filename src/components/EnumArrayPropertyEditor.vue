@@ -7,6 +7,17 @@
       :icon="getPropertyIcon()"
       :is-secondary="true"
     >
+      <template #header-actions>
+        <!-- Enum Picker in Header -->
+        <EnumPicker
+          :model-value="property.enums?.[0] || ''"
+          label="Select Enum"
+          density="compact"
+          :disabled="disabled"
+          @update:model-value="handleEnumChange"
+        />
+      </template>
+      
       <!-- Property Content -->
       <div class="property-content">
         <!-- Property Name -->
@@ -115,17 +126,6 @@
           </div>
         </div>
         
-        <!-- Enum Selection -->
-        <div class="enum-selection">
-          <EnumPicker
-            :model-value="property.enums?.[0] || ''"
-            label="Select Enum"
-            density="compact"
-            :disabled="disabled"
-            @update:model-value="handleEnumChange"
-          />
-        </div>
-        
         <!-- Array Controls -->
         <div class="array-controls mt-4">
           <v-card variant="outlined" class="pa-3">
@@ -187,6 +187,17 @@
           />
         </div>
         
+        <!-- Enum Picker -->
+        <div class="enum-picker mr-2">
+          <EnumPicker
+            :model-value="property.enums?.[0] || ''"
+            label="Select Enum"
+            density="compact"
+            :disabled="disabled"
+            @update:model-value="handleEnumChange"
+          />
+        </div>
+        
         <!-- Required Icon -->
         <v-tooltip 
           v-if="canBeRequired" 
@@ -213,17 +224,6 @@
           <span>Required</span>
         </v-tooltip>
       </div>
-    </div>
-    
-    <!-- Enum Selection for top-level -->
-    <div v-if="props.topLevel" class="enum-selection mt-4">
-      <EnumPicker
-        :model-value="property.enums?.[0] || ''"
-        label="Select Enum"
-        density="compact"
-        :disabled="disabled"
-        @update:model-value="handleEnumChange"
-      />
     </div>
     
     <!-- Array Controls for top-level -->
