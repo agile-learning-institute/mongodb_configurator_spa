@@ -79,7 +79,7 @@
             
             <!-- Add Property Button -->
             <v-btn
-              v-if="dictionary.root && !dictionary._locked"
+              v-if="dictionary.root && dictionary.root.type === 'object' && !dictionary._locked"
               color="primary"
               variant="outlined"
               size="small"
@@ -169,30 +169,16 @@
             </v-tooltip>
           </template>
           
-          <div v-if="dictionary.root && dictionary.root.properties" class="pa-4">
-            <!-- List of Property Editors -->
-            <div v-for="(property, propertyName) in dictionary.root.properties" :key="propertyName" class="mb-4">
-              <PropertyEditorFactory
-                :property="property"
-                :property-name="propertyName"
-                :disabled="dictionary._locked"
-                :exclude-type="dictionary.file_name"
-                :top-level="false"
-                @change="(updatedProperty) => handlePropertyChange(propertyName, updatedProperty)"
-              />
-            </div>
-            
-            <!-- Empty state -->
-            <div v-if="Object.keys(dictionary.root.properties).length === 0" class="text-center pa-8">
-              <v-icon size="48" color="grey-lighten-1">mdi-shape-outline</v-icon>
-              <p class="text-body-1 text-medium-emphasis mt-2">No properties defined yet</p>
-              <p class="text-caption text-medium-emphasis">Click "Add Property" to get started</p>
-            </div>
-          </div>
-          <div v-else class="pa-4">
-            <v-alert type="error">
-              No root property found in dictionary
-            </v-alert>
+          <div v-if="dictionary.root" class="pa-4">
+            <PropertyEditorFactory
+              :key="'root-' + dictionary.root.type"
+              :property="dictionary.root"
+              property-name="root"
+              :disabled="dictionary._locked"
+              :exclude-type="dictionary.file_name"
+              :top-level="true"
+              @change="handleRootPropertyChange"
+            />
           </div>
         </BaseCard>
       </div>
@@ -303,7 +289,11 @@ const autoSave = async () => {
   error.value = null
   
   try {
+    // Save the dictionary
     await apiService.saveDictionary(dictionary.value.file_name, dictionary.value)
+    // Reload the fresh data from the API
+    const freshData = await apiService.getDictionary(dictionary.value.file_name)
+    dictionary.value = freshData
   } catch (err: any) {
     error.value = err.message || 'Failed to save dictionary'
     console.error('Failed to save dictionary:', err)
@@ -320,8 +310,19 @@ const handleRootPropertyChange = (updatedProperty: DictionaryProperty) => {
 }
 
 const handlePropertyChange = (propertyName: string, updatedProperty: DictionaryProperty) => {
+  console.log('DictionaryDetailPage: handlePropertyChange called')
+  console.log('DictionaryDetailPage: propertyName =', propertyName)
+  console.log('DictionaryDetailPage: updatedProperty =', updatedProperty)
+  console.log('DictionaryDetailPage: updatedProperty.type =', updatedProperty.type)
+  
   if (dictionary.value?.root?.properties) {
-    dictionary.value.root.properties[propertyName] = updatedProperty
+    // Replace the properties object to force Vue reactivity
+    dictionary.value.root.properties = {
+      ...dictionary.value.root.properties,
+      [propertyName]: updatedProperty
+    }
+    console.log('DictionaryDetailPage: property updated in dictionary')
+    console.log('DictionaryDetailPage: dictionary property type =', dictionary.value.root.properties[propertyName].type)
     autoSave()
   }
 }

@@ -1,10 +1,21 @@
 <template>
-  <component 
-    :is="getPropertyEditorComponent(property.type)"
-    v-bind="editorProps"
+  <component
+    v-if="props.property && props.property.type"
+    :is="selectedComponent"
+    :property="props.property"
+    :property-name="props.propertyName"
+    :disabled="props.disabled"
+    :exclude-type="props.excludeType"
+    :top-level="props.topLevel"
+    :top-level-name="props.topLevelName"
+    :hide-top-level-row="props.hideTopLevelRow"
+    :type-picker-component="props.typePickerComponent"
     @change="handlePropertyChange"
     @delete="handlePropertyDelete"
   />
+  <div v-else>
+    <v-progress-circular indeterminate size="24" color="primary" />
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -41,32 +52,27 @@ const emit = defineEmits<{
   delete: []
 }>()
 
-// Computed props to pass to the selected editor
-const editorProps = computed(() => ({
-  property: props.property,
-  propertyName: props.propertyName,
-  disabled: props.disabled,
-  excludeType: props.excludeType,
-  topLevel: props.topLevel,
-  topLevelName: props.topLevelName,
-  hideTopLevelRow: props.hideTopLevelRow,
-  typePickerComponent: props.typePickerComponent
-}))
-
-// Factory function to get the appropriate editor component
-const getPropertyEditorComponent = (type?: string) => {
+// Computed property to make the component reactive to property type changes
+const selectedComponent = computed(() => {
+  const type = props.property.type
+  console.log('PropertyEditorFactory: property type =', type)
+  
   switch (type) {
     case 'object':
+      console.log('PropertyEditorFactory: returning ObjectPropertyEditor')
       return ObjectPropertyEditor
     case 'enum':
+      console.log('PropertyEditorFactory: returning EnumPropertyEditor')
       return EnumPropertyEditor
     case 'enum_array':
+      console.log('PropertyEditorFactory: returning EnumArrayPropertyEditor')
       return EnumArrayPropertyEditor
     default:
+      console.log('PropertyEditorFactory: falling back to PropertyEditor')
       // Fallback to the original PropertyEditor for other types
       return PropertyEditor
   }
-}
+})
 
 // Event handlers
 const handlePropertyChange = (updatedProperty: Property) => {
