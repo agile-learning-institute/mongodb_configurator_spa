@@ -201,14 +201,11 @@ const loadConfiguration = async () => {
   
   try {
     const fileName = route.params.fileName as string
-    console.log('Loading configuration for:', fileName)
     configuration.value = await apiService.getConfiguration(fileName)
-    console.log('Configuration loaded:', configuration.value)
     
     // Set active version to the first one if available
     if (configuration.value?.versions && configuration.value.versions.length > 0) {
       activeVersion.value = configuration.value.versions[0].version
-      console.log('Active version set to:', activeVersion.value)
     }
   } catch (err: any) {
     error.value = err.message || 'Failed to load configuration'

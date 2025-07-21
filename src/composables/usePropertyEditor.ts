@@ -4,13 +4,14 @@ export interface Property {
   description: string
   type?: string
   required?: boolean
-  additionalProperties?: boolean
+  additionalProperties?: boolean // legacy/camelCase
+  additional_properties?: boolean // snake_case, matches openapi spec
   items?: Property
   properties?: Record<string, Property>
   schema?: any
   json_type?: any
   bson_type?: any
-  enums?: string[]
+  enums?: string // was string[], now a single string for enum name
   oneOf?: Record<string, any>
 }
 
@@ -88,6 +89,28 @@ export function usePropertyEditor(
     
     if (type !== 'array' && type !== 'list') {
       delete property.items
+    } else {
+      // If changing to array, ensure items is set
+      if (!property.items) {
+        property.items = {
+          type: 'word',
+          description: '',
+          required: false
+        }
+      }
+      // If items.type is 'array', replace items with a new array structure
+      if (property.items.type === 'array') {
+        property.items = {
+          type: 'array',
+          items: {
+            type: 'word',
+            description: '',
+            required: false
+          },
+          description: '',
+          required: false
+        }
+      }
     }
     
     if (type !== 'enum' && type !== 'enum_array') {

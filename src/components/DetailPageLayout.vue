@@ -15,6 +15,10 @@
 
     <!-- Content -->
     <div v-else-if="data">
+      <!-- Debug info -->
+      <div v-if="false" class="pa-2 bg-grey-lighten-4">
+        <pre>{{ JSON.stringify(data, null, 2) }}</pre>
+      </div>
       <!-- File Header -->
       <FileHeader
         :title="title"
