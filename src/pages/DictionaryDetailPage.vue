@@ -172,7 +172,7 @@
           <div v-if="dictionary.root && dictionary.root.properties" class="pa-4">
             <!-- List of Property Editors -->
             <div v-for="(property, propertyName) in dictionary.root.properties" :key="propertyName" class="mb-4">
-              <PropertyEditor
+              <PropertyEditorFactory
                 :property="property"
                 :property-name="propertyName"
                 :disabled="dictionary._locked"
@@ -242,7 +242,7 @@ import { ref, onMounted, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { apiService } from '@/utils/api'
 import BaseCard from '@/components/BaseCard.vue'
-import PropertyEditor from '@/components/PropertyEditor.vue'
+import PropertyEditorFactory from '@/components/PropertyEditorFactory.vue'
 import DictionaryTypePicker from '@/components/DictionaryTypePicker.vue'
 
 
