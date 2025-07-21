@@ -88,6 +88,85 @@
               <v-icon start size="small">mdi-plus</v-icon>
               Add Property
             </v-btn>
+            
+            <!-- Action Icons -->
+            <!-- Required Icon -->
+            <v-tooltip 
+              v-if="dictionary.root && canBeRequired" 
+              location="top" 
+              class="tooltip-dark"
+              :open-delay="0"
+              :close-delay="0"
+              theme="dark"
+            >
+              <template v-slot:activator="{ props }">
+                <v-btn
+                  icon
+                  size="x-small"
+                  variant="text"
+                  :color="dictionary.root.required ? 'primary' : 'grey'"
+                  :disabled="dictionary._locked"
+                  v-bind="props"
+                  @click="dictionary.root.required = !dictionary.root.required; handleRootPropertyChange(dictionary.root)"
+                  class="pa-0 ma-0 ml-2"
+                >
+                  <v-icon size="16">mdi-star</v-icon>
+                </v-btn>
+              </template>
+              <span>Required</span>
+            </v-tooltip>
+            
+            <!-- Additional Properties Icon -->
+            <v-tooltip 
+              v-if="dictionary.root && canHaveAdditionalProperties" 
+              location="top" 
+              class="tooltip-dark"
+              :open-delay="0"
+              :close-delay="0"
+              theme="dark"
+            >
+              <template v-slot:activator="{ props }">
+                <v-btn
+                  icon
+                  size="x-small"
+                  variant="text"
+                  :color="dictionary.root.additionalProperties ? 'primary' : 'grey'"
+                  :disabled="dictionary._locked"
+                  v-bind="props"
+                  @click="dictionary.root.additionalProperties = !dictionary.root.additionalProperties; handleRootPropertyChange(dictionary.root)"
+                  class="pa-0 ma-0 ml-2"
+                >
+                  <v-icon size="16">mdi-plus-circle</v-icon>
+                </v-btn>
+              </template>
+              <span>Additional Properties</span>
+            </v-tooltip>
+            
+            <!-- One Of Icon -->
+            <v-tooltip 
+              v-if="dictionary.root && canHaveOneOf" 
+              location="top" 
+              class="tooltip-dark"
+              :open-delay="0"
+              :close-delay="0"
+              theme="dark"
+            >
+              <template v-slot:activator="{ props }">
+                <v-btn
+                  icon
+                  size="x-small"
+                  variant="text"
+                  :color="dictionary.root.oneOf && Object.keys(dictionary.root.oneOf).length > 0 ? 'primary' : 'grey'"
+                  :disabled="dictionary._locked"
+                  v-bind="props"
+                  @click="toggleOneOf"
+                  class="pa-0 ma-0 ml-2"
+                >
+                  <v-icon size="16">mdi-format-list-bulleted</v-icon>
+                </v-btn>
+              </template>
+              <span>One Of</span>
+            </v-tooltip>
           </template>
           
           <div v-if="dictionary.root" class="pa-4">
@@ -151,12 +230,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { apiService } from '@/utils/api'
 import BaseCard from '@/components/BaseCard.vue'
 import PropertyEditor from '@/components/PropertyEditor.vue'
 import DictionaryTypePicker from '@/components/DictionaryTypePicker.vue'
+
 
 interface DictionaryProperty {
   description: string
@@ -260,6 +340,16 @@ const handleAddProperty = () => {
     }
     autoSave()
   }
+}
+
+// Simple computed properties for action icons
+const canBeRequired = computed(() => dictionary.value?.root && dictionary.value.root.type !== 'array')
+const canHaveAdditionalProperties = computed(() => dictionary.value?.root && dictionary.value.root.type === 'object')
+const canHaveOneOf = computed(() => dictionary.value?.root && dictionary.value.root.type === 'object')
+
+const toggleOneOf = () => {
+  // Simple toggle for oneOf - this would need more complex logic
+  console.log('Toggle One Of clicked')
 }
 
 
