@@ -16,6 +16,7 @@ versions:
     name: statusIndex
     options:
       unique: false
+      foo: bar
   migrations: []
   test_data: sample.1.0.1.2.json
   _locked: false

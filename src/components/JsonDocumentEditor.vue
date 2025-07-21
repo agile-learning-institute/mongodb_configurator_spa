@@ -17,17 +17,6 @@
       <v-spacer />
       <div class="d-flex gap-2">
         <v-btn
-          v-if="showFormatButton"
-          color="secondary"
-          variant="outlined"
-          size="small"
-          @click="formatJson"
-          :disabled="disabled"
-        >
-          <v-icon start size="small">mdi-format-indent-increase</v-icon>
-          Format
-        </v-btn>
-        <v-btn
           v-if="onDelete"
           color="error"
           variant="outlined"
@@ -92,7 +81,6 @@ interface Props {
   placeholder?: string
   disabled?: boolean
   rows?: number
-  showFormatButton?: boolean
   showInfo?: boolean
   infoMessage?: string
   autoSave?: () => Promise<void>
@@ -103,7 +91,6 @@ const props = withDefaults(defineProps<Props>(), {
   placeholder: 'Enter JSON content...',
   disabled: false,
   rows: 8,
-  showFormatButton: true,
   showInfo: false,
   infoMessage: 'Valid JSON format',
   autoSave: undefined
@@ -120,8 +107,6 @@ const isUpdating = ref(false)
 const collapsed = ref(true)
 
 // Computed properties
-const hasValidJson = computed(() => !jsonError.value && jsonText.value.trim() !== '')
-
 const computedRows = computed(() => {
   if (!jsonText.value) return props.rows
   const lines = jsonText.value.split('\n').length
@@ -143,17 +128,7 @@ const validateJson = () => {
   }
 }
 
-const formatJson = () => {
-  if (!hasValidJson.value) return
 
-  try {
-    const parsed = JSON.parse(jsonText.value)
-    jsonText.value = JSON.stringify(parsed, null, 2)
-    validateJson()
-  } catch (error) {
-    // Error already handled by validateJson
-  }
-}
 
 const toggleCollapsed = () => {
   collapsed.value = !collapsed.value
