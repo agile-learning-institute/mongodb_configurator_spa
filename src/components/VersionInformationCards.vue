@@ -88,21 +88,11 @@
           :key="i"
           class="index-item mb-4"
         >
-          <div class="d-flex align-center justify-space-between mb-2">
-            <span class="text-subtitle-2">Index {{ i + 1 }}</span>
-            <v-btn
-              color="error"
-              variant="text"
-              size="small"
-              @click="removeIndex(i)"
-            >
-              <v-icon size="small">mdi-delete</v-icon>
-            </v-btn>
-          </div>
           <JsonDocumentEditor
             v-model="version.add_indexes[i]"
-            title="Index Configuration"
+            :title="getIndexName(version.add_indexes[i], i)"
             @update:model-value="autoSave"
+            :on-delete="() => removeIndex(i)"
           />
         </div>
       </div>
@@ -208,6 +198,13 @@ const removeIndex = (index: number) => {
 
 const autoSave = () => {
   props.onUpdate()
+}
+
+const getIndexName = (indexData: any, index: number) => {
+  if (indexData && typeof indexData === 'object' && indexData.name) {
+    return indexData.name
+  }
+  return `Index ${index + 1}`
 }
 
 onMounted(() => {

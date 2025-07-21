@@ -4,17 +4,30 @@
     <div class="d-flex align-center mb-3">
       <div class="text-h6 font-weight-bold mr-3">{{ title }}</div>
       <v-spacer />
-      <v-btn
-        v-if="showFormatButton"
-        color="secondary"
-        variant="outlined"
-        size="small"
-        @click="formatJson"
-        :disabled="disabled"
-      >
-        <v-icon start size="small">mdi-format-indent-increase</v-icon>
-        Format
-      </v-btn>
+      <div class="d-flex gap-2">
+        <v-btn
+          v-if="showFormatButton"
+          color="secondary"
+          variant="outlined"
+          size="small"
+          @click="formatJson"
+          :disabled="disabled"
+        >
+          <v-icon start size="small">mdi-format-indent-increase</v-icon>
+          Format
+        </v-btn>
+        <v-btn
+          v-if="onDelete"
+          color="error"
+          variant="outlined"
+          size="small"
+          @click="onDelete"
+          :disabled="disabled"
+        >
+          <v-icon start size="small">mdi-delete</v-icon>
+          Delete
+        </v-btn>
+      </div>
     </div>
 
     <!-- Editor -->
@@ -67,6 +80,7 @@ interface Props {
   showInfo?: boolean
   infoMessage?: string
   autoSave?: () => Promise<void>
+  onDelete?: () => void
 }
 
 const props = withDefaults(defineProps<Props>(), {
