@@ -63,14 +63,29 @@
           icon="mdi-shape"
           :is-secondary="false"
         >
+          <template #header-actions>
+            <!-- Type Selector -->
+            <div class="property-type mr-2 d-flex justify-end" style="min-width: 120px;">
+              <DictionaryTypePicker
+                v-if="dictionary.root"
+                v-model="dictionary.root.type"
+                label="Type"
+                density="compact"
+                :disabled="dictionary._locked"
+                :exclude-type="dictionary.file_name"
+                @update:model-value="handleTypeChange"
+              />
+            </div>
+          </template>
+          
           <div v-if="dictionary.root" class="pa-4">
             <PropertyEditor
               :property="dictionary.root"
               property-name="root"
               :disabled="dictionary._locked"
               :exclude-type="dictionary.file_name"
-              :top-level="true"
-              :top-level-name="dictionary.file_name.replace('.yaml', '')"
+              :top-level="false"
+              :hide-top-level-row="true"
               type-picker-component="DictionaryTypePicker"
               @change="handleRootPropertyChange"
             />
@@ -129,6 +144,7 @@ import { useRoute } from 'vue-router'
 import { apiService } from '@/utils/api'
 import BaseCard from '@/components/BaseCard.vue'
 import PropertyEditor from '@/components/PropertyEditor.vue'
+import DictionaryTypePicker from '@/components/DictionaryTypePicker.vue'
 
 interface DictionaryProperty {
   description: string
@@ -209,6 +225,13 @@ const getDictionaryTitle = () => {
   const fileName = dictionary.value.file_name.replace('.yaml', '')
   const description = dictionary.value.root?.description || ''
   return `${fileName}: ${description}`
+}
+
+// Handle type change
+const handleTypeChange = () => {
+  if (dictionary.value) {
+    autoSave()
+  }
 }
 
 
