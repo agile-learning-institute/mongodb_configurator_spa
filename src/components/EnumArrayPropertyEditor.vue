@@ -1,5 +1,5 @@
 <template>
-  <div class="enum-array-property-editor">
+  <div class="array-property-editor">
     <!-- Card-based layout for non-top-level properties -->
     <BaseCard 
       v-if="!props.topLevel"
@@ -318,7 +318,7 @@ const getPropertyIcon = () => {
 </script>
 
 <style scoped>
-.enum-array-property-editor {
+.array-property-editor {
   width: 100%;
 }
 

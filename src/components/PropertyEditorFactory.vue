@@ -13,7 +13,6 @@
 </template>
 
 <script setup lang="ts">
-console.log('PropertyEditorFactory loaded');
 import { computed } from 'vue'
 import ObjectPropertyEditor from './ObjectPropertyEditor.vue'
 import ArrayPropertyEditor from './EnumArrayPropertyEditor.vue'
@@ -35,7 +34,6 @@ const emit = defineEmits<{
 }>()
 
 const selectedComponent = computed(() => {
-  console.log('PropertyEditorFactory: selected type', property.type, 'isRoot:', isRoot, 'property:', property);
   const type = property.type
   switch (type) {
     case 'object':

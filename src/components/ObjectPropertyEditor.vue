@@ -263,7 +263,6 @@ const {
 })
 
 onMounted(() => {
-  console.log('ObjectPropertyEditor mounted:', props.propertyName, props.property.type)
   // Initialize nested property names
   if (props.property.properties) {
     Object.keys(props.property.properties).forEach(propName => {

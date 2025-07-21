@@ -15,13 +15,9 @@
 
     <!-- Content -->
     <div v-else-if="dictionary">
-      <!-- File Header -->
-      <div class="d-flex align-center justify-space-between mb-6">
-        <div class="flex-grow-1">
-          <!-- File name -->
-          <h1 class="text-h4 mb-0">{{ dictionary.file_name }}</h1>
-        </div>
-        
+      <!-- Page Header -->
+      <header class="d-flex align-center justify-space-between mb-6">
+        <h2 class="text-h4 mb-0">{{ dictionary.file_name }}</h2>
         <div class="d-flex gap-2">
           <v-btn
             v-if="dictionary._locked"
@@ -43,7 +39,6 @@
             <v-icon start>mdi-lock</v-icon>
             Lock
           </v-btn>
-          
           <v-btn
             color="error"
             variant="elevated"
@@ -54,126 +49,14 @@
             Delete
           </v-btn>
         </div>
-      </div>
-
-      <!-- Dictionary Content -->
-      <div class="dictionary-content">
-        <BaseCard 
-          :title="getDictionaryTitle()"
-          icon="mdi-shape"
-          :is-secondary="false"
-        >
-          <template #header-actions>
-            <!-- Type Selector -->
-            <div class="property-type mr-2 d-flex justify-end" style="min-width: 120px;">
-              <DictionaryTypePicker
-                v-if="dictionary.root"
-                v-model="dictionary.root.type"
-                label="Type"
-                density="compact"
-                :disabled="dictionary._locked"
-                :exclude-type="dictionary.file_name"
-                @update:model-value="handleTypeChange"
-              />
-            </div>
-            <!-- Add Property Button -->
-            <v-btn
-              v-if="dictionary.root && dictionary.root.type === 'object' && !dictionary._locked"
-              color="primary"
-              variant="outlined"
-              size="small"
-              @click="handleAddProperty"
-            >
-              <v-icon start size="small">mdi-plus</v-icon>
-              Add Property
-            </v-btn>
-            <!-- Action Icons -->
-            <v-tooltip 
-              v-if="dictionary.root && canBeRequired" 
-              location="top" 
-              class="tooltip-dark"
-              :open-delay="0"
-              :close-delay="0"
-              theme="dark"
-            >
-              <template v-slot:activator="{ props }">
-                <v-btn
-                  icon
-                  size="x-small"
-                  variant="text"
-                  :color="dictionary.root.required ? 'primary' : 'grey'"
-                  :disabled="dictionary._locked"
-                  v-bind="props"
-                  @click="dictionary.root.required = !dictionary.root.required; handleRootPropertyChange(dictionary.root)"
-                  class="pa-0 ma-0 ml-2"
-                >
-                  <v-icon size="16">mdi-star</v-icon>
-                </v-btn>
-              </template>
-              <span>Required</span>
-            </v-tooltip>
-            <v-tooltip 
-              v-if="dictionary.root && canHaveAdditionalProperties" 
-              location="top" 
-              class="tooltip-dark"
-              :open-delay="0"
-              :close-delay="0"
-              theme="dark"
-            >
-              <template v-slot:activator="{ props }">
-                <v-btn
-                  icon
-                  size="x-small"
-                  variant="text"
-                  :color="dictionary.root.additionalProperties ? 'primary' : 'grey'"
-                  :disabled="dictionary._locked"
-                  v-bind="props"
-                  @click="dictionary.root.additionalProperties = !dictionary.root.additionalProperties; handleRootPropertyChange(dictionary.root)"
-                  class="pa-0 ma-0 ml-2"
-                >
-                  <v-icon size="16">mdi-plus-circle</v-icon>
-                </v-btn>
-              </template>
-              <span>Additional Properties</span>
-            </v-tooltip>
-            <v-tooltip 
-              v-if="dictionary.root && canHaveOneOf" 
-              location="top" 
-              class="tooltip-dark"
-              :open-delay="0"
-              :close-delay="0"
-              theme="dark"
-            >
-              <template v-slot:activator="{ props }">
-                <v-btn
-                  icon
-                  size="x-small"
-                  variant="text"
-                  :color="dictionary.root.oneOf && Object.keys(dictionary.root.oneOf).length > 0 ? 'primary' : 'grey'"
-                  :disabled="dictionary._locked"
-                  v-bind="props"
-                  @click="toggleOneOf"
-                  class="pa-0 ma-0 ml-2"
-                >
-                  <v-icon size="16">mdi-format-list-bulleted</v-icon>
-                </v-btn>
-              </template>
-              <span>One Of</span>
-            </v-tooltip>
-          </template>
-          <!-- Only render the property list, not the root object -->
-          <div v-if="dictionary.root && dictionary.root.properties" class="pa-4">
-            <div v-for="(prop, propName) in dictionary.root.properties" :key="propName">
-              <PropertyEditorFactory
-                :property="prop"
-                :is-root="false"
-                @change="(updatedProperty) => handlePropertyChange(propName, updatedProperty)"
-                @delete="() => handleDeleteProperty(propName)"
-              />
-            </div>
-          </div>
-        </BaseCard>
-      </div>
+      </header>
+      <!-- PropertyEditorFactory for root property -->
+      <PropertyEditorFactory
+        v-if="dictionary.root"
+        :property="dictionary.root"
+        :is-root="true"
+        @change="handleRootPropertyChange"
+      />
     </div>
   </v-container>
 
@@ -216,7 +99,6 @@
 </template>
 
 <script setup lang="ts">
-console.log('DictionaryDetailPage loaded');
 import { ref, onMounted, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { apiService } from '@/utils/api'
@@ -303,10 +185,6 @@ const handleRootPropertyChange = (updatedProperty: DictionaryProperty) => {
 }
 
 const handlePropertyChange = (propertyName: string, updatedProperty: DictionaryProperty) => {
-  console.log('DictionaryDetailPage: handlePropertyChange called')
-  console.log('DictionaryDetailPage: propertyName =', propertyName)
-  console.log('DictionaryDetailPage: updatedProperty =', updatedProperty)
-  console.log('DictionaryDetailPage: updatedProperty.type =', updatedProperty.type)
   
   if (dictionary.value?.root?.properties) {
     // Replace the properties object to force Vue reactivity
@@ -314,8 +192,6 @@ const handlePropertyChange = (propertyName: string, updatedProperty: DictionaryP
       ...dictionary.value.root.properties,
       [propertyName]: updatedProperty
     }
-    console.log('DictionaryDetailPage: property updated in dictionary')
-    console.log('DictionaryDetailPage: dictionary property type =', dictionary.value.root.properties[propertyName].type)
     autoSave()
   }
 }
@@ -366,7 +242,6 @@ const canHaveOneOf = computed(() => dictionary.value?.root && dictionary.value.r
 
 const toggleOneOf = () => {
   // Simple toggle for oneOf - this would need more complex logic
-  console.log('Toggle One Of clicked')
 }
 
 

@@ -1,7 +1,7 @@
 <template>
-  <div class="enum-property-editor">
+  <div class="custom-property-editor">
     <div class="property-title-row d-flex align-center pa-4 border-b">
-      <v-icon icon="mdi-format-list-bulleted" class="mr-3" color="primary" />
+      <v-icon icon="mdi-tag" class="mr-3" color="primary" />
       <v-text-field
         v-if="!isRoot"
         v-model="editablePropertyName"
@@ -22,14 +22,6 @@
         class="mr-2"
         style="max-width: 300px;"
         @update:model-value="handleChange"
-      />
-      <EnumPicker
-        :model-value="property.enums?.[0] || ''"
-        label="Select Enum"
-        density="compact"
-        class="mr-2"
-        style="max-width: 180px;"
-        @update:model-value="handleEnumChange"
       />
       <DictionaryTypePicker
         v-model="property.type"
@@ -79,7 +71,6 @@
 <script setup lang="ts">
 import { usePropertyEditor, type Property } from '@/composables/usePropertyEditor'
 import DictionaryTypePicker from './DictionaryTypePicker.vue'
-import EnumPicker from './EnumPicker.vue'
 import { computed } from 'vue'
 
 const props = defineProps<{
@@ -105,21 +96,13 @@ const {
   onDelete: () => emit('delete')
 })
 
-function handleEnumChange(value: string) {
-  if (!property.enums) {
-    property.enums = []
-  }
-  property.enums[0] = value
-  handleChange()
-}
-
 function handleDelete() {
   emit('delete')
 }
 </script>
 
 <style scoped>
-.enum-property-editor {
+.custom-property-editor {
   width: 100%;
   border: 1px solid #e0e0e0;
   border-radius: 8px;
