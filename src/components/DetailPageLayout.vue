@@ -101,6 +101,9 @@ const props = withDefaults(defineProps<Props>(), {
   allowEdit: true
 })
 
+// Access props to avoid unused variable warning
+const { loading, error, data, title, fileName, fileType, locked, disabled, allowEdit, showDeleteDialog, showUnlockDialog } = props
+
 const emit = defineEmits<{
   retry: []
   lock: []
