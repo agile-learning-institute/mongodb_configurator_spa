@@ -1,55 +1,19 @@
 file_name: sample.1.0.1.yaml
 _locked: false
 root:
-  description: A simple collection for testsasdf
+  description: A simple collection for testing
   type: object
-  required: false
-  additional_properties: false
   properties:
-    property_1:
-      description: ''
-      type: array
-      required: false
-      items:
-        description: Items in the list
-        type: word
-        required: false
-    property_2:
-      description: ''
-      type: object
-      required: false
-      additional_properties: false
-      properties:
-        sub_property_1:
-          description: ''
-          type: enum
-          required: false
-          enums: ''
-    property_3:
-      description: ''
+    _id:
+      description: The unique identifier for the media
+      type: identifier
+      required: true
+    full_name:
+      description: The name of the document
+      type: sentence
+      required: true
+    status:
+      description: The current status of the document
       type: enum
-      required: false
-      enums: ''
-    property_4:
-      description: ''
-      type: enum_array
-      required: false
-      enums: ''
-    property_5:
-      description: ''
-      type: array
-      required: false
-      items:
-        description: Items in the list
-        type: object
-        required: false
-        additional_properties: false
-        properties:
-          item_sub_property_1:
-            description: ''
-            type: string
-            required: false
-          item_sub_property_2:
-            description: ''
-            type: string
-            required: false
+      enums: default_status
+      required: true
