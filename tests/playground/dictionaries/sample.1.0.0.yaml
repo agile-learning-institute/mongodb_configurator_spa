@@ -6,17 +6,7 @@ root:
   required: true
   items:
     description: ''
-    type: array
+    type: object
     required: false
-    items:
-      description: ''
-      type: array
-      required: false
-      items:
-        description: ''
-        type: array
-        required: false
-        items:
-          description: ''
-          type: word
-          required: false
+    additional_properties: false
+    properties: {}

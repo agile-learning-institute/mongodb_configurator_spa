@@ -20,6 +20,7 @@ import EnumPropertyEditor from './EnumPropertyEditor.vue'
 import CustomPropertyEditor from './CustomPropertyEditor.vue'
 import ArrayOfCustomPropertyEditor from './ArrayOfCustomPropertyEditor.vue'
 import ArrayOfArrayPropertyEditor from './ArrayOfArrayPropertyEditor.vue'
+import ArrayOfObjectPropertyEditor from './ArrayOfObjectPropertyEditor.vue'
 import { type Property } from '@/composables/usePropertyEditor'
 
 const props = defineProps<{
@@ -40,7 +41,7 @@ const selectedComponent = computed(() => {
   if (type === 'object') return ObjectPropertyEditor
   if (type === 'array') {
     const itemsType = property.items?.type
-    if (itemsType === 'object') return ObjectPropertyEditor // placeholder for ArrayOfObjectPropertyEditor
+    if (itemsType === 'object') return ArrayOfObjectPropertyEditor
     if (itemsType === 'array') return ArrayOfArrayPropertyEditor
     if (itemsType === 'enum' || itemsType === 'enum_array') return ArrayPropertyEditor
     return ArrayOfCustomPropertyEditor

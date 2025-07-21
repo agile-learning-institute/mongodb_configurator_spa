@@ -4,7 +4,8 @@ export interface Property {
   description: string
   type?: string
   required?: boolean
-  additionalProperties?: boolean
+  additionalProperties?: boolean // legacy/camelCase
+  additional_properties?: boolean // snake_case, matches openapi spec
   items?: Property
   properties?: Record<string, Property>
   schema?: any
