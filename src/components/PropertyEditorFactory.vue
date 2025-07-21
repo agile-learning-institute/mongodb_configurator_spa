@@ -1,15 +1,9 @@
 <template>
   <component
-    v-if="props.property && props.property.type"
+    v-if="property && property.type"
     :is="selectedComponent"
-    :property="props.property"
-    :property-name="props.propertyName"
-    :disabled="props.disabled"
-    :exclude-type="props.excludeType"
-    :top-level="props.topLevel"
-    :top-level-name="props.topLevelName"
-    :hide-top-level-row="props.hideTopLevelRow"
-    :type-picker-component="props.typePickerComponent"
+    :property="property"
+    :is-root="isRoot"
     @change="handlePropertyChange"
     @delete="handlePropertyDelete"
   />
@@ -19,67 +13,48 @@
 </template>
 
 <script setup lang="ts">
+console.log('PropertyEditorFactory loaded');
 import { computed } from 'vue'
-import { type Property } from '@/composables/usePropertyEditor'
 import ObjectPropertyEditor from './ObjectPropertyEditor.vue'
+import ArrayPropertyEditor from './EnumArrayPropertyEditor.vue'
 import EnumPropertyEditor from './EnumPropertyEditor.vue'
-import EnumArrayPropertyEditor from './EnumArrayPropertyEditor.vue'
-import PropertyEditor from './PropertyEditor.vue' // Fallback for other types
+import CustomPropertyEditor from './CustomPropertyEditor.vue'
+import { type Property } from '@/composables/usePropertyEditor'
 
-interface Props {
-  property: Property
-  propertyName?: string
-  disabled?: boolean
-  excludeType?: string
-  topLevel?: boolean
-  topLevelName?: string
-  hideTopLevelRow?: boolean
-  typePickerComponent?: 'DictionaryTypePicker' | 'TypePicker'
-}
+const props = defineProps<{
+  property: Property,
+  isRoot?: boolean
+}>()
 
-const props = withDefaults(defineProps<Props>(), {
-  propertyName: '',
-  disabled: false,
-  excludeType: '',
-  topLevel: false,
-  topLevelName: '',
-  hideTopLevelRow: false,
-  typePickerComponent: 'DictionaryTypePicker'
-})
+const property = props.property
+const isRoot = props.isRoot ?? false
 
 const emit = defineEmits<{
   change: [property: Property]
   delete: []
 }>()
 
-// Computed property to make the component reactive to property type changes
 const selectedComponent = computed(() => {
-  const type = props.property.type
-  console.log('PropertyEditorFactory: property type =', type)
-  
+  console.log('PropertyEditorFactory: selected type', property.type, 'isRoot:', isRoot, 'property:', property);
+  const type = property.type
   switch (type) {
     case 'object':
-      console.log('PropertyEditorFactory: returning ObjectPropertyEditor')
       return ObjectPropertyEditor
+    case 'array':
+      return ArrayPropertyEditor
     case 'enum':
-      console.log('PropertyEditorFactory: returning EnumPropertyEditor')
-      return EnumPropertyEditor
     case 'enum_array':
-      console.log('PropertyEditorFactory: returning EnumArrayPropertyEditor')
-      return EnumArrayPropertyEditor
+      return EnumPropertyEditor
     default:
-      console.log('PropertyEditorFactory: falling back to PropertyEditor')
-      // Fallback to the original PropertyEditor for other types
-      return PropertyEditor
+      return CustomPropertyEditor
   }
 })
 
-// Event handlers
-const handlePropertyChange = (updatedProperty: Property) => {
+function handlePropertyChange(updatedProperty: Property) {
   emit('change', updatedProperty)
 }
 
-const handlePropertyDelete = () => {
+function handlePropertyDelete() {
   emit('delete')
 }
 </script> 

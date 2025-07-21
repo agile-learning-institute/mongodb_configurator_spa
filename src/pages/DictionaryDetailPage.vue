@@ -76,7 +76,6 @@
                 @update:model-value="handleTypeChange"
               />
             </div>
-            
             <!-- Add Property Button -->
             <v-btn
               v-if="dictionary.root && dictionary.root.type === 'object' && !dictionary._locked"
@@ -88,9 +87,7 @@
               <v-icon start size="small">mdi-plus</v-icon>
               Add Property
             </v-btn>
-            
             <!-- Action Icons -->
-            <!-- Required Icon -->
             <v-tooltip 
               v-if="dictionary.root && canBeRequired" 
               location="top" 
@@ -115,8 +112,6 @@
               </template>
               <span>Required</span>
             </v-tooltip>
-            
-            <!-- Additional Properties Icon -->
             <v-tooltip 
               v-if="dictionary.root && canHaveAdditionalProperties" 
               location="top" 
@@ -141,8 +136,6 @@
               </template>
               <span>Additional Properties</span>
             </v-tooltip>
-            
-            <!-- One Of Icon -->
             <v-tooltip 
               v-if="dictionary.root && canHaveOneOf" 
               location="top" 
@@ -168,17 +161,16 @@
               <span>One Of</span>
             </v-tooltip>
           </template>
-          
-          <div v-if="dictionary.root" class="pa-4">
-            <PropertyEditorFactory
-              :key="'root-' + dictionary.root.type"
-              :property="dictionary.root"
-              property-name="root"
-              :disabled="dictionary._locked"
-              :exclude-type="dictionary.file_name"
-              :top-level="true"
-              @change="handleRootPropertyChange"
-            />
+          <!-- Only render the property list, not the root object -->
+          <div v-if="dictionary.root && dictionary.root.properties" class="pa-4">
+            <div v-for="(prop, propName) in dictionary.root.properties" :key="propName">
+              <PropertyEditorFactory
+                :property="prop"
+                :is-root="false"
+                @change="(updatedProperty) => handlePropertyChange(propName, updatedProperty)"
+                @delete="() => handleDeleteProperty(propName)"
+              />
+            </div>
           </div>
         </BaseCard>
       </div>
@@ -224,6 +216,7 @@
 </template>
 
 <script setup lang="ts">
+console.log('DictionaryDetailPage loaded');
 import { ref, onMounted, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { apiService } from '@/utils/api'
@@ -324,6 +317,14 @@ const handlePropertyChange = (propertyName: string, updatedProperty: DictionaryP
     console.log('DictionaryDetailPage: property updated in dictionary')
     console.log('DictionaryDetailPage: dictionary property type =', dictionary.value.root.properties[propertyName].type)
     autoSave()
+  }
+}
+
+// Add this method after handlePropertyChange
+const handleDeleteProperty = (propertyName: string) => {
+  if (dictionary.value?.root?.properties) {
+    delete dictionary.value.root.properties[propertyName];
+    autoSave();
   }
 }
 
