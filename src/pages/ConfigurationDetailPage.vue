@@ -33,7 +33,7 @@
           
           <!-- Description row -->
           <div v-if="!editingDescription" @click="startEditDescription" class="description-display">
-            <p class="text-body-1 mb-0 cursor-pointer">{{ configuration.description || 'Enter configuration description...' }}</p>
+            <p class="description-text mb-0 cursor-pointer">{{ configuration.description || 'Enter configuration description...' }}</p>
           </div>
           <v-text-field
             v-else
@@ -416,6 +416,19 @@ onMounted(() => {
 
 .description-display {
   cursor: pointer;
+}
+
+.description-text {
+  font-size: 0.875rem;
+  color: rgba(0, 0, 0, 0.6);
+  line-height: 1.4;
+  margin: 0;
+  padding: 4px 0;
+  transition: color 0.2s ease;
+}
+
+.description-text:hover {
+  color: rgba(0, 0, 0, 0.8);
 }
 
 .cursor-pointer {
