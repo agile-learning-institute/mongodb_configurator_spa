@@ -20,7 +20,7 @@
         <div class="flex-grow-1">
           <!-- File name and title row -->
           <div class="d-flex align-center mb-2">
-            <span class="text-body-2 text-medium-emphasis mr-4">{{ configuration.file_name }}</span>
+            <h2 class="text-h5 text-medium-emphasis mr-4 mb-0">{{ configuration.file_name }}</h2>
             <v-text-field
               v-model="configuration.title"
               variant="plain"
@@ -32,7 +32,11 @@
           </div>
           
           <!-- Description row -->
+          <div v-if="!editingDescription" @click="startEditDescription" class="description-display">
+            <p class="text-body-1 mb-0 cursor-pointer">{{ configuration.description || 'Enter configuration description...' }}</p>
+          </div>
           <v-text-field
+            v-else
             v-model="configuration.description"
             placeholder="Enter configuration description..."
             variant="plain"
@@ -40,6 +44,9 @@
             class="description-edit-field"
             hide-details
             @update:model-value="autoSave"
+            @blur="finishEditDescription"
+            @keyup.enter="finishEditDescription"
+            ref="descriptionInput"
           />
         </div>
         
@@ -216,6 +223,8 @@ const processing = ref(false)
 const error = ref<string | null>(null)
 const configuration = ref<Configuration | null>(null)
 const activeVersion = ref<string>('')
+const editingDescription = ref(false)
+const descriptionInput = ref<HTMLElement | null>(null)
 
 // Computed properties
 const activeVersionData = computed(() => {
@@ -266,6 +275,20 @@ const autoSave = async () => {
   } finally {
     saving.value = false
   }
+}
+
+const startEditDescription = () => {
+  editingDescription.value = true
+  // Focus the input after it's rendered
+  setTimeout(() => {
+    if (descriptionInput.value) {
+      descriptionInput.value.focus()
+    }
+  }, 0)
+}
+
+const finishEditDescription = () => {
+  editingDescription.value = false
 }
 
 const lockVersion = async () => {
@@ -389,5 +412,13 @@ onMounted(() => {
 .description-edit-field {
   font-size: 0.875rem;
   color: rgba(0, 0, 0, 0.6);
+}
+
+.description-display {
+  cursor: pointer;
+}
+
+.cursor-pointer {
+  cursor: pointer;
 }
 </style> 

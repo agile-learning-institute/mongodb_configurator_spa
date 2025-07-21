@@ -1,6 +1,6 @@
 file_name: sample.yaml
-title: Sample Collection Name
-description: A collection for testing the configurator
+title: Same
+description: A collection for testg the configurator
 versions:
 - version: 1.0.0.1
   drop_indexes: []
