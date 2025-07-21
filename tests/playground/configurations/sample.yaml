@@ -3,8 +3,7 @@ title: Same Sample Collection
 description: A collection for testg the configurator ad
 versions:
 - version: 1.0.0.1
-  drop_indexes:
-  - ''
+  drop_indexes: []
   add_indexes: []
   migrations: []
   test_data: sample.1.0.1.2.json
@@ -20,6 +19,6 @@ versions:
       unique: false
   migrations:
   - first_last_to_full_name.json
-  test_data: sample.1.0.1.2.json
+  - test_data: sample.1.0.1.2.json
   _locked: false
 _locked: false
