@@ -2,14 +2,17 @@ file_name: sample.1.0.1.yaml
 _locked: false
 root:
   description: A simple collection for testing
-  type: array
+  type: object
   required: true
-  items:
-    description: ''
-    type: array
-    required: false
-    items:
-      description: ''
+  additional_properties: false
+  properties:
+    property_1:
+      description: enter description here
+      type: enum_array
+      required: false
+      enums: default_status
+    property_2:
+      description: enter description here
       type: array
       required: false
       items:
@@ -26,7 +29,17 @@ root:
             description: enter description here
             type: word
             required: false
-          property_3:
-            description: enter description here
-            type: word
-            required: false
+    property_3:
+      description: enter description here
+      type: object
+      required: false
+      additional_properties: false
+      properties:
+        property_1:
+          description: enter description here
+          type: word
+          required: false
+        property_2:
+          description: enter description here
+          type: word
+          required: false

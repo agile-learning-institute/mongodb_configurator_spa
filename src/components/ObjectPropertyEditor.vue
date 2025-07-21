@@ -90,112 +90,12 @@
     <div class="property-content pa-4">
       <div v-if="property.properties && Object.keys(property.properties).length > 0">
         <div v-for="(prop, propName) in property.properties" :key="propName" class="mb-3">
-          <!-- Simple nested property renderer without title row -->
-          <div class="nested-property">
-            <div class="nested-property-header d-flex align-center pa-2 bg-grey-lighten-4 rounded mb-2">
-              <v-icon icon="mdi-circle-small" class="mr-2" color="grey" />
-              <v-text-field
-                v-model="nestedPropertyNames[propName]"
-                placeholder="name"
-                density="compact"
-                variant="outlined"
-                hide-details
-                :disabled="props.disabled"
-                @update:model-value="(value) => handleNestedPropertyNameChange(propName, value)"
-                style="max-width: 150px;"
-                class="mr-2"
-              />
-              <v-text-field
-                v-model="prop.description"
-                placeholder="Description"
-                density="compact"
-                variant="outlined"
-                hide-details
-                :disabled="props.disabled"
-                @update:model-value="() => handlePropertyChange(propName, prop)"
-                class="mr-2"
-                style="max-width: 300px;"
-              />
-              <DictionaryTypePicker
-                v-if="props.typePickerComponent === 'DictionaryTypePicker'"
-                v-model="prop.type"
-                label="Type"
-                density="compact"
-                :disabled="props.disabled"
-                :exclude-type="props.excludeType"
-                @update:model-value="() => handlePropertyChange(propName, prop)"
-                class="mr-2"
-                style="max-width: 120px;"
-              />
-              <TypePicker
-                v-else
-                v-model="prop.type"
-                label="Type"
-                density="compact"
-                :disabled="props.disabled"
-                :exclude-type="props.excludeType"
-                @update:model-value="() => handlePropertyChange(propName, prop)"
-                class="mr-2"
-                style="max-width: 120px;"
-              />
-              <v-tooltip 
-                v-if="canBeRequired" 
-                location="top" 
-                class="tooltip-dark"
-                :open-delay="0"
-                :close-delay="0"
-                theme="dark"
-              >
-                <template v-slot:activator="{ props }">
-                  <v-btn
-                    icon
-                    size="x-small"
-                    variant="text"
-                    :color="prop.required ? 'primary' : 'grey'"
-                    :disabled="props.disabled"
-                    v-bind="props"
-                    @click="prop.required = !prop.required; handlePropertyChange(propName, prop)"
-                    class="pa-0 ma-0"
-                  >
-                    <v-icon size="16">mdi-star</v-icon>
-                  </v-btn>
-                </template>
-                <span>Required</span>
-              </v-tooltip>
-              <v-btn
-                v-if="!props.disabled"
-                icon
-                size="x-small"
-                variant="text"
-                color="error"
-                @click="handleDeleteProperty(propName)"
-                class="ml-auto"
-              >
-                <v-icon size="16">mdi-delete</v-icon>
-              </v-btn>
-            </div>
-            
-            <!-- Nested property content -->
-            <div v-if="prop.type === 'object' && prop.properties" class="ml-4">
-              <div v-if="Object.keys(prop.properties).length > 0">
-                <div v-for="(nestedProp, nestedPropName) in prop.properties" :key="nestedPropName" class="mb-2">
-                  <PropertyEditorFactory
-                    :property="nestedProp"
-                    :property-name="nestedPropName"
-                    :disabled="props.disabled"
-                    :exclude-type="props.excludeType"
-                    :top-level="false"
-                    @change="(updatedProperty) => handleNestedPropertyChange(propName, nestedPropName, updatedProperty)"
-                    @delete="() => handleDeleteNestedProperty(propName, nestedPropName)"
-                  />
-                </div>
-              </div>
-              <div v-else class="text-center text-grey pa-2">
-                <v-icon size="24" color="grey-lighten-1">mdi-folder-open</v-icon>
-                <div class="text-caption">No nested properties</div>
-              </div>
-            </div>
-          </div>
+          <PropertyEditorFactory
+            :property="prop"
+            :is-root="false"
+            @change="updated => handleChildPropertyChange(propName, updated)"
+            @delete="() => handleDeleteProperty(propName)"
+          />
         </div>
       </div>
       <div v-else class="text-center text-grey">
@@ -208,7 +108,7 @@
 </template>
 
 <script setup lang="ts">
-import { usePropertyEditor, type Property } from '@/composables/usePropertyEditor'
+import { useObjectPropertyEditor } from '@/composables/useObjectPropertyEditor'
 import DictionaryTypePicker from './DictionaryTypePicker.vue'
 import TypePicker from './TypePicker.vue'
 import PropertyEditorFactory from './PropertyEditorFactory.vue'
@@ -243,24 +143,15 @@ const emit = defineEmits<{
 // Reactive state for nested property names
 const nestedPropertyNames = ref<Record<string, string>>({})
 
-// Use the property editor composable
 const {
-  editablePropertyName,
-  canBeRequired,
-  handleChange,
+  handleAddProperty,
+  handleDeleteProperty,
+  handleChildPropertyChange,
+  toggleAdditionalProperties,
   handleTypeChange,
-  handlePropertyNameChange,
-  addProperty,
-  deleteProperty
-} = usePropertyEditor(props.property, {
-  disabled: props.disabled,
-  excludeType: props.excludeType,
-  topLevel: props.topLevel,
-  propertyName: props.propertyName,
-  topLevelName: props.topLevelName,
-  onUpdate: (property) => emit('change', property),
-  onDelete: () => emit('delete')
-})
+  handleChange,
+  handleDelete
+} = useObjectPropertyEditor(props.property, (event, ...args) => emit(event, ...args))
 
 onMounted(() => {
   // Initialize nested property names
@@ -290,17 +181,6 @@ const handleNestedPropertyNameChange = (propName: string, value: string) => {
   nestedPropertyNames.value[propName] = value
   // Note: Property interface doesn't have a name field, so we just update the local state
   handleChange()
-}
-
-const handleAddProperty = () => {
-  const newPropertyName = `property_${Object.keys(props.property.properties || {}).length + 1}`
-  addProperty(props.property, newPropertyName)
-  nestedPropertyNames.value[newPropertyName] = newPropertyName
-}
-
-const handleDeleteProperty = (propName: string) => {
-  deleteProperty(props.property, propName)
-  delete nestedPropertyNames.value[propName]
 }
 
 const handleDeleteNestedProperty = (parentPropName: string, propName: string) => {
