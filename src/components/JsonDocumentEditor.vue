@@ -2,6 +2,17 @@
   <div class="json-document-editor">
     <!-- Header -->
     <div class="d-flex align-center mb-3">
+      <v-btn
+        icon
+        size="small"
+        variant="text"
+        @click="toggleCollapsed"
+        class="mr-2"
+      >
+        <v-icon size="small">
+          {{ collapsed ? 'mdi-chevron-right' : 'mdi-chevron-down' }}
+        </v-icon>
+      </v-btn>
       <div class="text-h6 font-weight-bold mr-3">{{ title }}</div>
       <v-spacer />
       <div class="d-flex gap-2">
@@ -30,40 +41,45 @@
       </div>
     </div>
 
-    <!-- Editor -->
-    <v-textarea
-      v-model="jsonText"
-      :placeholder="placeholder"
-      variant="outlined"
-      density="compact"
-      :disabled="disabled"
-      :error="!!jsonError"
-      :error-messages="jsonError"
-      :rows="computedRows"
-      auto-grow
-      @update:model-value="handleJsonChange"
-      @blur="validateJson"
-    />
+    <!-- Editor Content (Collapsible) -->
+    <v-expand-transition>
+      <div v-show="!collapsed">
+        <!-- Editor -->
+        <v-textarea
+          v-model="jsonText"
+          :placeholder="placeholder"
+          variant="outlined"
+          density="compact"
+          :disabled="disabled"
+          :error="!!jsonError"
+          :error-messages="jsonError"
+          :rows="computedRows"
+          auto-grow
+          @update:model-value="handleJsonChange"
+          @blur="validateJson"
+        />
 
-    <!-- Error Display -->
-    <v-alert
-      v-if="jsonError"
-      type="error"
-      variant="tonal"
-      class="mt-3"
-    >
-      {{ jsonError }}
-    </v-alert>
+        <!-- Error Display -->
+        <v-alert
+          v-if="jsonError"
+          type="error"
+          variant="tonal"
+          class="mt-3"
+        >
+          {{ jsonError }}
+        </v-alert>
 
-    <!-- Info Display -->
-    <v-alert
-      v-if="showInfo && !jsonError"
-      type="info"
-      variant="tonal"
-      class="mt-3"
-    >
-      {{ infoMessage }}
-    </v-alert>
+        <!-- Info Display -->
+        <v-alert
+          v-if="showInfo && !jsonError"
+          type="info"
+          variant="tonal"
+          class="mt-3"
+        >
+          {{ infoMessage }}
+        </v-alert>
+      </div>
+    </v-expand-transition>
   </div>
 </template>
 
@@ -101,6 +117,7 @@ const emit = defineEmits<{
 const jsonText = ref('')
 const jsonError = ref('')
 const isUpdating = ref(false)
+const collapsed = ref(false)
 
 // Computed properties
 const hasValidJson = computed(() => !jsonError.value && jsonText.value.trim() !== '')
@@ -136,6 +153,10 @@ const formatJson = () => {
   } catch (error) {
     // Error already handled by validateJson
   }
+}
+
+const toggleCollapsed = () => {
+  collapsed.value = !collapsed.value
 }
 
 const handleJsonChange = (value: string) => {
