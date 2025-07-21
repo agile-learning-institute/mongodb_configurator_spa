@@ -18,43 +18,8 @@
       <!-- File Header -->
       <div class="d-flex align-center justify-space-between mb-6">
         <div class="flex-grow-1">
-          <!-- File name and title row -->
-          <div class="d-flex align-center mb-2">
-            <h2 class="text-h5 text-medium-emphasis mr-4 mb-0">{{ dictionary.file_name }}</h2>
-            <div v-if="!editingTitle" @click="startEditTitle" class="title-display">
-              <h1 class="title-text mb-0 cursor-pointer">{{ dictionary.title || 'Enter dictionary title...' }}</h1>
-            </div>
-            <v-text-field
-              v-else
-              v-model="dictionary.title"
-              variant="plain"
-              density="compact"
-              class="title-edit-field h1-style"
-              hide-details
-              @update:model-value="autoSave"
-              @blur="finishEditTitle"
-              @keyup.enter="finishEditTitle"
-              ref="titleInput"
-            />
-          </div>
-          
-          <!-- Description row -->
-          <div v-if="!editingDescription" @click="startEditDescription" class="description-display">
-            <p class="description-text mb-0 cursor-pointer">{{ dictionary.root?.description || 'Enter dictionary description...' }}</p>
-          </div>
-          <v-text-field
-            v-else
-            v-model="dictionary.root.description"
-            placeholder="Enter dictionary description..."
-            variant="plain"
-            density="compact"
-            class="description-edit-field"
-            hide-details
-            @update:model-value="autoSave"
-            @blur="finishEditDescription"
-            @keyup.enter="finishEditDescription"
-            ref="descriptionInput"
-          />
+          <!-- File name -->
+          <h1 class="text-h4 mb-0">{{ dictionary.file_name }}</h1>
         </div>
         
         <div class="d-flex gap-2">
@@ -159,7 +124,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, nextTick } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { apiService } from '@/utils/api'
 import BaseCard from '@/components/BaseCard.vue'
@@ -193,10 +158,7 @@ const error = ref<string | null>(null)
 const dictionary = ref<Dictionary | null>(null)
 const showDeleteDialog = ref(false)
 const showUnlockDialog = ref(false)
-const editingTitle = ref(false)
-const editingDescription = ref(false)
-const titleInput = ref<HTMLElement | null>(null)
-const descriptionInput = ref<HTMLElement | null>(null)
+
 
 // Computed properties (unused but kept for future use)
 // const descriptionValue = computed(() => dictionary.value?.root?.description || '')
@@ -245,30 +207,7 @@ const handleRootPropertyChange = (updatedProperty: DictionaryProperty) => {
 
 
 
-// Edit-in-place methods
-const startEditTitle = () => {
-  editingTitle.value = true
-  nextTick(() => {
-    titleInput.value?.focus()
-  })
-}
 
-const finishEditTitle = () => {
-  editingTitle.value = false
-  autoSave()
-}
-
-const startEditDescription = () => {
-  editingDescription.value = true
-  nextTick(() => {
-    descriptionInput.value?.focus()
-  })
-}
-
-const finishEditDescription = () => {
-  editingDescription.value = false
-  autoSave()
-}
 
 const lockDictionary = async () => {
   if (!dictionary.value) return
@@ -332,62 +271,6 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* Edit-in-place styling */
-.title-display {
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-}
-
-.title-display:hover {
-  background-color: rgba(46, 125, 50, 0.04);
-  border-radius: 4px;
-  padding: 4px;
-  margin: -4px;
-}
-
-.description-display {
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-}
-
-.description-display:hover {
-  background-color: rgba(46, 125, 50, 0.04);
-  border-radius: 4px;
-  padding: 4px;
-  margin: -4px;
-}
-
-.title-text {
-  font-size: 2rem;
-  font-weight: 300;
-  color: rgba(0, 0, 0, 0.87);
-  margin: 0;
-}
-
-.description-text {
-  font-size: 1rem;
-  color: rgba(0, 0, 0, 0.6);
-  margin: 0;
-}
-
-.title-edit-field {
-  font-size: 2rem !important;
-  font-weight: 300 !important;
-}
-
-.description-edit-field {
-  font-size: 1rem !important;
-}
-
-.h1-style {
-  font-size: 2rem !important;
-  font-weight: 300 !important;
-}
-
-.cursor-pointer {
-  cursor: pointer;
-}
-
 /* Dictionary content styling */
 .dictionary-content {
   margin-top: 24px;
