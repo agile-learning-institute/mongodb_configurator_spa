@@ -149,6 +149,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { apiService } from '@/utils/api'
+import { useEvents } from '@/composables/useEvents'
 import BaseCard from '@/components/BaseCard.vue'
 
 import VersionInformationCards from '@/components/VersionInformationCards.vue'
@@ -271,12 +272,41 @@ const processAllVersions = async () => {
   error.value = null
   
   try {
-    await apiService.processConfiguration(configuration.value.file_name)
+    const result = await apiService.processConfiguration(configuration.value.file_name)
+    
+    // Handle array of events or single event
+    if (Array.isArray(result) && result.length > 0) {
+      // API returned an array of events
+      const { showEvent } = useEvents()
+      showEvent(result[0], 'Configuration Processed', 'Configuration processing completed')
+    } else if (result && result.id && result.type && result.status) {
+      // API returned a single event
+      const { showEvent } = useEvents()
+      showEvent(result, 'Configuration Processed', 'Configuration processing completed')
+    } else {
+      // No event data, show simple success message
+      const { showError } = useEvents()
+      showError('Configuration processed successfully', 'Success', 'Configuration Processing Complete')
+    }
+    
     // Reload configuration to get updated status
     await loadConfiguration()
   } catch (err: any) {
-    error.value = err.message || 'Failed to process configuration'
     console.error('Failed to process configuration:', err)
+    
+    // Handle API errors with event data
+    if (err.type === 'API_ERROR' && err.data) {
+      if (err.data.id && err.data.type && err.data.status) {
+        const { showEvent } = useEvents()
+        showEvent(err.data, 'Process Configuration Error', 'Failed to process configuration')
+      } else {
+        const { showError } = useEvents()
+        showError(err.message || 'Failed to process configuration', 'Process Configuration Error', 'Failed to process configuration')
+      }
+    } else {
+      const { showError } = useEvents()
+      showError(err.message || 'Failed to process configuration', 'Process Configuration Error', 'Failed to process configuration')
+    }
   } finally {
     processing.value = false
   }
