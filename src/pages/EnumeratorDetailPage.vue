@@ -78,7 +78,7 @@
                         :disabled="enumerator._locked"
                         class="mr-3"
                         style="min-width: 200px;"
-                        @update:model-value="handleEnumNameChange(enumName as string, $event)"
+                        @update:model-value="handleEnumNameChange(String(enumName), $event)"
                       />
                       <v-chip size="small" color="primary">
                         {{ Object.keys(enumValues).length }} values
@@ -90,7 +90,7 @@
                       size="small"
                       variant="text"
                       color="error"
-                                              @click.stop="deleteEnumeration(enumName as string)"
+                                              @click.stop="deleteEnumeration(String(enumName))"
                     >
                       <v-icon size="16">mdi-delete</v-icon>
                     </v-btn>
@@ -105,7 +105,7 @@
                         color="success"
                         variant="text"
                         size="small"
-                        @click="addEnumValue(enumName)"
+                        @click="addEnumValue(String(enumName))"
                         :disabled="enumerator._locked"
                       >
                         <v-icon start size="small">mdi-plus</v-icon>
@@ -132,7 +132,7 @@
                           :disabled="enumerator._locked"
                           class="mr-2"
                           style="min-width: 150px;"
-                          @update:model-value="handleEnumKeyChange(enumName, key, $event)"
+                          @update:model-value="handleEnumKeyChange(String(enumName), String(key), $event)"
                         />
                         <v-text-field
                           v-model="editableEnumValues[enumName][key]"
@@ -142,7 +142,7 @@
                           :disabled="enumerator._locked"
                           class="mr-2"
                           style="min-width: 200px;"
-                          @update:model-value="handleEnumValueChange(enumName, key, $event)"
+                          @update:model-value="handleEnumValueChange(String(enumName), String(key), $event)"
                         />
                         <v-btn
                           v-if="!enumerator._locked"
@@ -150,7 +150,7 @@
                           size="small"
                           variant="text"
                           color="error"
-                          @click="deleteEnumValue(enumName, key)"
+                          @click="deleteEnumValue(String(enumName), String(key))"
                         >
                           <v-icon size="16">mdi-delete</v-icon>
                         </v-btn>
