@@ -56,7 +56,7 @@
 </template>
 
 <script setup lang="ts">
-import { usePropertyEditor, type Property } from '@/composables/usePropertyEditor'
+import { useCustomPropertyEditor } from '@/composables/useCustomPropertyEditor'
 import TypePicker from './TypePicker.vue'
 import InLineEditor from './InLineEditor.vue'
 import { computed } from 'vue'
@@ -75,18 +75,11 @@ const emit = defineEmits<{
 }>()
 
 const {
-  editablePropertyName,
   handleChange,
   handleTypeChange,
-  handlePropertyNameChange
-} = usePropertyEditor(property, {
-  onUpdate: (property) => emit('change', property),
-  onDelete: () => emit('delete')
-})
-
-function handleDelete() {
-  emit('delete')
-}
+  handlePropertyNameChange,
+  handleDelete
+} = useCustomPropertyEditor(property, (event, ...args) => emit(event, ...args))
 </script>
 
 <style scoped>

@@ -6,19 +6,27 @@ root:
   required: true
   items:
     description: ''
-    type: object
+    type: array
     required: false
-    additional_properties: false
-    properties:
-      property_1:
-        description: enter description here
-        type: word
+    items:
+      description: ''
+      type: array
+      required: false
+      items:
+        description: ''
+        type: object
         required: false
-      property_2:
-        description: enter description here
-        type: word
-        required: false
-      property_3:
-        description: enter description here
-        type: word
-        required: false
+        additional_properties: false
+        properties:
+          property_1:
+            description: enter description here
+            type: word
+            required: false
+          property_2:
+            description: enter description here
+            type: word
+            required: false
+          property_3:
+            description: enter description here
+            type: word
+            required: false

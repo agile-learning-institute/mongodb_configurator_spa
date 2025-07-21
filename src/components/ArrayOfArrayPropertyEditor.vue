@@ -72,7 +72,7 @@
 </template>
 
 <script setup lang="ts">
-import { usePropertyEditor, type Property } from '@/composables/usePropertyEditor'
+import { useArrayOfArrayPropertyEditor } from '@/composables/useArrayOfArrayPropertyEditor'
 import TypePicker from './TypePicker.vue'
 import InLineEditor from './InLineEditor.vue'
 import ItemTypePicker from './ItemTypePicker.vue'
@@ -93,44 +93,10 @@ const emit = defineEmits<{
 }>()
 
 const {
-  editablePropertyName,
+  itemsType,
   handleChange,
-  handleTypeChange,
-  handlePropertyNameChange
-} = usePropertyEditor(property, {
-  onUpdate: (property) => emit('change', property),
-  onDelete: () => emit('delete')
-})
-
-// Computed getter/setter for itemsType
-const itemsType = computed({
-  get() {
-    return property.items?.type || ''
-  },
-  set(type: string) {
-    if (type === 'array') {
-      property.items = {
-        type: 'array',
-        items: {
-          type: 'word',
-          description: '',
-          required: false
-        },
-        description: '',
-        required: false
-      }
-    } else {
-      if (!property.items) property.items = {} as any
-      property.items.type = type
-    }
-    handleChange()
-    emit('change', property)
-  }
-})
-
-function handleDelete() {
-  emit('delete')
-}
+  handleDelete
+} = useArrayOfArrayPropertyEditor(property, (event, ...args) => emit(event, ...args))
 </script>
 
 <style scoped>

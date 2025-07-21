@@ -11,7 +11,7 @@ export interface Property {
   schema?: any
   json_type?: any
   bson_type?: any
-  enums?: string[]
+  enums?: string // was string[], now a single string for enum name
   oneOf?: Record<string, any>
 }
 

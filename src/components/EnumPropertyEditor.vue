@@ -62,7 +62,7 @@
 </template>
 
 <script setup lang="ts">
-import { usePropertyEditor, type Property } from '@/composables/usePropertyEditor'
+import { useEnumPropertyEditor } from '@/composables/useEnumPropertyEditor'
 import TypePicker from './TypePicker.vue'
 import EnumPicker from './EnumPicker.vue'
 import InLineEditor from './InLineEditor.vue'
@@ -82,26 +82,12 @@ const emit = defineEmits<{
 }>()
 
 const {
-  editablePropertyName,
   handleChange,
   handleTypeChange,
-  handlePropertyNameChange
-} = usePropertyEditor(property, {
-  onUpdate: (property) => emit('change', property),
-  onDelete: () => emit('delete')
-})
-
-function handleEnumChange(value: string) {
-  if (!property.enums) {
-    property.enums = []
-  }
-  property.enums[0] = value
-  handleChange()
-}
-
-function handleDelete() {
-  emit('delete')
-}
+  handlePropertyNameChange,
+  handleEnumChange,
+  handleDelete
+} = useEnumPropertyEditor(property, (event, ...args) => emit(event, ...args))
 </script>
 
 <style scoped>
