@@ -97,6 +97,19 @@ export function usePropertyEditor(
           required: false
         }
       }
+      // If items.type is 'array', replace items with a new array structure
+      if (property.items.type === 'array') {
+        property.items = {
+          type: 'array',
+          items: {
+            type: 'word',
+            description: '',
+            required: false
+          },
+          description: '',
+          required: false
+        }
+      }
     }
     
     if (type !== 'enum' && type !== 'enum_array') {

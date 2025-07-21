@@ -164,6 +164,8 @@ const autoSave = async () => {
   error.value = null
   
   try {
+    // Log the dictionary data before saving
+    console.log('Saving dictionary:', JSON.stringify(dictionary.value, null, 2))
     // Save the dictionary
     await apiService.saveDictionary(dictionary.value.file_name, dictionary.value)
     // Reload the fresh data from the API

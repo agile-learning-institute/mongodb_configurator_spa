@@ -1,5 +1,5 @@
 <template>
-  <div class="array-custom-property-editor">
+  <div class="array-array-property-editor">
     <div class="property-title-row d-flex align-center pa-4 border-b">
       <!-- Key editor (if not root) -->
       <InLineEditor
@@ -58,6 +58,16 @@
         <v-icon size="16">mdi-delete</v-icon>
       </v-btn>
     </div>
+    <!-- Body: nested PropertyEditorFactory for items -->
+    <div class="property-body pa-4">
+      <PropertyEditorFactory
+        v-if="property.items"
+        :property="property.items"
+        :is-root="false"
+        @change="handleChange"
+        @delete="handleDelete"
+      />
+    </div>
   </div>
 </template>
 
@@ -66,6 +76,7 @@ import { usePropertyEditor, type Property } from '@/composables/usePropertyEdito
 import TypePicker from './TypePicker.vue'
 import InLineEditor from './InLineEditor.vue'
 import ItemTypePicker from './ItemTypePicker.vue'
+import PropertyEditorFactory from './PropertyEditorFactory.vue'
 import { computed } from 'vue'
 
 const props = defineProps<{
@@ -123,7 +134,7 @@ function handleDelete() {
 </script>
 
 <style scoped>
-.array-custom-property-editor {
+.array-array-property-editor {
   width: 100%;
   border: 1px solid #e0e0e0;
   border-radius: 8px;
@@ -137,6 +148,10 @@ function handleDelete() {
 .property-name-input {
   max-width: 150px;
 }
+.items-label {
+  font-weight: 500;
+  color: #555;
+}
 :deep(.tooltip-dark) {
   background-color: #424242 !important;
   color: white !important;
@@ -144,9 +159,5 @@ function handleDelete() {
 :deep(.tooltip-dark .v-tooltip__content) {
   background-color: #424242 !important;
   color: white !important;
-}
-.items-label {
-  font-weight: 500;
-  color: #555;
 }
 </style> 
