@@ -59,7 +59,7 @@
       <!-- Dictionary Content -->
       <div class="dictionary-content">
         <BaseCard 
-          title="Dictionary Properties"
+          :title="getDictionaryTitle()"
           icon="mdi-shape"
           :is-secondary="false"
         >
@@ -201,6 +201,14 @@ const handleRootPropertyChange = (updatedProperty: DictionaryProperty) => {
     dictionary.value.root = updatedProperty
     autoSave()
   }
+}
+
+// Helper method for card title
+const getDictionaryTitle = () => {
+  if (!dictionary.value) return 'Dictionary Properties'
+  const fileName = dictionary.value.file_name.replace('.yaml', '')
+  const description = dictionary.value.root?.description || ''
+  return `${fileName}: ${description}`
 }
 
 
