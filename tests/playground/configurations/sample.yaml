@@ -17,7 +17,7 @@ versions:
     options:
       unique: false
   migrations: []
-  test_data: sample.1.0.0.1.json
+  test_data: sample.1.0.1.2.json
   _locked: false
 - version: 1.0.1.2
   drop_indexes:

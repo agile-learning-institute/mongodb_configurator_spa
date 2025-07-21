@@ -182,10 +182,24 @@ const removeMigration = (index: number) => {
 }
 
 const addIndex = () => {
+  // Prompt for index name
+  const indexName = prompt('Enter index name:')
+  if (!indexName || !indexName.trim()) {
+    return // User cancelled or entered empty name
+  }
+  
   if (!props.version.add_indexes) {
     props.version.add_indexes = []
   }
-  props.version.add_indexes.push({})
+  
+  // Create new index with the specified structure
+  const newIndex = {
+    name: indexName.trim(),
+    key: {},
+    options: {}
+  }
+  
+  props.version.add_indexes.push(newIndex)
   props.onUpdate()
 }
 
