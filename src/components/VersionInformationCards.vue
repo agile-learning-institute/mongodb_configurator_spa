@@ -116,6 +116,42 @@
       </div>
     </BaseCard>
   </div>
+
+  <!-- Migration Selection Dialog -->
+  <v-dialog v-model="showMigrationDialog" max-width="500px">
+    <v-card>
+      <v-card-title>Select Migration</v-card-title>
+      <v-card-text>
+        <v-select
+          v-model="selectedMigration"
+          :items="migrationFiles"
+          label="Choose a migration file"
+          variant="outlined"
+          density="compact"
+          :loading="migrationFiles.length === 0"
+          :disabled="migrationFiles.length === 0"
+        />
+        <p v-if="migrationFiles.length === 0" class="text-caption text-medium-emphasis mt-2">
+          No migration files available
+        </p>
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer />
+        <v-btn
+          @click="showMigrationDialog = false"
+        >
+          Cancel
+        </v-btn>
+        <v-btn
+          color="primary"
+          @click="selectMigration"
+          :disabled="!selectedMigration"
+        >
+          Add Migration
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script setup lang="ts">
@@ -139,6 +175,9 @@ interface Props {
 
 const props = defineProps<Props>()
 const testDataFiles = ref<string[]>([])
+const migrationFiles = ref<string[]>([])
+const showMigrationDialog = ref(false)
+const selectedMigration = ref('')
 
 // Load test data files
 const loadTestDataFiles = async () => {
@@ -147,6 +186,16 @@ const loadTestDataFiles = async () => {
     testDataFiles.value = files.map((file: any) => file.file_name)
   } catch (err) {
     console.error('Failed to load test data files:', err)
+  }
+}
+
+// Load migration files
+const loadMigrationFiles = async () => {
+  try {
+    const files = await apiService.getMigrations()
+    migrationFiles.value = files.map((file: any) => file.file_name)
+  } catch (err) {
+    console.error('Failed to load migration files:', err)
   }
 }
 
@@ -166,12 +215,15 @@ const removeDropIndex = (index: number) => {
   }
 }
 
-const addMigration = () => {
-  if (!props.version.migrations) {
-    props.version.migrations = []
+const addMigration = async () => {
+  // Load migration files if not already loaded
+  if (migrationFiles.value.length === 0) {
+    await loadMigrationFiles()
   }
-  props.version.migrations.push('')
-  props.onUpdate()
+  
+  // Show migration selection dialog
+  showMigrationDialog.value = true
+  selectedMigration.value = ''
 }
 
 const removeMigration = (index: number) => {
@@ -179,6 +231,24 @@ const removeMigration = (index: number) => {
     props.version.migrations.splice(index, 1)
     props.onUpdate()
   }
+}
+
+const selectMigration = () => {
+  if (!selectedMigration.value) {
+    return // No migration selected
+  }
+  
+  if (!props.version.migrations) {
+    props.version.migrations = []
+  }
+  
+  // Add the selected migration
+  props.version.migrations.push(selectedMigration.value)
+  props.onUpdate()
+  
+  // Close dialog and reset selection
+  showMigrationDialog.value = false
+  selectedMigration.value = ''
 }
 
 const addIndex = () => {
@@ -223,6 +293,7 @@ const getIndexName = (indexData: any, index: number) => {
 
 onMounted(() => {
   loadTestDataFiles()
+  loadMigrationFiles()
 })
 </script>
 

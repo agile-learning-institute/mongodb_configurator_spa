@@ -4,19 +4,7 @@ description: A collection for testg the configurator ad
 versions:
 - version: 1.0.0.1
   drop_indexes: []
-  add_indexes:
-  - key:
-      first_name: 1
-      last_name: 1
-    name: nameIndex
-    options:
-      unique: true
-  - key:
-      status: 1
-    name: statusIndex
-    options:
-      unique: false
-      foo: bar
+  add_indexes: []
   migrations: []
   test_data: sample.1.0.1.2.json
   _locked: false
