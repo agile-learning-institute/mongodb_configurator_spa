@@ -80,7 +80,14 @@
             </div>
             
             <!-- Required Icon -->
-            <v-tooltip v-if="canBeRequired" location="top" class="tooltip-dark">
+            <v-tooltip 
+              v-if="canBeRequired" 
+              location="top" 
+              class="tooltip-dark"
+              :open-delay="0"
+              :close-delay="0"
+              theme="dark"
+            >
               <template v-slot:activator="{ props }">
                 <v-btn
                   icon
@@ -99,7 +106,14 @@
             </v-tooltip>
             
             <!-- Additional Properties Icon (for objects) -->
-            <v-tooltip v-if="canHaveAdditionalProperties" location="top" class="tooltip-dark">
+            <v-tooltip 
+              v-if="canHaveAdditionalProperties" 
+              location="top" 
+              class="tooltip-dark"
+              :open-delay="0"
+              :close-delay="0"
+              theme="dark"
+            >
               <template v-slot:activator="{ props }">
                 <v-btn
                   icon
@@ -118,7 +132,14 @@
             </v-tooltip>
             
             <!-- One Of Icon (for objects in dictionaries) -->
-            <v-tooltip v-if="canHaveOneOf" location="top" class="tooltip-dark">
+            <v-tooltip 
+              v-if="canHaveOneOf" 
+              location="top" 
+              class="tooltip-dark"
+              :open-delay="0"
+              :close-delay="0"
+              theme="dark"
+            >
               <template v-slot:activator="{ props }">
                 <v-btn
                   icon
@@ -137,7 +158,14 @@
             </v-tooltip>
             
             <!-- Delete Button (for sub-properties only, not items) -->
-            <v-tooltip v-if="canBeDeleted" location="top" class="tooltip-dark">
+            <v-tooltip 
+              v-if="canBeDeleted" 
+              location="top" 
+              class="tooltip-dark"
+              :open-delay="0"
+              :close-delay="0"
+              theme="dark"
+            >
               <template v-slot:activator="{ props }">
                 <v-btn
                   icon
@@ -441,6 +469,22 @@ const getPropertyIcon = () => {
 }
 
 :deep(.tooltip-dark .v-tooltip__content) {
+  background-color: #424242 !important;
+  color: white !important;
+}
+
+/* More comprehensive tooltip styling */
+:deep(.v-tooltip) {
+  background-color: #424242 !important;
+  color: white !important;
+}
+
+:deep(.v-tooltip .v-tooltip__content) {
+  background-color: #424242 !important;
+  color: white !important;
+}
+
+:deep(.v-overlay__content) {
   background-color: #424242 !important;
   color: white !important;
 }

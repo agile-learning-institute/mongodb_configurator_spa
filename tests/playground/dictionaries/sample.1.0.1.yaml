@@ -3,6 +3,8 @@ _locked: false
 root:
   description: A simple collection for testing
   type: object
+  required: true
+  additional_properties: false
   properties:
     _id:
       description: The unique identifier for the media
@@ -15,5 +17,5 @@ root:
     status:
       description: The current status of the document
       type: enum
-      enums: default_status
       required: true
+      enums: default_status
