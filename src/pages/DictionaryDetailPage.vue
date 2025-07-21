@@ -169,17 +169,25 @@
             </v-tooltip>
           </template>
           
-          <div v-if="dictionary.root" class="pa-4">
-            <PropertyEditor
-              :property="dictionary.root"
-              property-name="root"
-              :disabled="dictionary._locked"
-              :exclude-type="dictionary.file_name"
-              :top-level="false"
-              :hide-top-level-row="true"
-              type-picker-component="DictionaryTypePicker"
-              @change="handleRootPropertyChange"
-            />
+          <div v-if="dictionary.root && dictionary.root.properties" class="pa-4">
+            <!-- List of Property Editors -->
+            <div v-for="(property, propertyName) in dictionary.root.properties" :key="propertyName" class="mb-4">
+              <PropertyEditor
+                :property="property"
+                :property-name="propertyName"
+                :disabled="dictionary._locked"
+                :exclude-type="dictionary.file_name"
+                :top-level="false"
+                @change="(updatedProperty) => handlePropertyChange(propertyName, updatedProperty)"
+              />
+            </div>
+            
+            <!-- Empty state -->
+            <div v-if="Object.keys(dictionary.root.properties).length === 0" class="text-center pa-8">
+              <v-icon size="48" color="grey-lighten-1">mdi-shape-outline</v-icon>
+              <p class="text-body-1 text-medium-emphasis mt-2">No properties defined yet</p>
+              <p class="text-caption text-medium-emphasis">Click "Add Property" to get started</p>
+            </div>
           </div>
           <div v-else class="pa-4">
             <v-alert type="error">
@@ -307,6 +315,13 @@ const autoSave = async () => {
 const handleRootPropertyChange = (updatedProperty: DictionaryProperty) => {
   if (dictionary.value) {
     dictionary.value.root = updatedProperty
+    autoSave()
+  }
+}
+
+const handlePropertyChange = (propertyName: string, updatedProperty: DictionaryProperty) => {
+  if (dictionary.value?.root?.properties) {
+    dictionary.value.root.properties[propertyName] = updatedProperty
     autoSave()
   }
 }
