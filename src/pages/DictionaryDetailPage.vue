@@ -171,9 +171,7 @@ const loadDictionary = async () => {
   
   try {
     const fileName = route.params.fileName as string
-    console.log('Loading dictionary:', fileName)
     dictionary.value = await apiService.getDictionary(fileName)
-    console.log('Dictionary loaded:', dictionary.value)
   } catch (err: any) {
     error.value = err.message || 'Failed to load dictionary'
     console.error('Failed to load dictionary:', err)
@@ -265,7 +263,6 @@ const cancelUnlock = () => {
 
 // Load dictionary on mount
 onMounted(() => {
-  console.log('DictionaryDetailPage mounted')
   loadDictionary()
 })
 </script>

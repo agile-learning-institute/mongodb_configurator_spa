@@ -38,8 +38,17 @@
       <div class="d-flex align-center">
         <!-- Type Selector -->
         <div class="property-type mr-2 d-flex justify-end" style="min-width: 120px;">
-          <component
-            :is="typePickerComponent"
+          <DictionaryTypePicker
+            v-if="props.typePickerComponent === 'DictionaryTypePicker'"
+            v-model="property.type"
+            label="Type"
+            density="compact"
+            :disabled="disabled"
+            :exclude-type="excludeType"
+            @update:model-value="handleTypeChange"
+          />
+          <TypePicker
+            v-else
             v-model="property.type"
             label="Type"
             density="compact"
@@ -213,7 +222,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+
 import { usePropertyEditor, type Property } from '@/composables/usePropertyEditor'
 import DictionaryTypePicker from './DictionaryTypePicker.vue'
 import TypePicker from './TypePicker.vue'
@@ -273,10 +282,7 @@ const {
   onDelete: () => emit('delete')
 })
 
-// Computed properties
-const typePickerComponent = computed(() => {
-  return props.typePickerComponent === 'TypePicker' ? TypePicker : DictionaryTypePicker
-})
+
 
 // Methods
 const handlePropertyChange = (propName: string, updatedProperty: Property) => {
