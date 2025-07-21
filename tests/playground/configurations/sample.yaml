@@ -6,7 +6,7 @@ versions:
   drop_indexes: []
   add_indexes: []
   migrations:
-  - first_last_to_full_name.json
+  - test_migration_4.json
   test_data: sample.1.0.1.2.json
   _locked: false
 - version: 1.0.1.2

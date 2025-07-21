@@ -127,16 +127,15 @@
           <div class="text-body-2 text-medium-emphasis mt-2">No migration files available</div>
         </div>
         <div v-else class="migration-picker">
-          <div class="text-body-2 text-medium-emphasis mb-3">Click a migration to select it:</div>
+          <div class="text-body-2 text-medium-emphasis mb-3">Click a migration to add it:</div>
           <div class="d-flex flex-wrap gap-2">
             <v-chip
               v-for="migration in migrationFiles"
               :key="migration"
-              :color="selectedMigration === migration ? 'primary' : 'default'"
-              :variant="selectedMigration === migration ? 'elevated' : 'outlined'"
+              color="primary"
+              variant="outlined"
               class="migration-chip"
-              @click="selectedMigration = migration"
-              :class="{ 'selected': selectedMigration === migration }"
+              @click="addSelectedMigration(migration)"
             >
               {{ migration }}
             </v-chip>
@@ -149,13 +148,6 @@
           @click="showMigrationDialog = false"
         >
           Cancel
-        </v-btn>
-        <v-btn
-          color="primary"
-          @click="selectMigration"
-          :disabled="!selectedMigration"
-        >
-          Add Migration
         </v-btn>
       </v-card-actions>
     </v-card>
@@ -185,7 +177,6 @@ const props = defineProps<Props>()
 const testDataFiles = ref<string[]>([])
 const migrationFiles = ref<string[]>([])
 const showMigrationDialog = ref(false)
-const selectedMigration = ref('')
 
 // Load test data files
 const loadTestDataFiles = async () => {
@@ -231,7 +222,6 @@ const addMigration = async () => {
   
   // Show migration selection dialog
   showMigrationDialog.value = true
-  selectedMigration.value = ''
 }
 
 const removeMigration = (index: number) => {
@@ -241,22 +231,17 @@ const removeMigration = (index: number) => {
   }
 }
 
-const selectMigration = () => {
-  if (!selectedMigration.value) {
-    return // No migration selected
-  }
-  
+const addSelectedMigration = (migration: string) => {
   if (!props.version.migrations) {
     props.version.migrations = []
   }
   
   // Add the selected migration
-  props.version.migrations.push(selectedMigration.value)
+  props.version.migrations.push(migration)
   props.onUpdate()
   
-  // Close dialog and reset selection
+  // Close dialog
   showMigrationDialog.value = false
-  selectedMigration.value = ''
 }
 
 const addIndex = () => {
