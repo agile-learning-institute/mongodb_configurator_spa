@@ -16,11 +16,33 @@
     <!-- Content -->
     <div v-else-if="configuration">
       <!-- File Header -->
-      <div class="d-flex align-center justify-space-between mb-4">
-        <div>
-          <h1 class="text-h4">{{ configuration.title }}</h1>
-          <p class="text-body-2 text-medium-emphasis">{{ configuration.file_name }}</p>
+      <div class="d-flex align-center justify-space-between mb-6">
+        <div class="flex-grow-1">
+          <!-- File name and title row -->
+          <div class="d-flex align-center mb-2">
+            <span class="text-body-2 text-medium-emphasis mr-4">{{ configuration.file_name }}</span>
+            <v-text-field
+              v-model="configuration.title"
+              variant="plain"
+              density="compact"
+              class="title-edit-field"
+              hide-details
+              @update:model-value="autoSave"
+            />
+          </div>
+          
+          <!-- Description row -->
+          <v-text-field
+            v-model="configuration.description"
+            placeholder="Enter configuration description..."
+            variant="plain"
+            density="compact"
+            class="description-edit-field"
+            hide-details
+            @update:model-value="autoSave"
+          />
         </div>
+        
         <div class="d-flex gap-2">
           <v-btn
             color="secondary"
@@ -36,22 +58,6 @@
 
       <!-- Configuration Content -->
       <div class="configuration-content">
-        <!-- Description -->
-        <BaseCard 
-          title="Description"
-          icon="mdi-information"
-          :is-secondary="true"
-          compact
-        >
-          <v-text-field
-            v-model="configuration.description"
-            placeholder="Enter configuration description..."
-            variant="outlined"
-            density="compact"
-            @update:model-value="autoSave"
-          />
-        </BaseCard>
-
         <!-- Version Management -->
         <BaseCard 
           title="Version Management"
@@ -59,34 +65,63 @@
           :is-secondary="false"
         >
           <div class="version-tabs">
-            <v-tabs v-model="activeVersion" class="mb-4">
-              <v-tab
-                v-for="version in configuration.versions"
-                :key="version.version"
-                :value="version.version"
-              >
-                <div class="d-flex align-center">
-                  <span>{{ version.version }}</span>
-                  <v-icon 
-                    v-if="version._locked" 
-                    size="small" 
-                    color="warning" 
-                    class="ml-1"
-                  >
-                    mdi-lock
-                  </v-icon>
-                </div>
-              </v-tab>
-            </v-tabs>
+            <div class="d-flex align-center justify-space-between mb-4">
+              <v-tabs v-model="activeVersion">
+                <v-tab
+                  v-for="version in configuration.versions"
+                  :key="version.version"
+                  :value="version.version"
+                >
+                  <div class="d-flex align-center">
+                    <span>{{ version.version }}</span>
+                    <v-icon 
+                      v-if="version._locked" 
+                      size="small" 
+                      color="warning" 
+                      class="ml-1"
+                    >
+                      mdi-lock
+                    </v-icon>
+                    <v-icon 
+                      v-else
+                      size="small" 
+                      color="success" 
+                      class="ml-1"
+                    >
+                      mdi-lock-open
+                    </v-icon>
+                  </div>
+                </v-tab>
+              </v-tabs>
+              
+              <!-- Schema buttons for active version -->
+              <div v-if="activeVersion" class="d-flex gap-2">
+                <v-btn
+                  color="primary"
+                  variant="outlined"
+                  size="small"
+                  @click="downloadJsonSchema(activeVersion)"
+                >
+                  <v-icon start size="small">mdi-code-json</v-icon>
+                  JSON Schema
+                </v-btn>
+                <v-btn
+                  color="primary"
+                  variant="outlined"
+                  size="small"
+                  @click="downloadBsonSchema(activeVersion)"
+                >
+                  <v-icon start size="small">mdi-database</v-icon>
+                  BSON Schema
+                </v-btn>
+              </div>
+            </div>
 
             <div v-if="activeVersion && activeVersionData" class="version-content">
-              <!-- Version Configuration Component -->
-              <VersionConfiguration
+              <!-- Version Information Cards -->
+              <VersionInformationCards
                 :version="activeVersionData"
-                :collection-name="configuration.file_name"
-                @render-json="downloadJsonSchema"
-                @render-bson="downloadBsonSchema"
-                @render-openapi="downloadOpenApi"
+                :on-update="autoSave"
               />
 
               <!-- Version-specific actions -->
@@ -155,7 +190,8 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { apiService } from '@/utils/api'
 import BaseCard from '@/components/BaseCard.vue'
-import VersionConfiguration from '@/components/VersionConfiguration.vue'
+
+import VersionInformationCards from '@/components/VersionInformationCards.vue'
 
 interface ConfigurationVersion {
   version: string
@@ -317,17 +353,7 @@ const downloadBsonSchema = async (version: string) => {
   }
 }
 
-const downloadOpenApi = async (_version: string) => {
-  if (!configuration.value) return
-  
-  try {
-    // Note: OpenAPI rendering not implemented in API yet
-    error.value = 'OpenAPI schema rendering not implemented yet'
-  } catch (err: any) {
-    error.value = err.message || 'Failed to download OpenAPI schema'
-    console.error('Failed to download OpenAPI schema:', err)
-  }
-}
+
 
 // Load configuration on mount
 onMounted(() => {
@@ -353,5 +379,15 @@ onMounted(() => {
 .version-actions {
   border-top: 1px solid rgba(0, 0, 0, 0.12);
   padding-top: 16px;
+}
+
+.title-edit-field {
+  font-size: 1.5rem;
+  font-weight: 500;
+}
+
+.description-edit-field {
+  font-size: 0.875rem;
+  color: rgba(0, 0, 0, 0.6);
 }
 </style> 
