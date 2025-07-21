@@ -21,13 +21,20 @@
           <!-- File name and title row -->
           <div class="d-flex align-center mb-2">
             <h2 class="text-h5 text-medium-emphasis mr-4 mb-0">{{ configuration.file_name }}</h2>
+            <div v-if="!editingTitle" @click="startEditTitle" class="title-display">
+              <h1 class="title-text mb-0 cursor-pointer">{{ configuration.title || 'Enter configuration title...' }}</h1>
+            </div>
             <v-text-field
+              v-else
               v-model="configuration.title"
               variant="plain"
               density="compact"
               class="title-edit-field h1-style"
               hide-details
               @update:model-value="autoSave"
+              @blur="finishEditTitle"
+              @keyup.enter="finishEditTitle"
+              ref="titleInput"
             />
           </div>
           
@@ -225,6 +232,8 @@ const configuration = ref<Configuration | null>(null)
 const activeVersion = ref<string>('')
 const editingDescription = ref(false)
 const descriptionInput = ref<HTMLElement | null>(null)
+const editingTitle = ref(false)
+const titleInput = ref<HTMLElement | null>(null)
 
 // Computed properties
 const activeVersionData = computed(() => {
@@ -289,6 +298,20 @@ const startEditDescription = () => {
 
 const finishEditDescription = () => {
   editingDescription.value = false
+}
+
+const startEditTitle = () => {
+  editingTitle.value = true
+  // Focus the input after it's rendered
+  setTimeout(() => {
+    if (titleInput.value) {
+      titleInput.value.focus()
+    }
+  }, 0)
+}
+
+const finishEditTitle = () => {
+  editingTitle.value = false
 }
 
 const lockVersion = async () => {
@@ -410,10 +433,27 @@ onMounted(() => {
 }
 
 .h1-style {
+  font-size: 2.125rem !important;
+  font-weight: 300 !important;
+  line-height: 1.2 !important;
+  color: rgba(0, 0, 0, 0.87) !important;
+}
+
+.title-display {
+  cursor: pointer;
+}
+
+.title-text {
   font-size: 2.125rem;
   font-weight: 300;
   line-height: 1.2;
   color: rgba(0, 0, 0, 0.87);
+  margin: 0;
+  transition: color 0.2s ease;
+}
+
+.title-text:hover {
+  color: rgba(0, 0, 0, 0.6);
 }
 
 .description-edit-field {
