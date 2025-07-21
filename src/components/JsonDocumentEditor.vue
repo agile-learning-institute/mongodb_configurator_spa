@@ -2,55 +2,73 @@
   <div class="json-document-editor">
     <!-- Header -->
     <div class="d-flex align-center mb-3">
+      <v-btn
+        icon
+        size="small"
+        variant="text"
+        @click="toggleCollapsed"
+        class="mr-2"
+      >
+        <v-icon size="small">
+          {{ collapsed ? 'mdi-chevron-right' : 'mdi-chevron-down' }}
+        </v-icon>
+      </v-btn>
       <div class="text-h6 font-weight-bold mr-3">{{ title }}</div>
       <v-spacer />
-      <v-btn
-        v-if="showFormatButton"
-        color="secondary"
-        variant="outlined"
-        size="small"
-        @click="formatJson"
-        :disabled="disabled"
-      >
-        <v-icon start size="small">mdi-format-indent-increase</v-icon>
-        Format
-      </v-btn>
+      <div class="d-flex gap-2">
+        <v-btn
+          v-if="onDelete"
+          color="error"
+          variant="outlined"
+          size="small"
+          @click="onDelete"
+          :disabled="disabled"
+        >
+          <v-icon start size="small">mdi-delete</v-icon>
+          Delete
+        </v-btn>
+      </div>
     </div>
 
-    <!-- Editor -->
-    <v-textarea
-      v-model="jsonText"
-      :placeholder="placeholder"
-      variant="outlined"
-      density="compact"
-      :disabled="disabled"
-      :error="!!jsonError"
-      :error-messages="jsonError"
-      :rows="rows"
-      auto-grow
-      @update:model-value="handleJsonChange"
-      @blur="validateJson"
-    />
+    <!-- Editor Content (Collapsible) -->
+    <v-expand-transition>
+      <div v-show="!collapsed">
+        <!-- Editor -->
+        <v-textarea
+          v-model="jsonText"
+          :placeholder="placeholder"
+          variant="outlined"
+          density="compact"
+          :disabled="disabled"
+          :error="!!jsonError"
+          :error-messages="jsonError"
+          :rows="computedRows"
+          auto-grow
+          @update:model-value="handleJsonChange"
+          @blur="validateJson"
+        />
 
-    <!-- Error Display -->
-    <v-alert
-      v-if="jsonError"
-      type="error"
-      variant="tonal"
-      class="mt-3"
-    >
-      {{ jsonError }}
-    </v-alert>
+        <!-- Error Display -->
+        <v-alert
+          v-if="jsonError"
+          type="error"
+          variant="tonal"
+          class="mt-3"
+        >
+          {{ jsonError }}
+        </v-alert>
 
-    <!-- Info Display -->
-    <v-alert
-      v-if="showInfo && !jsonError"
-      type="info"
-      variant="tonal"
-      class="mt-3"
-    >
-      {{ infoMessage }}
-    </v-alert>
+        <!-- Info Display -->
+        <v-alert
+          v-if="showInfo && !jsonError"
+          type="info"
+          variant="tonal"
+          class="mt-3"
+        >
+          {{ infoMessage }}
+        </v-alert>
+      </div>
+    </v-expand-transition>
   </div>
 </template>
 
@@ -63,17 +81,16 @@ interface Props {
   placeholder?: string
   disabled?: boolean
   rows?: number
-  showFormatButton?: boolean
   showInfo?: boolean
   infoMessage?: string
   autoSave?: () => Promise<void>
+  onDelete?: () => void
 }
 
 const props = withDefaults(defineProps<Props>(), {
   placeholder: 'Enter JSON content...',
   disabled: false,
-  rows: 20,
-  showFormatButton: true,
+  rows: 8,
   showInfo: false,
   infoMessage: 'Valid JSON format',
   autoSave: undefined
@@ -87,9 +104,14 @@ const emit = defineEmits<{
 const jsonText = ref('')
 const jsonError = ref('')
 const isUpdating = ref(false)
+const collapsed = ref(true)
 
 // Computed properties
-const hasValidJson = computed(() => !jsonError.value && jsonText.value.trim() !== '')
+const computedRows = computed(() => {
+  if (!jsonText.value) return props.rows
+  const lines = jsonText.value.split('\n').length
+  return Math.max(props.rows, lines + 2) // Add 2 for padding
+})
 
 // Methods
 const validateJson = () => {
@@ -106,16 +128,10 @@ const validateJson = () => {
   }
 }
 
-const formatJson = () => {
-  if (!hasValidJson.value) return
 
-  try {
-    const parsed = JSON.parse(jsonText.value)
-    jsonText.value = JSON.stringify(parsed, null, 2)
-    validateJson()
-  } catch (error) {
-    // Error already handled by validateJson
-  }
+
+const toggleCollapsed = () => {
+  collapsed.value = !collapsed.value
 }
 
 const handleJsonChange = (value: string) => {
@@ -170,5 +186,16 @@ if (props.modelValue) {
 .json-document-editor .v-textarea {
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
   font-size: 14px;
+}
+
+.json-document-editor .v-textarea :deep(.v-field__input) {
+  min-height: auto;
+  max-height: none;
+}
+
+.json-document-editor .v-textarea :deep(.v-field__input textarea) {
+  min-height: auto;
+  max-height: none;
+  resize: vertical;
 }
 </style> 

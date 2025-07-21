@@ -1,4 +1,4 @@
-file_name: sample.1.0.1.yaml
+file_name: sample.1.0.0.yaml
 _locked: false
 root:
   description: A simple collection for testing
@@ -8,10 +8,12 @@ root:
       description: The unique identifier for the media
       type: identifier
       required: true
-    full_name:
+    first_name:
       description: The name of the document
-      type: sentence
-      required: true
+      type: word
+    last_name:
+      description: The last name of the document
+      type: word
     status:
       description: The current status of the document
       type: enum

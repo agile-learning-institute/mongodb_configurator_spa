@@ -38,6 +38,16 @@
       <v-card-actions>
         <v-spacer />
         <v-btn
+          v-if="event"
+          color="secondary"
+          variant="outlined"
+          @click="viewFullDetails"
+          class="mr-2"
+        >
+          <v-icon start>mdi-open-in-new</v-icon>
+          View Full Details
+        </v-btn>
+        <v-btn
           color="primary"
           @click="close"
         >
@@ -50,6 +60,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useRouter } from 'vue-router'
 import EventCard from './EventCard.vue'
 import type { ConfiguratorEvent } from '@/types/events'
 
@@ -76,8 +87,24 @@ const show = computed({
   set: (value) => emit('update:modelValue', value)
 })
 
+const router = useRouter()
+
 const close = () => {
   show.value = false
+}
+
+const viewFullDetails = () => {
+  if (!props.event) return
+  
+  // Navigate to event viewer with event data
+  router.push({
+    name: 'EventViewer',
+    query: {
+      eventData: JSON.stringify(props.event),
+      title: props.title,
+      subtitle: props.subtitle
+    }
+  })
 }
 
 // Get status color

@@ -37,39 +37,6 @@
           <span>{{ version.migrations.length }} migration(s)</span>
         </div>
       </div>
-      
-      <!-- Render Buttons -->
-      <div class="d-flex flex-wrap gap-2">
-        <v-btn
-          color="primary"
-          variant="outlined"
-          size="small"
-          @click="renderJsonSchema"
-        >
-          <v-icon start size="small">mdi-code-json</v-icon>
-          Render JSON Schema
-        </v-btn>
-        
-        <v-btn
-          color="primary"
-          variant="outlined"
-          size="small"
-          @click="renderBsonSchema"
-        >
-          <v-icon start size="small">mdi-database</v-icon>
-          Render BSON Schema
-        </v-btn>
-        
-        <v-btn
-          color="primary"
-          variant="outlined"
-          size="small"
-          @click="renderOpenApi"
-        >
-          <v-icon start size="small">mdi-api</v-icon>
-          Render OpenAPI Spec
-        </v-btn>
-      </div>
     </v-card-text>
   </v-card>
 </template>
@@ -88,23 +55,5 @@ interface Props {
   collectionName: string
 }
 
-const props = defineProps<Props>()
-
-const emit = defineEmits<{
-  'render-json': [version: string]
-  'render-bson': [version: string]
-  'render-openapi': [version: string]
-}>()
-
-const renderJsonSchema = () => {
-  emit('render-json', props.version.version)
-}
-
-const renderBsonSchema = () => {
-  emit('render-bson', props.version.version)
-}
-
-const renderOpenApi = () => {
-  emit('render-openapi', props.version.version)
-}
+defineProps<Props>()
 </script> 
