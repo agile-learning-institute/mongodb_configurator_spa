@@ -65,7 +65,7 @@
             :disabled="hasAnyVersionLocked"
           >
             <v-icon start>mdi-cog</v-icon>
-            Process All
+            Process Configuration
           </v-btn>
         </div>
       </div>
@@ -108,7 +108,7 @@
                 </v-tab>
               </v-tabs>
               
-              <!-- Schema and Process buttons for active version -->
+              <!-- Schema download buttons for active version -->
               <div v-if="activeVersion" class="d-flex gap-2">
                 <v-btn
                   color="primary"
@@ -127,16 +127,6 @@
                 >
                   <v-icon start size="small">mdi-database</v-icon>
                   BSON Schema
-                </v-btn>
-                <v-btn
-                  color="secondary"
-                  size="small"
-                  @click="processVersion"
-                  :loading="processing"
-                  :disabled="activeVersionData?._locked || false"
-                >
-                  <v-icon start size="small">mdi-cog</v-icon>
-                  Process Version
                 </v-btn>
               </div>
             </div>
@@ -272,24 +262,7 @@ const finishEditTitle = () => {
 
 
 
-const processVersion = async () => {
-  if (!configuration.value || !activeVersion.value) return
-  
-  processing.value = true
-  error.value = null
-  
-  try {
-    // Note: This would need to be implemented in the API to process specific version
-    await apiService.processConfiguration(configuration.value.file_name)
-    // Reload configuration to get updated status
-    await loadConfiguration()
-  } catch (err: any) {
-    error.value = err.message || 'Failed to process version'
-    console.error('Failed to process version:', err)
-  } finally {
-    processing.value = false
-  }
-}
+
 
 const processAllVersions = async () => {
   if (!configuration.value) return
