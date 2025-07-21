@@ -2,7 +2,7 @@
   <div class="version-information-cards">
     <!-- Drop Indexes Card -->
     <BaseCard 
-      title="Drop Indexes"
+      :title="`Drop Indexes${!version.drop_indexes || version.drop_indexes.length === 0 ? ' (none)' : ''}`"
       icon="mdi-delete"
       :is-secondary="true"
     >
@@ -18,8 +18,8 @@
         </v-btn>
       </template>
       
-      <div class="drop-indexes-content">
-        <div v-if="version.drop_indexes && version.drop_indexes.length > 0" class="d-flex flex-wrap gap-2">
+      <div v-if="version.drop_indexes && version.drop_indexes.length > 0" class="drop-indexes-content">
+        <div class="d-flex flex-wrap gap-2">
           <v-chip
             v-for="(index, i) in version.drop_indexes"
             :key="i"
@@ -29,15 +29,12 @@
             {{ index }}
           </v-chip>
         </div>
-        <div v-else class="text-body-2 text-medium-emphasis">
-          No drop indexes configured
-        </div>
       </div>
     </BaseCard>
 
     <!-- Migrations Card -->
     <BaseCard 
-      title="Migrations"
+      :title="`Migrations${!version.migrations || version.migrations.length === 0 ? ' (none)' : ''}`"
       icon="mdi-database-sync"
       :is-secondary="true"
     >
@@ -53,8 +50,8 @@
         </v-btn>
       </template>
       
-      <div class="migrations-content">
-        <div v-if="version.migrations && version.migrations.length > 0" class="d-flex flex-wrap gap-2">
+      <div v-if="version.migrations && version.migrations.length > 0" class="migrations-content">
+        <div class="d-flex flex-wrap gap-2">
           <v-chip
             v-for="(migration, i) in version.migrations"
             :key="i"
@@ -64,15 +61,12 @@
             {{ migration }}
           </v-chip>
         </div>
-        <div v-else class="text-body-2 text-medium-emphasis">
-          No migrations configured
-        </div>
       </div>
     </BaseCard>
 
     <!-- Add Indexes Card -->
     <BaseCard 
-      title="Add Indexes"
+      :title="`Add Indexes${!version.add_indexes || version.add_indexes.length === 0 ? ' (none)' : ''}`"
       icon="mdi-database-plus"
       :is-secondary="true"
     >
@@ -88,44 +82,39 @@
         </v-btn>
       </template>
       
-      <div class="add-indexes-content">
-        <div v-if="version.add_indexes && version.add_indexes.length > 0">
-          <div
-            v-for="(_index, i) in version.add_indexes"
-            :key="i"
-            class="index-item mb-4"
-          >
-            <div class="d-flex align-center justify-space-between mb-2">
-              <span class="text-subtitle-2">Index {{ i + 1 }}</span>
-              <v-btn
-                color="error"
-                variant="text"
-                size="small"
-                @click="removeIndex(i)"
-              >
-                <v-icon size="small">mdi-delete</v-icon>
-              </v-btn>
-            </div>
-            <JsonDocumentEditor
-              v-model="version.add_indexes[i]"
-              title="Index Configuration"
-              @update:model-value="autoSave"
-            />
+      <div v-if="version.add_indexes && version.add_indexes.length > 0" class="add-indexes-content">
+        <div
+          v-for="(_index, i) in version.add_indexes"
+          :key="i"
+          class="index-item mb-4"
+        >
+          <div class="d-flex align-center justify-space-between mb-2">
+            <span class="text-subtitle-2">Index {{ i + 1 }}</span>
+            <v-btn
+              color="error"
+              variant="text"
+              size="small"
+              @click="removeIndex(i)"
+            >
+              <v-icon size="small">mdi-delete</v-icon>
+            </v-btn>
           </div>
-        </div>
-        <div v-else class="text-body-2 text-medium-emphasis">
-          No indexes configured
+          <JsonDocumentEditor
+            v-model="version.add_indexes[i]"
+            title="Index Configuration"
+            @update:model-value="autoSave"
+          />
         </div>
       </div>
     </BaseCard>
 
     <!-- Test Data Card -->
     <BaseCard 
-      title="Test Data"
+      :title="`Test Data${!version.test_data ? ' (none)' : ''}`"
       icon="mdi-file-document"
       :is-secondary="true"
     >
-      <div class="test-data-content">
+      <div v-if="testDataFiles.length > 0" class="test-data-content">
         <v-select
           v-model="version.test_data"
           :items="testDataFiles"
