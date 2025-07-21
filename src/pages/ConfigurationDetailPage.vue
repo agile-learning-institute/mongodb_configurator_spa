@@ -108,7 +108,7 @@
                 </v-tab>
               </v-tabs>
               
-              <!-- Schema buttons for active version -->
+              <!-- Schema and Process buttons for active version -->
               <div v-if="activeVersion" class="d-flex gap-2">
                 <v-btn
                   color="primary"
@@ -128,6 +128,16 @@
                   <v-icon start size="small">mdi-database</v-icon>
                   BSON Schema
                 </v-btn>
+                <v-btn
+                  color="secondary"
+                  size="small"
+                  @click="processVersion"
+                  :loading="processing"
+                  :disabled="activeVersionData?._locked || false"
+                >
+                  <v-icon start size="small">mdi-cog</v-icon>
+                  Process Version
+                </v-btn>
               </div>
             </div>
 
@@ -137,60 +147,6 @@
                 :version="activeVersionData"
                 :on-update="autoSave"
               />
-
-              <!-- Version-specific actions -->
-              <div class="version-actions mt-4">
-                <v-divider class="mb-4" />
-                
-                <div class="d-flex align-center justify-space-between">
-                  <div class="d-flex align-center">
-                    <h4 class="text-h6 mr-4">Version Actions</h4>
-                    <v-chip
-                      v-if="activeVersionData._locked"
-                      color="warning"
-                      size="small"
-                    >
-                      <v-icon start size="small">mdi-lock</v-icon>
-                      Locked
-                    </v-chip>
-                  </div>
-                  
-                  <div class="d-flex gap-2">
-                    <v-btn
-                      v-if="!activeVersionData._locked"
-                      color="warning"
-                      variant="outlined"
-                      size="small"
-                      @click="lockVersion"
-                    >
-                      <v-icon start size="small">mdi-lock</v-icon>
-                      Lock Version
-                    </v-btn>
-                    
-                    <v-btn
-                      v-if="activeVersionData._locked"
-                      color="success"
-                      variant="outlined"
-                      size="small"
-                      @click="unlockVersion"
-                    >
-                      <v-icon start size="small">mdi-lock-open</v-icon>
-                      Unlock Version
-                    </v-btn>
-                    
-                    <v-btn
-                      color="secondary"
-                      size="small"
-                      @click="processVersion"
-                      :loading="processing"
-                      :disabled="activeVersionData._locked"
-                    >
-                      <v-icon start size="small">mdi-cog</v-icon>
-                      Process Version
-                    </v-btn>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
         </BaseCard>
@@ -314,31 +270,7 @@ const finishEditTitle = () => {
   editingTitle.value = false
 }
 
-const lockVersion = async () => {
-  if (!activeVersionData.value) return
-  
-  try {
-    // Note: This would need to be implemented in the API
-    activeVersionData.value._locked = true
-    await autoSave()
-  } catch (err: any) {
-    error.value = err.message || 'Failed to lock version'
-    console.error('Failed to lock version:', err)
-  }
-}
 
-const unlockVersion = async () => {
-  if (!activeVersionData.value) return
-  
-  try {
-    // Note: This would need to be implemented in the API
-    activeVersionData.value._locked = false
-    await autoSave()
-  } catch (err: any) {
-    error.value = err.message || 'Failed to unlock version'
-    console.error('Failed to unlock version:', err)
-  }
-}
 
 const processVersion = async () => {
   if (!configuration.value || !activeVersion.value) return
