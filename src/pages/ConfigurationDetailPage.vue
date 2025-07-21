@@ -25,7 +25,7 @@
               v-model="configuration.title"
               variant="plain"
               density="compact"
-              class="title-edit-field"
+              class="title-edit-field h1-style"
               hide-details
               @update:model-value="autoSave"
             />
@@ -407,6 +407,13 @@ onMounted(() => {
 .title-edit-field {
   font-size: 1.5rem;
   font-weight: 500;
+}
+
+.h1-style {
+  font-size: 2.125rem;
+  font-weight: 300;
+  line-height: 1.2;
+  color: rgba(0, 0, 0, 0.87);
 }
 
 .description-edit-field {
