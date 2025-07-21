@@ -4,10 +4,10 @@
       <!-- Key editor (if not root) -->
       <InLineEditor
         v-if="!isRoot"
-        v-model="editablePropertyName"
+        :model-value="propertyName"
+        @update:model-value="handlePropertyNameChange"
         placeholder="name"
         class="property-name-input mr-2"
-        @update:model-value="handlePropertyNameChange"
       />
       <!-- Description editor -->
       <InLineEditor
@@ -20,7 +20,7 @@
       <TypePicker
         v-model="property.type"
         class="mr-2"
-        @update:model-value="handleTypeChange"
+        @update:model-value="handleChange"
       />
       <!-- Type picker for items type with label and restricted types -->
       <span class="items-label mr-1">Items:</span>
@@ -62,63 +62,21 @@
 </template>
 
 <script setup lang="ts">
-import { usePropertyEditor, type Property } from '@/composables/usePropertyEditor'
+import { useArrayOfCustomPropertyEditor } from '@/composables/useArrayOfCustomPropertyEditor'
+import type { Property } from '@/composables/usePropertyEditor'
 import TypePicker from './TypePicker.vue'
 import InLineEditor from './InLineEditor.vue'
 import ItemTypePicker from './ItemTypePicker.vue'
-import { computed } from 'vue'
 
-const props = defineProps<{
-  property: Property,
-  isRoot?: boolean
-}>()
-
+const props = defineProps<{ property: Property, isRoot?: boolean, propertyName?: string }>()
+const emit = defineEmits(['change', 'delete', 'rename'])
 const property = props.property
-const isRoot = computed(() => props.isRoot ?? false)
+const isRoot = props.isRoot || false
+const propertyName = props.propertyName || ''
+const { itemsType, handleChange, handleDelete } = useArrayOfCustomPropertyEditor(property, (event: string, payload: Property) => emit(event as 'change' | 'delete', payload))
 
-const emit = defineEmits<{
-  change: [property: Property]
-  delete: []
-}>()
-
-const {
-  editablePropertyName,
-  handleChange,
-  handleTypeChange,
-  handlePropertyNameChange
-} = usePropertyEditor(property, {
-  onUpdate: (property) => emit('change', property),
-  onDelete: () => emit('delete')
-})
-
-// Computed getter/setter for itemsType
-const itemsType = computed({
-  get() {
-    return property.items?.type || ''
-  },
-  set(type: string) {
-    if (type === 'array') {
-      property.items = {
-        type: 'array',
-        items: {
-          type: 'word',
-          description: '',
-          required: false
-        },
-        description: '',
-        required: false
-      }
-    } else {
-      if (!property.items) property.items = {} as any
-      property.items.type = type
-    }
-    handleChange()
-    emit('change', property)
-  }
-})
-
-function handleDelete() {
-  emit('delete')
+function handlePropertyNameChange(newName: string) {
+  emit('rename', propertyName, newName)
 }
 </script>
 

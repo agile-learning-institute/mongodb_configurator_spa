@@ -4,17 +4,6 @@
     <div class="property-title-row d-flex align-center pa-4 border-b">
       <v-icon icon="mdi-cube-outline" class="mr-3" color="primary" />
       <v-text-field
-        v-model="editablePropertyName"
-        placeholder="name"
-        density="compact"
-        variant="outlined"
-        hide-details
-        :disabled="props.disabled"
-        class="property-name-input mr-2"
-        @update:model-value="handlePropertyNameChange"
-        style="max-width: 150px;"
-      />
-      <v-text-field
         v-model="property.description"
         placeholder="Description"
         density="compact"
@@ -32,7 +21,7 @@
         density="compact"
         :disabled="props.disabled"
         :exclude-type="props.excludeType"
-        @update:model-value="handleTypeChange"
+        @update:model-value="handleChange"
         class="mr-2"
         style="max-width: 120px;"
       />
@@ -43,12 +32,12 @@
         density="compact"
         :disabled="props.disabled"
         :exclude-type="props.excludeType"
-        @update:model-value="handleTypeChange"
+        @update:model-value="handleChange"
         class="mr-2"
         style="max-width: 120px;"
       />
       <v-tooltip 
-        v-if="canBeRequired" 
+        v-if="property.required" 
         location="top" 
         class="tooltip-dark"
         :open-delay="0"
@@ -92,9 +81,11 @@
         <div v-for="(prop, propName) in property.properties" :key="propName" class="mb-3">
           <PropertyEditorFactory
             :property="prop"
+            :property-name="propName"
             :is-root="false"
             @change="updated => handleChildPropertyChange(propName, updated)"
             @delete="() => handleDeleteProperty(propName)"
+            @rename="(oldName, newName) => handleChildPropertyRename(propName, oldName, newName)"
           />
         </div>
       </div>
@@ -112,6 +103,7 @@ import { useObjectPropertyEditor } from '@/composables/useObjectPropertyEditor'
 import DictionaryTypePicker from './DictionaryTypePicker.vue'
 import TypePicker from './TypePicker.vue'
 import PropertyEditorFactory from './PropertyEditorFactory.vue'
+import type { Property } from '@/composables/usePropertyEditor'
 import { onMounted, ref } from 'vue'
 
 interface Props {
@@ -143,15 +135,7 @@ const emit = defineEmits<{
 // Reactive state for nested property names
 const nestedPropertyNames = ref<Record<string, string>>({})
 
-const {
-  handleAddProperty,
-  handleDeleteProperty,
-  handleChildPropertyChange,
-  toggleAdditionalProperties,
-  handleTypeChange,
-  handleChange,
-  handleDelete
-} = useObjectPropertyEditor(props.property, (event, ...args) => emit(event, ...args))
+const { handleAddProperty, handleDeleteProperty, handleChildPropertyChange, handleChange } = useObjectPropertyEditor(props.property, (event: string, payload: Property) => emit(event as 'change', payload))
 
 onMounted(() => {
   // Initialize nested property names
@@ -163,31 +147,15 @@ onMounted(() => {
 })
 
 // Methods
-const handlePropertyChange = (propName: string, updatedProperty: Property) => {
-  if (props.property.properties) {
-    props.property.properties[propName] = updatedProperty
-    handleChange()
-  }
-}
-
-const handleNestedPropertyChange = (parentPropName: string, propName: string, updatedProperty: Property) => {
-  if (props.property.properties && props.property.properties[parentPropName]?.properties) {
-    props.property.properties[parentPropName].properties![propName] = updatedProperty
-    handleChange()
-  }
-}
-
-const handleNestedPropertyNameChange = (propName: string, value: string) => {
-  nestedPropertyNames.value[propName] = value
-  // Note: Property interface doesn't have a name field, so we just update the local state
+function handleChildPropertyRename(_unused: string, oldName: string, newName: string) {
+  if (!props.property.properties) return
+  if (oldName === newName || !newName) return
+  if (props.property.properties[newName]) return // Prevent overwrite
+  props.property.properties[newName] = props.property.properties[oldName]
+  delete props.property.properties[oldName]
+  nestedPropertyNames.value[newName] = newName
+  delete nestedPropertyNames.value[oldName]
   handleChange()
-}
-
-const handleDeleteNestedProperty = (parentPropName: string, propName: string) => {
-  if (props.property.properties && props.property.properties[parentPropName]?.properties) {
-    delete props.property.properties[parentPropName].properties![propName]
-    handleChange()
-  }
 }
 </script>
 

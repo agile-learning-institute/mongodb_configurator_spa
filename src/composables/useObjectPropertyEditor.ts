@@ -1,4 +1,3 @@
-import { computed } from 'vue'
 import type { Property } from './usePropertyEditor'
 
 export function useObjectPropertyEditor(property: Property, emit: (event: string, ...args: any[]) => void) {

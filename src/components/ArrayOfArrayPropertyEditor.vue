@@ -4,10 +4,10 @@
       <!-- Key editor (if not root) -->
       <InLineEditor
         v-if="!isRoot"
-        v-model="editablePropertyName"
+        :model-value="propertyName"
+        @update:model-value="handlePropertyNameChange"
         placeholder="name"
         class="property-name-input mr-2"
-        @update:model-value="handlePropertyNameChange"
       />
       <!-- Description editor -->
       <InLineEditor
@@ -20,7 +20,7 @@
       <TypePicker
         v-model="property.type"
         class="mr-2"
-        @update:model-value="handleTypeChange"
+        @update:model-value="handleChange"
       />
       <!-- Type picker for items type with label and restricted types -->
       <span class="items-label mr-1">Items:</span>
@@ -77,26 +77,18 @@ import TypePicker from './TypePicker.vue'
 import InLineEditor from './InLineEditor.vue'
 import ItemTypePicker from './ItemTypePicker.vue'
 import PropertyEditorFactory from './PropertyEditorFactory.vue'
-import { computed } from 'vue'
+import type { Property } from '@/composables/usePropertyEditor'
 
-const props = defineProps<{
-  property: Property,
-  isRoot?: boolean
-}>()
-
+const props = defineProps<{ property: Property, isRoot?: boolean, propertyName?: string }>()
+const emit = defineEmits(['change', 'delete', 'rename'])
 const property = props.property
-const isRoot = computed(() => props.isRoot ?? false)
+const isRoot = props.isRoot || false
+const propertyName = props.propertyName || ''
+const { itemsType, handleChange, handleDelete } = useArrayOfArrayPropertyEditor(property, (event: string, payload: Property) => emit(event as 'change' | 'delete', payload))
 
-const emit = defineEmits<{
-  change: [property: Property]
-  delete: []
-}>()
-
-const {
-  itemsType,
-  handleChange,
-  handleDelete
-} = useArrayOfArrayPropertyEditor(property, (event, ...args) => emit(event, ...args))
+function handlePropertyNameChange(newName: string) {
+  emit('rename', propertyName, newName)
+}
 </script>
 
 <style scoped>

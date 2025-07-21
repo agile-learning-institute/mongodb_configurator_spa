@@ -20,8 +20,7 @@ export function useEnumPropertyEditor(property: Property, emit: (event: string, 
     handleChange()
   }
 
-  function handlePropertyNameChange(name: string) {
-    // No-op for now, can be extended for key editing
+  function handlePropertyNameChange() {
     handleChange()
   }
 

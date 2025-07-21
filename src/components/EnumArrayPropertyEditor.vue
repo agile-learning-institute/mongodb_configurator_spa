@@ -299,7 +299,7 @@ const {
 const handleEnumChange = (enumValue: string) => {
   // For enum_array properties, we store the selected enum as a single string
   // The enums field in Property interface is string[] but for enum properties we use it as string
-  props.property.enums = [enumValue]
+  props.property.enums = enumValue
   handleChange()
 }
 

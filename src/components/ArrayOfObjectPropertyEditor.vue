@@ -4,23 +4,21 @@
       <!-- Key editor (if not root) -->
       <InLineEditor
         v-if="!isRoot"
-        v-model="editablePropertyName"
+        :model-value="propertyName"
+        @update:model-value="handlePropertyNameChange"
         placeholder="name"
         class="property-name-input mr-2"
-        @update:model-value="handlePropertyNameChange"
       />
       <!-- Description editor -->
       <InLineEditor
         v-model="property.description"
         placeholder="Description"
         class="mr-2"
-        @update:model-value="handleChange"
       />
       <!-- Type picker for array type -->
       <TypePicker
         v-model="property.type"
         class="mr-2"
-        @update:model-value="handleTypeChange"
       />
       <!-- Type picker for items type with label and restricted types -->
       <span class="items-label mr-1">Items:</span>
@@ -48,7 +46,7 @@
             variant="text"
             :color="property.required ? 'primary' : 'grey'"
             v-bind="props"
-            @click="property.required = !property.required; handleChange()"
+            @click="property.required = !property.required; emit('change', property)"
             class="pa-0 ma-0"
           >
             <v-icon size="16">mdi-star</v-icon>
@@ -92,9 +90,11 @@
         <div v-for="(prop, propName) in property.items!.properties" :key="propName" class="mb-3">
           <PropertyEditorFactory
             :property="prop"
+            :property-name="propName"
             :is-root="false"
             @change="updated => handleChildPropertyChange(propName, updated)"
             @delete="() => handleDeleteProperty(propName)"
+            @rename="(oldName, newName) => handleChildPropertyRename(propName, oldName, newName)"
           />
         </div>
       </div>
@@ -104,53 +104,35 @@
 </template>
 
 <script setup lang="ts">
-import { usePropertyEditor, type Property } from '@/composables/usePropertyEditor'
+import { useArrayOfObjectPropertyEditor } from '@/composables/useArrayOfObjectPropertyEditor'
+import PropertyEditorFactory from './PropertyEditorFactory.vue'
+import type { Property } from '@/composables/usePropertyEditor'
 import TypePicker from './TypePicker.vue'
 import InLineEditor from './InLineEditor.vue'
 import ItemTypePicker from './ItemTypePicker.vue'
-import PropertyEditorFactory from './PropertyEditorFactory.vue'
-import { computed } from 'vue'
-import { useArrayOfObjectPropertyEditor } from '@/composables/useArrayOfObjectPropertyEditor'
 
-// Extend Property type to include additional_properties for this component
-interface ObjectProperty extends Property {
-  additional_properties?: boolean
-}
-
-const props = defineProps<{
-  property: Property,
-  isRoot?: boolean
-}>()
-
-const property = props.property as ObjectProperty
-const isRoot = computed(() => props.isRoot ?? false)
-
-const emit = defineEmits<{
-  change: [property: Property]
-  delete: []
-}>()
-
-const {
-  editablePropertyName,
-  handleChange,
-  handleTypeChange,
-  handlePropertyNameChange
-} = usePropertyEditor(property, {
-  onUpdate: (property) => emit('change', property),
-  onDelete: () => emit('delete')
-})
-
-// Use the dedicated composable for array-of-object property operations
-const {
-  itemsType,
-  handleAddProperty,
-  handleDeleteProperty,
-  handleChildPropertyChange,
-  toggleAdditionalProperties
-} = useArrayOfObjectPropertyEditor(property, (event, ...args) => emit(event, ...args))
+const props = defineProps<{ property: Property, isRoot?: boolean, propertyName?: string }>()
+const emit = defineEmits(['change', 'delete', 'rename'])
+const property = props.property
+const isRoot = props.isRoot || false
+const propertyName = props.propertyName || ''
+const { itemsType, handleAddProperty, handleDeleteProperty, handleChildPropertyChange, toggleAdditionalProperties } = useArrayOfObjectPropertyEditor(property, (event: string, payload: Property) => emit(event as 'change' | 'delete', payload))
 
 function handleDelete() {
   emit('delete')
+}
+
+function handlePropertyNameChange(newName: string) {
+  emit('rename', propertyName, newName)
+}
+
+function handleChildPropertyRename(_unused: string, oldName: string, newName: string) {
+  if (!property.items || !property.items.properties) return
+  if (oldName === newName || !newName) return
+  if (property.items.properties[newName]) return // Prevent overwrite
+  property.items.properties[newName] = property.items.properties[oldName]
+  delete property.items.properties[oldName]
+  emit('change', property)
 }
 </script>
 

@@ -1,4 +1,4 @@
-import { ref, computed } from 'vue'
+import { computed } from 'vue'
 import type { Property } from './usePropertyEditor'
 
 export function useArrayOfObjectPropertyEditor(property: Property, emit: (event: string, ...args: any[]) => void) {
@@ -8,23 +8,16 @@ export function useArrayOfObjectPropertyEditor(property: Property, emit: (event:
       return property.items?.type || ''
     },
     set(type: string) {
+      if (!property.items) {
+        property.items = { type: 'object', properties: {}, description: '', required: false }
+      }
       if (type === 'object') {
-        if (!property.items) property.items = {} as any
         property.items.type = 'object'
         if (!property.items.properties) property.items.properties = {}
       } else if (type === 'array') {
-        property.items = {
-          type: 'array',
-          items: {
-            type: 'word',
-            description: '',
-            required: false
-          },
-          description: '',
-          required: false
-        }
+        property.items.type = 'array'
+        property.items.items = { type: 'word', description: '', required: false }
       } else {
-        if (!property.items) property.items = {} as any
         property.items.type = type
       }
       emit('change', property)

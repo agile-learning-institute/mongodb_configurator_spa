@@ -3,9 +3,11 @@
     v-if="property && property.type"
     :is="selectedComponent"
     :property="property"
+    :property-name="propertyName"
     :is-root="isRoot"
     @change="handlePropertyChange"
     @delete="handlePropertyDelete"
+    @rename="handlePropertyRename"
   />
   <div v-else>
     <v-progress-circular indeterminate size="24" color="primary" />
@@ -25,15 +27,18 @@ import { type Property } from '@/composables/usePropertyEditor'
 
 const props = defineProps<{
   property: Property,
+  propertyName?: string,
   isRoot?: boolean
 }>()
 
 const property = props.property
+const propertyName = props.propertyName || ''
 const isRoot = props.isRoot ?? false
 
 const emit = defineEmits<{
   change: [property: Property]
   delete: []
+  rename: [oldName: string, newName: string]
 }>()
 
 const selectedComponent = computed(() => {
@@ -56,5 +61,9 @@ function handlePropertyChange(updatedProperty: Property) {
 
 function handlePropertyDelete() {
   emit('delete')
+}
+
+function handlePropertyRename(oldName: string, newName: string) {
+  emit('rename', oldName, newName)
 }
 </script> 

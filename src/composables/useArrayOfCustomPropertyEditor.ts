@@ -1,22 +1,23 @@
 import { computed } from 'vue'
 import type { Property } from './usePropertyEditor'
 
-export function useArrayOfArrayPropertyEditor(property: Property, emit: (event: string, ...args: any[]) => void) {
+export function useArrayOfCustomPropertyEditor(property: Property, emit: (event: 'change' | 'delete', property: Property) => void) {
   const itemsType = computed({
     get() {
       return property.items?.type || ''
     },
     set(type: string) {
       if (!property.items) {
-        property.items = { type: 'word', description: '', required: false }
+        property.items = { type, description: '', required: false }
+      } else {
+        property.items.type = type
       }
-      property.items.type = type
       emit('change', property)
     }
   })
 
   function handleDelete() {
-    emit('delete')
+    emit('delete', property)
   }
 
   function handleChange() {
@@ -25,7 +26,7 @@ export function useArrayOfArrayPropertyEditor(property: Property, emit: (event: 
 
   return {
     itemsType,
-    handleDelete,
-    handleChange
+    handleChange,
+    handleDelete
   }
 } 

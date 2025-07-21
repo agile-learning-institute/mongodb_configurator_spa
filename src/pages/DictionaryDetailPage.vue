@@ -99,12 +99,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { apiService } from '@/utils/api'
-import BaseCard from '@/components/BaseCard.vue'
 import PropertyEditorFactory from '@/components/PropertyEditorFactory.vue'
-import DictionaryTypePicker from '@/components/DictionaryTypePicker.vue'
 
 
 interface DictionaryProperty {
@@ -117,7 +115,7 @@ interface DictionaryProperty {
   schema?: any
   json_type?: any
   bson_type?: any
-  enums?: string[]
+  enums?: string
   oneOf?: Record<string, any>
 }
 
@@ -186,68 +184,9 @@ const handleRootPropertyChange = (updatedProperty: DictionaryProperty) => {
   }
 }
 
-const handlePropertyChange = (propertyName: string, updatedProperty: DictionaryProperty) => {
-  
-  if (dictionary.value?.root?.properties) {
-    // Replace the properties object to force Vue reactivity
-    dictionary.value.root.properties = {
-      ...dictionary.value.root.properties,
-      [propertyName]: updatedProperty
-    }
-    autoSave()
-  }
-}
 
-// Add this method after handlePropertyChange
-const handleDeleteProperty = (propertyName: string) => {
-  if (dictionary.value?.root?.properties) {
-    delete dictionary.value.root.properties[propertyName];
-    autoSave();
-  }
-}
-
-// Helper method for card title
-const getDictionaryTitle = () => {
-  if (!dictionary.value) return 'Dictionary Properties'
-  const fileName = dictionary.value.file_name.replace('.yaml', '')
-  const description = dictionary.value.root?.description || ''
-  return `${fileName}: ${description}`
-}
-
-// Handle type change
-const handleTypeChange = () => {
-  if (dictionary.value) {
-    autoSave()
-  }
-}
-
-// Handle add property
-const handleAddProperty = () => {
-  if (dictionary.value?.root) {
-    const newPropertyName = `property_${Object.keys(dictionary.value.root.properties || {}).length + 1}`
-    // Add a new property to the root object
-    if (!dictionary.value.root.properties) {
-      dictionary.value.root.properties = {}
-    }
-    dictionary.value.root.properties[newPropertyName] = {
-      description: '',
-      type: 'string'
-    }
-    autoSave()
-  }
-}
-
-// Simple computed properties for action icons
-const canBeRequired = computed(() => dictionary.value?.root && dictionary.value.root.type !== 'array')
-const canHaveAdditionalProperties = computed(() => dictionary.value?.root && dictionary.value.root.type === 'object')
-const canHaveOneOf = computed(() => dictionary.value?.root && dictionary.value.root.type === 'object')
-
-const toggleOneOf = () => {
-  // Simple toggle for oneOf - this would need more complex logic
-}
-
-
-
+// Remove all unused methods: handlePropertyChange, handleDeleteProperty, getDictionaryTitle, handleTypeChange, handleAddProperty, canBeRequired, canHaveAdditionalProperties, canHaveOneOf, toggleOneOf.
+// Remove all unused imports.
 
 
 const lockDictionary = async () => {
