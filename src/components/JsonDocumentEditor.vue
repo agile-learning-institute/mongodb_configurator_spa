@@ -39,7 +39,7 @@
       :disabled="disabled"
       :error="!!jsonError"
       :error-messages="jsonError"
-      :rows="rows"
+      :rows="computedRows"
       auto-grow
       @update:model-value="handleJsonChange"
       @blur="validateJson"
@@ -86,7 +86,7 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   placeholder: 'Enter JSON content...',
   disabled: false,
-  rows: 20,
+  rows: 8,
   showFormatButton: true,
   showInfo: false,
   infoMessage: 'Valid JSON format',
@@ -104,6 +104,12 @@ const isUpdating = ref(false)
 
 // Computed properties
 const hasValidJson = computed(() => !jsonError.value && jsonText.value.trim() !== '')
+
+const computedRows = computed(() => {
+  if (!jsonText.value) return props.rows
+  const lines = jsonText.value.split('\n').length
+  return Math.max(props.rows, lines + 2) // Add 2 for padding
+})
 
 // Methods
 const validateJson = () => {
@@ -184,5 +190,16 @@ if (props.modelValue) {
 .json-document-editor .v-textarea {
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
   font-size: 14px;
+}
+
+.json-document-editor .v-textarea :deep(.v-field__input) {
+  min-height: auto;
+  max-height: none;
+}
+
+.json-document-editor .v-textarea :deep(.v-field__input textarea) {
+  min-height: auto;
+  max-height: none;
+  resize: vertical;
 }
 </style> 
