@@ -118,22 +118,30 @@
   </div>
 
   <!-- Migration Selection Dialog -->
-  <v-dialog v-model="showMigrationDialog" max-width="500px">
+  <v-dialog v-model="showMigrationDialog" max-width="600px">
     <v-card>
       <v-card-title>Select Migration</v-card-title>
       <v-card-text>
-        <v-select
-          v-model="selectedMigration"
-          :items="migrationFiles"
-          label="Choose a migration file"
-          variant="outlined"
-          density="compact"
-          :loading="migrationFiles.length === 0"
-          :disabled="migrationFiles.length === 0"
-        />
-        <p v-if="migrationFiles.length === 0" class="text-caption text-medium-emphasis mt-2">
-          No migration files available
-        </p>
+        <div v-if="migrationFiles.length === 0" class="text-center pa-4">
+          <v-icon size="32" color="grey">mdi-file-document</v-icon>
+          <div class="text-body-2 text-medium-emphasis mt-2">No migration files available</div>
+        </div>
+        <div v-else class="migration-picker">
+          <div class="text-body-2 text-medium-emphasis mb-3">Click a migration to select it:</div>
+          <div class="d-flex flex-wrap gap-2">
+            <v-chip
+              v-for="migration in migrationFiles"
+              :key="migration"
+              :color="selectedMigration === migration ? 'primary' : 'default'"
+              :variant="selectedMigration === migration ? 'elevated' : 'outlined'"
+              class="migration-chip"
+              @click="selectedMigration = migration"
+              :class="{ 'selected': selectedMigration === migration }"
+            >
+              {{ migration }}
+            </v-chip>
+          </div>
+        </div>
       </v-card-text>
       <v-card-actions>
         <v-spacer />
@@ -308,5 +316,24 @@ onMounted(() => {
   border: 1px solid rgba(0, 0, 0, 0.12);
   border-radius: 4px;
   padding: 12px;
+}
+
+.migration-picker {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.migration-chip {
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.migration-chip:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.migration-chip.selected {
+  font-weight: 600;
 }
 </style> 
