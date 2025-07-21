@@ -39,7 +39,7 @@
     </div>
 
     <!-- Delete Confirmation Dialog -->
-    <v-dialog v-model="showDeleteDialog" max-width="500">
+    <v-dialog :model-value="showDeleteDialog" @update:model-value="(value) => emit('update:showDeleteDialog', value)" max-width="500">
       <v-card>
         <v-card-title class="text-h5">
           Delete {{ fileType }}?
@@ -59,7 +59,7 @@
     </v-dialog>
 
     <!-- Unlock Confirmation Dialog -->
-    <v-dialog v-model="showUnlockDialog" max-width="500">
+    <v-dialog :model-value="showUnlockDialog" @update:model-value="(value) => emit('update:showUnlockDialog', value)" max-width="500">
       <v-card>
         <v-card-title class="text-h5">
           Unlock {{ fileType }}?
@@ -111,6 +111,8 @@ const emit = defineEmits<{
   'cancel-delete': []
   'confirm-unlock': []
   'cancel-unlock': []
+  'update:showDeleteDialog': [value: boolean]
+  'update:showUnlockDialog': [value: boolean]
 }>()
 
 // Methods

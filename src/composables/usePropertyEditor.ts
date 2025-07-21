@@ -31,13 +31,13 @@ export function usePropertyEditor(
   options: PropertyEditorOptions = {}
 ) {
   const {
-    disabled = false,
-    excludeType = '',
+    disabled: _disabled = false,
+    excludeType: _excludeType = '',
     topLevel = false,
     propertyName = '',
-    topLevelName = '',
+    topLevelName: _topLevelName = '',
     onUpdate,
-    onDelete,
+    onDelete: _onDelete,
     onTypeChange,
     onPropertyNameChange
   } = options
