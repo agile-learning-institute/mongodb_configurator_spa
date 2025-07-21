@@ -1,43 +1,29 @@
 <template>
   <div class="custom-property-editor">
     <div class="property-title-row d-flex align-center pa-4 border-b">
-      <v-icon icon="mdi-tag" class="mr-3" color="primary" />
-      <v-text-field
+      <!-- Key editor (if not root) -->
+      <InLineEditor
         v-if="!isRoot"
         v-model="editablePropertyName"
         placeholder="name"
-        density="compact"
-        variant="outlined"
-        hide-details
         class="property-name-input mr-2"
         @update:model-value="handlePropertyNameChange"
-        style="max-width: 150px;"
       />
-      <v-text-field
+      <!-- Description editor -->
+      <InLineEditor
         v-model="property.description"
         placeholder="Description"
-        density="compact"
-        variant="outlined"
-        hide-details
         class="mr-2"
-        style="max-width: 300px;"
         @update:model-value="handleChange"
       />
-      <DictionaryTypePicker
+      <!-- Type picker -->
+      <TypePicker
         v-model="property.type"
-        label="Type"
-        density="compact"
         class="mr-2"
-        style="max-width: 120px;"
         @update:model-value="handleTypeChange"
       />
-      <v-tooltip 
-        location="top" 
-        class="tooltip-dark"
-        :open-delay="0"
-        :close-delay="0"
-        theme="dark"
-      >
+      <!-- Required icon -->
+      <v-tooltip location="top" class="tooltip-dark" :open-delay="0" :close-delay="0" theme="dark">
         <template v-slot:activator="{ props }">
           <v-btn
             icon
@@ -53,6 +39,7 @@
         </template>
         <span>Required</span>
       </v-tooltip>
+      <!-- Delete icon (if not root) -->
       <v-btn
         v-if="!isRoot"
         icon
@@ -70,7 +57,8 @@
 
 <script setup lang="ts">
 import { usePropertyEditor, type Property } from '@/composables/usePropertyEditor'
-import DictionaryTypePicker from './DictionaryTypePicker.vue'
+import TypePicker from './TypePicker.vue'
+import InLineEditor from './InLineEditor.vue'
 import { computed } from 'vue'
 
 const props = defineProps<{
