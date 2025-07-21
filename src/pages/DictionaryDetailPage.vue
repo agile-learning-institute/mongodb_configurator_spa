@@ -76,6 +76,18 @@
                 @update:model-value="handleTypeChange"
               />
             </div>
+            
+            <!-- Add Property Button -->
+            <v-btn
+              v-if="dictionary.root && !dictionary._locked"
+              color="primary"
+              variant="outlined"
+              size="small"
+              @click="handleAddProperty"
+            >
+              <v-icon start size="small">mdi-plus</v-icon>
+              Add Property
+            </v-btn>
           </template>
           
           <div v-if="dictionary.root" class="pa-4">
@@ -230,6 +242,22 @@ const getDictionaryTitle = () => {
 // Handle type change
 const handleTypeChange = () => {
   if (dictionary.value) {
+    autoSave()
+  }
+}
+
+// Handle add property
+const handleAddProperty = () => {
+  if (dictionary.value?.root) {
+    const newPropertyName = `property_${Object.keys(dictionary.value.root.properties || {}).length + 1}`
+    // Add a new property to the root object
+    if (!dictionary.value.root.properties) {
+      dictionary.value.root.properties = {}
+    }
+    dictionary.value.root.properties[newPropertyName] = {
+      description: '',
+      type: 'string'
+    }
     autoSave()
   }
 }
