@@ -1,0 +1,8 @@
+file_name: schedule.yaml
+_locked: true
+root:
+  description: A list of appointments
+  type: array
+  items:
+    description: An appointment
+    type: appointment
