@@ -14,125 +14,95 @@
     <!-- Content -->
     <div v-else-if="enumerator">
       <!-- Title Area -->
-      <div class="d-flex align-center justify-space-between mb-6">
-        <div class="flex-grow-1">
-          <div class="d-flex align-center mb-2">
-            <h2 class="text-h5 text-medium-emphasis mr-4 mb-0">{{ enumerator.file_name }}</h2>
-            <div v-if="!editingTitle" @click="startEditTitle" class="title-display">
-              <h1 class="title-text mb-0 cursor-pointer">{{ enumerator.title || 'Enter enumerator title...' }}</h1>
-            </div>
-            <v-text-field
-              v-else
-              v-model="enumerator.title"
-              variant="plain"
-              density="compact"
-              class="title-edit-field h1-style"
-              hide-details
-              @update:model-value="autoSaveLocal"
-              @blur="finishEditTitle"
-              @keyup.enter="finishEditTitle"
-              ref="titleInput"
+      <div class="d-flex align-center justify-space-between mb-2">
+        <div class="d-flex align-center">
+          <div v-if="!editingTitle" class="d-flex align-center">
+            <h1 class="text-h4 mr-4">{{ enumerator.file_name }}</h1>
+            <span v-if="enumerator.title" class="text-h6 text-medium-emphasis mr-4">{{ enumerator.title }}</span>
+            <span class="text-body-1 text-medium-emphasis">Version: {{ enumerator.version }}</span>
+            <v-btn
+              icon="mdi-pencil"
+              variant="text"
+              size="small"
+              class="ml-2"
+              @click="startEditTitle"
               :disabled="enumerator._locked"
             />
           </div>
+          <div v-else class="d-flex align-center">
+            <v-text-field
+              ref="titleInput"
+              v-model="enumerator.title"
+              density="compact"
+              variant="outlined"
+              placeholder="Enter title..."
+              class="mr-2"
+              style="min-width: 200px;"
+              @blur="finishEditTitle"
+              @keyup.enter="finishEditTitle"
+            />
+          </div>
         </div>
-        <div class="d-flex gap-2">
+        <div class="d-flex align-center">
           <v-btn
-            v-if="enumerator._locked"
+            v-if="!enumerator._locked"
+            prepend-icon="mdi-lock"
+            variant="outlined"
             color="warning"
-            variant="elevated"
-            @click="unlockEnumerator"
-            class="font-weight-bold"
-          >
-            <v-icon start>mdi-lock-open</v-icon>
-            Unlock
-          </v-btn>
-          <v-btn
-            v-else
-            color="info"
-            variant="elevated"
             @click="lockEnumerator"
-            class="font-weight-bold"
+            :loading="saving"
           >
-            <v-icon start>mdi-lock</v-icon>
             Lock
           </v-btn>
           <v-btn
-            color="error"
-            variant="elevated"
-            @click="handleDelete"
-            class="font-weight-bold"
+            v-else
+            prepend-icon="mdi-lock-open"
+            variant="outlined"
+            color="success"
+            @click="showUnlockDialog = true"
+            :loading="saving"
           >
-            <v-icon start>mdi-delete</v-icon>
+            Unlock
+          </v-btn>
+          <v-btn
+            prepend-icon="mdi-delete"
+            variant="outlined"
+            color="error"
+            @click="handleDelete"
+            :disabled="enumerator._locked"
+            class="ml-2"
+          >
             Delete
           </v-btn>
         </div>
       </div>
-      <!-- Info Card -->
-      <BaseCard 
-        title="Enumerator File Info"
-        icon="mdi-file-document-outline"
-        :is-secondary="true"
-        class="mb-6"
-      >
-        <div class="d-flex flex-wrap align-center gap-6">
-          <div class="info-item">
-            <span class="text-caption text-medium-emphasis">File Name</span>
-            <div class="text-body-1 font-weight-medium">{{ enumerator.file_name }}</div>
-          </div>
-          <div class="info-item">
-            <span class="text-caption text-medium-emphasis">Version</span>
-            <div class="text-body-1 font-weight-medium">{{ enumerator.version }}</div>
-          </div>
-          <div class="info-item d-flex align-center">
-            <span class="text-caption text-medium-emphasis mr-2">Locked</span>
-            <v-icon :color="enumerator._locked ? 'warning' : 'success'">
-              {{ enumerator._locked ? 'mdi-lock' : 'mdi-lock-open' }}
-            </v-icon>
-          </div>
-          <div class="flex-grow-1"></div>
+
+      <!-- Enumerators List -->
+      <BaseCard title="Enumerators">
+        <template #header-actions>
           <v-btn
-            color="primary"
+            prepend-icon="mdi-plus"
             variant="elevated"
+            color="white"
             size="small"
             @click="addEnumeration"
             :disabled="enumerator._locked"
-            class="ml-auto"
+            :loading="saving"
           >
-            <v-icon start size="small">mdi-plus</v-icon>
-            Add Enumeration
+            <span class="text-primary">Add Enumeration</span>
           </v-btn>
-        </div>
-      </BaseCard>
-      <!-- Enumerators Card -->
-      <BaseCard 
-        title="Enumerators"
-        icon="mdi-format-list-bulleted"
-        :is-secondary="false"
-      >
-        <div class="enumerators-header">
-          <v-btn
-            color="primary"
-            variant="outlined"
-            size="small"
-            @click="addEnumeration"
-            :disabled="enumerator._locked"
-          >
-            <v-icon start size="small">mdi-plus</v-icon>
-            Add Enumerator
-          </v-btn>
-        </div>
-        <div v-if="!enumerator.enumerators || enumerator.enumerators.length === 0" class="text-center pa-4">
-          <v-icon size="32" color="grey">mdi-format-list-bulleted</v-icon>
-          <div class="text-body-2 text-medium-emphasis mt-2">No enumerators defined</div>
+        </template>
+        <div v-if="!enumerator.enumerators || enumerator.enumerators.length === 0" class="text-center pa-1">
+          <v-icon size="20" color="grey">mdi-format-list-bulleted</v-icon>
+          <div class="text-body-2 text-medium-emphasis mt-1">No enumerators defined</div>
         </div>
         <div v-else class="enumerators-list">
           <div
             v-for="(enumItem, enumIdx) in enumerator.enumerators"
             :key="enumIdx"
-            class="enumerator-item mb-4"
+            class="enumerator-item mb-2"
           >
-            <div class="d-flex align-center enumerator-header mb-2">
+            <div class="d-flex align-center enumerator-header mb-1">
               <v-text-field
                 v-model="editableEnumNames[enumIdx]"
                 density="compact"
@@ -148,9 +118,18 @@
                 {{ enumItem.values.length }} values
               </v-chip>
               <v-btn
-                v-if="!enumerator._locked"
-                icon
+                prepend-icon="mdi-plus"
+                variant="elevated"
                 size="small"
+                color="white"
+                @click="addEnumValue(enumIdx)"
+                :disabled="enumerator._locked"
+                class="ml-2"
+              >
+                <span class="text-primary">Add Value</span>
+              </v-btn>
+              <v-btn
+                icon="mdi-delete"
                 variant="text"
                 color="error"
                 @click.stop="deleteEnumeration(enumIdx)"
@@ -160,28 +139,15 @@
               <v-spacer />
             </div>
             <div class="enum-values">
-              <div class="d-flex align-center mb-3">
-                <span class="text-subtitle-2 mr-3">Values:</span>
-                <v-btn
-                  color="success"
-                  variant="text"
-                  size="small"
-                  @click="addEnumValue(enumIdx)"
-                  :disabled="enumerator._locked"
-                >
-                  <v-icon start size="small">mdi-plus</v-icon>
-                  Add Value
-                </v-btn>
-              </div>
-              <div v-if="!enumItem.values || enumItem.values.length === 0" class="text-center pa-4">
-                <v-icon size="24" color="grey">mdi-format-list-numbered</v-icon>
-                <div class="text-body-2 text-medium-emphasis mt-2">No values defined</div>
+              <div v-if="!enumItem.values || enumItem.values.length === 0" class="text-center pa-1">
+                <v-icon size="16" color="grey">mdi-format-list-numbered</v-icon>
+                <div class="text-body-2 text-medium-emphasis mt-1">No values defined</div>
               </div>
               <div v-else class="enum-values-list">
                 <div
                   v-for="(valueItem, valIdx) in enumItem.values"
                   :key="valIdx"
-                  class="enum-value-item d-flex align-center mb-2"
+                  class="enum-value-item d-flex align-center mb-1"
                 >
                   <v-text-field
                     v-model="editableEnumValues[enumIdx][valIdx]"
