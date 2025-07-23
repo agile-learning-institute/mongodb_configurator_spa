@@ -129,15 +129,13 @@ const loadTypes = async () => {
 // Combine all types and filter based on search query
 const allTypes = computed(() => {
   if (props.rootLevel) {
-    // Root level: show all types including primitives
+    // Root level: only structural and primitive types (no custom types)
     return [
       ...structuralTypes,
-      ...primitiveTypes,
-      ...customTypes,
-      ...availableTypes.value
+      ...primitiveTypes
     ]
   } else {
-    // Non-root level: exclude primitives
+    // Non-root level: structural and custom types (no primitives)
     return [
       ...structuralTypes,
       ...customTypes,
