@@ -116,11 +116,11 @@ watch(() => props.property, (newVal) => {
 })
 
 const handleChange = (newValue?: string | any) => {
-  if (newValue && typeof newValue === 'object') {
-    // Handle complex type change from TypeTypePicker
-    Object.assign(propertyRef.value, newValue)
+  if (newValue && typeof newValue === 'object' && 'type' in newValue) {
+    emit('change', { ...newValue })
+  } else {
+    emit('change', propertyRef.value)
   }
-  emit('change', propertyRef.value)
 }
 
 const locked = computed(() => false) // TODO: wire up lock state

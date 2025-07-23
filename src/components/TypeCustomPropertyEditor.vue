@@ -76,11 +76,11 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits(['change', 'delete', 'rename'])
 
 const handleChange = (newValue?: string | any) => {
-  if (newValue && typeof newValue === 'object') {
-    // Handle complex type change from TypeTypePicker
-    Object.assign(props.property, newValue)
+  if (newValue && typeof newValue === 'object' && 'type' in newValue) {
+    emit('change', { ...newValue })
+  } else {
+    emit('change', props.property)
   }
-  emit('change', props.property)
 }
 
 const handleDelete = () => {
