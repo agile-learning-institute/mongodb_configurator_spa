@@ -28,7 +28,7 @@
               density="compact"
               class="title-edit-field h1-style"
               hide-details
-              @update:model-value="autoSave"
+              @update:model-value="autoSaveLocal"
               @blur="finishEditTitle"
               @keyup.enter="finishEditTitle"
               ref="titleInput"
@@ -128,7 +128,7 @@
         </div>
         <div v-else class="enumerators-list">
           <div
-            v-for="(enumValues, enumName) in enumerator.enumerators"
+            v-for="(enumValues, enumName) in enumerator.enumerators || {}"
             :key="enumName"
             class="enumerator-item mb-4"
           >
@@ -282,12 +282,14 @@ watch(enumerator, (val) => {
   initEditableStateFromEnumerator(val)
 }, { immediate: true })
 
-const autoSave = async () => {
+// Replace autoSave with two functions:
+const autoSaveLocal = async () => {
   if (!enumerator.value) return
   await saveEnumerator()
-  // After saving, reload the canonical enumerator from the API
-  await loadEnumerator()
 }
+// Remove autoSaveAndReload, use only autoSaveLocal (saveEnumerator) for all actions
+// For addEnumeration, deleteEnumeration, handleEnumNameChange, addEnumValue, deleteEnumValue, handleEnumKeyChange, handleEnumValueChange, use autoSaveLocal
+// Ensure all mutations to enumerator.value.enumerators maintain a valid structure
 
 const startEditTitle = () => {
   editingTitle.value = true
@@ -303,21 +305,21 @@ const finishEditTitle = () => {
 const handleTitleChange = async (newTitle: string) => {
   if (enumerator.value) {
     enumerator.value.title = newTitle
-    await autoSave()
+    await autoSaveLocal()
   }
 }
 
 const lockEnumerator = async () => {
   if (!enumerator.value) return
   enumerator.value._locked = true
-  await autoSave()
+  await autoSaveLocal()
 }
 
 const unlockEnumerator = async () => {
   if (!enumerator.value) return
   enumerator.value._locked = false
   showUnlockDialog.value = false
-  await autoSave()
+  await autoSaveLocal()
 }
 
 const addEnumeration = () => {
@@ -330,26 +332,34 @@ const addEnumeration = () => {
   editableEnumNames.value[newEnumName] = newEnumName
   editableEnumKeys.value[newEnumName] = {}
   editableEnumValues.value[newEnumName] = {}
-  autoSave()
+  autoSaveLocal()
 }
 
 const deleteEnumeration = (enumName: string) => {
   if (!enumerator.value?.enumerators) return
   delete enumerator.value.enumerators[enumName]
+  if (Object.keys(enumerator.value.enumerators).length === 0) {
+    enumerator.value.enumerators = {} // Keep as empty object
+  }
   delete editableEnumNames.value[enumName]
   delete editableEnumKeys.value[enumName]
   delete editableEnumValues.value[enumName]
-  autoSave()
+  autoSaveLocal()
 }
 
 const handleEnumNameChange = (oldName: string, newName: string) => {
   if (!enumerator.value?.enumerators || oldName === newName) return
+  if (!newName || newName.trim() === '' || enumerator.value.enumerators[newName]) return // Prevent empty or duplicate
   const enumValues = enumerator.value.enumerators[oldName]
   delete enumerator.value.enumerators[oldName]
-  enumerator.value.enumerators[newName] = enumValues
+  enumerator.value.enumerators[newName] = enumValues || {}
   editableEnumNames.value[newName] = newName
   delete editableEnumNames.value[oldName]
-  autoSave()
+  editableEnumKeys.value[newName] = editableEnumKeys.value[oldName] || {}
+  delete editableEnumKeys.value[oldName]
+  editableEnumValues.value[newName] = editableEnumValues.value[oldName] || {}
+  delete editableEnumValues.value[oldName]
+  autoSaveLocal()
 }
 
 const finishEnumNameEdit = (enumName: string) => {
@@ -364,32 +374,38 @@ const addEnumValue = (enumName: string) => {
   enumerator.value.enumerators[enumName][newKey] = ''
   editableEnumKeys.value[enumName][newKey] = newKey
   editableEnumValues.value[enumName][newKey] = ''
-  autoSave()
+  autoSaveLocal()
 }
 
 const deleteEnumValue = (enumName: string, key: string) => {
   if (!enumerator.value?.enumerators?.[enumName]) return
   delete enumerator.value.enumerators[enumName][key]
+  if (Object.keys(enumerator.value.enumerators[enumName]).length === 0) {
+    enumerator.value.enumerators[enumName] = {} // Keep as empty object
+  }
   delete editableEnumKeys.value[enumName][key]
   delete editableEnumValues.value[enumName][key]
-  autoSave()
+  autoSaveLocal()
 }
 
 const handleEnumKeyChange = (enumName: string, oldKey: string, newKey: string) => {
   if (!enumerator.value?.enumerators?.[enumName] || oldKey === newKey) return
+  if (!newKey || newKey.trim() === '' || enumerator.value.enumerators[enumName][newKey]) return // Prevent empty or duplicate
   const value = enumerator.value.enumerators[enumName][oldKey]
   delete enumerator.value.enumerators[enumName][oldKey]
   enumerator.value.enumerators[enumName][newKey] = value
   editableEnumKeys.value[enumName][newKey] = newKey
   delete editableEnumKeys.value[enumName][oldKey]
-  autoSave()
+  editableEnumValues.value[enumName][newKey] = editableEnumValues.value[enumName][oldKey]
+  delete editableEnumValues.value[enumName][oldKey]
+  autoSaveLocal()
 }
 
 const handleEnumValueChange = (enumName: string, key: string, value: string) => {
   if (!enumerator.value?.enumerators?.[enumName]) return
   enumerator.value.enumerators[enumName][key] = value
   editableEnumValues.value[enumName][key] = value
-  autoSave()
+  autoSaveLocal()
 }
 
 const handleDelete = () => {

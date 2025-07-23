@@ -43,7 +43,7 @@ export function useEnumeratorDetail() {
     try {
       const dataToSave = updatedData || enumerator.value
       const saved = await apiService.saveEnumerator(fileName.value, dataToSave)
-      enumerator.value = saved // Always update from canonical API response
+      // Do not replace enumerator.value with API response after save
     } catch (err: any) {
       if (err.type === 'API_ERROR' && err.data) {
         showEvent(err.data, 'Save Enumerator Error', 'Failed to save enumerator')
