@@ -110,33 +110,17 @@ const itemsType = computed({
       props.property.items = {
         description: 'Array item',
         type: 'array',
-        required: false,
-        items: {
-          description: 'Nested array item',
-          type: 'word',
-          required: false
-        }
+        required: false
       }
     } else {
-      // If changing to array type, ensure proper nested structure
-      if (type === 'array' && (!props.property.items.items || props.property.items.type !== 'array')) {
-        props.property.items.items = {
-          description: 'Nested array item',
-          type: 'word',
-          required: false
-        }
-      }
       props.property.items.type = type
     }
     handleChange()
   }
 })
 
-const handleChange = (newValue?: string | any) => {
-  if (newValue && typeof newValue === 'object') {
-    // Handle complex type change from TypeTypePicker
-    Object.assign(props.property, newValue)
-  }
+const handleChange = () => {
+  // Just emit the change - let the API handle default values and return the complete structure
   emit('change', props.property)
 }
 

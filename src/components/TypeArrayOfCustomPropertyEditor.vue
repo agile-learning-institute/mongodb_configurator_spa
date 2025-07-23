@@ -100,17 +100,15 @@ const itemsType = computed({
         type: 'email',
         required: false
       }
+    } else {
+      props.property.items.type = type
     }
-    props.property.items.type = type
     handleChange()
   }
 })
 
-const handleChange = (newValue?: string | any) => {
-  if (newValue && typeof newValue === 'object') {
-    // Handle complex type change from TypeTypePicker
-    Object.assign(props.property, newValue)
-  }
+const handleChange = () => {
+  // Just emit the change - let the API handle default values and return the complete structure
   emit('change', props.property)
 }
 

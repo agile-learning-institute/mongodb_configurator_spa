@@ -138,26 +138,17 @@ const itemsType = computed({
       props.property.items = {
         description: 'Object item',
         type: 'object',
-        required: false,
-        properties: {}
+        required: false
       }
     } else {
-      // If changing to object type, ensure proper structure
-      if (type === 'object' && (!props.property.items.properties || props.property.items.type !== 'object')) {
-        props.property.items.properties = {}
-        props.property.items.additional_properties = false
-      }
       props.property.items.type = type
     }
     handleChange()
   }
 })
 
-const handleChange = (newValue?: string | any) => {
-  if (newValue && typeof newValue === 'object') {
-    // Handle complex type change from TypeTypePicker
-    Object.assign(props.property, newValue)
-  }
+const handleChange = () => {
+  // Just emit the change - let the API handle default values and return the complete structure
   emit('change', props.property)
 }
 
