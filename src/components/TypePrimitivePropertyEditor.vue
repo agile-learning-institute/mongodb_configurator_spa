@@ -55,9 +55,6 @@
     </div>
     <!-- Content pane = schema editor -->
     <div class="property-content pa-4">
-      <v-alert type="info" variant="tonal" class="mb-4">
-        Simple primitive types have a single schema definition.
-      </v-alert>
       <!-- Schema Editor -->
       <v-textarea
         v-model="schemaText"
@@ -111,11 +108,21 @@ const updateSchema = () => {
 }
 
 const handleChange = (newValue?: string | any) => {
-  if (newValue && typeof newValue === 'object') {
-    // Handle complex type change from TypeTypePicker
-    Object.assign(props.property, newValue)
+  if (newValue && typeof newValue === 'object' && 'type' in newValue) {
+    // If switching from simple to complex primitive
+    if (newValue.type === 'complex_primitive' && props.property.type === 'simple_primitive' && props.property.schema) {
+      emit('change', { ...newValue, json_type: props.property.schema, bson_type: props.property.schema })
+      return
+    }
+    // If switching from complex to simple primitive
+    if (newValue.type === 'simple_primitive' && props.property.type === 'complex_primitive' && props.property.json_type) {
+      emit('change', { ...newValue, schema: props.property.json_type })
+      return
+    }
+    emit('change', { ...newValue })
+  } else {
+    emit('change', props.property)
   }
-  emit('change', props.property)
 }
 
 const handleDelete = () => {

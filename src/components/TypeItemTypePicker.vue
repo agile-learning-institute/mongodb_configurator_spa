@@ -26,35 +26,10 @@ const currentType = computed(() => {
 
 // Handle type changes from TypeTypePicker
 const handleTypeChange = (newValue: string | any) => {
-  // If TypeTypePicker emits a complex object, extract the type and create a simple object
+  // Always emit a string for the type (never a complex object)
   if (typeof newValue === 'object' && newValue && 'type' in newValue) {
-    // For array items, we want to create a simple structure
-    const type = (newValue as { type: string }).type
-    if (type === 'array') {
-      // Create a simple array items structure
-      const simpleValue = {
-        type: 'array',
-        items: {
-          type: 'word',
-          description: 'Array item',
-          required: false
-        }
-      }
-      emit('update:modelValue', simpleValue)
-    } else if (type === 'object') {
-      // Create a simple object structure
-      const simpleValue = {
-        type: 'object',
-        properties: {},
-        additional_properties: false
-      }
-      emit('update:modelValue', simpleValue)
-    } else {
-      // For other types, just pass the type string
-      emit('update:modelValue', type)
-    }
+    emit('update:modelValue', String(newValue.type))
   } else {
-    // If it's already a string, pass it through
     emit('update:modelValue', newValue)
   }
 }

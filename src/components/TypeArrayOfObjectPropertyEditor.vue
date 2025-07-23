@@ -34,7 +34,7 @@
         color="primary"
         variant="outlined"
         size="small"
-        @click="addItem"
+        @click="handleAddProperty"
         class="ml-2"
       >
         <v-icon start size="small">mdi-plus</v-icon>
@@ -87,16 +87,20 @@
         <v-icon size="16">mdi-delete</v-icon>
       </v-btn>
     </div>
-    <!-- Body: nested PropertyEditorFactory for items -->
+    <!-- Body: property editors for each property in items.properties -->
     <div class="property-body pa-4">
-      <TypePropertyEditorFactory
-        v-if="property.items"
-        :key="`items-${property.items.type}`"
-        :property="property.items"
-        :is-root="false"
-        @change="handleChange"
-        @delete="handleDelete"
-      />
+      <div v-if="property.items && property.items.properties">
+        <div v-for="(prop, propName) in property.items.properties" :key="propName" class="mb-3">
+          <TypePropertyEditorFactory
+            :property="prop"
+            :property-name="propName"
+            :is-root="false"
+            @change="updated => handleChildPropertyChange(propName, updated)"
+            @delete="() => handleDeleteProperty(propName)"
+          />
+        </div>
+      </div>
+      <div v-else class="text-grey">No properties defined. Use Add Property to add one.</div>
     </div>
   </div>
 </template>
@@ -124,7 +128,7 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits(['change', 'delete', 'rename'])
 
 // Use composable for logic
-const { addItem } = useTypeArrayOfObjectPropertyEditor(
+const { handleAddProperty, handleChildPropertyChange, handleDeleteProperty, toggleAdditionalProperties } = useTypeArrayOfObjectPropertyEditor(
   computed(() => props.property),
   emit
 )
@@ -137,7 +141,7 @@ const itemsType = computed({
     if (!props.property.items) {
       props.property.items = {
         description: 'Object item',
-        type: 'object',
+        type,
         required: false
       }
     } else {
@@ -150,13 +154,6 @@ const itemsType = computed({
 const handleChange = () => {
   // Just emit the change - let the API handle default values and return the complete structure
   emit('change', props.property)
-}
-
-const toggleAdditionalProperties = () => {
-  if (props.property.items) {
-    props.property.items.additional_properties = !props.property.items.additional_properties
-    handleChange()
-  }
 }
 
 const handleDelete = () => {

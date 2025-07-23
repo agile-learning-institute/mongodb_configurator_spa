@@ -109,7 +109,7 @@ const itemsType = computed({
     if (!props.property.items) {
       props.property.items = {
         description: 'Array item',
-        type: 'array',
+        type,
         required: false
       }
     } else {

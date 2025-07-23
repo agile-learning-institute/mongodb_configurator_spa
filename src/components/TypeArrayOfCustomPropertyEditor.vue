@@ -97,7 +97,7 @@ const itemsType = computed({
     if (!props.property.items) {
       props.property.items = {
         description: 'Custom item',
-        type: 'email',
+        type,
         required: false
       }
     } else {

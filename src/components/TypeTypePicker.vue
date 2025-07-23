@@ -156,45 +156,7 @@ const filteredTypes = computed(() => {
 })
 
 const selectType = (type: string) => {
-  // For array type, provide default items structure
-  if (type === 'array') {
-    emit('update:modelValue', {
-      type: 'array',
-      items: {
-        type: 'word',
-        description: 'Array item',
-        required: false
-      }
-    })
-  }
-  // For object type, provide default properties structure
-  else if (type === 'object') {
-    emit('update:modelValue', {
-      type: 'object',
-      properties: {},
-      additional_properties: false
-    })
-  }
-  // For simple_primitive, provide default schema
-  else if (type === 'simple_primitive') {
-    emit('update:modelValue', {
-      type: 'simple_primitive',
-      schema: { type: 'string' }
-    })
-  }
-  // For complex_primitive, provide default JSON and BSON schemas
-  else if (type === 'complex_primitive') {
-    emit('update:modelValue', {
-      type: 'complex_primitive',
-      json_type: { type: 'string' },
-      bson_type: { bsonType: 'string' }
-    })
-  }
-  // For other types, just emit the type string
-  else {
-    emit('update:modelValue', type)
-  }
-  
+  emit('update:modelValue', type)
   showPicker.value = false
   searchQuery.value = ''
 }
