@@ -1,4 +1,14 @@
 version: 0
-enumerators: {}
-_locked: false
 file_name: enumerations.0.yaml
+_locked: false
+enumerators:
+  - name: default_status
+    values:
+      - value: active
+        description: Not Deleted
+      - value: archived
+        description: Soft Delete Indicator
+      - value: draft
+        description: Draft Status
+      - value: published
+        description: Published Status
