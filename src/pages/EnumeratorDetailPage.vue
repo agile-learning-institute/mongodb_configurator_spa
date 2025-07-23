@@ -128,7 +128,7 @@
         </div>
         <div v-else class="enumerators-list">
           <div
-            v-for="(enumValues, enumName) in enumerator.enumerators || {}"
+            v-for="enumName in orderedEnumeratorNames"
             :key="enumName"
             class="enumerator-item mb-4"
           >
@@ -145,7 +145,7 @@
                 @keyup.enter="finishEnumNameEdit(String(enumName))"
               />
               <v-chip size="small" color="primary">
-                {{ Object.keys(enumValues).length }} values
+                {{ Object.keys(enumerator.enumerators[enumName]).length }} values
               </v-chip>
               <v-btn
                 v-if="!enumerator._locked"
@@ -173,13 +173,13 @@
                   Add Value
                 </v-btn>
               </div>
-              <div v-if="!enumValues || Object.keys(enumValues).length === 0" class="text-center pa-4">
+              <div v-if="!enumerator.enumerators[enumName] || Object.keys(enumerator.enumerators[enumName]).length === 0" class="text-center pa-4">
                 <v-icon size="24" color="grey">mdi-format-list-numbered</v-icon>
                 <div class="text-body-2 text-medium-emphasis mt-2">No values defined</div>
               </div>
               <div v-else class="enum-values-list">
                 <div
-                  v-for="[key, value] in Object.entries(enumValues || {})"
+                  v-for="key in orderedEnumValueKeys(enumName)"
                   :key="key"
                   class="enum-value-item d-flex align-center mb-2"
                 >
@@ -440,6 +440,12 @@ const finishEnumValueEdit = (enumName: string, key: string) => {
   if (editableEnumValues.value[enumName][key] !== enumerator.value?.enumerators?.[enumName]?.[key]) {
     handleEnumValueChange(enumName, key, editableEnumValues.value[enumName][key])
   }
+}
+
+// Add computed properties for ordered enumerator and value keys
+const orderedEnumeratorNames = computed(() => enumerator.value?.enumerators ? Object.keys(enumerator.value.enumerators) : [])
+const orderedEnumValueKeys = (enumName: string) => {
+  return enumerator.value?.enumerators?.[enumName] ? Object.keys(enumerator.value.enumerators[enumName]) : []
 }
 </script>
 
