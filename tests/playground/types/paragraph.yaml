@@ -1,0 +1,10 @@
+file_name: paragraph.yaml
+_locked: false
+root:
+  description: Array item
+  type: array
+  required: false
+  items:
+    description: Array item
+    type: sentence
+    required: false

@@ -13,124 +13,113 @@
       </v-alert>
     </div>
 
-    <!-- Type detail -->
-    <div v-else-if="type">
-      <BaseCard 
-        title="Custom Type"
-        icon="mdi-shape"
-      >
-        <template #header-actions>
+    <!-- Content -->
+    <div v-else-if="typeData">
+      <!-- Page Header -->
+      <header class="d-flex align-center justify-space-between mb-6">
+        <h2 class="text-h4 mb-0">{{ typeData.file_name }}</h2>
+        <div class="d-flex gap-2">
           <v-btn
-            v-if="type._locked"
-            color="white"
-            variant="text"
-            @click="showUnlockDialog = true"
+            v-if="typeData._locked"
+            color="warning"
+            variant="elevated"
+            @click="unlockType"
+            class="font-weight-bold"
           >
-            <v-icon start>mdi-lock</v-icon>
-            Locked
+            <v-icon start>mdi-lock-open</v-icon>
+            Unlock
           </v-btn>
           <v-btn
             v-else
-            color="white"
-            variant="text"
+            color="info"
+            variant="elevated"
             @click="lockType"
+            class="font-weight-bold"
           >
             <v-icon start>mdi-lock</v-icon>
             Lock
           </v-btn>
-        </template>
-
-        <TypeProperty
-          property-name="root"
-          :property="type.root"
-          :disabled="type._locked"
-          :exclude-type="type.file_name"
-          :top-level="true"
-          :top-level-name="type.file_name.replace('.yaml', '')"
-          @change="handleTopLevelPropertyChange"
-        />
-      </BaseCard>
+          <v-btn
+            color="error"
+            variant="elevated"
+            @click="handleDelete"
+            class="font-weight-bold"
+          >
+            <v-icon start>mdi-delete</v-icon>
+            Delete
+          </v-btn>
+        </div>
+      </header>
+      <!-- TypePropertyEditorFactory for root property -->
+      <TypePropertyEditorFactory
+        :property="typeData.root"
+        :is-root="true"
+        @change="handleRootPropertyChange"
+      />
     </div>
-
-    <!-- Unlock Dialog -->
-    <v-dialog v-model="showUnlockDialog" max-width="400">
-      <v-card>
-        <v-card-title>Unlock Type?</v-card-title>
-        <v-card-text>
-          Unlocking allows editing this type. Are you sure?
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer />
-          <v-btn @click="showUnlockDialog = false">Cancel</v-btn>
-          <v-btn color="primary" @click="unlockType">Unlock</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
   </v-container>
+
+  <!-- Delete Confirmation Dialog -->
+  <v-dialog v-model="showDeleteDialog" max-width="500">
+    <v-card>
+      <v-card-title class="text-h5">
+        Delete Type?
+      </v-card-title>
+      <v-card-text>
+        <p>Are you sure you want to delete "{{ typeData?.file_name }}"?</p>
+        <p class="text-caption text-medium-emphasis">
+          This action cannot be undone.
+        </p>
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer />
+        <v-btn @click="cancelDelete">Cancel</v-btn>
+        <v-btn color="error" @click="confirmDelete">Delete</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+
+  <!-- Unlock Confirmation Dialog -->
+  <v-dialog v-model="showUnlockDialog" max-width="500">
+    <v-card>
+      <v-card-title class="text-h5">
+        Unlock Type?
+      </v-card-title>
+      <v-card-text>
+        <p>Unlocking allows editing this type. Are you sure?</p>
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer />
+        <v-btn @click="cancelUnlock">Cancel</v-btn>
+        <v-btn color="warning" @click="confirmUnlock">Unlock</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { apiService } from '@/utils/api'
-// import TypePicker from '@/components/TypePicker.vue'
-import TypeProperty from '@/components/TypeProperty.vue'
-import BaseCard from '@/components/BaseCard.vue'
-
-interface TypeProperty {
-  description: string
-  type?: string
-  required?: boolean
-  additionalProperties?: boolean
-  items?: TypeProperty
-  properties?: Record<string, TypeProperty>
-  schema?: any
-  json_type?: any
-  bson_type?: any
-}
-
-interface Type {
-  file_name: string
-  _locked: boolean
-  root: TypeProperty
-}
+import TypePropertyEditorFactory from '@/components/TypePropertyEditorFactory.vue'
+import type { TypeProperty, TypeData } from '@/types/types'
 
 const route = useRoute()
+const router = useRouter()
 const loading = ref(false)
 const saving = ref(false)
 const error = ref<string | null>(null)
-const type = ref<Type | null>(null)
+const showDeleteDialog = ref(false)
+const showUnlockDialog = ref(false)
+const typeData = ref<TypeData | null>(null)
 
-// JSON string representations for editing
-const schemaJson = ref('')
-const jsonSchemaJson = ref('')
-const bsonSchemaJson = ref('')
-
-// JSON validation errors
-// const schemaError = ref('')
-// const jsonSchemaError = ref('')
-// const bsonSchemaError = ref('')
-
-// Load type data
+// Methods
 const loadType = async () => {
   loading.value = true
   error.value = null
-  
   try {
     const fileName = route.params.fileName as string
-    const data = await apiService.getType(fileName)
-    type.value = data
-    
-    // Initialize JSON strings for editing
-    if (data.schema) {
-      schemaJson.value = JSON.stringify(data.schema, null, 2)
-    }
-    if (data.json_schema) {
-      jsonSchemaJson.value = JSON.stringify(data.json_schema, null, 2)
-    }
-    if (data.bson_schema) {
-      bsonSchemaJson.value = JSON.stringify(data.bson_schema, null, 2)
-    }
+    typeData.value = await apiService.getType(fileName)
   } catch (err: any) {
     error.value = err.message || 'Failed to load type'
     console.error('Failed to load type:', err)
@@ -139,13 +128,14 @@ const loadType = async () => {
   }
 }
 
-// Auto-save functionality
 const autoSave = async () => {
-  if (!type.value || type.value._locked) return
-  
+  if (!typeData.value) return
   saving.value = true
+  error.value = null
   try {
-    await apiService.saveType(type.value.file_name, type.value)
+    await apiService.saveType(typeData.value.file_name, typeData.value)
+    const freshData = await apiService.getType(typeData.value.file_name)
+    typeData.value = freshData
   } catch (err: any) {
     error.value = err.message || 'Failed to save type'
     console.error('Failed to save type:', err)
@@ -154,200 +144,74 @@ const autoSave = async () => {
   }
 }
 
-// Manual save
-// const saveType = async () => {
-//   if (!type.value) return
-//   
-//   saving.value = true
-//   try {
-//     await apiService.saveType(type.value.file_name, type.value)
-//     // Could add success notification here
-//   } catch (err: any) {
-//     error.value = err.message || 'Failed to save type'
-//     console.error('Failed to save type:', err)
-//   } finally {
-//     saving.value = false
-//   }
-// }
+const handleRootPropertyChange = (updatedProperty: TypeProperty) => {
+  if (typeData.value) {
+    typeData.value.root = updatedProperty
+    autoSave()
+  }
+}
 
-// const primitiveTypes = [
-//   'identity', 'word', 'sentence', 'email', 'url', 
-//   'ip_address', 'us_phone', 'date_time', 'markdown',
-//   'street_address', 'state_code', 'count', 'identifier',
-//   'breadcrumb', 'appointment'
-// ];
+const lockType = async () => {
+  if (!typeData.value) return
+  try {
+    await apiService.lockAllTypes()
+    typeData.value._locked = true
+  } catch (err: any) {
+    error.value = err.message || 'Failed to lock type'
+    console.error('Failed to lock type:', err)
+  }
+}
 
-// const getTypeCategory = (): string => {
-//   if (!type.value) return 'unknown';
+const unlockType = async () => {
+  if (!typeData.value) return
+  showUnlockDialog.value = true
+}
 
-//   if (type.value.schema) return 'simple_primitive';
-//   if (type.value.json_schema || type.value.bson_schema || type.value.json_type || type.value.bson_type) return 'complex_primitive';
-//   if (type.value.properties) return 'object';
-//   if (type.value.items) return 'array';
-//   if (primitiveTypes.includes(type.value.type || '')) return 'property_primitive';
+const handleDelete = () => {
+  showDeleteDialog.value = true
+}
 
-//   return 'unknown';
-// };
+const confirmDelete = async () => {
+  if (!typeData.value) return
+  try {
+    await apiService.deleteType(typeData.value.file_name)
+    router.push('/types')
+  } catch (err: any) {
+    error.value = err.message || 'Failed to delete type'
+    console.error('Failed to delete type:', err)
+  }
+}
 
-// const getTypeCategoryTitle = (): string => {
-//   const category = getTypeCategory();
-//   switch (category) {
-//     case 'simple_primitive': return 'Simple Primitive Type';
-//     case 'complex_primitive': return 'Complex Primitive Type';
-//     case 'object': return 'Object Type';
-//     case 'array': return 'Array Type';
-//     case 'property_primitive': return 'Primitive Property Type';
-//     default: return 'Unknown Type Category';
-//   }
-// };
+const cancelDelete = () => {
+  showDeleteDialog.value = false
+}
 
-// const getTypeCategoryDescription = (): string => {
-//   const category = getTypeCategory();
-//   switch (category) {
-//     case 'simple_primitive': return 'This type has a simple schema definition with basic JSON schema properties.';
-//     case 'complex_primitive': return 'This type has both JSON and BSON schema definitions for complex validation.';
-//     case 'object': return 'This type defines an object structure with named properties.';
-//     case 'array': return 'This type defines an array structure with a specific item type.';
-//     case 'property_primitive': return 'This type is a primitive property (e.g., word, count, email, etc.).';
-//     default: return 'Unable to determine the type category. Please ensure the type has proper structure.';
-//   }
-// };
+const confirmUnlock = async () => {
+  if (!typeData.value) return
+  try {
+    // Note: The API doesn't have an unlock endpoint, so we'll just update the local state
+    // In a real implementation, you might need to call a specific unlock endpoint
+    typeData.value._locked = false
+    showUnlockDialog.value = false
+  } catch (err: any) {
+    error.value = err.message || 'Failed to unlock type'
+    console.error('Failed to unlock type:', err)
+  }
+}
 
-// const isSimplePrimitive = (): boolean => {
-//   return getTypeCategory() === 'simple_primitive'
-// }
-
-// const isComplexPrimitive = (): boolean => {
-//   return getTypeCategory() === 'complex_primitive'
-// }
-
-// const isObject = (): boolean => {
-//   return getTypeCategory() === 'object'
-// }
-
-// const isArray = (): boolean => {
-//   return getTypeCategory() === 'array'
-// }
-
-// JSON schema updates
-// const updateSchema = () => {
-//   if (!type.value) return
-//   
-//   try {
-//     const parsed = JSON.parse(schemaJson.value)
-//     type.value.schema = parsed
-//     schemaError.value = ''
-//     autoSave()
-//   } catch (err: any) {
-//     schemaError.value = 'Invalid JSON: ' + err.message
-//   }
-// }
-
-// const updateJsonSchema = () => {
-//   if (!type.value) return
-//   
-//   try {
-//     const parsed = JSON.parse(jsonSchemaJson.value)
-//     type.value.json_schema = parsed
-//     jsonSchemaError.value = ''
-//     autoSave()
-//   } catch (err: any) {
-//     jsonSchemaError.value = 'Invalid JSON: ' + err.message
-//   }
-// }
-
-// const updateBsonSchema = () => {
-//   if (!type.value) return
-//   
-//   try {
-//     const parsed = JSON.parse(bsonSchemaJson.value)
-//     type.value.bson_schema = parsed
-//     bsonSchemaError.value = ''
-//     autoSave()
-//   } catch (err: any) {
-//     bsonSchemaError.value = 'Invalid JSON: ' + err.message
-//   }
-// }
-
-// Object property management
-// const addProperty = () => {
-//   if (!type.value || type.value._locked) return
-//   
-//   if (!type.value.properties) {
-//     type.value.properties = {}
-//   }
-//   
-//   const propertyName = `new_property_${Object.keys(type.value.properties!).length + 1}`
-//   type.value.properties![propertyName] = {
-//     description: '',
-//     type: 'string',
-//     required: false,
-//     additionalProperties: false
-//   }
-//   
-//   autoSave()
-// }
-
-// const handlePropertyChange = (propertyName: string, updatedProperty: any) => {
-//   if (!type.value || type.value._locked) return
-//   
-//   if (type.value.properties) {
-//     type.value.properties[propertyName] = updatedProperty
-//   }
-//   autoSave()
-// }
-
-// const deleteProperty = (propertyName: string) => {
-//   if (!type.value || type.value._locked) return
-//   
-//   if (type.value.properties) {
-//   delete type.value.properties[propertyName]
-//   }
-//   autoSave()
-// }
-
-// const handleTypePropertyChange = (updatedProperty: any) => {
-//   if (!type.value || type.value._locked) return
-//   
-//   // Update the type with the property changes
-//   type.value.description = updatedProperty.description
-//   type.value.required = updatedProperty.required
-//   type.value.additionalProperties = updatedProperty.additionalProperties
-//   type.value.properties = updatedProperty.properties
-//   
-//   autoSave()
-// }
-
-const showUnlockDialog = ref(false)
-
-const unlockType = () => {
-  if (!type.value) return
-  type.value._locked = false
+const cancelUnlock = () => {
   showUnlockDialog.value = false
-  autoSave()
-}
-
-const lockType = () => {
-  if (!type.value) return
-  type.value._locked = true
-  autoSave()
-}
-
-// const handleItemsChange = (updatedItems: any) => {
-//   if (!type.value) return
-//   type.value.items = updatedItems
-//   autoSave()
-// }
-
-const handleTopLevelPropertyChange = (updated: any) => {
-  if (!type.value) return
-  // Update the root property with the changes
-  type.value.root = updated
-  autoSave()
 }
 
 // Load type on mount
 onMounted(() => {
   loadType()
 })
-</script> 
+</script>
+
+<style scoped>
+/* Type content styling */
+.type-content {
+  margin-top: 24px;
+}
+</style> 
