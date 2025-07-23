@@ -32,8 +32,12 @@ root:
               required: false
               items:
                 description: Missing Required Description
-                type: void
+                type: array
                 required: false
+                items:
+                  description: Missing Required Description
+                  type: void
+                  required: false
     last_name:
       description: The last name of the document
       type: word

@@ -6,5 +6,10 @@ root:
   required: false
   items:
     description: Array item
-    type: sentence
+    type:
+      type: array
+      items:
+        type: word
+        description: Array item
+        required: false
     required: false

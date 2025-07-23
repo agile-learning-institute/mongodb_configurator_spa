@@ -84,10 +84,27 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits(['change', 'delete', 'rename'])
 
 // Use composable for logic
-const { itemsType } = useTypeArrayOfCustomPropertyEditor(
+const { } = useTypeArrayOfCustomPropertyEditor(
   computed(() => props.property),
   emit
 )
+
+const itemsType = computed({
+  get() {
+    return props.property.items?.type || 'email'
+  },
+  set(type: string) {
+    if (!props.property.items) {
+      props.property.items = {
+        description: 'Custom item',
+        type: 'email',
+        required: false
+      }
+    }
+    props.property.items.type = type
+    handleChange()
+  }
+})
 
 const handleChange = (newValue?: string | any) => {
   if (newValue && typeof newValue === 'object') {
