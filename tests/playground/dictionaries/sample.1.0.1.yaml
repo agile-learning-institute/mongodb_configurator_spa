@@ -3,33 +3,19 @@ _locked: false
 root:
   description: A simple collection for testing
   type: object
-  required: true
+  required: false
   additional_properties: false
   properties:
-    property_1:
-      description: enter description here
+    _id:
+      description: The unique identifier for the media
+      type: identifier
+      required: true
+    full_name:
+      description: The name of the document
       type: enum_array
-      required: false
+      required: true
       enums: default_status
-    property_2:
-      description: enter description here
-      type: array
-      required: false
-      items:
-        description: ''
-        type: object
-        required: false
-        additional_properties: false
-        properties:
-          property_1:
-            description: enter description here
-            type: word
-            required: false
-          property_2:
-            description: enter description here
-            type: word
-            required: false
-    property_3:
+    property_1:
       description: enter description here
       type: object
       required: false
@@ -43,3 +29,12 @@ root:
           description: enter description here
           type: word
           required: false
+    property_2:
+      description: enter description here
+      type: word
+      required: false
+    status:
+      description: The current status of the document
+      type: enum
+      required: true
+      enums: default_status

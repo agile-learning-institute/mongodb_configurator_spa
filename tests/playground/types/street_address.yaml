@@ -1,0 +1,14 @@
+file_name: street_address.yaml
+_locked: false
+root:
+  description: Array item
+  type: array
+  required: false
+  items:
+    description: Array item
+    type: array
+    required: false
+    items:
+      description: Array item
+      type: word
+      required: false

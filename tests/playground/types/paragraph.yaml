@@ -1,0 +1,9 @@
+file_name: paragraph.yaml
+_locked: false
+root:
+  description: Array item
+  type:
+    type: object
+    properties: {}
+    additional_properties: false
+  required: false
