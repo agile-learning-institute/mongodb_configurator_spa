@@ -20,4 +20,13 @@ export interface TypeData {
   file_name: string
   _locked: boolean
   root: TypeProperty
+}
+
+// Enumerator data structure returned by the API
+export interface EnumeratorFile {
+  file_name: string;
+  version: number;
+  _locked: boolean;
+  enumerators: Record<string, Record<string, string>>;
+  title?: string;
 } 

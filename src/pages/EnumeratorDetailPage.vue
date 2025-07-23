@@ -3,8 +3,8 @@
     :loading="loading"
     :error="error"
     :data="enumerator"
-    :title="enumerator?.title || (route.params.fileName as string)?.replace('.yaml', '') || 'Enumerator'"
-    :file-name="enumerator?.file_name || (route.params.fileName as string) || ''"
+    :title="enumerator?.title || ($route.params.fileName as string)?.replace('.yaml', '') || 'Enumerator'"
+    :file-name="enumerator?.file_name || ($route.params.fileName as string) || ''"
     file-type="Enumerator"
     :locked="enumerator?._locked || false"
     :disabled="enumerator?._locked || false"
@@ -168,25 +168,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed } from 'vue'
 import { useRoute } from 'vue-router'
-import { apiService } from '@/utils/api'
 import DetailPageLayout from '@/components/DetailPageLayout.vue'
 import BaseCard from '@/components/BaseCard.vue'
+import { useEnumeratorDetail } from '@/composables/useEnumeratorDetail'
 
-interface Enumerator {
-  file_name: string
-  title?: string
-  version: string
-  _locked: boolean
-  enumerators: Record<string, Record<string, string>>
-}
-
-const route = useRoute()
-const loading = ref(false)
-const saving = ref(false)
-const error = ref<string | null>(null)
-const enumerator = ref<Enumerator | null>(null)
 const showDeleteDialog = ref(false)
 const showUnlockDialog = ref(false)
 const expandedPanels = ref<string[]>([])
@@ -196,54 +183,23 @@ const editableEnumNames = ref<Record<string, string>>({})
 const editableEnumKeys = ref<Record<string, Record<string, string>>>({})
 const editableEnumValues = ref<Record<string, Record<string, string>>>({})
 
-// Methods
-const loadEnumerator = async () => {
-  loading.value = true
-  error.value = null
-  
-  try {
-    const fileName = route.params.fileName as string
-    enumerator.value = await apiService.getEnumerator(fileName)
-    
-    // Initialize editable state
-    if (enumerator.value?.enumerators) {
-      editableEnumNames.value = {}
-      editableEnumKeys.value = {}
-      editableEnumValues.value = {}
-      
-      Object.keys(enumerator.value.enumerators).forEach(enumName => {
-        editableEnumNames.value[enumName] = enumName
-        editableEnumKeys.value[enumName] = {}
-        editableEnumValues.value[enumName] = {}
-        
-        Object.keys(enumerator.value!.enumerators[enumName]).forEach(key => {
-          editableEnumKeys.value[enumName][key] = key
-          editableEnumValues.value[enumName][key] = enumerator.value!.enumerators[enumName][key]
-        })
-      })
-    }
-  } catch (err: any) {
-    error.value = err.message || 'Failed to load enumerator'
-    console.error('Failed to load enumerator:', err)
-  } finally {
-    loading.value = false
-  }
-}
+// Use the new composable for all enumerator data and state
+const {
+  loading,
+  saving,
+  error,
+  enumerator,
+  fileName,
+  isLocked,
+  loadEnumerator,
+  saveEnumerator,
+  deleteEnumerator,
+} = useEnumeratorDetail()
 
+// Methods for UI actions (auto-save, editing, etc.)
 const autoSave = async () => {
   if (!enumerator.value) return
-  
-  saving.value = true
-  error.value = null
-  
-  try {
-    await apiService.saveEnumerator(enumerator.value.file_name, enumerator.value)
-  } catch (err: any) {
-    error.value = err.message || 'Failed to save enumerator'
-    console.error('Failed to save enumerator:', err)
-  } finally {
-    saving.value = false
-  }
+  await saveEnumerator()
 }
 
 const handleTitleChange = async (newTitle: string) => {
@@ -255,116 +211,80 @@ const handleTitleChange = async (newTitle: string) => {
 
 const lockEnumerator = async () => {
   if (!enumerator.value) return
-  
-  try {
-    // Note: Lock API endpoint may not be implemented yet
-    enumerator.value._locked = true
-  } catch (err: any) {
-    error.value = err.message || 'Failed to lock enumerator'
-    console.error('Failed to lock enumerator:', err)
-  }
+  enumerator.value._locked = true
+  await autoSave()
 }
 
 const unlockEnumerator = async () => {
   if (!enumerator.value) return
-  
-  try {
-    // Note: Unlock API endpoint may not be implemented yet
-    enumerator.value._locked = false
-    showUnlockDialog.value = false
-  } catch (err: any) {
-    error.value = err.message || 'Failed to unlock enumerator'
-    console.error('Failed to unlock enumerator:', err)
-  }
+  enumerator.value._locked = false
+  showUnlockDialog.value = false
+  await autoSave()
 }
 
 const addEnumeration = () => {
   if (!enumerator.value) return
-  
   if (!enumerator.value.enumerators) {
     enumerator.value.enumerators = {}
   }
-  
   const newEnumName = `enum_${Object.keys(enumerator.value.enumerators).length + 1}`
   enumerator.value.enumerators[newEnumName] = {}
-  
-  // Initialize editable state
   editableEnumNames.value[newEnumName] = newEnumName
   editableEnumKeys.value[newEnumName] = {}
   editableEnumValues.value[newEnumName] = {}
-  
   autoSave()
 }
 
 const deleteEnumeration = (enumName: string) => {
   if (!enumerator.value?.enumerators) return
-  
   delete enumerator.value.enumerators[enumName]
   delete editableEnumNames.value[enumName]
   delete editableEnumKeys.value[enumName]
   delete editableEnumValues.value[enumName]
-  
   autoSave()
 }
 
 const handleEnumNameChange = (oldName: string, newName: string) => {
   if (!enumerator.value?.enumerators || oldName === newName) return
-  
-  // Update the enumerator name
   const enumValues = enumerator.value.enumerators[oldName]
   delete enumerator.value.enumerators[oldName]
   enumerator.value.enumerators[newName] = enumValues
-  
-  // Update editable state
   editableEnumNames.value[newName] = newName
   delete editableEnumNames.value[oldName]
-  
   autoSave()
 }
 
 const addEnumValue = (enumName: string) => {
   if (!enumerator.value?.enumerators?.[enumName]) return
-  
   const newKey = `value_${Object.keys(enumerator.value.enumerators[enumName]).length + 1}`
   enumerator.value.enumerators[enumName][newKey] = ''
-  
-  // Initialize editable state
   editableEnumKeys.value[enumName][newKey] = newKey
   editableEnumValues.value[enumName][newKey] = ''
-  
   autoSave()
 }
 
 const deleteEnumValue = (enumName: string, key: string) => {
   if (!enumerator.value?.enumerators?.[enumName]) return
-  
   delete enumerator.value.enumerators[enumName][key]
   delete editableEnumKeys.value[enumName][key]
   delete editableEnumValues.value[enumName][key]
-  
   autoSave()
 }
 
 const handleEnumKeyChange = (enumName: string, oldKey: string, newKey: string) => {
   if (!enumerator.value?.enumerators?.[enumName] || oldKey === newKey) return
-  
   const value = enumerator.value.enumerators[enumName][oldKey]
   delete enumerator.value.enumerators[enumName][oldKey]
   enumerator.value.enumerators[enumName][newKey] = value
-  
-  // Update editable state
   editableEnumKeys.value[enumName][newKey] = newKey
   delete editableEnumKeys.value[enumName][oldKey]
-  
   autoSave()
 }
 
 const handleEnumValueChange = (enumName: string, key: string, value: string) => {
   if (!enumerator.value?.enumerators?.[enumName]) return
-  
   enumerator.value.enumerators[enumName][key] = value
   editableEnumValues.value[enumName][key] = value
-  
   autoSave()
 }
 
@@ -374,15 +294,8 @@ const handleDelete = () => {
 
 const confirmDelete = async () => {
   if (!enumerator.value) return
-  
-  try {
-    await apiService.deleteEnumerator(enumerator.value.file_name)
-    // Navigate back to enumerators list
-    window.location.href = '/enumerators'
-  } catch (err: any) {
-    error.value = err.message || 'Failed to delete enumerator'
-    console.error('Failed to delete enumerator:', err)
-  }
+  await deleteEnumerator()
+  window.location.href = '/enumerators'
 }
 
 const cancelDelete = () => {
@@ -396,11 +309,6 @@ const confirmUnlock = () => {
 const cancelUnlock = () => {
   showUnlockDialog.value = false
 }
-
-// Load enumerator on mount
-onMounted(() => {
-  loadEnumerator()
-})
 </script>
 
 <style scoped>
