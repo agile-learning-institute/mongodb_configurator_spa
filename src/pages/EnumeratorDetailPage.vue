@@ -239,19 +239,7 @@ const editableEnumNames = ref<Record<string, string>>({})
 const editableEnumKeys = ref<Record<string, Record<string, string>>>({})
 const editableEnumValues = ref<Record<string, Record<string, string>>>({})
 
-const {
-  loading,
-  saving,
-  error,
-  enumerator,
-  fileName,
-  isLocked,
-  loadEnumerator,
-  saveEnumerator,
-  deleteEnumerator,
-} = useEnumeratorDetail()
-
-watch(enumerator, (val) => {
+function initEditableStateFromEnumerator(val: any) {
   if (val && val.enumerators) {
     for (const enumName of Object.keys(val.enumerators)) {
       if (!editableEnumNames.value[enumName]) {
@@ -273,11 +261,29 @@ watch(enumerator, (val) => {
       }
     }
   }
+}
+
+const {
+  loading,
+  saving,
+  error,
+  enumerator,
+  fileName,
+  isLocked,
+  loadEnumerator,
+  saveEnumerator,
+  deleteEnumerator,
+} = useEnumeratorDetail()
+
+watch(enumerator, (val) => {
+  initEditableStateFromEnumerator(val)
 }, { immediate: true })
 
 const autoSave = async () => {
   if (!enumerator.value) return
   await saveEnumerator()
+  // After saving, reload the canonical enumerator from the API
+  await loadEnumerator()
 }
 
 const startEditTitle = () => {
@@ -317,7 +323,7 @@ const addEnumeration = () => {
     enumerator.value.enumerators = {}
   }
   const newEnumName = `enum_${Object.keys(enumerator.value.enumerators).length + 1}`
-  enumerator.value.enumerators[newEnumName] = {}
+  enumerator.value.enumerators = { ...enumerator.value.enumerators, [newEnumName]: {} }
   editableEnumNames.value[newEnumName] = newEnumName
   editableEnumKeys.value[newEnumName] = {}
   editableEnumValues.value[newEnumName] = {}
