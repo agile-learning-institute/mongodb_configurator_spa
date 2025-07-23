@@ -87,20 +87,16 @@
         <v-icon size="16">mdi-delete</v-icon>
       </v-btn>
     </div>
-    <!-- Body: property editors for each property in value.items.properties -->
+    <!-- Body: nested PropertyEditorFactory for items -->
     <div class="property-body pa-4">
-      <div v-if="property.items && property.items.properties">
-        <div v-for="(prop, propName) in property.items!.properties" :key="propName" class="mb-3">
-          <TypePropertyEditorFactory
-            :property="prop"
-            :property-name="propName"
-            :is-root="false"
-            @change="updated => handleChildPropertyChange(propName, updated)"
-            @delete="() => handleDeleteProperty(propName)"
-          />
-        </div>
-      </div>
-      <div v-else class="text-grey">No properties defined. Use Add Property to add one.</div>
+      <TypePropertyEditorFactory
+        v-if="property.items"
+        :key="`items-${property.items.type}`"
+        :property="property.items"
+        :is-root="false"
+        @change="handleChange"
+        @delete="handleDelete"
+      />
     </div>
   </div>
 </template>
@@ -128,7 +124,7 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits(['change', 'delete', 'rename'])
 
 // Use composable for logic
-const { itemsType, addItem, handleDeleteProperty, handleChildPropertyChange } = useTypeArrayOfObjectPropertyEditor(
+const { itemsType, addItem } = useTypeArrayOfObjectPropertyEditor(
   computed(() => props.property),
   emit
 )

@@ -63,6 +63,7 @@
     <div class="property-body pa-4">
       <TypePropertyEditorFactory
         v-if="property.items"
+        :key="`items-${property.items.type}`"
         :property="property.items"
         :is-root="false"
         @change="handleChange"
