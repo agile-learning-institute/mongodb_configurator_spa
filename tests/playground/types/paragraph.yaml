@@ -2,14 +2,8 @@ file_name: paragraph.yaml
 _locked: false
 root:
   description: Array item
-  type: array
+  type:
+    type: object
+    properties: {}
+    additional_properties: false
   required: false
-  items:
-    description: Array item
-    type:
-      type: array
-      items:
-        type: word
-        description: Array item
-        required: false
-    required: false
