@@ -17,10 +17,9 @@ export function useTypeObjectPropertyEditor(
       newKey = `new_property_${idx}`
     }
     property.value.properties[newKey] = {
-      description: 'New property',
-      type: 'simple_primitive',
-      required: false,
-      schema: { type: 'string' }
+      description: 'enter description here',
+      type: 'void',
+      required: false
     }
     emit('change', { ...property.value })
   }
