@@ -21,6 +21,42 @@
     @cancel-unlock="cancelUnlock"
   >
     <template #default="{ data: enumerator }">
+      <!-- Enumerator Info Card -->
+      <BaseCard 
+        title="Enumerator File Info"
+        icon="mdi-file-document-outline"
+        :is-secondary="true"
+        class="mb-6"
+      >
+        <div class="d-flex flex-wrap align-center gap-6">
+          <div class="info-item">
+            <span class="text-caption text-medium-emphasis">File Name</span>
+            <div class="text-body-1 font-weight-medium">{{ enumerator.file_name }}</div>
+          </div>
+          <div class="info-item">
+            <span class="text-caption text-medium-emphasis">Version</span>
+            <div class="text-body-1 font-weight-medium">{{ enumerator.version }}</div>
+          </div>
+          <div class="info-item d-flex align-center">
+            <span class="text-caption text-medium-emphasis mr-2">Locked</span>
+            <v-icon :color="enumerator._locked ? 'warning' : 'success'">
+              {{ enumerator._locked ? 'mdi-lock' : 'mdi-lock-open' }}
+            </v-icon>
+          </div>
+          <div class="flex-grow-1"></div>
+          <v-btn
+            color="primary"
+            variant="elevated"
+            size="small"
+            @click="addEnumeration"
+            :disabled="enumerator._locked"
+            class="ml-auto"
+          >
+            <v-icon start size="small">mdi-plus</v-icon>
+            Add Enumeration
+          </v-btn>
+        </div>
+      </BaseCard>
       <!-- Enumerator Content -->
       <div class="enumerator-content">
         <!-- Version Info -->

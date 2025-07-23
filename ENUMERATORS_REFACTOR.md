@@ -53,9 +53,8 @@ The layout I would like is a top-level card with enumerator info (file_name, _lo
 ---
 
 ### Phase 2: Page Layout & Info Card
-1. Create/restore `EnumeratorDetailPage.vue` using `DetailPageLayout` for consistent structure.
-2. Implement a top-level card displaying enumerator file info: `file_name`, `_locked`, `version`.
-3. Add an 'Add Enumeration' button to the top-level card.
+1. (✅ Done) Top-level card in `EnumeratorDetailPage.vue` now displays enumerator file info (`file_name`, `_locked`, `version`) in a card-based layout, with an 'Add Enumeration' button, following the standard UI pattern.
+2. Next: Review and clean up any redundant info cards, and ensure layout consistency with ConfigurationDetailPage.
 
 ### Phase 3: Enumeration Cards & Editing
 1. For each enumerator in the file, render a card titled with the enumerator name (e.g., `default_status`).
