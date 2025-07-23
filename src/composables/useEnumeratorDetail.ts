@@ -2,7 +2,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { apiService } from '@/utils/api'
 import { useEvents } from '@/composables/useEvents'
-import type { EnumeratorFile } from '@/types/types'
+import type { EnumeratorFile, Enumerator, EnumeratorValue } from '@/types/types'
 
 export function useEnumeratorDetail() {
   const route = useRoute()
@@ -42,8 +42,7 @@ export function useEnumeratorDetail() {
     error.value = null
     try {
       const dataToSave = updatedData || enumerator.value
-      const saved = await apiService.saveEnumerator(fileName.value, dataToSave)
-      // Do not replace enumerator.value with API response after save
+      await apiService.saveEnumerator(fileName.value, dataToSave)
     } catch (err: any) {
       if (err.type === 'API_ERROR' && err.data) {
         showEvent(err.data, 'Save Enumerator Error', 'Failed to save enumerator')

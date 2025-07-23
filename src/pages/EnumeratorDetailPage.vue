@@ -122,30 +122,30 @@
             Add Enumerator
           </v-btn>
         </div>
-        <div v-if="!enumerator.enumerators || Object.keys(enumerator.enumerators).length === 0" class="text-center pa-4">
+        <div v-if="!enumerator.enumerators || enumerator.enumerators.length === 0" class="text-center pa-4">
           <v-icon size="32" color="grey">mdi-format-list-bulleted</v-icon>
           <div class="text-body-2 text-medium-emphasis mt-2">No enumerators defined</div>
         </div>
         <div v-else class="enumerators-list">
           <div
-            v-for="enumName in orderedEnumeratorNames"
-            :key="enumName"
+            v-for="(enumItem, enumIdx) in enumerator.enumerators"
+            :key="enumIdx"
             class="enumerator-item mb-4"
           >
             <div class="d-flex align-center enumerator-header mb-2">
               <v-text-field
-                v-model="editableEnumNames[enumName]"
+                v-model="editableEnumNames[enumIdx]"
                 density="compact"
                 variant="outlined"
                 hide-details
                 :disabled="enumerator._locked"
                 class="mr-3"
                 style="min-width: 200px;"
-                @blur="finishEnumNameEdit(String(enumName))"
-                @keyup.enter="finishEnumNameEdit(String(enumName))"
+                @blur="finishEnumNameEdit(enumIdx)"
+                @keyup.enter="finishEnumNameEdit(enumIdx)"
               />
               <v-chip size="small" color="primary">
-                {{ Object.keys(enumerator.enumerators[enumName]).length }} values
+                {{ enumItem.values.length }} values
               </v-chip>
               <v-btn
                 v-if="!enumerator._locked"
@@ -153,7 +153,7 @@
                 size="small"
                 variant="text"
                 color="error"
-                @click.stop="deleteEnumeration(String(enumName))"
+                @click.stop="deleteEnumeration(enumIdx)"
               >
                 <v-icon size="16">mdi-delete</v-icon>
               </v-btn>
@@ -166,44 +166,44 @@
                   color="success"
                   variant="text"
                   size="small"
-                  @click="addEnumValue(String(enumName))"
+                  @click="addEnumValue(enumIdx)"
                   :disabled="enumerator._locked"
                 >
                   <v-icon start size="small">mdi-plus</v-icon>
                   Add Value
                 </v-btn>
               </div>
-              <div v-if="!enumerator.enumerators[enumName] || Object.keys(enumerator.enumerators[enumName]).length === 0" class="text-center pa-4">
+              <div v-if="!enumItem.values || enumItem.values.length === 0" class="text-center pa-4">
                 <v-icon size="24" color="grey">mdi-format-list-numbered</v-icon>
                 <div class="text-body-2 text-medium-emphasis mt-2">No values defined</div>
               </div>
               <div v-else class="enum-values-list">
                 <div
-                  v-for="key in orderedEnumValueKeys(enumName)"
-                  :key="key"
+                  v-for="(valueItem, valIdx) in enumItem.values"
+                  :key="valIdx"
                   class="enum-value-item d-flex align-center mb-2"
                 >
                   <v-text-field
-                    v-model="editableEnumKeys[enumName][key]"
+                    v-model="editableEnumValues[enumIdx][valIdx]"
                     density="compact"
                     variant="outlined"
                     hide-details
                     :disabled="enumerator._locked"
                     class="mr-2"
                     style="min-width: 150px;"
-                    @blur="finishEnumKeyEdit(String(enumName), String(key))"
-                    @keyup.enter="finishEnumKeyEdit(String(enumName), String(key))"
+                    @blur="finishEnumValueEdit(enumIdx, valIdx)"
+                    @keyup.enter="finishEnumValueEdit(enumIdx, valIdx)"
                   />
                   <v-text-field
-                    v-model="editableEnumValues[enumName][key]"
+                    v-model="editableEnumDescriptions[enumIdx][valIdx]"
                     density="compact"
                     variant="outlined"
                     hide-details
                     :disabled="enumerator._locked"
                     class="mr-2"
                     style="min-width: 200px;"
-                    @blur="finishEnumValueEdit(String(enumName), String(key))"
-                    @keyup.enter="finishEnumValueEdit(String(enumName), String(key))"
+                    @blur="finishEnumDescriptionEdit(enumIdx, valIdx)"
+                    @keyup.enter="finishEnumDescriptionEdit(enumIdx, valIdx)"
                   />
                   <v-btn
                     v-if="!enumerator._locked"
@@ -211,7 +211,7 @@
                     size="small"
                     variant="text"
                     color="error"
-                    @click="deleteEnumValue(String(enumName), String(key))"
+                    @click="deleteEnumValue(enumIdx, valIdx)"
                   >
                     <v-icon size="16">mdi-delete</v-icon>
                   </v-btn>
@@ -230,46 +230,27 @@ import { ref, computed, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import BaseCard from '@/components/BaseCard.vue'
 import { useEnumeratorDetail } from '@/composables/useEnumeratorDetail'
-import type { Ref } from 'vue'
+import type { Enumerator, EnumeratorValue } from '@/types/types'
 
 const showDeleteDialog = ref(false)
 const showUnlockDialog = ref(false)
 const editingTitle = ref(false)
 const titleInput = ref<HTMLInputElement | null>(null)
 
-// Editable state for enum names and values
-const editableEnumNames = ref<Record<string, string>>({})
-const editableEnumKeys = ref<Record<string, Record<string, string>>>({})
-const editableEnumValues = ref<Record<string, Record<string, string>>>({})
-
-// Add local state for key order
-const keyOrder = ref<Record<string, string[]>>({})
+// Editable state for enum names and values (by index)
+const editableEnumNames = ref<string[]>([])
+const editableEnumValues = ref<Record<number, string[]>>({})
+const editableEnumDescriptions = ref<Record<number, string[]>>({})
 
 function initEditableStateFromEnumerator(val: any) {
   if (val && val.enumerators) {
-    for (const enumName of Object.keys(val.enumerators)) {
-      if (!editableEnumNames.value[enumName]) {
-        editableEnumNames.value[enumName] = enumName
-      }
-      if (!editableEnumKeys.value[enumName]) {
-        editableEnumKeys.value[enumName] = {}
-      }
-      if (!editableEnumValues.value[enumName]) {
-        editableEnumValues.value[enumName] = {}
-      }
-      // Initialize key order for this enumerator
-      if (!keyOrder.value[enumName]) {
-        keyOrder.value[enumName] = Object.keys(val.enumerators[enumName])
-      }
-      for (const key of Object.keys(val.enumerators[enumName])) {
-        if (!editableEnumKeys.value[enumName][key]) {
-          editableEnumKeys.value[enumName][key] = key
-        }
-        if (!editableEnumValues.value[enumName][key]) {
-          editableEnumValues.value[enumName][key] = val.enumerators[enumName][key]
-        }
-      }
-    }
+    editableEnumNames.value = val.enumerators.map((e: Enumerator) => e.name)
+    editableEnumValues.value = {}
+    editableEnumDescriptions.value = {}
+    val.enumerators.forEach((e: Enumerator, i: number) => {
+      editableEnumValues.value[i] = e.values.map((v: EnumeratorValue) => v.value)
+      editableEnumDescriptions.value[i] = e.values.map((v: EnumeratorValue) => v.description)
+    })
   }
 }
 
@@ -289,14 +270,10 @@ watch(enumerator, (val) => {
   initEditableStateFromEnumerator(val)
 }, { immediate: true })
 
-// Replace autoSave with two functions:
 const autoSaveLocal = async () => {
   if (!enumerator.value) return
   await saveEnumerator()
 }
-// Remove autoSaveAndReload, use only autoSaveLocal (saveEnumerator) for all actions
-// For addEnumeration, deleteEnumeration, handleEnumNameChange, addEnumValue, deleteEnumValue, handleEnumKeyChange, handleEnumValueChange, use autoSaveLocal
-// Ensure all mutations to enumerator.value.enumerators maintain a valid structure
 
 const startEditTitle = () => {
   editingTitle.value = true
@@ -332,110 +309,83 @@ const unlockEnumerator = async () => {
 const addEnumeration = () => {
   if (!enumerator.value) return
   if (!enumerator.value.enumerators) {
-    enumerator.value.enumerators = {}
+    enumerator.value.enumerators = []
   }
-  const newEnumName = `enum_${Object.keys(enumerator.value.enumerators).length + 1}`
-  enumerator.value.enumerators = { ...enumerator.value.enumerators, [newEnumName]: {} }
-  editableEnumNames.value[newEnumName] = newEnumName
-  editableEnumKeys.value[newEnumName] = {}
-  editableEnumValues.value[newEnumName] = {}
-  // Initialize key order for new enumerator
-  keyOrder.value[newEnumName] = []
+  const newEnum: Enumerator = { name: `enum_${enumerator.value.enumerators.length + 1}`, values: [] }
+  enumerator.value.enumerators.push(newEnum)
+  editableEnumNames.value.push(newEnum.name)
+  editableEnumValues.value[enumerator.value.enumerators.length - 1] = []
+  editableEnumDescriptions.value[enumerator.value.enumerators.length - 1] = []
   autoSaveLocal()
 }
 
-const deleteEnumeration = (enumName: string) => {
+const deleteEnumeration = (idx: number) => {
   if (!enumerator.value?.enumerators) return
-  delete enumerator.value.enumerators[enumName]
-  if (Object.keys(enumerator.value.enumerators).length === 0) {
-    enumerator.value.enumerators = {} // Keep as empty object
-  }
-  delete editableEnumNames.value[enumName]
-  delete editableEnumKeys.value[enumName]
-  delete editableEnumValues.value[enumName]
-  // Remove key order for deleted enumerator
-  delete keyOrder.value[enumName]
+  enumerator.value.enumerators.splice(idx, 1)
+  editableEnumNames.value.splice(idx, 1)
+  delete editableEnumValues.value[idx]
+  delete editableEnumDescriptions.value[idx]
   autoSaveLocal()
 }
 
-const handleEnumNameChange = (oldName: string, newName: string) => {
-  if (!enumerator.value?.enumerators || oldName === newName) return
-  if (!newName || newName.trim() === '' || enumerator.value.enumerators[newName]) return // Prevent empty or duplicate
-  const enumValues = enumerator.value.enumerators[oldName]
-  delete enumerator.value.enumerators[oldName]
-  enumerator.value.enumerators[newName] = enumValues || {}
-  editableEnumNames.value[newName] = newName
-  delete editableEnumNames.value[oldName]
-  editableEnumKeys.value[newName] = editableEnumKeys.value[oldName] || {}
-  delete editableEnumKeys.value[oldName]
-  editableEnumValues.value[newName] = editableEnumValues.value[oldName] || {}
-  delete editableEnumValues.value[oldName]
-  // Update key order for renamed enumerator
-  if (keyOrder.value[oldName]) {
-    keyOrder.value[newName] = keyOrder.value[oldName]
-    delete keyOrder.value[oldName]
-  }
+const handleEnumNameChange = (idx: number, newName: string) => {
+  if (!enumerator.value?.enumerators) return
+  if (!newName || newName.trim() === '' || enumerator.value.enumerators.some((e, i) => i !== idx && e.name === newName)) return
+  enumerator.value.enumerators[idx].name = newName
+  editableEnumNames.value[idx] = newName
   autoSaveLocal()
 }
 
-const finishEnumNameEdit = (enumName: string) => {
-  if (editableEnumNames.value[enumName] !== enumName) {
-    handleEnumNameChange(enumName, editableEnumNames.value[enumName])
+const finishEnumNameEdit = (idx: number) => {
+  if (enumerator.value && editableEnumNames.value[idx] !== enumerator.value.enumerators[idx].name) {
+    handleEnumNameChange(idx, editableEnumNames.value[idx])
   }
 }
 
-const addEnumValue = (enumName: string) => {
-  if (!enumerator.value?.enumerators?.[enumName]) return
-  const newKey = `value_${Object.keys(enumerator.value.enumerators[enumName]).length + 1}`
-  enumerator.value.enumerators[enumName][newKey] = ''
-  editableEnumKeys.value[enumName][newKey] = newKey
-  editableEnumValues.value[enumName][newKey] = ''
-  // Update key order
-  if (!keyOrder.value[enumName]) keyOrder.value[enumName] = []
-  keyOrder.value[enumName].push(newKey)
+const addEnumValue = (enumIdx: number) => {
+  if (!enumerator.value?.enumerators?.[enumIdx]) return
+  const newValue: EnumeratorValue = { value: `value_${enumerator.value.enumerators[enumIdx].values.length + 1}`, description: '' }
+  enumerator.value.enumerators[enumIdx].values.push(newValue)
+  if (!editableEnumValues.value[enumIdx]) editableEnumValues.value[enumIdx] = []
+  if (!editableEnumDescriptions.value[enumIdx]) editableEnumDescriptions.value[enumIdx] = []
+  editableEnumValues.value[enumIdx].push(newValue.value)
+  editableEnumDescriptions.value[enumIdx].push(newValue.description)
   autoSaveLocal()
 }
 
-const deleteEnumValue = (enumName: string, key: string) => {
-  if (!enumerator.value?.enumerators?.[enumName]) return
-  delete enumerator.value.enumerators[enumName][key]
-  if (Object.keys(enumerator.value.enumerators[enumName]).length === 0) {
-    enumerator.value.enumerators[enumName] = {} // Keep as empty object
-  }
-  delete editableEnumKeys.value[enumName][key]
-  delete editableEnumValues.value[enumName][key]
-  // Update key order
-  if (keyOrder.value[enumName]) {
-    keyOrder.value[enumName] = keyOrder.value[enumName].filter(k => k !== key)
-  }
+const deleteEnumValue = (enumIdx: number, valIdx: number) => {
+  if (!enumerator.value?.enumerators?.[enumIdx]) return
+  enumerator.value.enumerators[enumIdx].values.splice(valIdx, 1)
+  editableEnumValues.value[enumIdx].splice(valIdx, 1)
+  editableEnumDescriptions.value[enumIdx].splice(valIdx, 1)
   autoSaveLocal()
 }
 
-const handleEnumKeyChange = (enumName: string, oldKey: string, newKey: string) => {
-  if (!enumerator.value?.enumerators?.[enumName] || oldKey === newKey) return
-  if (!newKey || newKey.trim() === '' || enumerator.value.enumerators[enumName][newKey]) return // Prevent empty or duplicate
-  const value = enumerator.value.enumerators[enumName][oldKey]
-  delete enumerator.value.enumerators[enumName][oldKey]
-  enumerator.value.enumerators[enumName][newKey] = value
-  editableEnumKeys.value[enumName][newKey] = newKey
-  delete editableEnumKeys.value[enumName][oldKey]
-  editableEnumValues.value[enumName][newKey] = editableEnumValues.value[enumName][oldKey]
-  delete editableEnumValues.value[enumName][oldKey]
-  // Update key order
-  if (keyOrder.value[enumName]) {
-    const idx = keyOrder.value[enumName].indexOf(oldKey)
-    if (idx !== -1) {
-      keyOrder.value[enumName].splice(idx, 1, newKey)
-    }
-  }
+const handleEnumValueChange = (enumIdx: number, valIdx: number, newValue: string) => {
+  if (!enumerator.value?.enumerators?.[enumIdx]) return
+  if (!newValue || newValue.trim() === '' || enumerator.value.enumerators[enumIdx].values.some((v, i) => i !== valIdx && v.value === newValue)) return
+  enumerator.value.enumerators[enumIdx].values[valIdx].value = newValue
+  editableEnumValues.value[enumIdx][valIdx] = newValue
   autoSaveLocal()
 }
 
-const handleEnumValueChange = (enumName: string, key: string, value: string) => {
-  if (!enumerator.value?.enumerators?.[enumName]) return
-  enumerator.value.enumerators[enumName][key] = value
-  editableEnumValues.value[enumName][key] = value
+const handleEnumDescriptionChange = (enumIdx: number, valIdx: number, newDesc: string) => {
+  if (!enumerator.value?.enumerators?.[enumIdx]) return
+  enumerator.value.enumerators[enumIdx].values[valIdx].description = newDesc
+  editableEnumDescriptions.value[enumIdx][valIdx] = newDesc
   autoSaveLocal()
+}
+
+const finishEnumValueEdit = (enumIdx: number, valIdx: number) => {
+  if (enumerator.value && editableEnumValues.value[enumIdx][valIdx] !== enumerator.value.enumerators[enumIdx].values[valIdx].value) {
+    handleEnumValueChange(enumIdx, valIdx, editableEnumValues.value[enumIdx][valIdx])
+  }
+}
+
+const finishEnumDescriptionEdit = (enumIdx: number, valIdx: number) => {
+  if (enumerator.value && editableEnumDescriptions.value[enumIdx][valIdx] !== enumerator.value.enumerators[enumIdx].values[valIdx].description) {
+    handleEnumDescriptionChange(enumIdx, valIdx, editableEnumDescriptions.value[enumIdx][valIdx])
+  }
 }
 
 const handleDelete = () => {
@@ -458,24 +408,6 @@ const confirmUnlock = () => {
 
 const cancelUnlock = () => {
   showUnlockDialog.value = false
-}
-
-const finishEnumKeyEdit = (enumName: string, key: string) => {
-  if (editableEnumKeys.value[enumName][key] !== key) {
-    handleEnumKeyChange(enumName, key, editableEnumKeys.value[enumName][key])
-  }
-}
-
-const finishEnumValueEdit = (enumName: string, key: string) => {
-  if (editableEnumValues.value[enumName][key] !== enumerator.value?.enumerators?.[enumName]?.[key]) {
-    handleEnumValueChange(enumName, key, editableEnumValues.value[enumName][key])
-  }
-}
-
-// Add computed properties for ordered enumerator and value keys
-const orderedEnumeratorNames = computed(() => enumerator.value?.enumerators ? Object.keys(enumerator.value.enumerators) : [])
-const orderedEnumValueKeys = (enumName: string) => {
-  return keyOrder.value[enumName] || []
 }
 </script>
 

@@ -23,10 +23,20 @@ export interface TypeData {
 }
 
 // Enumerator data structure returned by the API
+export interface EnumeratorValue {
+  value: string;
+  description: string;
+}
+
+export interface Enumerator {
+  name: string;
+  values: EnumeratorValue[];
+}
+
 export interface EnumeratorFile {
   file_name: string;
   version: number;
   _locked: boolean;
-  enumerators: Record<string, Record<string, string>>;
+  enumerators: Enumerator[];
   title?: string;
 } 
