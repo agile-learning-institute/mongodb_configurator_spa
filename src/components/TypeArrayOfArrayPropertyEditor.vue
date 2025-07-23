@@ -28,7 +28,6 @@
       <TypeItemTypePicker
         v-model="itemsType"
         class="mr-2"
-        @update:model-value="handleItemsTypeChange"
       />
       <!-- Required icon -->
       <v-tooltip location="top" class="tooltip-dark" :open-delay="0" :close-delay="0" theme="dark">
@@ -96,12 +95,10 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits(['change', 'delete', 'rename'])
 
 // Use composable for logic
-const { } = useTypeArrayOfArrayPropertyEditor(
+const { itemsType } = useTypeArrayOfArrayPropertyEditor(
   computed(() => props.property),
   emit
 )
-
-const itemsType = computed(() => props.property.items?.type || 'array')
 
 const handleChange = (newValue?: string | any) => {
   if (newValue && typeof newValue === 'object') {
@@ -109,19 +106,6 @@ const handleChange = (newValue?: string | any) => {
     Object.assign(props.property, newValue)
   }
   emit('change', props.property)
-}
-
-const handleItemsTypeChange = (newType: string | any) => {
-  if (props.property.items) {
-    if (typeof newType === 'object') {
-      // Handle complex type change from TypeItemTypePicker
-      Object.assign(props.property.items, newType)
-    } else {
-      // Handle simple type string
-      props.property.items.type = newType
-    }
-    handleChange()
-  }
 }
 
 const handleDelete = () => {

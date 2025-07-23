@@ -1,20 +1,14 @@
 file_name: street_address.yaml
 _locked: false
 root:
-  description: A US street address
-  type: object
+  description: Array item
+  type: array
   required: false
-  properties:
-    new_property_1:
-      description: enter description here
-      type: void
+  items:
+    description: Array item
+    type: array
+    required: false
+    items:
+      description: Array item
+      type: word
       required: false
-    new_property_3:
-      description: enter description here
-      type: void
-      required: false
-    new_property_2:
-      description: enter description here
-      type: void
-      required: false
-  additional_properties: false
