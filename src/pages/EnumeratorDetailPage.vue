@@ -145,7 +145,7 @@
               </div>
               <div v-else class="enum-values-list">
                 <div
-                  v-for="(valueItem, valIdx) in enumItem.values"
+                  v-for="(_, valIdx) in enumItem.values"
                   :key="valIdx"
                   class="enum-value-item d-flex align-center mb-1"
                 >
@@ -192,8 +192,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
-import { useRoute } from 'vue-router'
+import { ref, watch } from 'vue'
 import BaseCard from '@/components/BaseCard.vue'
 import { useEnumeratorDetail } from '@/composables/useEnumeratorDetail'
 import type { Enumerator, EnumeratorValue } from '@/types/types'
@@ -225,11 +224,8 @@ const {
   saving,
   error,
   enumerator,
-  fileName,
-  isLocked,
   loadEnumerator,
   saveEnumerator,
-  deleteEnumerator,
 } = useEnumeratorDetail()
 
 watch(enumerator, (val) => {
@@ -252,23 +248,9 @@ const finishEditTitle = () => {
   editingTitle.value = false
 }
 
-const handleTitleChange = async (newTitle: string) => {
-  if (enumerator.value) {
-    enumerator.value.title = newTitle
-    await autoSaveLocal()
-  }
-}
-
 const lockEnumerator = async () => {
   if (!enumerator.value) return
   enumerator.value._locked = true
-  await autoSaveLocal()
-}
-
-const unlockEnumerator = async () => {
-  if (!enumerator.value) return
-  enumerator.value._locked = false
-  showUnlockDialog.value = false
   await autoSaveLocal()
 }
 
@@ -356,24 +338,6 @@ const finishEnumDescriptionEdit = (enumIdx: number, valIdx: number) => {
 
 const handleDelete = () => {
   showDeleteDialog.value = true
-}
-
-const confirmDelete = async () => {
-  if (!enumerator.value) return
-  await deleteEnumerator()
-  window.location.href = '/enumerators'
-}
-
-const cancelDelete = () => {
-  showDeleteDialog.value = false
-}
-
-const confirmUnlock = () => {
-  unlockEnumerator()
-}
-
-const cancelUnlock = () => {
-  showUnlockDialog.value = false
 }
 </script>
 

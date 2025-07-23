@@ -2,7 +2,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { apiService } from '@/utils/api'
 import { useEvents } from '@/composables/useEvents'
-import type { EnumeratorFile, Enumerator, EnumeratorValue } from '@/types/types'
+import type { EnumeratorFile } from '@/types/types'
 
 export function useEnumeratorDetail() {
   const route = useRoute()
