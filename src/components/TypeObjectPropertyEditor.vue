@@ -20,6 +20,7 @@
         density="compact"
         :disabled="locked"
         :exclude-type="excludeType"
+        :root-level="isRoot"
         @update:model-value="handleChange"
         class="mr-2"
         style="max-width: 120px;"

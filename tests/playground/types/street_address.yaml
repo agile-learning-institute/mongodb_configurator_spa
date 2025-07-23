@@ -6,15 +6,15 @@ root:
   required: false
   properties:
     new_property_1:
-      description: New property
-      type: simple_primitive
+      description: enter description here
+      type: void
       required: false
-      schema:
-        type: string
+    new_property_3:
+      description: enter description here
+      type: void
+      required: false
     new_property_2:
-      description: New property
-      type: simple_primitive
+      description: enter description here
+      type: void
       required: false
-      schema:
-        type: string
   additional_properties: false

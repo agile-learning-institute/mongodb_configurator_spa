@@ -20,6 +20,7 @@
       <TypeTypePicker
         v-model="property.type"
         class="mr-2"
+        :root-level="isRoot"
         @update:model-value="handleChange"
       />
       <!-- Required icon -->

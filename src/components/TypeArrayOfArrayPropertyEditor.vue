@@ -20,6 +20,7 @@
       <TypeTypePicker
         v-model="property.type"
         class="mr-2"
+        :root-level="isRoot"
         @update:model-value="handleChange"
       />
       <!-- Type picker for items type with label and restricted types -->

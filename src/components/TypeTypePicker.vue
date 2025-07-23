@@ -96,16 +96,16 @@ const searchQuery = ref('')
 const availableTypes = ref<string[]>([])
 const loading = ref(false)
 
-// All available types (primitive + structural + custom)
-const primitiveTypes = [
+// Structural types for types (no enum types)
+const structuralTypes = ['object', 'array']
+
+// Custom types (available from API)
+const customTypes = [
   'identity', 'word', 'sentence', 'email', 'url', 
   'ip_address', 'us_phone', 'date_time', 'markdown',
   'street_address', 'state_code', 'count', 'identifier',
   'breadcrumb', 'appointment'
 ]
-
-// Structural types for types (no enum types)
-const structuralTypes = ['object', 'array', 'simple_primitive', 'complex_primitive']
 
 // Root level types (only simple_primitive and complex_primitive)
 const rootLevelTypes = ['simple_primitive', 'complex_primitive']
@@ -133,8 +133,8 @@ const allTypes = computed(() => {
   }
   return [
     ...structuralTypes, // Object and array first
-    ...primitiveTypes,
-    ...availableTypes.value
+    ...customTypes, // Custom types
+    ...availableTypes.value // API types
   ]
 })
 
