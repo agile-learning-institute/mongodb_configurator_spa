@@ -99,6 +99,9 @@ const loading = ref(false)
 // Structural types for types (no enum types)
 const structuralTypes = ['object', 'array']
 
+// Primitive types (only for root level)
+const primitiveTypes = ['simple_primitive', 'complex_primitive']
+
 // Custom types (available from API)
 const customTypes = [
   'identity', 'word', 'sentence', 'email', 'url', 
@@ -106,9 +109,6 @@ const customTypes = [
   'street_address', 'state_code', 'count', 'identifier',
   'breadcrumb', 'appointment'
 ]
-
-// Root level types (only simple_primitive and complex_primitive)
-const rootLevelTypes = ['simple_primitive', 'complex_primitive']
 
 // Load available types from API
 const loadTypes = async () => {
@@ -129,13 +129,21 @@ const loadTypes = async () => {
 // Combine all types and filter based on search query
 const allTypes = computed(() => {
   if (props.rootLevel) {
-    return rootLevelTypes
+    // Root level: show all types including primitives
+    return [
+      ...structuralTypes,
+      ...primitiveTypes,
+      ...customTypes,
+      ...availableTypes.value
+    ]
+  } else {
+    // Non-root level: exclude primitives
+    return [
+      ...structuralTypes,
+      ...customTypes,
+      ...availableTypes.value
+    ]
   }
-  return [
-    ...structuralTypes, // Object and array first
-    ...customTypes, // Custom types
-    ...availableTypes.value // API types
-  ]
 })
 
 const filteredTypes = computed(() => {
