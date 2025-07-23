@@ -1,5 +1,3 @@
-file_name: appointment.yaml
-_locked: true
 root:
   description: A date/time range
   type: object
@@ -13,3 +11,4 @@ root:
       type: date-time
       required: true
   additional_properties: false
+  required: false
