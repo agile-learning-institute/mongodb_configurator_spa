@@ -117,8 +117,17 @@ const itemsType = computed({
           required: false
         }
       }
+    } else {
+      // If changing to array type, ensure proper nested structure
+      if (type === 'array' && (!props.property.items.items || props.property.items.type !== 'array')) {
+        props.property.items.items = {
+          description: 'Nested array item',
+          type: 'word',
+          required: false
+        }
+      }
+      props.property.items.type = type
     }
-    props.property.items.type = type
     handleChange()
   }
 })

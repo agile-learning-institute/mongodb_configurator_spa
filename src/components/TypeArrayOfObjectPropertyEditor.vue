@@ -141,8 +141,14 @@ const itemsType = computed({
         required: false,
         properties: {}
       }
+    } else {
+      // If changing to object type, ensure proper structure
+      if (type === 'object' && (!props.property.items.properties || props.property.items.type !== 'object')) {
+        props.property.items.properties = {}
+        props.property.items.additional_properties = false
+      }
+      props.property.items.type = type
     }
-    props.property.items.type = type
     handleChange()
   }
 })
