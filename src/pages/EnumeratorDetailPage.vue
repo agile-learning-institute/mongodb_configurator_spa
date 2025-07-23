@@ -242,6 +242,9 @@ const editableEnumNames = ref<Record<string, string>>({})
 const editableEnumKeys = ref<Record<string, Record<string, string>>>({})
 const editableEnumValues = ref<Record<string, Record<string, string>>>({})
 
+// Add local state for key order
+const keyOrder = ref<Record<string, string[]>>({})
+
 function initEditableStateFromEnumerator(val: any) {
   if (val && val.enumerators) {
     for (const enumName of Object.keys(val.enumerators)) {
@@ -253,6 +256,10 @@ function initEditableStateFromEnumerator(val: any) {
       }
       if (!editableEnumValues.value[enumName]) {
         editableEnumValues.value[enumName] = {}
+      }
+      // Initialize key order for this enumerator
+      if (!keyOrder.value[enumName]) {
+        keyOrder.value[enumName] = Object.keys(val.enumerators[enumName])
       }
       for (const key of Object.keys(val.enumerators[enumName])) {
         if (!editableEnumKeys.value[enumName][key]) {
@@ -332,6 +339,8 @@ const addEnumeration = () => {
   editableEnumNames.value[newEnumName] = newEnumName
   editableEnumKeys.value[newEnumName] = {}
   editableEnumValues.value[newEnumName] = {}
+  // Initialize key order for new enumerator
+  keyOrder.value[newEnumName] = []
   autoSaveLocal()
 }
 
@@ -344,6 +353,8 @@ const deleteEnumeration = (enumName: string) => {
   delete editableEnumNames.value[enumName]
   delete editableEnumKeys.value[enumName]
   delete editableEnumValues.value[enumName]
+  // Remove key order for deleted enumerator
+  delete keyOrder.value[enumName]
   autoSaveLocal()
 }
 
@@ -359,6 +370,11 @@ const handleEnumNameChange = (oldName: string, newName: string) => {
   delete editableEnumKeys.value[oldName]
   editableEnumValues.value[newName] = editableEnumValues.value[oldName] || {}
   delete editableEnumValues.value[oldName]
+  // Update key order for renamed enumerator
+  if (keyOrder.value[oldName]) {
+    keyOrder.value[newName] = keyOrder.value[oldName]
+    delete keyOrder.value[oldName]
+  }
   autoSaveLocal()
 }
 
@@ -374,6 +390,9 @@ const addEnumValue = (enumName: string) => {
   enumerator.value.enumerators[enumName][newKey] = ''
   editableEnumKeys.value[enumName][newKey] = newKey
   editableEnumValues.value[enumName][newKey] = ''
+  // Update key order
+  if (!keyOrder.value[enumName]) keyOrder.value[enumName] = []
+  keyOrder.value[enumName].push(newKey)
   autoSaveLocal()
 }
 
@@ -385,6 +404,10 @@ const deleteEnumValue = (enumName: string, key: string) => {
   }
   delete editableEnumKeys.value[enumName][key]
   delete editableEnumValues.value[enumName][key]
+  // Update key order
+  if (keyOrder.value[enumName]) {
+    keyOrder.value[enumName] = keyOrder.value[enumName].filter(k => k !== key)
+  }
   autoSaveLocal()
 }
 
@@ -398,6 +421,13 @@ const handleEnumKeyChange = (enumName: string, oldKey: string, newKey: string) =
   delete editableEnumKeys.value[enumName][oldKey]
   editableEnumValues.value[enumName][newKey] = editableEnumValues.value[enumName][oldKey]
   delete editableEnumValues.value[enumName][oldKey]
+  // Update key order
+  if (keyOrder.value[enumName]) {
+    const idx = keyOrder.value[enumName].indexOf(oldKey)
+    if (idx !== -1) {
+      keyOrder.value[enumName].splice(idx, 1, newKey)
+    }
+  }
   autoSaveLocal()
 }
 
@@ -445,7 +475,7 @@ const finishEnumValueEdit = (enumName: string, key: string) => {
 // Add computed properties for ordered enumerator and value keys
 const orderedEnumeratorNames = computed(() => enumerator.value?.enumerators ? Object.keys(enumerator.value.enumerators) : [])
 const orderedEnumValueKeys = (enumName: string) => {
-  return enumerator.value?.enumerators?.[enumName] ? Object.keys(enumerator.value.enumerators[enumName]) : []
+  return keyOrder.value[enumName] || []
 }
 </script>
 
