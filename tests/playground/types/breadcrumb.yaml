@@ -1,5 +1,3 @@
-file_name: breadcrumb.yaml
-_locked: true
 root:
   description: A tracking breadcrumb
   type: object
@@ -21,4 +19,4 @@ root:
       type: word
       required: true
   required: false
-  additional_properties: false
+  additional_properties: false 

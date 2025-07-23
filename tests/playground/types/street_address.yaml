@@ -1,14 +1,8 @@
-file_name: street_address.yaml
-_locked: false
 root:
-  description: Array item
-  type: array
-  required: false
-  items:
-    description: Array item
-    type: array
-    required: false
-    items:
-      description: Array item
-      type: word
-      required: false
+  description: A US street address
+  type: simple_primitive
+  schema:
+    type: string
+    minLength: 1
+    maxLength: 100
+  required: false 
