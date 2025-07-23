@@ -141,7 +141,8 @@
                 :disabled="enumerator._locked"
                 class="mr-3"
                 style="min-width: 200px;"
-                @update:model-value="handleEnumNameChange(String(enumName), $event)"
+                @blur="finishEnumNameEdit(String(enumName))"
+                @keyup.enter="finishEnumNameEdit(String(enumName))"
               />
               <v-chip size="small" color="primary">
                 {{ Object.keys(enumValues).length }} values
@@ -190,7 +191,8 @@
                     :disabled="enumerator._locked"
                     class="mr-2"
                     style="min-width: 150px;"
-                    @update:model-value="handleEnumKeyChange(String(enumName), String(key), $event)"
+                    @blur="finishEnumKeyEdit(String(enumName), String(key))"
+                    @keyup.enter="finishEnumKeyEdit(String(enumName), String(key))"
                   />
                   <v-text-field
                     v-model="editableEnumValues[enumName][key]"
@@ -200,7 +202,8 @@
                     :disabled="enumerator._locked"
                     class="mr-2"
                     style="min-width: 200px;"
-                    @update:model-value="handleEnumValueChange(String(enumName), String(key), $event)"
+                    @blur="finishEnumValueEdit(String(enumName), String(key))"
+                    @keyup.enter="finishEnumValueEdit(String(enumName), String(key))"
                   />
                   <v-btn
                     v-if="!enumerator._locked"
@@ -349,6 +352,12 @@ const handleEnumNameChange = (oldName: string, newName: string) => {
   autoSave()
 }
 
+const finishEnumNameEdit = (enumName: string) => {
+  if (editableEnumNames.value[enumName] !== enumName) {
+    handleEnumNameChange(enumName, editableEnumNames.value[enumName])
+  }
+}
+
 const addEnumValue = (enumName: string) => {
   if (!enumerator.value?.enumerators?.[enumName]) return
   const newKey = `value_${Object.keys(enumerator.value.enumerators[enumName]).length + 1}`
@@ -403,6 +412,18 @@ const confirmUnlock = () => {
 
 const cancelUnlock = () => {
   showUnlockDialog.value = false
+}
+
+const finishEnumKeyEdit = (enumName: string, key: string) => {
+  if (editableEnumKeys.value[enumName][key] !== key) {
+    handleEnumKeyChange(enumName, key, editableEnumKeys.value[enumName][key])
+  }
+}
+
+const finishEnumValueEdit = (enumName: string, key: string) => {
+  if (editableEnumValues.value[enumName][key] !== enumerator.value?.enumerators?.[enumName]?.[key]) {
+    handleEnumValueChange(enumName, key, editableEnumValues.value[enumName][key])
+  }
 }
 </script>
 
