@@ -1,10 +1,29 @@
-import { Ref } from 'vue'
+import { Ref, computed } from 'vue'
 import type { TypeProperty } from '@/types/types'
 
 export function useTypeArrayOfObjectPropertyEditor(
   property: Ref<TypeProperty>,
   emit: (event: 'change', updated: TypeProperty) => void
 ) {
+  // Items type computed with getter/setter like dictionary version
+  const itemsType = computed({
+    get() {
+      return property.value.items?.type || 'object'
+    },
+    set(type: string) {
+      if (!property.value.items) {
+        property.value.items = {
+          description: 'Object item',
+          type: 'object',
+          required: false,
+          properties: {}
+        }
+      }
+      property.value.items.type = type
+      emit('change', { ...property.value })
+    }
+  })
+
   // Add a new item to the array
   function addItem() {
     if (!property.value.items) {
@@ -47,6 +66,7 @@ export function useTypeArrayOfObjectPropertyEditor(
   }
 
   return {
+    itemsType,
     addItem,
     removeItem,
     updateItem,

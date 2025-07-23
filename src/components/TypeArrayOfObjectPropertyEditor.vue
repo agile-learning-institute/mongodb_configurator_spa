@@ -28,7 +28,6 @@
       <TypeItemTypePicker
         v-model="itemsType"
         class="mr-2"
-        @update:model-value="handleItemsTypeChange"
       />
       <!-- Add Property Button -->
       <v-btn
@@ -129,12 +128,10 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits(['change', 'delete', 'rename'])
 
 // Use composable for logic
-const { addItem, handleDeleteProperty, handleChildPropertyChange } = useTypeArrayOfObjectPropertyEditor(
+const { itemsType, addItem, handleDeleteProperty, handleChildPropertyChange } = useTypeArrayOfObjectPropertyEditor(
   computed(() => props.property),
   emit
 )
-
-const itemsType = computed(() => props.property.items?.type || 'object')
 
 const handleChange = (newValue?: string | any) => {
   if (newValue && typeof newValue === 'object') {
@@ -142,19 +139,6 @@ const handleChange = (newValue?: string | any) => {
     Object.assign(props.property, newValue)
   }
   emit('change', props.property)
-}
-
-const handleItemsTypeChange = (newType: string | any) => {
-  if (props.property.items) {
-    if (typeof newType === 'object') {
-      // Handle complex type change from TypeItemTypePicker
-      Object.assign(props.property.items, newType)
-    } else {
-      // Handle simple type string
-      props.property.items.type = newType
-    }
-    handleChange()
-  }
 }
 
 const toggleAdditionalProperties = () => {
