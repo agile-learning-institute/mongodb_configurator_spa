@@ -22,5 +22,9 @@ root:
     status:
       description: The current status of the document
       type: enum
-      required: true
+      required: false
       enums: default_status
+    last_saved:
+      description: Tracking Breadcrumb
+      type: breadcrumb
+      required: false
