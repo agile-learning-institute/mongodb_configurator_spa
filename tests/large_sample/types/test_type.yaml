@@ -1,6 +1,0 @@
-root:
-  file_name: test_type.yaml
-  _locked: true
-  description: Updated test type for stepCI testing
-  type: void
-  required: false
