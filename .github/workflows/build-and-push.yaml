@@ -38,6 +38,6 @@ jobs:
           context: .
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: ghcr.io/agile-learning-institute/stage0_mongodb_spa:latest
+          tags: ghcr.io/agile-learning-institute/mongodb_configurator_spa:latest
           build-args: |
             SPA_BUILT_AT=${{ env.BUILD_TIME }}
