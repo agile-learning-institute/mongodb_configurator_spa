@@ -6,7 +6,7 @@
         <v-card class="help-carousel" variant="outlined" elevation="0">
           <v-card-title class="d-flex align-center pa-6">
             <v-icon icon="mdi-information-outline" class="mr-2" />
-            {{ helpSlides[currentSlide].title }}
+            <span class="text-h4">{{ helpSlides[currentSlide].title }}</span>
           </v-card-title>
           <v-card-text class="pa-0">
             <div class="carousel-container">
@@ -28,7 +28,6 @@
                 >
                   <div class="d-flex flex-column justify-center align-center h-100 pa-8" style="height: calc(100vh - 120px); width: 100%;">
                     <v-icon :icon="slide.icon" size="80" color="primary" class="mb-6" />
-                    <h2 class="text-h3 mb-4 text-center">{{ slide.title }}</h2>
                     
                     <!-- Overview slide with detailed content -->
                     <div v-if="slide.detailedContent" class="overview-content">
