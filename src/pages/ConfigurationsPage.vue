@@ -69,15 +69,6 @@
       </v-card>
     </v-dialog>
 
-    <!-- Success Snackbar -->
-    <v-snackbar
-      v-model="showSuccessSnackbar"
-      color="success"
-      timeout="3000"
-    >
-      Collection "{{ newCollectionName }}" created successfully!
-    </v-snackbar>
-
     <!-- Error Snackbar -->
     <v-snackbar
       v-model="showErrorSnackbar"
@@ -105,7 +96,6 @@ const nameError = ref<string | null>(null)
 const creating = ref(false)
 
 // Snackbar states
-const showSuccessSnackbar = ref(false)
 const showErrorSnackbar = ref(false)
 const errorMessage = ref('')
 
@@ -170,16 +160,13 @@ const createCollection = async () => {
   try {
     await apiService.createNewCollection(name)
     
-    // Show success message
-    showSuccessSnackbar.value = true
-    
     // Close dialog and reset
     showNewCollectionDialog.value = false
     newCollectionName.value = ''
     nameError.value = null
     
-    // Refresh the file list (could emit an event to FileList)
-    // For now, we'll just close the dialog and let the user refresh manually
+    // Navigate to the new collection's detail page
+    router.push(`/configurations/${name}`)
     
   } catch (err: any) {
     errorMessage.value = err.message || 'Failed to create collection'
