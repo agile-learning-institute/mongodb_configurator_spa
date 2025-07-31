@@ -5,10 +5,8 @@
         <!-- Help Carousel -->
         <v-card class="help-carousel" variant="outlined" elevation="0">
           <v-card-title class="d-flex align-center pa-6">
-            <v-icon icon="mdi-help-circle" class="mr-2" />
-            Getting Started
-            <v-spacer />
-            <v-btn icon="mdi-help" variant="text" @click="showHelpFor('welcome')" />
+            <v-icon icon="mdi-information-outline" class="mr-2" />
+            {{ helpSlides[currentSlide].title }}
           </v-card-title>
           <v-card-text class="pa-0">
             <div class="carousel-container">
@@ -98,18 +96,14 @@ import { ref } from 'vue'
 import { useHelp } from '@/composables/useHelp'
 import HelpDialog from '@/components/HelpDialog.vue'
 
-const {
-  showHelp,
-  currentHelp,
-  showHelpFor
-} = useHelp()
+const { showHelp, currentHelp } = useHelp()
 
 const currentSlide = ref(0)
 
 const helpSlides = [
   {
     icon: 'mdi-information-outline',
-    title: 'MongoDB Configurator Overview',
+    title: 'Overview',
     description: 'The MongoDB Configurator is a comprehensive tool for managing MongoDB schema configurations and processing operations. This application provides a unified interface for creating, editing, and managing all aspects of your MongoDB database schemas.',
     action: { text: 'Get Started', route: '/configurations' },
     detailedContent: `
@@ -144,25 +138,25 @@ const helpSlides = [
   },
   {
     icon: 'mdi-database',
-    title: 'Collection Configurations',
+    title: 'Collection',
     description: 'Define MongoDB collections with versioned schemas and processing operations.',
     action: { text: 'View Configurations', route: '/configurations' }
   },
   {
     icon: 'mdi-book-open-variant',
-    title: 'Data Dictionaries',
+    title: 'Dictionary',
     description: 'Create human-readable schema definitions that hide complexity.',
     action: { text: 'View Dictionaries', route: '/dictionaries' }
   },
   {
     icon: 'mdi-shape-outline',
-    title: 'Custom Types',
+    title: 'Type',
     description: 'Define reusable type definitions for complex schemas.',
     action: { text: 'View Types', route: '/types' }
   },
   {
     icon: 'mdi-format-list-checks',
-    title: 'Enumerators',
+    title: 'Enumerator',
     description: 'Create sets of allowed values for enum properties.',
     action: { text: 'View Enumerators', route: '/enumerators' }
   },
@@ -174,7 +168,7 @@ const helpSlides = [
   },
   {
     icon: 'mdi-database-sync',
-    title: 'Migrations',
+    title: 'Migration',
     description: 'Create data transformation scripts for schema updates.',
     action: { text: 'View Migrations', route: '/migrations' }
   }
