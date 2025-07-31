@@ -106,29 +106,17 @@ const helpSlides = [
   {
     icon: 'mdi-information-outline',
     title: 'Overview',
-    description: 'The MongoDB Configurator is a comprehensive tool for managing MongoDB schema configurations and processing operations. This application provides a unified interface for creating, editing, and managing all aspects of your MongoDB database schemas.',
+    description: 'If you are responsible for the quality of the data in a MongoDB database, or the performance of queries in that database, then the MongoDB Configurator is here to help. Using the configurator you can package your database configurations into an immutable container for testing and deployment.',
     detailedContent: `
       <h2>Key Features</h2>
       <ul>
-        <li><strong>Collection Configurations:</strong> Define MongoDB collections with versioned schemas and processing operations</li>
-        <li><strong>Data Dictionaries:</strong> Create human-readable schema definitions that hide complexity in simple and complex primitive types</li>
-        <li><strong>Custom Types:</strong> Define reusable type definitions for complex schemas</li>
-        <li><strong>Enumerators:</strong> Create sets of allowed values for enum properties</li>
-        <li><strong>Test Data:</strong> Generate sample documents for testing your collections</li>
-        <li><strong>Migrations:</strong> Create data transformation scripts for schema updates</li>
+        <li><strong>Collection Configurations:</strong> Anchor your configurations, allowing you to define release versions and configure indexing.</li>
+        <li><strong>Data Dictionaries:</strong> Create human-readable schema definitions that isolate the complexity of BSON/JSON schema with named custom types</li>
+        <li><strong>Custom Types:</strong> Create human-readable type primitives for use in a dictionary</li>
+        <li><strong>Enumerators:</strong> If you're concerned with data quality, the gold standard is an enumerated set of valid values</li>
+        <li><strong>Test Data:</strong> Create and load test data to verify configurations or make a convenient database available to developers</li>
+        <li><strong>Migrations:</strong> In the unfortunate circumstance when a schema change requires that the database be updated, the configurator gives you a way to define, configure and test complex migration pipelines</li>
       </ul>
-      
-      <h2>Getting Started</h2>
-      <p>To get started with the MongoDB Configurator:</p>
-      <ol>
-        <li>Create a new collection configuration to define your MongoDB collection structure</li>
-        <li>Define your data dictionary to create human-readable schema definitions</li>
-        <li>Create custom types as needed for complex data structures</li>
-        <li>Add enumerators for sets of allowed values</li>
-        <li>Generate test data for validation and testing</li>
-        <li>Create migrations for schema evolution</li>
-        <li>Process your configurations to apply changes to your database</li>
-      </ol>
       
       <h2>Navigation</h2>
       <p>Use the navigation drawer on the left to access different sections of the application. Each section provides specialized tools for managing specific aspects of your MongoDB schemas.</p>
@@ -138,34 +126,110 @@ const helpSlides = [
     `
   },
   {
-    icon: 'mdi-database',
-    title: 'Collection',
-    description: 'Define MongoDB collections with versioned schemas and processing operations.'
+    icon: 'mdi-compass',
+    title: 'Configuration',
+    description: 'Collection configurations anchor the management of your MongoDB database. This is where you configure schema validation and indexing options.',
+    detailedContent: `
+      <h2>Schema Versioning</h2>
+      <p>Schema validation is the primary feature of the configurator. Implementing a version-based approach to defining and applying schema validation is accomplished in the configuration file. Each version number identifies a Dictionary version with the first three digits and an Enumerators version with the fourth digit. See Dictionary and Enumerator for more information on those features.</p>
+      
+      <h2>Processing</h2>
+      <p>When a configuration is processed, the configuration version of the collection that currently exists is evaluated, and only newer versions are applied. The utility is non-destructive as it will not apply version configurations that have already been applied within the database. When a Configuration Version is applied, the following steps are accomplished:</p>
+      <ol>
+        <li><strong>Remove Schema Validation:</strong> Remove any existing schema validation configurations</li>
+        <li><strong>Drop Indexes:</strong> If indexes should be removed, this is when they're dropped</li>
+        <li><strong>Execute Migration:</strong> If migrations are required, this is when they run</li>
+        <li><strong>Add Indexes:</strong> If new indexes for this version are identified, this is when they're created</li>
+        <li><strong>Apply Schema Validation:</strong> Apply the new schema validation configurations to the collection</li>
+        <li><strong>Load Test Data:</strong> If test data is provided and loading test data is configured, the container will automatically load the specified test data. This is a great way to test your indexing and schema validation configurations</li>
+      </ol>
+    `
   },
   {
     icon: 'mdi-book-open-variant',
     title: 'Dictionary',
-    description: 'Create human-readable schema definitions that hide complexity.'
+    description: 'Create human-readable schema definitions that isolate the terse syntax of BSON/JSON schema.',
+    detailedContent: `
+      <h2>Simple Schema</h2>
+      <p>The concept of configuration dictionary is to make the process of documenting data schema more accessible to non-software engineers. People without a software engineering context can be intimidated by the syntax involved in defining a JSON schema, or even more confused if you're asking them to understand BSON. A simple schema uses the idea of custom types that are defined with human-accessible names. See below for additional detail about custom types, as well as several special simple schema types:</p>
+      <ul>
+        <li><strong>Custom Type:</strong> A human description of a data type (i.e. street address, phone number, sentence, or paragraph).</li>
+        <li><strong>Enumerated Types:</strong> A data type that represents an item from an enumerated list. See Enumerators.</li>
+        <li><strong>Object Types:</strong> A list of named properties.</li>
+        <li><strong>Array Types:</strong> An array of property items.</li>
+        <li><strong>One Of Types:</strong> A structure for representing polymorphic data structures.</li>
+        <li><strong>Reference Types:</strong> A reference to another dictionary.</li>
+      </ul>
+      
+      <h2>Custom Types</h2>
+      <p>A custom type can have any name other than the identified simple types below. Names should be short and meaningful. Embedded white space in a type name is not allowed. If you are defining a dictionary property that has a custom type, you don't need to specify any additional information.</p>
+      
+      <h2>Enumerated Types</h2>
+      <p>When you can define a data type, it should be one of a defined set of valid values. You can have very high-quality data and you can support optimal user experiences, especially with touch devices. When you use the enum type, you must identify which valid list of enumerators should be used. See Enumerators for additional information on creating enumerations. The Enum Array type is used for an array of values from an enumeration.</p>
+      
+      <h2>Object Types</h2>
+      <p>An object type is simply a way to group a set of related properties. The root property for most dictionaries is an object type. Object types have a special <em>Additional Properties</em> indicator that allows you to define loosely constrained data structures.</p>
+      
+      <h2>Array Types</h2>
+      <p>An Array type is simply a list of values defined as properties. When you identify the types of items that will be contained in the array, you can specify the additional attributes necessary to define the property.</p>
+      
+      <h2>One Of and Constant Types</h2>
+      <p>Powerful data structures often include polymorphic types of data. The one of data type is used to identify the list of possible types that a data property might comply with. The one of constraint is frequently combined with the constant constraint used to identify a type indicator for the polymorphic object.</p>
+      
+      <h2>Reference Types</h2>
+      <p>If a dictionary is feeling cumbersome or there are excessive levels of nesting, you might want to consider breaking the dictionary apart into multiple dictionaries. You can use the Ref type property to include those dictionaries.</p>
+      
+      <h3>Required Properties</h3>
+      <p>Every property can be identified as a required property using the checkbox icon on the property. Note that this is different from JSON and BSON schemas where they specify required as an array attribute of an object. Schema rendering converts these values for you.</p>
+    `
   },
   {
     icon: 'mdi-shape-outline',
     title: 'Type',
-    description: 'Define reusable type definitions for complex schemas.'
+    description: 'Define reusable type definitions that isolate the complexities of terse schema languages.',
+    detailedContent: `
+      <h2>Complex Types</h2>
+      <ul>
+        <li><strong>Object:</strong> Define complex object structures with nested properties and validation rules</li>
+        <li><strong>Array:</strong> Create array types with specific item definitions and constraints</li>
+      </ul>
+      
+      <h2>Primitive Types</h2>
+      <ul>
+        <li><strong>Simple Primitive:</strong> Basic data types like strings, numbers, booleans with validation</li>
+        <li><strong>Complex Primitive:</strong> Advanced primitive types with JSON/BSON schema definitions</li>
+      </ul>
+    `
   },
   {
     icon: 'mdi-format-list-checks',
     title: 'Enumerator',
-    description: 'Create sets of allowed values for enum properties.'
+    description: 'Create sets of allowed values for Enum or Enum Array properties.',
+    detailedContent: `
+      <h2>Enumerations</h2>
+      <p>An enumeration is the name we use to describe the list of values and their descriptions.</p>
+      
+      <h2>Enumerators</h2>
+      <p>A versioned file containing a list of Enumerations. This is the version number used when defining a schema version.</p>
+    `
   },
   {
     icon: 'mdi-test-tube',
     title: 'Test Data',
-    description: 'Generate sample documents for testing your collections.'
+    description: 'Test data that can be loaded into the database during version processing.',
+    detailedContent: `
+      <h2>Test Data</h2>
+      <p>A list of JSON documents that can be automatically loaded into your database during configuration processing. This is useful for testing your schema validation and indexing configurations.</p>
+    `
   },
   {
     icon: 'mdi-database-sync',
     title: 'Migration',
-    description: 'Create data transformation scripts for schema updates.'
+    description: 'Create data transformation scripts for schema updates.',
+    detailedContent: `
+      <h2>MongoDB Pipeline</h2>
+      <p>A list of JSON steps that define how to transform existing data when schema changes are applied. These migration pipelines ensure your data is properly updated when new schema versions are deployed.</p>
+    `
   }
 ]
 

@@ -147,7 +147,7 @@ const helpRoute = computed(() => {
   
   // Map current page to appropriate carousel slide
   if (currentPath.includes('/configurations')) {
-    slideIndex = 1 // Collection
+    slideIndex = 1 // Configuration
   } else if (currentPath.includes('/dictionaries')) {
     slideIndex = 2 // Dictionary
   } else if (currentPath.includes('/types')) {
