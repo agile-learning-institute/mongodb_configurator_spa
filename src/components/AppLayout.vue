@@ -222,8 +222,19 @@ const processAllConfigurations = async () => {
     
     // Check if the response contains event data
     if (result && result.id && result.type && result.status) {
-      const { showEvent } = useEvents()
-      showEvent(result, 'Processing Complete', 'All configurations processed successfully')
+      // Navigate to event viewer page with event data
+      const eventData = encodeURIComponent(JSON.stringify(result))
+      const title = encodeURIComponent('Processing Complete')
+      const subtitle = encodeURIComponent('All configurations processed successfully')
+      
+      router.push({
+        path: '/event-viewer',
+        query: {
+          eventData,
+          title,
+          subtitle
+        }
+      })
     }
     
   } catch (err: any) {
@@ -232,8 +243,19 @@ const processAllConfigurations = async () => {
     // Handle API errors with event data
     if (err.type === 'API_ERROR' && err.data) {
       if (err.data.id && err.data.type && err.data.status) {
-        const { showEvent } = useEvents()
-        showEvent(err.data, 'Processing Error', 'Failed to process all configurations')
+        // Navigate to event viewer page with error event data
+        const eventData = encodeURIComponent(JSON.stringify(err.data))
+        const title = encodeURIComponent('Processing Error')
+        const subtitle = encodeURIComponent('Failed to process all configurations')
+        
+        router.push({
+          path: '/event-viewer',
+          query: {
+            eventData,
+            title,
+            subtitle
+          }
+        })
       } else {
         const { showError } = useEvents()
         showError(err.message || 'Failed to process all configurations', 'Processing Error', 'Failed to process all configurations')
