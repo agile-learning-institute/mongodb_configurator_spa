@@ -40,16 +40,6 @@
                       <p class="text-h6 text-medium-emphasis text-center mb-8">{{ slide.description }}</p>
                     </div>
                     
-                    <v-btn
-                      v-if="slide.action"
-                      :to="slide.action.route"
-                      color="primary"
-                      size="large"
-                      variant="elevated"
-                      class="mt-4"
-                    >
-                      {{ slide.action.text }}
-                    </v-btn>
                   </div>
                 </v-window-item>
               </v-window>
@@ -104,7 +94,6 @@ const helpSlides = [
     icon: 'mdi-information-outline',
     title: 'Overview',
     description: 'The MongoDB Configurator is a comprehensive tool for managing MongoDB schema configurations and processing operations. This application provides a unified interface for creating, editing, and managing all aspects of your MongoDB database schemas.',
-    action: { text: 'Get Started', route: '/configurations' },
     detailedContent: `
       <h2>Key Features</h2>
       <ul>
@@ -138,38 +127,32 @@ const helpSlides = [
   {
     icon: 'mdi-database',
     title: 'Collection',
-    description: 'Define MongoDB collections with versioned schemas and processing operations.',
-    action: { text: 'View Configurations', route: '/configurations' }
+    description: 'Define MongoDB collections with versioned schemas and processing operations.'
   },
   {
     icon: 'mdi-book-open-variant',
     title: 'Dictionary',
-    description: 'Create human-readable schema definitions that hide complexity.',
-    action: { text: 'View Dictionaries', route: '/dictionaries' }
+    description: 'Create human-readable schema definitions that hide complexity.'
   },
   {
     icon: 'mdi-shape-outline',
     title: 'Type',
-    description: 'Define reusable type definitions for complex schemas.',
-    action: { text: 'View Types', route: '/types' }
+    description: 'Define reusable type definitions for complex schemas.'
   },
   {
     icon: 'mdi-format-list-checks',
     title: 'Enumerator',
-    description: 'Create sets of allowed values for enum properties.',
-    action: { text: 'View Enumerators', route: '/enumerators' }
+    description: 'Create sets of allowed values for enum properties.'
   },
   {
     icon: 'mdi-test-tube',
     title: 'Test Data',
-    description: 'Generate sample documents for testing your collections.',
-    action: { text: 'View Test Data', route: '/test-data' }
+    description: 'Generate sample documents for testing your collections.'
   },
   {
     icon: 'mdi-database-sync',
     title: 'Migration',
-    description: 'Create data transformation scripts for schema updates.',
-    action: { text: 'View Migrations', route: '/migrations' }
+    description: 'Create data transformation scripts for schema updates.'
   }
 ]
 
