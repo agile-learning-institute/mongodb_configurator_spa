@@ -3,6 +3,7 @@
     :title="file.name"
     :icon="fileIcon"
     :clickable="showEdit && !file._locked"
+    :compact="true"
     @click="handleCardClick"
   >
     <template #header-actions>
@@ -14,18 +15,6 @@
       >
         Locked
       </v-chip>
-      
-      <v-btn
-        v-if="showLock"
-        icon
-        size="small"
-        variant="text"
-        color="white"
-        @click.stop="$emit('toggle-lock')"
-        :title="file._locked ? 'Unlock' : 'Lock'"
-      >
-        <v-icon size="18">{{ file._locked ? 'mdi-lock' : 'mdi-lock-open' }}</v-icon>
-      </v-btn>
       
       <v-btn
         v-if="showDelete"
@@ -68,10 +57,12 @@
       <slot name="actions" />
     </template>
 
-    <div v-if="!isSectionCard" class="d-flex align-center text-caption text-medium-emphasis">
-      <span class="mr-4">Created: {{ formatDate(file.created_at) }}</span>
-      <span class="mr-4">Updated: {{ formatDate(file.updated_at) }}</span>
-      <span>Size: {{ formatFileSize(file.size) }}</span>
+    <div v-if="!isSectionCard" class="d-flex align-center justify-space-between text-caption text-medium-emphasis">
+      <div class="d-flex align-center">
+        <span class="mr-6">Created: {{ formatDate(file.created_at) }}</span>
+        <span class="mr-6">Updated: {{ formatDate(file.updated_at) }}</span>
+        <span>Size: {{ formatFileSize(file.size) }}</span>
+      </div>
     </div>
     
     <!-- Section card content -->
@@ -102,7 +93,6 @@ interface Props {
   fileType?: 'configuration' | 'dictionary' | 'type' | 'enumerator' | 'test-data' | 'migration'
   showEdit?: boolean
   showDelete?: boolean
-  showLock?: boolean
   showActions?: boolean
   showProcess?: boolean
   isSectionCard?: boolean
@@ -113,7 +103,6 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   showEdit: true,
   showDelete: true,
-  showLock: true,
   showActions: true,
   showProcess: false,
   isSectionCard: false,
@@ -124,7 +113,6 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits<{
   edit: []
   delete: []
-  'toggle-lock': []
   open: []
   process: []
   'toggle-expand': []

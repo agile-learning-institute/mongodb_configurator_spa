@@ -45,7 +45,6 @@
           :show-process="fileType === 'configurations'"
           @edit="editFile(file.name)"
           @delete="deleteFile(file.name)"
-          @toggle-lock="toggleFileLock(file.name)"
           @open="openFile(file.name)"
           @process="processFile(file.name)"
         />
@@ -77,7 +76,6 @@ const {
   loadFiles,
   deleteFile,
   processFile,
-  toggleFileLock,
   lockAllFiles,
   canLockAll
 } = useFiles(props.fileType)

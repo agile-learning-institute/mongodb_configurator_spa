@@ -56,7 +56,7 @@ export function useFiles(fileType: 'configurations' | 'dictionaries' | 'types' |
         updated_at: file.updated_at,
         size: file.size,
         _locked: file._locked || false
-      }))
+      })).sort((a: FileInfo, b: FileInfo) => a.name.localeCompare(b.name))
     } catch (err: any) {
       error.value = err.message || `Failed to load ${fileType}`
       console.error(`Failed to load ${fileType}:`, err)
@@ -111,16 +111,6 @@ export function useFiles(fileType: 'configurations' | 'dictionaries' | 'types' |
     }
   }
 
-  // Lock/unlock a file
-  const toggleFileLock = async (fileName: string) => {
-    // This would be implemented based on the API
-    // For now, just update the local state
-    const file = files.value.find(f => f.name === fileName)
-    if (file) {
-      file._locked = !file._locked
-    }
-  }
-
   // Lock all files
   const lockAllFiles = async () => {
     try {
@@ -169,7 +159,6 @@ export function useFiles(fileType: 'configurations' | 'dictionaries' | 'types' |
     loadFiles,
     deleteFile,
     processFile,
-    toggleFileLock,
     lockAllFiles,
     getFile,
     lockedFiles,
