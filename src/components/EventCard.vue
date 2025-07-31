@@ -9,9 +9,6 @@
       <div class="d-flex align-center flex-grow-1">
         <div class="flex-grow-1">
           <div class="text-subtitle-1 font-weight-medium text-white">
-            {{ event.type }}
-          </div>
-          <div class="text-caption text-white text-opacity-70">
             {{ event.id }}
           </div>
         </div>
