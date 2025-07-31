@@ -40,7 +40,14 @@
       </v-btn>
       
       <!-- Help Button -->
-      <v-btn icon :to="helpRoute" title="Help" class="help-btn">
+      <v-btn 
+        icon 
+        @click="toggleHelp" 
+        title="Help" 
+        class="help-btn"
+        :color="isOnHelpPage ? 'white' : undefined"
+        :variant="isOnHelpPage ? 'elevated' : 'text'"
+      >
         <v-icon>mdi-help-circle</v-icon>
       </v-btn>
     </v-app-bar>
@@ -130,7 +137,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { apiService } from '@/utils/api'
 import { useEvents } from '@/composables/useEvents'
 
@@ -139,6 +146,11 @@ const drawer = ref(true)
 
 // Get current route for context-aware help
 const route = useRoute()
+const router = useRouter()
+
+// Help state
+const isOnHelpPage = computed(() => route.path === '/')
+const previousPage = ref('')
 
 // Help route with context
 const helpRoute = computed(() => {
@@ -162,6 +174,23 @@ const helpRoute = computed(() => {
   
   return `/?slide=${slideIndex}`
 })
+
+// Toggle help function
+const toggleHelp = () => {
+  if (isOnHelpPage.value) {
+    // Currently on help page, go back to previous page
+    if (previousPage.value) {
+      router.push(previousPage.value)
+    } else {
+      // Fallback to configurations if no previous page
+      router.push('/configurations')
+    }
+  } else {
+    // Currently on another page, go to help page
+    previousPage.value = route.path
+    router.push(helpRoute.value)
+  }
+}
 
 // Database operations
 const processing = ref(false)
