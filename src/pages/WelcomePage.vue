@@ -27,7 +27,6 @@
                   :value="index"
                 >
                   <div class="d-flex flex-column justify-start align-start h-100 pa-8" style="height: calc(100vh - 120px); width: 100%;">
-                    <v-icon :icon="slide.icon" size="80" color="primary" class="mb-6" />
                     
                     <!-- Overview slide with detailed content -->
                     <div v-if="slide.detailedContent" class="overview-content">
