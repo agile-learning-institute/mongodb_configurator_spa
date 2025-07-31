@@ -90,7 +90,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { apiService } from '@/utils/api'
 import FileList from '@/components/FileList.vue'
@@ -131,6 +131,16 @@ const handleLockAll = async () => {
     }
   }
 }
+
+// Initialize canLockAll when component mounts
+onMounted(() => {
+  // Wait for next tick to ensure FileList is mounted
+  setTimeout(() => {
+    if (fileListRef.value) {
+      canLockAll.value = fileListRef.value.canLockAll
+    }
+  }, 100)
+})
 
 // Validate collection name
 const validateCollectionName = (name: string): boolean => {
