@@ -17,7 +17,6 @@
                 size="large"
                 class="carousel-nav-btn prev-btn"
                 @click="previousSlide"
-                :disabled="currentSlide === 0"
               />
               
               <v-window v-model="currentSlide" class="help-window">
@@ -50,7 +49,6 @@
                 size="large"
                 class="carousel-nav-btn next-btn"
                 @click="nextSlide"
-                :disabled="currentSlide === helpSlides.length - 1"
               />
             </div>
             
@@ -233,13 +231,17 @@ const helpSlides = [
 ]
 
 const previousSlide = () => {
-  if (currentSlide.value > 0) {
+  if (currentSlide.value === 0) {
+    currentSlide.value = helpSlides.length - 1
+  } else {
     currentSlide.value--
   }
 }
 
 const nextSlide = () => {
-  if (currentSlide.value < helpSlides.length - 1) {
+  if (currentSlide.value === helpSlides.length - 1) {
+    currentSlide.value = 0
+  } else {
     currentSlide.value++
   }
 }
