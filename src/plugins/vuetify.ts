@@ -31,4 +31,27 @@ export default createVuetify({
       },
     },
   },
+  defaults: {
+    VCard: {
+      density: 'comfortable',
+    },
+    VList: {
+      density: 'comfortable',
+    },
+    VListItem: {
+      density: 'comfortable',
+    },
+    VBtn: {
+      density: 'comfortable',
+    },
+    VTextField: {
+      density: 'comfortable',
+    },
+    VSelect: {
+      density: 'comfortable',
+    },
+    VTextarea: {
+      density: 'comfortable',
+    },
+  },
 }) 

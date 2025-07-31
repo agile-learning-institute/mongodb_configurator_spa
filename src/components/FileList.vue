@@ -24,6 +24,19 @@
 
       <!-- File list -->
       <div v-else>
+        <!-- Action Bar -->
+        <div v-if="canLockAll" class="d-flex justify-end mb-4">
+          <v-btn
+            color="info"
+            variant="outlined"
+            prepend-icon="mdi-lock"
+            @click="handleLockAll"
+            :loading="locking"
+          >
+            Lock All
+          </v-btn>
+        </div>
+
         <FileCard
           v-for="file in files" 
           :key="file.name"
@@ -42,7 +55,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useFiles } from '@/composables/useFiles'
 import FileCard from './FileCard.vue'
 
@@ -64,8 +77,12 @@ const {
   loadFiles,
   deleteFile,
   processFile,
-  toggleFileLock
+  toggleFileLock,
+  lockAllFiles,
+  canLockAll
 } = useFiles(props.fileType)
+
+const locking = ref(false)
 
 // Load files on mount
 onMounted(() => {
@@ -79,5 +96,14 @@ const editFile = (fileName: string) => {
 
 const openFile = (fileName: string) => {
   emit('open', fileName)
+}
+
+const handleLockAll = async () => {
+  locking.value = true
+  try {
+    await lockAllFiles()
+  } finally {
+    locking.value = false
+  }
 }
 </script> 

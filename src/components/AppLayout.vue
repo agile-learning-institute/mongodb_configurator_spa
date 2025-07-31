@@ -38,6 +38,18 @@
       <v-btn icon to="/admin" title="Admin" class="admin-btn">
         <v-icon>mdi-cog</v-icon>
       </v-btn>
+      
+      <!-- Help Button -->
+      <v-btn 
+        icon 
+        @click="toggleHelp" 
+        title="Help" 
+        class="help-btn"
+        :color="isOnHelpPage ? 'white' : undefined"
+        :variant="isOnHelpPage ? 'elevated' : 'text'"
+      >
+        <v-icon>mdi-help-circle</v-icon>
+      </v-btn>
     </v-app-bar>
 
     <!-- Navigation Sidebar -->
@@ -49,15 +61,25 @@
       :temporary="$vuetify.display.smAndDown"
       :rail="!drawer && $vuetify.display.mdAndUp"
     >
-      <v-list density="compact" nav>
+      <v-list density="comfortable" nav class="navigation-list">
         <!-- Navigation Items -->
         <v-list-item v-for="item in navItems" :key="item.title" :to="item.to" link>
           <template v-slot:prepend>
-            <v-icon>{{ item.icon }}</v-icon>
+            <v-icon size="large">{{ item.icon }}</v-icon>
           </template>
-          <v-list-item-title>{{ item.title }}</v-list-item-title>
+          <v-list-item-title class="text-body-1 font-weight-medium">{{ item.title }}</v-list-item-title>
         </v-list-item>
       </v-list>
+      
+      <!-- Help Link at Bottom -->
+      <div class="help-link-container">
+        <v-list-item to="/" link class="help-link">
+          <template v-slot:prepend>
+            <v-icon size="large">mdi-help-circle</v-icon>
+          </template>
+          <v-list-item-title class="text-body-1 font-weight-medium">Help</v-list-item-title>
+        </v-list-item>
+      </div>
     </v-navigation-drawer>
 
     <v-main>
@@ -109,16 +131,68 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+    
   </v-app>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { apiService } from '@/utils/api'
 import { useEvents } from '@/composables/useEvents'
 
 // Initialize drawer state from localStorage or default to true
 const drawer = ref(true)
+
+// Get current route for context-aware help
+const route = useRoute()
+const router = useRouter()
+
+// Help state
+const isOnHelpPage = computed(() => route.path === '/')
+const previousPage = ref('')
+
+// Help route with context
+const helpRoute = computed(() => {
+  const currentPath = route.path
+  let slideIndex = 0 // Default to overview
+  
+  // Map current page to appropriate carousel slide
+  if (currentPath.includes('/configurations')) {
+    slideIndex = 1 // Configuration
+  } else if (currentPath.includes('/dictionaries')) {
+    slideIndex = 2 // Dictionary
+  } else if (currentPath.includes('/types')) {
+    slideIndex = 3 // Type
+  } else if (currentPath.includes('/enumerators')) {
+    slideIndex = 4 // Enumerator
+  } else if (currentPath.includes('/test_data')) {
+    slideIndex = 5 // Test Data
+  } else if (currentPath.includes('/migrations')) {
+    slideIndex = 6 // Migration
+  } else if (currentPath.includes('/admin')) {
+    slideIndex = 7 // Admin
+  }
+  
+  return `/?slide=${slideIndex}`
+})
+
+// Toggle help function
+const toggleHelp = () => {
+  if (isOnHelpPage.value) {
+    // Currently on help page, go back to previous page
+    if (previousPage.value) {
+      router.push(previousPage.value)
+    } else {
+      // Fallback to configurations if no previous page
+      router.push('/configurations')
+    }
+  } else {
+    // Currently on another page, go to help page
+    previousPage.value = route.path
+    router.push(helpRoute.value)
+  }
+}
 
 // Database operations
 const processing = ref(false)
@@ -268,5 +342,33 @@ const navItems = [
 
 .admin-btn:hover {
   background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.help-btn {
+  color: white !important;
+}
+
+.help-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.navigation-list {
+  height: calc(100vh - 64px);
+  display: flex;
+  flex-direction: column;
+}
+
+.help-link-container {
+  margin-top: auto;
+  border-top: 1px solid rgba(0, 0, 0, 0.12);
+  padding-top: 8px;
+}
+
+.help-link {
+  color: #1976d2 !important;
+}
+
+.help-link:hover {
+  background-color: rgba(25, 118, 210, 0.08) !important;
 }
 </style> 
