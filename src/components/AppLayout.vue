@@ -54,13 +54,13 @@
       :temporary="$vuetify.display.smAndDown"
       :rail="!drawer && $vuetify.display.mdAndUp"
     >
-      <v-list density="compact" nav class="navigation-list">
+      <v-list density="comfortable" nav class="navigation-list">
         <!-- Navigation Items -->
         <v-list-item v-for="item in navItems" :key="item.title" :to="item.to" link>
           <template v-slot:prepend>
-            <v-icon>{{ item.icon }}</v-icon>
+            <v-icon size="large">{{ item.icon }}</v-icon>
           </template>
-          <v-list-item-title>{{ item.title }}</v-list-item-title>
+          <v-list-item-title class="text-body-1 font-weight-medium">{{ item.title }}</v-list-item-title>
         </v-list-item>
       </v-list>
       
@@ -68,9 +68,9 @@
       <div class="help-link-container">
         <v-list-item to="/" link class="help-link">
           <template v-slot:prepend>
-            <v-icon>mdi-help-circle</v-icon>
+            <v-icon size="large">mdi-help-circle</v-icon>
           </template>
-          <v-list-item-title>Help</v-list-item-title>
+          <v-list-item-title class="text-body-1 font-weight-medium">Help</v-list-item-title>
         </v-list-item>
       </div>
     </v-navigation-drawer>

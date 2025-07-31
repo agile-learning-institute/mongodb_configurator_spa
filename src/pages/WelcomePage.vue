@@ -29,13 +29,13 @@
                     
                     <!-- Overview slide with detailed content -->
                     <div v-if="slide.detailedContent" class="overview-content">
-                      <p class="text-h6 text-medium-emphasis mb-6">{{ slide.description }}</p>
+                      <p class="text-h5 text-medium-emphasis mb-6">{{ slide.description }}</p>
                       <div class="detailed-content" v-html="slide.detailedContent"></div>
                     </div>
                     
                     <!-- Other slides with simple description -->
                     <div v-else>
-                      <p class="text-h6 text-medium-emphasis mb-8">{{ slide.description }}</p>
+                      <p class="text-h5 text-medium-emphasis mb-8">{{ slide.description }}</p>
                     </div>
                     
                   </div>
@@ -313,17 +313,18 @@ const nextSlide = () => {
   text-align: left;
   line-height: 1.6;
   width: 100%;
+  font-size: 1.1rem;
 }
 
 .detailed-content :deep(h2) {
-  font-size: 1.5rem;
+  font-size: 1.8rem;
   font-weight: 600;
   margin: 1.5rem 0 0.75rem 0;
   color: #1976d2;
 }
 
 .detailed-content :deep(h3) {
-  font-size: 1.25rem;
+  font-size: 1.5rem;
   font-weight: 500;
   margin: 1.25rem 0 0.5rem 0;
   color: #424242;
@@ -332,15 +333,18 @@ const nextSlide = () => {
 .detailed-content :deep(p) {
   margin-bottom: 0.75rem;
   line-height: 1.6;
+  font-size: 1.1rem;
 }
 
 .detailed-content :deep(ul), .detailed-content :deep(ol) {
   margin-bottom: 0.75rem;
   padding-left: 1.5rem;
+  font-size: 1.1rem;
 }
 
 .detailed-content :deep(li) {
   margin-bottom: 0.25rem;
+  font-size: 1.1rem;
 }
 
 .detailed-content :deep(strong) {
