@@ -17,15 +17,15 @@
     <template #header-actions>
       <div class="d-flex align-center">
         <div class="d-flex align-center text-caption text-white mr-4">
-          <div class="text-right mr-4" style="width: 100px;">
+          <div class="text-right mr-4" style="width: 120px;">
             <span class="text-white-50">Created:</span>
             <span class="ml-1">{{ formatDate(file.created_at) }}</span>
           </div>
-          <div class="text-right mr-4" style="width: 100px;">
+          <div class="text-right mr-4" style="width: 120px;">
             <span class="text-white-50">Updated:</span>
             <span class="ml-1">{{ formatDate(file.updated_at) }}</span>
           </div>
-          <div class="text-right mr-4" style="width: 80px;">
+          <div class="text-right mr-4" style="width: 100px;">
             <span class="text-white-50">Size:</span>
             <span class="ml-1">{{ formatFileSize(file.size) }}</span>
           </div>
