@@ -3,79 +3,87 @@
     :title="file.name"
     :icon="fileIcon"
     :clickable="showEdit && !file._locked"
+    :compact="true"
     @click="handleCardClick"
   >
-    <template #header-actions>
-      <v-chip
-        v-if="file._locked"
-        color="warning"
-        size="small"
-        class="mr-2"
-      >
-        Locked
-      </v-chip>
-      
-      <v-btn
-        v-if="showLock"
-        icon
-        size="small"
-        variant="text"
-        color="white"
-        @click.stop="$emit('toggle-lock')"
-        :title="file._locked ? 'Unlock' : 'Lock'"
-      >
-        <v-icon size="18">{{ file._locked ? 'mdi-lock' : 'mdi-lock-open' }}</v-icon>
-      </v-btn>
-      
-      <v-btn
-        v-if="showDelete"
-        icon
-        size="small"
-        variant="text"
-        color="white"
-        @click.stop="$emit('delete')"
-        title="Delete"
-      >
-        <v-icon size="18">mdi-delete</v-icon>
-      </v-btn>
-      
-      <v-btn
-        v-if="showProcess"
-        icon
-        size="small"
-        variant="text"
-        color="white"
-        @click.stop="$emit('process')"
-        title="Process"
-      >
-        <v-icon size="18">mdi-cog</v-icon>
-      </v-btn>
-
-      <!-- Expand/collapse button for section cards -->
-      <v-btn
-        v-if="isSectionCard && showExpand"
-        icon
-        size="small"
-        variant="text"
-        color="white"
-        @click.stop="$emit('toggle-expand')"
-        :title="expanded ? 'Collapse' : 'Expand'"
-      >
-        <v-icon size="18">{{ expanded ? 'mdi-chevron-up' : 'mdi-chevron-down' }}</v-icon>
-      </v-btn>
-
-      <!-- Custom action buttons slot -->
-      <slot name="actions" />
+    <template #title>
+      <div class="d-flex align-center justify-space-between w-100">
+        <div class="d-flex align-center">
+          <h4 class="text-white ma-0">{{ file.name }}</h4>
+        </div>
+      </div>
     </template>
 
-    <div v-if="!isSectionCard" class="d-flex align-center text-caption text-medium-emphasis">
-      <span class="mr-4">Created: {{ formatDate(file.created_at) }}</span>
-      <span class="mr-4">Updated: {{ formatDate(file.updated_at) }}</span>
-      <span>Size: {{ formatFileSize(file.size) }}</span>
-    </div>
+    <template #header-actions>
+      <div class="d-flex align-center">
+        <div class="d-flex align-center text-caption text-white mr-4">
+          <div class="text-right mr-4" style="width: 120px;">
+            <span class="text-white-50">Created:</span>
+            <span class="ml-1">{{ formatDate(file.created_at) }}</span>
+          </div>
+          <div class="text-right mr-4" style="width: 120px;">
+            <span class="text-white-50">Updated:</span>
+            <span class="ml-1">{{ formatDate(file.updated_at) }}</span>
+          </div>
+          <div class="text-right mr-4" style="width: 100px;">
+            <span class="text-white-50">Size:</span>
+            <span class="ml-1">{{ formatFileSize(file.size) }}</span>
+          </div>
+        </div>
+        
+        <v-chip
+          v-if="file._locked"
+          color="warning"
+          size="small"
+          class="mr-2"
+        >
+          Locked
+        </v-chip>
+        
+        <v-btn
+          v-if="showDelete"
+          icon
+          size="small"
+          variant="text"
+          color="white"
+          @click.stop="$emit('delete')"
+          title="Delete"
+        >
+          <v-icon size="18">mdi-delete</v-icon>
+        </v-btn>
+        
+        <v-btn
+          v-if="showProcess"
+          icon
+          size="small"
+          variant="text"
+          color="white"
+          @click.stop="$emit('process')"
+          title="Process"
+        >
+          <v-icon size="18">mdi-cog</v-icon>
+        </v-btn>
+
+        <!-- Expand/collapse button for section cards -->
+        <v-btn
+          v-if="isSectionCard && showExpand"
+          icon
+          size="small"
+          variant="text"
+          color="white"
+          @click.stop="$emit('toggle-expand')"
+          :title="expanded ? 'Collapse' : 'Expand'"
+        >
+          <v-icon size="18">{{ expanded ? 'mdi-chevron-up' : 'mdi-chevron-down' }}</v-icon>
+        </v-btn>
+
+        <!-- Custom action buttons slot -->
+        <slot name="actions" />
+      </div>
+    </template>
     
     <!-- Section card content -->
-    <div v-else-if="expanded">
+    <div v-if="isSectionCard && expanded">
       <slot />
     </div>
     <!-- Collapsed content for section cards -->
@@ -102,7 +110,6 @@ interface Props {
   fileType?: 'configuration' | 'dictionary' | 'type' | 'enumerator' | 'test-data' | 'migration'
   showEdit?: boolean
   showDelete?: boolean
-  showLock?: boolean
   showActions?: boolean
   showProcess?: boolean
   isSectionCard?: boolean
@@ -113,7 +120,6 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   showEdit: true,
   showDelete: true,
-  showLock: true,
   showActions: true,
   showProcess: false,
   isSectionCard: false,
@@ -124,7 +130,6 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits<{
   edit: []
   delete: []
-  'toggle-lock': []
   open: []
   process: []
   'toggle-expand': []

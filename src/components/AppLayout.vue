@@ -3,7 +3,7 @@
     <!-- App Bar -->
     <v-app-bar color="primary" theme="dark" class="app-header">
       <v-app-bar-nav-icon @click="toggleDrawer" />
-      <v-toolbar-title>MongoDB Configurator</v-toolbar-title>
+      <v-toolbar-title class="text-h5 font-weight-medium">MongoDB Configurator</v-toolbar-title>
       <v-spacer></v-spacer>
       
       <!-- Process All Button -->
