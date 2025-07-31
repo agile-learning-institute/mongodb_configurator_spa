@@ -30,19 +30,13 @@
               <v-btn icon="mdi-help" variant="text" @click="showHelpFor('welcome')" />
             </v-card-title>
             <v-card-text>
-              <v-carousel
-                v-model="currentSlide"
-                cycle
-                height="300"
-                hide-delimiter-background
-                show-arrows="hover"
-              >
-                <v-carousel-item
+              <v-window v-model="currentSlide">
+                <v-window-item
                   v-for="(slide, index) in helpSlides"
                   :key="index"
                   :value="index"
                 >
-                  <div class="d-flex flex-column justify-center align-center h-100 pa-4">
+                  <div class="d-flex flex-column justify-center align-center h-100 pa-4" style="height: 300px;">
                     <v-icon :icon="slide.icon" size="64" color="primary" class="mb-4" />
                     <h3 class="text-h5 mb-2">{{ slide.title }}</h3>
                     <p class="text-body-1 text-medium-emphasis">{{ slide.description }}</p>
@@ -56,8 +50,20 @@
                       {{ slide.action.text }}
                     </v-btn>
                   </div>
-                </v-carousel-item>
-              </v-carousel>
+                </v-window-item>
+              </v-window>
+              
+              <!-- Navigation dots -->
+              <div class="d-flex justify-center mt-4">
+                <v-btn
+                  v-for="(_, index) in helpSlides"
+                  :key="index"
+                  :icon="currentSlide === index ? 'mdi-circle' : 'mdi-circle-outline'"
+                  variant="text"
+                  size="small"
+                  @click="currentSlide = index"
+                />
+              </div>
             </v-card-text>
           </v-card>
           

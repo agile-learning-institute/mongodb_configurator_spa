@@ -72,9 +72,7 @@
 <script setup lang="ts">
 import { computed, ref, watch, defineAsyncComponent } from 'vue'
 import { 
-  type Property, 
-  type TypeProperty, 
-  type DictionaryProperty,
+  type Property,
   isArrayProperty,
   isObjectProperty,
   isSimpleProperty,
@@ -235,64 +233,64 @@ const createPropertyForType = (type: string, originalProperty: Property): Proper
           type: 'string',
           required: false
         }
-      }
+      } as Property
     
     case 'object':
       return {
         ...baseProperty,
         additional_properties: false,
         properties: []
-      }
+      } as Property
     
     case 'simple':
       return {
         ...baseProperty,
         schema: {}
-      }
+      } as Property
     
     case 'complex':
       return {
         ...baseProperty,
         json_type: {},
         bson_type: {}
-      }
+      } as Property
     
     case 'enum':
       return {
         ...baseProperty,
         enums: ''
-      }
+      } as Property
     
     case 'enum_array':
       return {
         ...baseProperty,
         enums: ''
-      }
+      } as Property
     
     case 'ref':
       return {
         ...baseProperty,
         ref: ''
-      }
+      } as Property
     
     case 'constant':
       return {
         ...baseProperty,
         constant: ''
-      }
+      } as Property
     
     case 'one_of':
       return {
         ...baseProperty,
         properties: []
-      }
+      } as Property
     
     default:
-      // Custom type
+      // Custom type - just return the base property with the custom type
       return {
         ...baseProperty,
         type
-      }
+      } as Property
   }
 }
 

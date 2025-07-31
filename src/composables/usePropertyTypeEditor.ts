@@ -1,8 +1,6 @@
-import { ref, computed, watch } from 'vue'
+import { computed, ref } from 'vue'
 import { 
   type Property,
-  type TypeProperty,
-  type DictionaryProperty,
   isArrayProperty,
   isObjectProperty,
   isSimpleProperty,
@@ -16,29 +14,20 @@ import {
 } from '@/types/types'
 
 export interface PropertyTypeEditorOptions {
-  disabled?: boolean
   isDictionary?: boolean
   isType?: boolean
-  onUpdate?: (property: Property) => void
-  onDelete?: () => void
-  onTypeChange?: (type: string) => void
+  disabled?: boolean
 }
 
-export function usePropertyTypeEditor(
-  property: Property,
-  options: PropertyTypeEditorOptions = {}
-) {
+export function usePropertyTypeEditor(property: Property, options: PropertyTypeEditorOptions = {}) {
   const {
-    disabled = false,
     isDictionary = false,
     isType = false,
-    onUpdate,
-    onDelete,
-    onTypeChange
+    disabled = false
   } = options
 
   // Reactive state
-  const expanded = ref(true)
+  const expanded = ref(false)
   const showValidationErrors = ref(false)
 
   // Computed properties for type checking
@@ -81,77 +70,70 @@ export function usePropertyTypeEditor(
     return allTypes
   })
 
-  // Validation
+  // Validation errors
   const validationErrors = computed(() => {
     const errors: string[] = []
-    
+
+    // Check required fields
     if (!property.name || property.name.trim() === '') {
       errors.push('Property name is required')
     }
-    
+
     if (!property.description || property.description.trim() === '') {
       errors.push('Property description is required')
     }
-    
+
     // Type-specific validation
-    if (isArray.value && !property.items) {
-      errors.push('Array properties must have items defined')
+    if (isArray.value && isArrayProperty(property) && !property.items) {
+      errors.push('Array properties must have an items definition')
     }
-    
-    if (isObject.value && !Array.isArray(property.properties)) {
-      errors.push('Object properties must have properties array')
+
+    if (isObject.value && isObjectProperty(property) && !Array.isArray(property.properties)) {
+      errors.push('Object properties must have a properties array')
     }
-    
-    if (isSimple.value && !property.schema) {
-      errors.push('Simple properties must have schema defined')
+
+    if (isSimple.value && isSimpleProperty(property) && !property.schema) {
+      errors.push('Simple properties must have a schema definition')
     }
-    
-    if (isComplex.value && (!property.json_type || !property.bson_type)) {
-      errors.push('Complex properties must have both JSON and BSON types defined')
+
+    if (isComplex.value && isComplexProperty(property) && (!property.json_type || !property.bson_type)) {
+      errors.push('Complex properties must have both JSON and BSON type definitions')
     }
-    
-    if (isEnum.value && !property.enums) {
-      errors.push('Enum properties must have enum name defined')
+
+    if (isEnum.value && isEnumProperty(property) && !property.enums) {
+      errors.push('Enum properties must have an enums reference')
     }
-    
-    if (isEnumArray.value && !property.enums) {
-      errors.push('Enum array properties must have enum name defined')
+
+    if (isEnumArray.value && isEnumArrayProperty(property) && !property.enums) {
+      errors.push('Enum array properties must have an enums reference')
     }
-    
-    if (isRef.value && !property.ref) {
-      errors.push('Reference properties must have ref defined')
+
+    if (isRef.value && isRefProperty(property) && !property.ref) {
+      errors.push('Reference properties must have a ref value')
     }
-    
-    if (isConstant.value && !property.constant) {
-      errors.push('Constant properties must have constant value defined')
+
+    if (isConstant.value && isConstantProperty(property) && !property.constant) {
+      errors.push('Constant properties must have a constant value')
     }
-    
-    if (isOneOf.value && !Array.isArray(property.properties)) {
-      errors.push('OneOf properties must have properties array')
+
+    if (isOneOf.value && isOneOfProperty(property) && !Array.isArray(property.properties)) {
+      errors.push('One of properties must have a properties array')
     }
-    
+
     return errors
   })
 
-  const isValid = computed(() => validationErrors.value.length === 0)
-
   // Methods
-  const handleUpdate = () => {
-    if (onUpdate) {
-      onUpdate(property)
-    }
+  const handleUpdate = (updatedProperty: Property) => {
+    Object.assign(property, updatedProperty)
   }
 
   const handleDelete = () => {
-    if (onDelete) {
-      onDelete()
-    }
+    // Emit delete event - handled by parent
   }
 
   const handleTypeChange = (newType: string) => {
-    if (onTypeChange) {
-      onTypeChange(newType)
-    }
+    property.type = newType
   }
 
   const toggleExpanded = () => {
@@ -166,58 +148,45 @@ export function usePropertyTypeEditor(
     showValidationErrors.value = false
   }
 
-  // Helper methods for specific property types
-  const addObjectProperty = () => {
-    if (isObject.value && Array.isArray(property.properties)) {
-      const newProperty: Property = {
+  // Helper methods for object and one_of properties
+  const addProperty = () => {
+    if (isObject.value && isObjectProperty(property) && Array.isArray(property.properties)) {
+      const newProperty = {
         name: `property_${property.properties.length + 1}`,
         description: '',
         type: 'string',
         required: false
       }
       property.properties.push(newProperty)
-      handleUpdate()
     }
-  }
 
-  const removeObjectProperty = (index: number) => {
-    if (isObject.value && Array.isArray(property.properties)) {
-      property.properties.splice(index, 1)
-      handleUpdate()
-    }
-  }
-
-  const addOneOfProperty = () => {
-    if (isOneOf.value && Array.isArray(property.properties)) {
-      const newProperty: Property = {
+    if (isOneOf.value && isOneOfProperty(property) && Array.isArray(property.properties)) {
+      const newProperty = {
         name: `property_${property.properties.length + 1}`,
         description: '',
         type: 'string',
         required: false
       }
       property.properties.push(newProperty)
-      handleUpdate()
     }
   }
 
-  const removeOneOfProperty = (index: number) => {
-    if (isOneOf.value && Array.isArray(property.properties)) {
+  const removeProperty = (index: number) => {
+    if (isObject.value && isObjectProperty(property) && Array.isArray(property.properties)) {
       property.properties.splice(index, 1)
-      handleUpdate()
+    }
+
+    if (isOneOf.value && isOneOfProperty(property) && Array.isArray(property.properties)) {
+      property.properties.splice(index, 1)
     }
   }
-
-  // Watch for property changes
-  watch(() => property, () => {
-    // Reset validation errors when property changes
-    hideErrors()
-  }, { deep: true })
 
   return {
     // State
     expanded,
     showValidationErrors,
-    
+    disabled,
+
     // Computed
     isArray,
     isObject,
@@ -231,8 +200,7 @@ export function usePropertyTypeEditor(
     isOneOf,
     availableTypes,
     validationErrors,
-    isValid,
-    
+
     // Methods
     handleUpdate,
     handleDelete,
@@ -240,9 +208,7 @@ export function usePropertyTypeEditor(
     toggleExpanded,
     showErrors,
     hideErrors,
-    addObjectProperty,
-    removeObjectProperty,
-    addOneOfProperty,
-    removeOneOfProperty
+    addProperty,
+    removeProperty
   }
 } 

@@ -1,65 +1,51 @@
 <template>
   <div class="object-property-editor">
-    <div class="object-header">
-      <v-icon icon="mdi-shape-outline" class="mr-2" />
-      <span class="text-subtitle-2">Object Properties</span>
-      <v-spacer />
-      <v-btn
-        icon="mdi-chevron-down"
-        variant="text"
-        size="small"
-        @click="expanded = !expanded"
+    <!-- Additional Properties Toggle -->
+    <div class="additional-properties-section mb-4">
+      <v-checkbox
+        v-model="additionalProperties"
+        label="Allow Additional Properties"
+        hide-details
+        @update:model-value="handleAdditionalPropertiesChange"
       />
     </div>
-    
-    <div v-if="expanded" class="object-body">
-      <!-- Additional Properties Toggle -->
-      <div class="additional-properties-section">
-        <v-checkbox
-          v-model="additionalProperties"
-          label="Allow Additional Properties"
-          hide-details
-          @update:model-value="handleAdditionalPropertiesChange"
-        />
+
+    <!-- Properties List -->
+    <div class="properties-section">
+      <div class="d-flex align-center justify-space-between mb-3">
+        <h4 class="text-h6">Properties</h4>
+        <v-btn
+          prepend-icon="mdi-plus"
+          variant="outlined"
+          size="small"
+          @click="addProperty"
+          :disabled="disabled"
+        >
+          Add Property
+        </v-btn>
       </div>
-      
-      <!-- Properties List -->
-      <div class="properties-section">
-        <div class="properties-header">
-          <h4 class="text-subtitle-2">Properties</h4>
-          <v-btn
-            prepend-icon="mdi-plus"
-            variant="outlined"
-            size="small"
-            @click="addProperty"
-          >
-            Add Property
-          </v-btn>
-        </div>
-        
-        <div class="properties-list">
-          <div
-            v-for="(property, index) in property.properties"
-            :key="index"
-            class="property-item"
-          >
-            <PropertyEditor
-              :property="property"
-              :is-root="false"
-              :is-dictionary="isDictionary"
-              :is-type="isType"
-              @change="(updatedProperty) => updateProperty(index, updatedProperty)"
-              @delete="() => removeProperty(index)"
-            />
-          </div>
-          
-          <div v-if="property.properties.length === 0" class="no-properties">
-            <v-alert
-              type="info"
-              variant="tonal"
-              text="No properties defined. Click 'Add Property' to get started."
-            />
-          </div>
+
+      <!-- Empty state -->
+      <div v-if="!properties || properties.length === 0" class="text-center pa-4">
+        <v-icon size="48" color="grey">mdi-format-list-bulleted</v-icon>
+        <p class="text-body-2 text-medium-emphasis mt-2">No properties defined</p>
+        <p class="text-caption text-medium-emphasis">Click "Add Property" to get started</p>
+      </div>
+
+      <!-- Properties list -->
+      <div v-else class="properties-list">
+        <div
+          v-for="(prop, index) in properties"
+          :key="index"
+          class="property-item mb-3"
+        >
+          <PropertyEditor
+            :property="prop"
+            :is-dictionary="isDictionary"
+            :is-type="isType"
+            @change="handlePropertyChange(index, $event)"
+            @delete="removeProperty(index)"
+          />
         </div>
       </div>
     </div>
@@ -67,124 +53,109 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import { type ObjectProperty, type Property } from '@/types/types'
+import { computed } from 'vue'
+import { isObjectProperty, type ObjectProperty } from '@/types/types'
 import PropertyEditor from '../PropertyEditor.vue'
 
 const props = defineProps<{
   property: ObjectProperty
   isDictionary?: boolean
   isType?: boolean
+  disabled?: boolean
 }>()
 
 const emit = defineEmits<{
   change: [property: ObjectProperty]
 }>()
 
-const expanded = ref(true)
+// Computed properties
+const properties = computed(() => {
+  if (isObjectProperty(props.property)) {
+    return props.property.properties || []
+  }
+  return []
+})
 
 const additionalProperties = computed({
-  get: () => props.property.additional_properties ?? false,
-  set: (value: boolean) => {
-    const updatedProperty = {
-      ...props.property,
-      additional_properties: value
+  get: () => {
+    if (isObjectProperty(props.property)) {
+      return props.property.additional_properties || false
     }
-    emit('change', updatedProperty)
+    return false
+  },
+  set: (value: boolean) => {
+    if (isObjectProperty(props.property)) {
+      props.property.additional_properties = value
+    }
   }
 })
 
-const handleAdditionalPropertiesChange = (value: boolean) => {
-  additionalProperties.value = value
+// Methods
+const handleAdditionalPropertiesChange = (value: boolean | null) => {
+  if (isObjectProperty(props.property)) {
+    props.property.additional_properties = value || false
+    emit('change', props.property)
+  }
 }
 
 const addProperty = () => {
-  const newProperty: Property = {
-    name: `property_${props.property.properties.length + 1}`,
-    description: '',
-    type: 'string',
-    required: false
+  if (isObjectProperty(props.property)) {
+    if (!props.property.properties) {
+      props.property.properties = []
+    }
+    
+    const newProperty = {
+      name: `property_${props.property.properties.length + 1}`,
+      description: '',
+      type: 'string',
+      required: false
+    }
+    
+    props.property.properties.push(newProperty)
+    emit('change', props.property)
   }
-  
-  const updatedProperty = {
-    ...props.property,
-    properties: [...props.property.properties, newProperty]
-  }
-  emit('change', updatedProperty)
 }
 
-const updateProperty = (index: number, updatedProperty: Property) => {
-  const updatedProperties = [...props.property.properties]
-  updatedProperties[index] = updatedProperty
-  
-  const updatedObjectProperty = {
-    ...props.property,
-    properties: updatedProperties
+const handlePropertyChange = (index: number, updatedProperty: any) => {
+  if (isObjectProperty(props.property) && props.property.properties) {
+    props.property.properties[index] = updatedProperty
+    emit('change', props.property)
   }
-  emit('change', updatedObjectProperty)
 }
 
 const removeProperty = (index: number) => {
-  const updatedProperties = props.property.properties.filter((_, i) => i !== index)
-  
-  const updatedObjectProperty = {
-    ...props.property,
-    properties: updatedProperties
+  if (isObjectProperty(props.property) && props.property.properties) {
+    props.property.properties.splice(index, 1)
+    emit('change', props.property)
   }
-  emit('change', updatedObjectProperty)
 }
 </script>
 
 <style scoped>
 .object-property-editor {
-  border: 1px solid #e0e0e0;
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-.object-header {
-  display: flex;
-  align-items: center;
-  padding: 12px 16px;
-  background-color: #f5f5f5;
-  border-bottom: 1px solid #e0e0e0;
-}
-
-.object-body {
   padding: 16px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
   background-color: #fafafa;
 }
 
 .additional-properties-section {
-  margin-bottom: 16px;
-  padding-bottom: 16px;
   border-bottom: 1px solid #e0e0e0;
+  padding-bottom: 16px;
 }
 
 .properties-section {
   margin-top: 16px;
 }
 
-.properties-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-}
-
 .properties-list {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+  max-height: 400px;
+  overflow-y: auto;
 }
 
 .property-item {
   border: 1px solid #e0e0e0;
   border-radius: 4px;
   background-color: white;
-}
-
-.no-properties {
-  margin-top: 16px;
 }
 </style> 
