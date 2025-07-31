@@ -31,7 +31,18 @@
                   <div class="d-flex flex-column justify-center align-center h-100 pa-8" style="height: calc(100vh - 120px);">
                     <v-icon :icon="slide.icon" size="80" color="primary" class="mb-6" />
                     <h2 class="text-h3 mb-4 text-center">{{ slide.title }}</h2>
-                    <p class="text-h6 text-medium-emphasis text-center mb-8" style="max-width: 600px;">{{ slide.description }}</p>
+                    
+                    <!-- Overview slide with detailed content -->
+                    <div v-if="slide.detailedContent" class="overview-content">
+                      <p class="text-h6 text-medium-emphasis text-center mb-6" style="max-width: 600px;">{{ slide.description }}</p>
+                      <div class="detailed-content" v-html="slide.detailedContent"></div>
+                    </div>
+                    
+                    <!-- Other slides with simple description -->
+                    <div v-else>
+                      <p class="text-h6 text-medium-emphasis text-center mb-8" style="max-width: 600px;">{{ slide.description }}</p>
+                    </div>
+                    
                     <v-btn
                       v-if="slide.action"
                       :to="slide.action.route"
@@ -98,9 +109,38 @@ const currentSlide = ref(0)
 const helpSlides = [
   {
     icon: 'mdi-information-outline',
-    title: 'Overview',
-    description: 'Welcome to the MongoDB Configurator. This application helps you manage MongoDB schema configurations and processing operations. Explore the different sections to understand how to create and manage your database schemas.',
-    action: { text: 'Get Started', route: '/configurations' }
+    title: 'MongoDB Configurator Overview',
+    description: 'The MongoDB Configurator is a comprehensive tool for managing MongoDB schema configurations and processing operations. This application provides a unified interface for creating, editing, and managing all aspects of your MongoDB database schemas.',
+    action: { text: 'Get Started', route: '/configurations' },
+    detailedContent: `
+      <h2>Key Features</h2>
+      <ul>
+        <li><strong>Collection Configurations:</strong> Define MongoDB collections with versioned schemas and processing operations</li>
+        <li><strong>Data Dictionaries:</strong> Create human-readable schema definitions that hide complexity in simple and complex primitive types</li>
+        <li><strong>Custom Types:</strong> Define reusable type definitions for complex schemas</li>
+        <li><strong>Enumerators:</strong> Create sets of allowed values for enum properties</li>
+        <li><strong>Test Data:</strong> Generate sample documents for testing your collections</li>
+        <li><strong>Migrations:</strong> Create data transformation scripts for schema updates</li>
+      </ul>
+      
+      <h2>Getting Started</h2>
+      <p>To get started with the MongoDB Configurator:</p>
+      <ol>
+        <li>Create a new collection configuration to define your MongoDB collection structure</li>
+        <li>Define your data dictionary to create human-readable schema definitions</li>
+        <li>Create custom types as needed for complex data structures</li>
+        <li>Add enumerators for sets of allowed values</li>
+        <li>Generate test data for validation and testing</li>
+        <li>Create migrations for schema evolution</li>
+        <li>Process your configurations to apply changes to your database</li>
+      </ol>
+      
+      <h2>Navigation</h2>
+      <p>Use the navigation drawer on the left to access different sections of the application. Each section provides specialized tools for managing specific aspects of your MongoDB schemas.</p>
+      
+      <h2>Help System</h2>
+      <p>This help system provides detailed information about each feature. Click the help icon (?) in any section to access contextual help content.</p>
+    `
   },
   {
     icon: 'mdi-database',
@@ -204,5 +244,51 @@ const nextSlide = () => {
 .carousel-nav-btn:disabled {
   opacity: 0.3;
   cursor: not-allowed;
+}
+
+.overview-content {
+  max-width: 800px;
+  text-align: left;
+  overflow-y: auto;
+  max-height: calc(100vh - 300px);
+  padding: 0 20px;
+}
+
+.detailed-content {
+  text-align: left;
+  line-height: 1.6;
+}
+
+.detailed-content :deep(h2) {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 1.5rem 0 0.75rem 0;
+  color: #1976d2;
+}
+
+.detailed-content :deep(h3) {
+  font-size: 1.25rem;
+  font-weight: 500;
+  margin: 1.25rem 0 0.5rem 0;
+  color: #424242;
+}
+
+.detailed-content :deep(p) {
+  margin-bottom: 0.75rem;
+  line-height: 1.6;
+}
+
+.detailed-content :deep(ul), .detailed-content :deep(ol) {
+  margin-bottom: 0.75rem;
+  padding-left: 1.5rem;
+}
+
+.detailed-content :deep(li) {
+  margin-bottom: 0.25rem;
+}
+
+.detailed-content :deep(strong) {
+  font-weight: 600;
+  color: #1976d2;
 }
 </style> 
