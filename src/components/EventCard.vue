@@ -8,11 +8,26 @@
     <template #header-actions>
       <div class="d-flex align-center flex-grow-1">
         <div class="flex-grow-1">
-          <div class="text-subtitle-1 font-weight-medium text-white">
+          <div class="text-h6 font-weight-medium text-white">
             {{ event.id }}
           </div>
         </div>
       </div>
+      
+      <!-- Expand/Collapse Button (only for events with sub-events) -->
+      <v-btn
+        v-if="event.sub_events && event.sub_events.length > 0"
+        icon
+        size="small"
+        variant="text"
+        color="white"
+        @click="subEventsExpanded = !subEventsExpanded"
+        class="mr-2"
+      >
+        <v-icon size="20">
+          {{ subEventsExpanded ? 'mdi-chevron-up' : 'mdi-chevron-down' }}
+        </v-icon>
+      </v-btn>
       
       <!-- Status Badge -->
       <v-chip
@@ -67,17 +82,6 @@
         <div class="text-caption text-medium-emphasis">
           Sub-events ({{ event.sub_events.length }}):
         </div>
-        <v-btn
-          size="small"
-          variant="text"
-          @click="subEventsExpanded = !subEventsExpanded"
-          class="text-caption"
-        >
-          <v-icon size="16" class="mr-1">
-            {{ subEventsExpanded ? 'mdi-chevron-up' : 'mdi-chevron-down' }}
-          </v-icon>
-          {{ subEventsExpanded ? 'Collapse' : 'Expand' }}
-        </v-btn>
       </div>
       
       <!-- Sub-events Summary (always visible) -->
