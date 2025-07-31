@@ -12,17 +12,17 @@
           <h4 class="text-white ma-0">{{ file.name }}</h4>
         </div>
         <div class="d-flex align-center text-caption text-white">
-          <div class="text-right mr-6">
-            <div class="text-caption text-white-50">Created</div>
-            <div class="text-caption text-white">{{ formatDate(file.created_at) }}</div>
+          <div class="text-right mr-4" style="width: 80px;">
+            <span class="text-white-50">Created:</span>
+            <span class="ml-1">{{ formatDate(file.created_at) }}</span>
           </div>
-          <div class="text-right mr-6">
-            <div class="text-caption text-white-50">Updated</div>
-            <div class="text-caption text-white">{{ formatDate(file.updated_at) }}</div>
+          <div class="text-right mr-4" style="width: 80px;">
+            <span class="text-white-50">Updated:</span>
+            <span class="ml-1">{{ formatDate(file.updated_at) }}</span>
           </div>
-          <div class="text-right">
-            <div class="text-caption text-white-50">Size</div>
-            <div class="text-caption text-white">{{ formatFileSize(file.size) }}</div>
+          <div class="text-right mr-4" style="width: 60px;">
+            <span class="text-white-50">Size:</span>
+            <span class="ml-1">{{ formatFileSize(file.size) }}</span>
           </div>
         </div>
       </div>
