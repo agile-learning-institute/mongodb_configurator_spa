@@ -81,13 +81,26 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
 import { useHelp } from '@/composables/useHelp'
 import HelpDialog from '@/components/HelpDialog.vue'
 
 const { showHelp, currentHelp } = useHelp()
 
 const currentSlide = ref(0)
+const route = useRoute()
+
+// Initialize slide based on URL parameter
+onMounted(() => {
+  const slideParam = route.query.slide
+  if (slideParam && typeof slideParam === 'string') {
+    const slideIndex = parseInt(slideParam)
+    if (!isNaN(slideIndex) && slideIndex >= 0 && slideIndex < helpSlides.length) {
+      currentSlide.value = slideIndex
+    }
+  }
+})
 
 const helpSlides = [
   {

@@ -38,6 +38,11 @@
       <v-btn icon to="/admin" title="Admin" class="admin-btn">
         <v-icon>mdi-cog</v-icon>
       </v-btn>
+      
+      <!-- Help Button -->
+      <v-btn icon :to="helpRoute" title="Help" class="help-btn">
+        <v-icon>mdi-help-circle</v-icon>
+      </v-btn>
     </v-app-bar>
 
     <!-- Navigation Sidebar -->
@@ -119,16 +124,44 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+    
   </v-app>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
+import { useRoute } from 'vue-router'
 import { apiService } from '@/utils/api'
 import { useEvents } from '@/composables/useEvents'
 
 // Initialize drawer state from localStorage or default to true
 const drawer = ref(true)
+
+// Get current route for context-aware help
+const route = useRoute()
+
+// Help route with context
+const helpRoute = computed(() => {
+  const currentPath = route.path
+  let slideIndex = 0 // Default to overview
+  
+  // Map current page to appropriate carousel slide
+  if (currentPath.includes('/configurations')) {
+    slideIndex = 1 // Collection
+  } else if (currentPath.includes('/dictionaries')) {
+    slideIndex = 2 // Dictionary
+  } else if (currentPath.includes('/types')) {
+    slideIndex = 3 // Type
+  } else if (currentPath.includes('/enumerators')) {
+    slideIndex = 4 // Enumerator
+  } else if (currentPath.includes('/test_data')) {
+    slideIndex = 5 // Test Data
+  } else if (currentPath.includes('/migrations')) {
+    slideIndex = 6 // Migration
+  }
+  
+  return `/?slide=${slideIndex}`
+})
 
 // Database operations
 const processing = ref(false)
@@ -277,6 +310,14 @@ const navItems = [
 }
 
 .admin-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.help-btn {
+  color: white !important;
+}
+
+.help-btn:hover {
   background-color: rgba(255, 255, 255, 0.1) !important;
 }
 
