@@ -121,6 +121,36 @@ export function useFiles(fileType: 'configurations' | 'dictionaries' | 'types' |
     }
   }
 
+  // Lock all files
+  const lockAllFiles = async () => {
+    try {
+      switch (fileType) {
+        case 'configurations':
+          await apiService.lockAllConfigurations()
+          break
+        case 'dictionaries':
+          await apiService.lockAllDictionaries()
+          break
+        case 'types':
+          await apiService.lockAllTypes()
+          break
+        case 'enumerators':
+          await apiService.lockAllEnumerators()
+          break
+        default:
+          throw new Error(`Lock all is not available for ${fileType}`)
+      }
+      
+      // Update all files to locked state
+      files.value.forEach(file => {
+        file._locked = true
+      })
+    } catch (err: any) {
+      error.value = err.message || `Failed to lock all ${fileType}`
+      console.error(`Failed to lock all ${fileType}:`, err)
+    }
+  }
+
   // Get file by name
   const getFile = (fileName: string) => {
     return files.value.find(f => f.name === fileName)
@@ -130,6 +160,7 @@ export function useFiles(fileType: 'configurations' | 'dictionaries' | 'types' |
   const lockedFiles = computed(() => files.value.filter(f => f._locked))
   const unlockedFiles = computed(() => files.value.filter(f => !f._locked))
   const totalFiles = computed(() => files.value.length)
+  const canLockAll = computed(() => ['configurations', 'dictionaries', 'types', 'enumerators'].includes(fileType))
 
   return {
     files,
@@ -139,9 +170,11 @@ export function useFiles(fileType: 'configurations' | 'dictionaries' | 'types' |
     deleteFile,
     processFile,
     toggleFileLock,
+    lockAllFiles,
     getFile,
     lockedFiles,
     unlockedFiles,
     totalFiles,
+    canLockAll,
   }
 } 

@@ -70,7 +70,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, ref, watch, defineAsyncComponent } from 'vue'
 import { 
   type Property, 
   type TypeProperty, 
@@ -87,17 +87,17 @@ import {
   isOneOfProperty
 } from '@/types/types'
 
-// Import property type editors
-import ArrayPropertyEditor from './property-types/ArrayPropertyEditor.vue'
-import ObjectPropertyEditor from './property-types/ObjectPropertyEditor.vue'
-import SimplePropertyEditor from './property-types/SimplePropertyEditor.vue'
-import ComplexPropertyEditor from './property-types/ComplexPropertyEditor.vue'
-import EnumPropertyEditor from './property-types/EnumPropertyEditor.vue'
-import EnumArrayPropertyEditor from './property-types/EnumArrayPropertyEditor.vue'
-import RefPropertyEditor from './property-types/RefPropertyEditor.vue'
-import ConstantPropertyEditor from './property-types/ConstantPropertyEditor.vue'
-import CustomPropertyEditor from './property-types/CustomPropertyEditor.vue'
-import OneOfPropertyEditor from './property-types/OneOfPropertyEditor.vue'
+// Import property type editors with lazy loading
+const ArrayPropertyEditor = defineAsyncComponent(() => import('./property-types/ArrayPropertyEditor.vue'))
+const ObjectPropertyEditor = defineAsyncComponent(() => import('./property-types/ObjectPropertyEditor.vue'))
+const SimplePropertyEditor = defineAsyncComponent(() => import('./property-types/SimplePropertyEditor.vue'))
+const ComplexPropertyEditor = defineAsyncComponent(() => import('./property-types/ComplexPropertyEditor.vue'))
+const EnumPropertyEditor = defineAsyncComponent(() => import('./property-types/EnumPropertyEditor.vue'))
+const EnumArrayPropertyEditor = defineAsyncComponent(() => import('./property-types/EnumArrayPropertyEditor.vue'))
+const RefPropertyEditor = defineAsyncComponent(() => import('./property-types/RefPropertyEditor.vue'))
+const ConstantPropertyEditor = defineAsyncComponent(() => import('./property-types/ConstantPropertyEditor.vue'))
+const CustomPropertyEditor = defineAsyncComponent(() => import('./property-types/CustomPropertyEditor.vue'))
+const OneOfPropertyEditor = defineAsyncComponent(() => import('./property-types/OneOfPropertyEditor.vue'))
 
 const props = defineProps<{
   property: Property

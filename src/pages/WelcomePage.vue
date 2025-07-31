@@ -21,6 +21,46 @@
             </p>
           </v-alert>
           
+          <!-- Help Carousel -->
+          <v-card class="mb-6" variant="outlined">
+            <v-card-title class="d-flex align-center">
+              <v-icon icon="mdi-help-circle" class="mr-2" />
+              Getting Started
+              <v-spacer />
+              <v-btn icon="mdi-help" variant="text" @click="showHelpFor('welcome')" />
+            </v-card-title>
+            <v-card-text>
+              <v-carousel
+                v-model="currentSlide"
+                cycle
+                height="300"
+                hide-delimiter-background
+                show-arrows="hover"
+              >
+                <v-carousel-item
+                  v-for="(slide, index) in helpSlides"
+                  :key="index"
+                  :value="index"
+                >
+                  <div class="d-flex flex-column justify-center align-center h-100 pa-4">
+                    <v-icon :icon="slide.icon" size="64" color="primary" class="mb-4" />
+                    <h3 class="text-h5 mb-2">{{ slide.title }}</h3>
+                    <p class="text-body-1 text-medium-emphasis">{{ slide.description }}</p>
+                    <v-btn
+                      v-if="slide.action"
+                      :to="slide.action.route"
+                      color="primary"
+                      variant="outlined"
+                      class="mt-4"
+                    >
+                      {{ slide.action.text }}
+                    </v-btn>
+                  </div>
+                </v-carousel-item>
+              </v-carousel>
+            </v-card-text>
+          </v-card>
+          
           <v-btn 
             color="primary" 
             size="large"
@@ -40,12 +80,21 @@
         </v-card>
       </v-col>
     </v-row>
+    
+    <!-- Help Dialog -->
+    <HelpDialog
+      v-model="showHelp"
+      :title="currentHelp?.title || ''"
+      :content="currentHelp?.content || ''"
+    />
   </v-container>
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useConfig } from '@/composables/useConfig'
+import { useHelp } from '@/composables/useHelp'
+import HelpDialog from '@/components/HelpDialog.vue'
 
 const {
   loading,
@@ -54,6 +103,53 @@ const {
   isLocal,
   loadConfig
 } = useConfig()
+
+const {
+  showHelp,
+  currentHelp,
+  showHelpFor
+} = useHelp()
+
+const currentSlide = ref(0)
+
+const helpSlides = [
+  {
+    icon: 'mdi-database',
+    title: 'Collection Configurations',
+    description: 'Define MongoDB collections with versioned schemas and processing operations.',
+    action: { text: 'View Configurations', route: '/configurations' }
+  },
+  {
+    icon: 'mdi-book-open-variant',
+    title: 'Data Dictionaries',
+    description: 'Create human-readable schema definitions that hide complexity.',
+    action: { text: 'View Dictionaries', route: '/dictionaries' }
+  },
+  {
+    icon: 'mdi-shape-outline',
+    title: 'Custom Types',
+    description: 'Define reusable type definitions for complex schemas.',
+    action: { text: 'View Types', route: '/types' }
+  },
+  {
+    icon: 'mdi-format-list-checks',
+    title: 'Enumerators',
+    description: 'Create sets of allowed values for enum properties.',
+    action: { text: 'View Enumerators', route: '/enumerators' }
+  },
+  {
+    icon: 'mdi-test-tube',
+    title: 'Test Data',
+    description: 'Generate sample documents for testing your collections.',
+    action: { text: 'View Test Data', route: '/test-data' }
+  },
+  {
+    icon: 'mdi-database-sync',
+    title: 'Migrations',
+    description: 'Create data transformation scripts for schema updates.',
+    action: { text: 'View Migrations', route: '/migrations' }
+  }
+]
 
 onMounted(() => {
   loadConfig()

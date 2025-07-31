@@ -50,10 +50,13 @@
           </v-btn>
         </div>
       </header>
-      <!-- TypePropertyEditorFactory for root property -->
-      <TypePropertyEditorFactory
+      
+      <!-- New PropertyEditor for root property -->
+      <PropertyEditor
+        v-if="typeData.root"
         :property="typeData.root"
         :is-root="true"
+        :is-type="true"
         @change="handleRootPropertyChange"
       />
     </div>
@@ -101,7 +104,7 @@
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { apiService } from '@/utils/api'
-import TypePropertyEditorFactory from '@/components/TypePropertyEditorFactory.vue'
+import PropertyEditor from '@/components/PropertyEditor.vue'
 import type { TypeProperty, TypeData } from '@/types/types'
 
 const route = useRoute()

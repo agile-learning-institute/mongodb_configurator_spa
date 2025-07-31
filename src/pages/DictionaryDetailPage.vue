@@ -50,11 +50,13 @@
           </v-btn>
         </div>
       </header>
-      <!-- PropertyEditorFactory for root property -->
-      <PropertyEditorFactory
+      
+      <!-- New PropertyEditor for root property -->
+      <PropertyEditor
         v-if="dictionary.root"
         :property="dictionary.root"
         :is-root="true"
+        :is-dictionary="true"
         @change="handleRootPropertyChange"
       />
     </div>
@@ -67,7 +69,7 @@
         Delete Dictionary?
       </v-card-title>
       <v-card-text>
-        <p>Are you sure you want to delete "{{ dictionary?.title || dictionary?.file_name }}"?</p>
+        <p>Are you sure you want to delete "{{ dictionary?.file_name }}"?</p>
         <p class="text-caption text-medium-emphasis">
           This action cannot be undone.
         </p>
@@ -102,42 +104,16 @@
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { apiService } from '@/utils/api'
-import PropertyEditorFactory from '@/components/PropertyEditorFactory.vue'
-
-
-interface DictionaryProperty {
-  description: string
-  type?: string
-  required?: boolean
-  additionalProperties?: boolean
-  items?: DictionaryProperty
-  properties?: Record<string, DictionaryProperty>
-  schema?: any
-  json_type?: any
-  bson_type?: any
-  enums?: string
-  oneOf?: Record<string, any>
-}
-
-interface Dictionary {
-  file_name: string
-  title?: string
-  _locked: boolean
-  root: DictionaryProperty
-}
+import PropertyEditor from '@/components/PropertyEditor.vue'
+import type { DictionaryData, DictionaryProperty } from '@/types/types'
 
 const route = useRoute()
 const loading = ref(false)
 const saving = ref(false)
 const error = ref<string | null>(null)
-const dictionary = ref<Dictionary | null>(null)
+const dictionary = ref<DictionaryData | null>(null)
 const showDeleteDialog = ref(false)
 const showUnlockDialog = ref(false)
-
-
-// Computed properties (unused but kept for future use)
-// const descriptionValue = computed(() => dictionary.value?.root?.description || '')
-// const typeValue = computed(() => dictionary.value?.root?.type || 'string')
 
 // Methods
 const loadDictionary = async () => {
@@ -183,11 +159,6 @@ const handleRootPropertyChange = (updatedProperty: DictionaryProperty) => {
     autoSave()
   }
 }
-
-
-// Remove all unused methods: handlePropertyChange, handleDeleteProperty, getDictionaryTitle, handleTypeChange, handleAddProperty, canBeRequired, canHaveAdditionalProperties, canHaveOneOf, toggleOneOf.
-// Remove all unused imports.
-
 
 const lockDictionary = async () => {
   if (!dictionary.value) return
