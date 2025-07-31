@@ -49,7 +49,7 @@
       :temporary="$vuetify.display.smAndDown"
       :rail="!drawer && $vuetify.display.mdAndUp"
     >
-      <v-list density="compact" nav>
+      <v-list density="compact" nav class="navigation-list">
         <!-- Navigation Items -->
         <v-list-item v-for="item in navItems" :key="item.title" :to="item.to" link>
           <template v-slot:prepend>
@@ -58,6 +58,16 @@
           <v-list-item-title>{{ item.title }}</v-list-item-title>
         </v-list-item>
       </v-list>
+      
+      <!-- Help Link at Bottom -->
+      <div class="help-link-container">
+        <v-list-item to="/" link class="help-link">
+          <template v-slot:prepend>
+            <v-icon>mdi-help-circle</v-icon>
+          </template>
+          <v-list-item-title>Help</v-list-item-title>
+        </v-list-item>
+      </div>
     </v-navigation-drawer>
 
     <v-main>
@@ -268,5 +278,25 @@ const navItems = [
 
 .admin-btn:hover {
   background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.navigation-list {
+  height: calc(100vh - 64px);
+  display: flex;
+  flex-direction: column;
+}
+
+.help-link-container {
+  margin-top: auto;
+  border-top: 1px solid rgba(0, 0, 0, 0.12);
+  padding-top: 8px;
+}
+
+.help-link {
+  color: #1976d2 !important;
+}
+
+.help-link:hover {
+  background-color: rgba(25, 118, 210, 0.08) !important;
 }
 </style> 

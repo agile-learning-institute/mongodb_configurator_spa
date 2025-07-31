@@ -11,29 +11,38 @@ export function useHelp() {
 
   const helpContent: Record<string, HelpContent> = {
     welcome: {
-      title: 'Welcome to MongoDB Configurator',
+      title: 'MongoDB Configurator Overview',
       content: `
-        <h1>Welcome to MongoDB Configurator</h1>
-        <p>This application helps you manage MongoDB schema configurations and processing operations.</p>
-        
-        <h2>Getting Started</h2>
-        <p>To get started with MongoDB Configurator:</p>
-        <ol>
-          <li>Create a new collection configuration</li>
-          <li>Define your data dictionary</li>
-          <li>Create custom types as needed</li>
-          <li>Add test data and migrations</li>
-          <li>Process your configurations</li>
-        </ol>
+        <h1>MongoDB Configurator Overview</h1>
+        <p>The MongoDB Configurator is a comprehensive tool for managing MongoDB schema configurations and processing operations. This application provides a unified interface for creating, editing, and managing all aspects of your MongoDB database schemas.</p>
         
         <h2>Key Features</h2>
         <ul>
-          <li><strong>Collection Configurations:</strong> Define MongoDB collections with versioned schemas</li>
-          <li><strong>Data Dictionaries:</strong> Create human-readable schema definitions</li>
-          <li><strong>Custom Types:</strong> Define reusable type definitions</li>
-          <li><strong>Test Data:</strong> Generate sample data for testing</li>
-          <li><strong>Migrations:</strong> Create data migration scripts</li>
+          <li><strong>Collection Configurations:</strong> Define MongoDB collections with versioned schemas and processing operations</li>
+          <li><strong>Data Dictionaries:</strong> Create human-readable schema definitions that hide complexity in simple and complex primitive types</li>
+          <li><strong>Custom Types:</strong> Define reusable type definitions for complex schemas</li>
+          <li><strong>Enumerators:</strong> Create sets of allowed values for enum properties</li>
+          <li><strong>Test Data:</strong> Generate sample documents for testing your collections</li>
+          <li><strong>Migrations:</strong> Create data transformation scripts for schema updates</li>
         </ul>
+        
+        <h2>Getting Started</h2>
+        <p>To get started with the MongoDB Configurator:</p>
+        <ol>
+          <li>Create a new collection configuration to define your MongoDB collection structure</li>
+          <li>Define your data dictionary to create human-readable schema definitions</li>
+          <li>Create custom types as needed for complex data structures</li>
+          <li>Add enumerators for sets of allowed values</li>
+          <li>Generate test data for validation and testing</li>
+          <li>Create migrations for schema evolution</li>
+          <li>Process your configurations to apply changes to your database</li>
+        </ol>
+        
+        <h2>Navigation</h2>
+        <p>Use the navigation drawer on the left to access different sections of the application. Each section provides specialized tools for managing specific aspects of your MongoDB schemas.</p>
+        
+        <h2>Help System</h2>
+        <p>This help system provides detailed information about each feature. Click the help icon (?) in any section to access contextual help content.</p>
       `
     },
     
