@@ -28,19 +28,19 @@
                   :key="index"
                   :value="index"
                 >
-                  <div class="d-flex flex-column justify-center align-center h-100 pa-8" style="height: calc(100vh - 120px);">
+                  <div class="d-flex flex-column justify-center align-center h-100 pa-8" style="height: calc(100vh - 120px); width: 100%;">
                     <v-icon :icon="slide.icon" size="80" color="primary" class="mb-6" />
                     <h2 class="text-h3 mb-4 text-center">{{ slide.title }}</h2>
                     
                     <!-- Overview slide with detailed content -->
                     <div v-if="slide.detailedContent" class="overview-content">
-                      <p class="text-h6 text-medium-emphasis text-center mb-6" style="max-width: 600px;">{{ slide.description }}</p>
+                      <p class="text-h6 text-medium-emphasis text-center mb-6">{{ slide.description }}</p>
                       <div class="detailed-content" v-html="slide.detailedContent"></div>
                     </div>
                     
                     <!-- Other slides with simple description -->
                     <div v-else>
-                      <p class="text-h6 text-medium-emphasis text-center mb-8" style="max-width: 600px;">{{ slide.description }}</p>
+                      <p class="text-h6 text-medium-emphasis text-center mb-8">{{ slide.description }}</p>
                     </div>
                     
                     <v-btn
@@ -217,6 +217,7 @@ const nextSlide = () => {
   display: flex;
   align-items: center;
   height: calc(100vh - 120px);
+  padding: 0 80px; /* Add padding to account for navigation buttons */
 }
 
 .carousel-nav-btn {
@@ -247,7 +248,7 @@ const nextSlide = () => {
 }
 
 .overview-content {
-  max-width: 800px;
+  width: 100%;
   text-align: left;
   overflow-y: auto;
   max-height: calc(100vh - 300px);
@@ -257,6 +258,7 @@ const nextSlide = () => {
 .detailed-content {
   text-align: left;
   line-height: 1.6;
+  width: 100%;
 }
 
 .detailed-content :deep(h2) {
