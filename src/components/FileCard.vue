@@ -6,6 +6,19 @@
     :compact="true"
     @click="handleCardClick"
   >
+    <template #title>
+      <div class="d-flex align-center justify-space-between w-100">
+        <div class="d-flex align-center">
+          <span class="text-body-2 text-white">{{ file.name }}</span>
+        </div>
+        <div class="d-flex align-center text-caption text-white">
+          <span class="mr-4">Created: {{ formatDate(file.created_at) }}</span>
+          <span class="mr-4">Updated: {{ formatDate(file.updated_at) }}</span>
+          <span>Size: {{ formatFileSize(file.size) }}</span>
+        </div>
+      </div>
+    </template>
+
     <template #header-actions>
       <v-chip
         v-if="file._locked"
@@ -56,17 +69,9 @@
       <!-- Custom action buttons slot -->
       <slot name="actions" />
     </template>
-
-    <div v-if="!isSectionCard" class="d-flex align-center justify-space-between text-caption text-medium-emphasis">
-      <div class="d-flex align-center">
-        <span class="mr-6">Created: {{ formatDate(file.created_at) }}</span>
-        <span class="mr-6">Updated: {{ formatDate(file.updated_at) }}</span>
-        <span>Size: {{ formatFileSize(file.size) }}</span>
-      </div>
-    </div>
     
     <!-- Section card content -->
-    <div v-else-if="expanded">
+    <div v-if="isSectionCard && expanded">
       <slot />
     </div>
     <!-- Collapsed content for section cards -->
