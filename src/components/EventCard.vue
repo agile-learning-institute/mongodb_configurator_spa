@@ -17,16 +17,16 @@
       <!-- Expand/Collapse Button (only for events with sub-events) -->
       <v-btn
         v-if="event.sub_events && event.sub_events.length > 0"
-        icon
         size="small"
         variant="text"
         color="white"
         @click="subEventsExpanded = !subEventsExpanded"
         class="mr-2"
       >
-        <v-icon size="20">
+        <v-icon size="18" class="mr-1">
           {{ subEventsExpanded ? 'mdi-chevron-up' : 'mdi-chevron-down' }}
         </v-icon>
+        {{ subEventsExpanded ? 'Collapse' : 'Expand' }}
       </v-btn>
       
       <!-- Status Badge -->
