@@ -72,28 +72,43 @@ const loadEvent = () => {
   error.value = null
   
   try {
-    // Get event data from route state or query parameters
-    const eventData = route.params.eventData || route.query.eventData
+    // Get event data from route state first, then fall back to query parameters
+    const state = route.meta?.state || history.state
+    let eventData = null
+    let eventTitle = 'Event Details'
+    let eventSubtitle = 'Processing or error information'
     
-    if (!eventData) {
-      error.value = 'No event data provided'
-      loading.value = false
-      return
+    if (state && state.eventData) {
+      // Data from router state
+      eventData = state.eventData
+      eventTitle = state.title || eventTitle
+      eventSubtitle = state.subtitle || eventSubtitle
+    } else {
+      // Fallback to query parameters (for backward compatibility)
+      const queryEventData = route.params.eventData || route.query.eventData
+      
+      if (!queryEventData) {
+        error.value = 'No event data provided'
+        loading.value = false
+        return
+      }
+      
+      // Parse event data from query parameters
+      eventData = typeof queryEventData === 'string' ? JSON.parse(queryEventData) : queryEventData
+      eventTitle = (route.params.title as string) || (route.query.title as string) || eventTitle
+      eventSubtitle = (route.params.subtitle as string) || (route.query.subtitle as string) || eventSubtitle
     }
     
-    // Parse event data
-    const parsedEvent = typeof eventData === 'string' ? JSON.parse(eventData) : eventData
-    
     // Validate event structure
-    if (!parsedEvent.id || !parsedEvent.type || !parsedEvent.status) {
+    if (!eventData.id || !eventData.type || !eventData.status) {
       error.value = 'Invalid event data format'
       loading.value = false
       return
     }
     
-    event.value = parsedEvent
-    title.value = (route.params.title as string) || (route.query.title as string) || 'Event Details'
-    subtitle.value = (route.params.subtitle as string) || (route.query.subtitle as string) || 'Processing or error information'
+    event.value = eventData
+    title.value = eventTitle
+    subtitle.value = eventSubtitle
     
   } catch (err: any) {
     error.value = err.message || 'Failed to load event data'

@@ -222,17 +222,13 @@ const processAllConfigurations = async () => {
     
     // Check if the response contains event data
     if (result && result.id && result.type && result.status) {
-      // Navigate to event viewer page with event data
-      const eventData = encodeURIComponent(JSON.stringify(result))
-      const title = encodeURIComponent('Processing Complete')
-      const subtitle = encodeURIComponent('All configurations processed successfully')
-      
+      // Navigate to event viewer page with event data in state
       router.push({
         path: '/event-viewer',
-        query: {
-          eventData,
-          title,
-          subtitle
+        state: {
+          eventData: result,
+          title: 'Processing Complete',
+          subtitle: 'All configurations processed successfully'
         }
       })
     }
@@ -243,17 +239,13 @@ const processAllConfigurations = async () => {
     // Handle API errors with event data
     if (err.type === 'API_ERROR' && err.data) {
       if (err.data.id && err.data.type && err.data.status) {
-        // Navigate to event viewer page with error event data
-        const eventData = encodeURIComponent(JSON.stringify(err.data))
-        const title = encodeURIComponent('Processing Error')
-        const subtitle = encodeURIComponent('Failed to process all configurations')
-        
+        // Navigate to event viewer page with error event data in state
         router.push({
           path: '/event-viewer',
-          query: {
-            eventData,
-            title,
-            subtitle
+          state: {
+            eventData: err.data,
+            title: 'Processing Error',
+            subtitle: 'Failed to process all configurations'
           }
         })
       } else {
