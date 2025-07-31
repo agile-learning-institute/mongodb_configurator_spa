@@ -227,6 +227,34 @@ const helpSlides = [
       <h2>MongoDB Pipeline</h2>
       <p>A list of JSON steps that define how to transform existing data when schema changes are applied. These migration pipelines ensure your data is properly updated when new schema versions are deployed.</p>
     `
+  },
+  {
+    icon: 'mdi-cog',
+    title: 'Admin',
+    description: 'View and manage API configuration settings.',
+    detailedContent: `
+      <h2>API Configuration</h2>
+      <p>The Admin page provides access to view and manage the MongoDB Configurator API configuration settings. This includes database connection parameters, server settings, and other configuration options.</p>
+      
+      <h2>Configuration Sources</h2>
+      <p>Configuration values can come from different sources:</p>
+      <ul>
+        <li><strong>Environment Variables:</strong> Values set through environment variables (shown in green)</li>
+        <li><strong>Configuration Files:</strong> Values loaded from configuration files (shown in blue)</li>
+        <li><strong>Default Values:</strong> Built-in default values (shown in orange)</li>
+      </ul>
+      
+      <h2>Configuration Items</h2>
+      <p>The configuration table displays:</p>
+      <ul>
+        <li><strong>Name:</strong> The configuration parameter name</li>
+        <li><strong>Value:</strong> The current value of the parameter</li>
+        <li><strong>From:</strong> The source of the configuration value</li>
+      </ul>
+      
+      <h2>Usage</h2>
+      <p>Use this page to verify that your API is configured correctly and to troubleshoot configuration issues. The color-coded source indicators help you understand where each configuration value originates.</p>
+    `
   }
 ]
 

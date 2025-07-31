@@ -170,6 +170,8 @@ const helpRoute = computed(() => {
     slideIndex = 5 // Test Data
   } else if (currentPath.includes('/migrations')) {
     slideIndex = 6 // Migration
+  } else if (currentPath.includes('/admin')) {
+    slideIndex = 7 // Admin
   }
   
   return `/?slide=${slideIndex}`
