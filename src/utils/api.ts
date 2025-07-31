@@ -39,7 +39,7 @@ export const API_ENDPOINTS = {
   
   // Configurations
   CONFIGURATIONS: '/configurations/',
-  CONFIGURATION: (fileName: string) => `/configurations/${fileName}/`,
+  CONFIGURATION: (fileName: string) => `/configurations/${fileName}.yaml/`,
   NEW_COLLECTION: (name: string) => `/configurations/collection/${name}/`,
   JSON_SCHEMA: (fileName: string, version: string) => 
     `/configurations/json_schema/${fileName}/${version}/`,
