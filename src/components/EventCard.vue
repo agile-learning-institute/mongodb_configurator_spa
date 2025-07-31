@@ -38,19 +38,6 @@
       >
         {{ event.status }}
       </v-chip>
-      
-      <!-- Remove Button (only show if not a sub-event) -->
-      <v-btn
-        v-if="!isSubEvent"
-        icon
-        size="small"
-        variant="text"
-        color="white"
-        @click="$emit('remove', event.id)"
-        class="ml-2"
-      >
-        <v-icon size="16">mdi-close</v-icon>
-      </v-btn>
     </template>
 
     <!-- Timestamps -->
