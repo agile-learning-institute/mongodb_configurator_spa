@@ -24,19 +24,6 @@
 
       <!-- File list -->
       <div v-else>
-        <!-- Action Bar -->
-        <div v-if="canLockAll" class="d-flex justify-end mb-4">
-          <v-btn
-            color="info"
-            variant="outlined"
-            prepend-icon="mdi-lock"
-            @click="handleLockAll"
-            :loading="locking"
-          >
-            Lock All
-          </v-btn>
-        </div>
-
         <FileCard
           v-for="file in files" 
           :key="file.name"
@@ -67,6 +54,7 @@ const props = defineProps<Props>()
 const emit = defineEmits<{
   edit: [fileName: string]
   open: [fileName: string]
+  'lock-all': []
 }>()
 
 const {
@@ -100,8 +88,16 @@ const handleLockAll = async () => {
   locking.value = true
   try {
     await lockAllFiles()
+    emit('lock-all')
   } finally {
     locking.value = false
   }
 }
+
+// Expose properties and methods for parent components
+defineExpose({
+  canLockAll,
+  handleLockAll,
+  locking
+})
 </script> 
