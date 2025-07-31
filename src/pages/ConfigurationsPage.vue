@@ -104,11 +104,15 @@ const canLockAll = ref(false)
 const locking = ref(false)
 
 const handleEdit = (fileName: string) => {
-  router.push(`/configurations/${fileName}`)
+  // Remove .yaml extension if present, since the API endpoint will add it
+  const nameWithoutExtension = fileName.replace(/\.yaml$/, '')
+  router.push(`/configurations/${nameWithoutExtension}`)
 }
 
 const handleOpen = (fileName: string) => {
-  router.push(`/configurations/${fileName}`)
+  // Remove .yaml extension if present, since the API endpoint will add it
+  const nameWithoutExtension = fileName.replace(/\.yaml$/, '')
+  router.push(`/configurations/${nameWithoutExtension}`)
 }
 
 const handleLockAll = async () => {

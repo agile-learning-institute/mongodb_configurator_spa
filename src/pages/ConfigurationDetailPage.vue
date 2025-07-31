@@ -16,13 +16,13 @@
     <!-- Content -->
     <div v-else-if="configuration">
       <!-- File Header -->
-      <div class="d-flex align-center justify-space-between mb-6">
-        <div class="flex-grow-1">
-          <!-- File name and title row -->
-          <div class="d-flex align-center mb-2">
-            <h2 class="text-h5 text-medium-emphasis mr-4 mb-0">{{ configuration.file_name }}</h2>
+      <div class="mb-6">
+        <!-- File name, title, and process button row -->
+        <div class="d-flex align-center justify-space-between mb-2">
+          <div class="d-flex align-center">
+            <h3 class="text-h5 text-medium-emphasis mr-2 mb-0">{{ configuration.file_name.replace('.yaml', '') }}:</h3>
             <div v-if="!editingTitle" @click="startEditTitle" class="title-display">
-              <h1 class="title-text mb-0 cursor-pointer">{{ configuration.title || 'Enter configuration title...' }}</h1>
+              <h3 class="title-text mb-0 cursor-pointer">{{ configuration.title || 'Enter configuration title...' }}</h3>
             </div>
             <v-text-field
               v-else
@@ -38,107 +38,91 @@
             />
           </div>
           
-          <!-- Description row -->
-          <div v-if="!editingDescription" @click="startEditDescription" class="description-display">
-            <p class="description-text mb-0 cursor-pointer">{{ configuration.description || 'Enter configuration description...' }}</p>
+          <div class="d-flex gap-2">
+            <v-btn
+              color="secondary"
+              @click="processAllVersions"
+              :loading="processing"
+              :disabled="hasAnyVersionLocked"
+            >
+              <v-icon start>mdi-cog</v-icon>
+              Process Configuration
+            </v-btn>
           </div>
-          <v-text-field
-            v-else
-            v-model="configuration.description"
-            placeholder="Enter configuration description..."
-            variant="plain"
-            density="compact"
-            class="description-edit-field"
-            hide-details
-            @update:model-value="autoSave"
-            @blur="finishEditDescription"
-            @keyup.enter="finishEditDescription"
-            ref="descriptionInput"
-          />
         </div>
         
-        <div class="d-flex gap-2">
-          <v-btn
-            color="secondary"
-            @click="processAllVersions"
-            :loading="processing"
-            :disabled="hasAnyVersionLocked"
-          >
-            <v-icon start>mdi-cog</v-icon>
-            Process Configuration
-          </v-btn>
+        <!-- Description row -->
+        <div v-if="!editingDescription" @click="startEditDescription" class="description-display">
+          <p class="description-text mb-0 cursor-pointer">{{ configuration.description || 'Enter configuration description...' }}</p>
         </div>
+        <v-text-field
+          v-else
+          v-model="configuration.description"
+          placeholder="Enter configuration description..."
+          variant="plain"
+          density="compact"
+          class="description-edit-field"
+          hide-details
+          @update:model-value="autoSave"
+          @blur="finishEditDescription"
+          @keyup.enter="finishEditDescription"
+          ref="descriptionInput"
+        />
       </div>
 
       <!-- Configuration Content -->
       <div class="configuration-content">
         <!-- Version Management -->
         <BaseCard 
-          title="Version Management"
           icon="mdi-tag-multiple"
           :is-secondary="false"
         >
-          <div class="version-tabs">
-            <div class="d-flex align-center justify-space-between mb-4">
-              <v-tabs v-model="activeVersion">
-                <v-tab
-                  v-for="version in configuration.versions"
-                  :key="version.version"
-                  :value="version.version"
-                >
-                  <div class="d-flex align-center">
-                    <span>{{ version.version }}</span>
-                    <v-icon 
-                      v-if="version._locked" 
-                      size="small" 
-                      color="warning" 
-                      class="ml-1"
-                    >
-                      mdi-lock
-                    </v-icon>
-                    <v-icon 
-                      v-else
-                      size="small" 
-                      color="success" 
-                      class="ml-1"
-                    >
-                      mdi-lock-open
-                    </v-icon>
-                  </div>
-                </v-tab>
-              </v-tabs>
-              
-              <!-- Schema download buttons for active version -->
-              <div v-if="activeVersion" class="d-flex gap-2">
-                <v-btn
-                  color="primary"
-                  variant="outlined"
-                  size="small"
-                  @click="downloadJsonSchema(activeVersion)"
-                >
-                  <v-icon start size="small">mdi-code-json</v-icon>
-                  JSON Schema
-                </v-btn>
-                <v-btn
-                  color="primary"
-                  variant="outlined"
-                  size="small"
-                  @click="downloadBsonSchema(activeVersion)"
-                >
-                  <v-icon start size="small">mdi-database</v-icon>
-                  BSON Schema
-                </v-btn>
-              </div>
+          <template #title>
+            <div class="d-flex align-center gap-2">
+              <h3 class="text-h5 mb-0">Version:</h3>
+              <v-select
+                v-model="activeVersion"
+                :items="sortedVersions"
+                variant="outlined"
+                density="compact"
+                hide-details
+                class="version-select"
+                style="max-width: 200px;"
+              />
             </div>
-
-            <div v-if="activeVersion && activeVersionData" class="version-content">
+          </template>
+          
+          <template #header-actions>
+            <!-- Schema download buttons for active version -->
+            <div v-if="activeVersion" class="d-flex gap-2">
+              <v-btn
+                color="primary"
+                variant="elevated"
+                size="small"
+                @click="downloadJsonSchema(activeVersion)"
+              >
+                <v-icon start size="small">mdi-code-json</v-icon>
+                JSON Schema
+              </v-btn>
+              <v-btn
+                color="primary"
+                variant="elevated"
+                size="small"
+                @click="downloadBsonSchema(activeVersion)"
+              >
+                <v-icon start size="small">mdi-database</v-icon>
+                BSON Schema
+              </v-btn>
+            </div>
+          </template>
+          
+          <div v-if="activeVersion && activeVersionData" class="version-content">
               <!-- Version Information Cards -->
               <VersionInformationCards
                 :version="activeVersionData"
                 :on-update="autoSave"
               />
             </div>
-          </div>
         </BaseCard>
       </div>
     </div>
@@ -184,6 +168,11 @@ const editingTitle = ref(false)
 const titleInput = ref<HTMLElement | null>(null)
 
 // Computed properties
+const sortedVersions = computed(() => {
+  if (!configuration.value?.versions) return []
+  return [...configuration.value.versions].reverse().map(v => v.version) // Just return version strings
+})
+
 const activeVersionData = computed(() => {
   if (!configuration.value || !activeVersion.value) return null
   return configuration.value.versions.find(v => v.version === activeVersion.value)
@@ -203,9 +192,10 @@ const loadConfiguration = async () => {
     const fileName = route.params.fileName as string
     configuration.value = await apiService.getConfiguration(fileName)
     
-    // Set active version to the first one if available
+    // Set active version to the newest one if available
     if (configuration.value?.versions && configuration.value.versions.length > 0) {
-      activeVersion.value = configuration.value.versions[0].version
+      // Take the last version in the original array (newest)
+      activeVersion.value = configuration.value.versions[configuration.value.versions.length - 1].version
     }
   } catch (err: any) {
     error.value = err.message || 'Failed to load configuration'
@@ -394,9 +384,9 @@ onMounted(() => {
 }
 
 .h1-style {
-  font-size: 2.125rem !important;
-  font-weight: 300 !important;
-  line-height: 1.2 !important;
+  font-size: 1.5rem !important;
+  font-weight: 400 !important;
+  line-height: 1.3 !important;
   color: rgba(0, 0, 0, 0.87) !important;
 }
 
@@ -405,9 +395,9 @@ onMounted(() => {
 }
 
 .title-text {
-  font-size: 2.125rem;
-  font-weight: 300;
-  line-height: 1.2;
+  font-size: 1.5rem;
+  font-weight: 400;
+  line-height: 1.3;
   color: rgba(0, 0, 0, 0.87);
   margin: 0;
   transition: color 0.2s ease;
