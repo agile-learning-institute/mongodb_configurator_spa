@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <h1>Types</h1>
+    <h3>Types</h3>
     <FileList 
       file-type="types"
       @edit="handleEdit"

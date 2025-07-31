@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <h1>Enumerators</h1>
+    <h3>Enumerators</h3>
     <FileList 
       file-type="enumerators"
       @edit="handleEdit"

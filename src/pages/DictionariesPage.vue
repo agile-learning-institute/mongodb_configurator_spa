@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <h1>Dictionaries</h1>
+    <h3>Dictionaries</h3>
     <FileList 
       file-type="dictionaries"
       @edit="handleEdit"

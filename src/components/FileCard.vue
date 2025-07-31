@@ -9,12 +9,21 @@
     <template #title>
       <div class="d-flex align-center justify-space-between w-100">
         <div class="d-flex align-center">
-          <span class="text-body-2 text-white">{{ file.name }}</span>
+          <h4 class="text-white ma-0">{{ file.name }}</h4>
         </div>
         <div class="d-flex align-center text-caption text-white">
-          <span class="mr-4">Created: {{ formatDate(file.created_at) }}</span>
-          <span class="mr-4">Updated: {{ formatDate(file.updated_at) }}</span>
-          <span>Size: {{ formatFileSize(file.size) }}</span>
+          <div class="text-right mr-6">
+            <div class="text-caption text-white-50">Created</div>
+            <div class="text-caption text-white">{{ formatDate(file.created_at) }}</div>
+          </div>
+          <div class="text-right mr-6">
+            <div class="text-caption text-white-50">Updated</div>
+            <div class="text-caption text-white">{{ formatDate(file.updated_at) }}</div>
+          </div>
+          <div class="text-right">
+            <div class="text-caption text-white-50">Size</div>
+            <div class="text-caption text-white">{{ formatFileSize(file.size) }}</div>
+          </div>
         </div>
       </div>
     </template>

@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <h1>Migrations</h1>
+    <h3>Migrations</h3>
     <FileList 
       file-type="migrations"
       @edit="handleEdit"

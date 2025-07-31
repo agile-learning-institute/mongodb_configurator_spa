@@ -1,7 +1,7 @@
 <template>
   <v-container>
     <div class="d-flex justify-space-between align-center mb-6">
-    <h1>Configurations</h1>
+    <h3>Configurations</h3>
       <v-btn
         color="primary"
         @click="showNewCollectionDialog = true"
