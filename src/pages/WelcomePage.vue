@@ -53,7 +53,7 @@
             </div>
             
             <!-- Navigation dots -->
-            <div class="d-flex justify-center pa-4">
+            <div class="d-flex justify-center pa-2">
               <v-btn
                 v-for="(_, index) in helpSlides"
                 :key="index"
