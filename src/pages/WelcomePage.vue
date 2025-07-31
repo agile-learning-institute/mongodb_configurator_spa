@@ -11,29 +11,51 @@
             <v-btn icon="mdi-help" variant="text" @click="showHelpFor('welcome')" />
           </v-card-title>
           <v-card-text class="pa-0">
-            <v-window v-model="currentSlide" class="help-window">
-              <v-window-item
-                v-for="(slide, index) in helpSlides"
-                :key="index"
-                :value="index"
-              >
-                <div class="d-flex flex-column justify-center align-center h-100 pa-8" style="height: calc(100vh - 120px);">
-                  <v-icon :icon="slide.icon" size="80" color="primary" class="mb-6" />
-                  <h2 class="text-h3 mb-4 text-center">{{ slide.title }}</h2>
-                  <p class="text-h6 text-medium-emphasis text-center mb-8" style="max-width: 600px;">{{ slide.description }}</p>
-                  <v-btn
-                    v-if="slide.action"
-                    :to="slide.action.route"
-                    color="primary"
-                    size="large"
-                    variant="elevated"
-                    class="mt-4"
-                  >
-                    {{ slide.action.text }}
-                  </v-btn>
-                </div>
-              </v-window-item>
-            </v-window>
+            <div class="carousel-container">
+              <!-- Previous Button -->
+              <v-btn
+                icon="mdi-chevron-left"
+                variant="text"
+                size="large"
+                class="carousel-nav-btn prev-btn"
+                @click="previousSlide"
+                :disabled="currentSlide === 0"
+              />
+              
+              <v-window v-model="currentSlide" class="help-window">
+                <v-window-item
+                  v-for="(slide, index) in helpSlides"
+                  :key="index"
+                  :value="index"
+                >
+                  <div class="d-flex flex-column justify-center align-center h-100 pa-8" style="height: calc(100vh - 120px);">
+                    <v-icon :icon="slide.icon" size="80" color="primary" class="mb-6" />
+                    <h2 class="text-h3 mb-4 text-center">{{ slide.title }}</h2>
+                    <p class="text-h6 text-medium-emphasis text-center mb-8" style="max-width: 600px;">{{ slide.description }}</p>
+                    <v-btn
+                      v-if="slide.action"
+                      :to="slide.action.route"
+                      color="primary"
+                      size="large"
+                      variant="elevated"
+                      class="mt-4"
+                    >
+                      {{ slide.action.text }}
+                    </v-btn>
+                  </div>
+                </v-window-item>
+              </v-window>
+              
+              <!-- Next Button -->
+              <v-btn
+                icon="mdi-chevron-right"
+                variant="text"
+                size="large"
+                class="carousel-nav-btn next-btn"
+                @click="nextSlide"
+                :disabled="currentSlide === helpSlides.length - 1"
+              />
+            </div>
             
             <!-- Navigation dots -->
             <div class="d-flex justify-center pa-4">
@@ -117,6 +139,18 @@ const helpSlides = [
     action: { text: 'View Migrations', route: '/migrations' }
   }
 ]
+
+const previousSlide = () => {
+  if (currentSlide.value > 0) {
+    currentSlide.value--
+  }
+}
+
+const nextSlide = () => {
+  if (currentSlide.value < helpSlides.length - 1) {
+    currentSlide.value++
+  }
+}
 </script>
 
 <style scoped>
@@ -136,5 +170,39 @@ const helpSlides = [
 
 .help-window :deep(.v-window-item) {
   height: 100%;
+}
+
+.carousel-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: calc(100vh - 120px);
+}
+
+.carousel-nav-btn {
+  position: absolute;
+  z-index: 10;
+  background-color: rgba(255, 255, 255, 0.9) !important;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.carousel-nav-btn:hover {
+  background-color: rgba(255, 255, 255, 1) !important;
+  transform: scale(1.1);
+}
+
+.prev-btn {
+  left: 20px;
+}
+
+.next-btn {
+  right: 20px;
+}
+
+.carousel-nav-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
 }
 </style> 
