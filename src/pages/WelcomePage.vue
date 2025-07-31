@@ -5,7 +5,7 @@
         <!-- Help Carousel -->
         <v-card class="help-carousel" variant="outlined" elevation="0">
           <v-card-title class="d-flex align-center pa-6">
-            <v-icon icon="mdi-information-outline" class="mr-2" />
+            <v-icon :icon="helpSlides[currentSlide].icon" class="mr-2" />
             <span class="text-h4">{{ helpSlides[currentSlide].title }}</span>
           </v-card-title>
           <v-card-text class="pa-0">
