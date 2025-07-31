@@ -26,18 +26,18 @@
                   :key="index"
                   :value="index"
                 >
-                  <div class="d-flex flex-column justify-center align-center h-100 pa-8" style="height: calc(100vh - 120px); width: 100%;">
+                  <div class="d-flex flex-column justify-start align-start h-100 pa-8" style="height: calc(100vh - 120px); width: 100%;">
+                    <v-icon :icon="slide.icon" size="80" color="primary" class="mb-6" />
                     
                     <!-- Overview slide with detailed content -->
                     <div v-if="slide.detailedContent" class="overview-content">
-                      <p class="text-h6 text-medium-emphasis text-center mb-6">{{ slide.description }}</p>
+                      <p class="text-h6 text-medium-emphasis mb-6">{{ slide.description }}</p>
                       <div class="detailed-content" v-html="slide.detailedContent"></div>
                     </div>
                     
                     <!-- Other slides with simple description -->
                     <div v-else>
-                      <v-icon :icon="slide.icon" size="80" color="primary" class="mb-6" />
-                      <p class="text-h6 text-medium-emphasis text-center mb-8">{{ slide.description }}</p>
+                      <p class="text-h6 text-medium-emphasis mb-8">{{ slide.description }}</p>
                     </div>
                     
                   </div>
