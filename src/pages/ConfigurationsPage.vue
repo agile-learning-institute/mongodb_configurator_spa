@@ -104,15 +104,11 @@ const canLockAll = ref(false)
 const locking = ref(false)
 
 const handleEdit = (fileName: string) => {
-  // Remove .yaml extension if present, since the API endpoint will add it
-  const nameWithoutExtension = fileName.replace(/\.yaml$/, '')
-  router.push(`/configurations/${nameWithoutExtension}`)
+  router.push(`/configurations/${fileName}`)
 }
 
 const handleOpen = (fileName: string) => {
-  // Remove .yaml extension if present, since the API endpoint will add it
-  const nameWithoutExtension = fileName.replace(/\.yaml$/, '')
-  router.push(`/configurations/${nameWithoutExtension}`)
+  router.push(`/configurations/${fileName}`)
 }
 
 const handleLockAll = async () => {
@@ -169,8 +165,8 @@ const createCollection = async () => {
     newCollectionName.value = ''
     nameError.value = null
     
-    // Navigate to the new collection's detail page
-    router.push(`/configurations/${name}`)
+    // Navigate to the new collection's detail page with .yaml extension
+    router.push(`/configurations/${name}.yaml`)
     
   } catch (err: any) {
     errorMessage.value = err.message || 'Failed to create collection'

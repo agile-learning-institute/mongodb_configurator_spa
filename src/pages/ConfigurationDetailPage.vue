@@ -43,7 +43,7 @@
               color="secondary"
               @click="processAllVersions"
               :loading="processing"
-              :disabled="hasAnyVersionLocked"
+
             >
               <v-icon start>mdi-cog</v-icon>
               Process Configuration
@@ -79,7 +79,7 @@
         >
           <template #title>
             <div class="d-flex align-center gap-2">
-              <h3 class="text-h5 mb-0">Version:</h3>
+              <h3 class="text-h5 mb-0 mr-2">Version:</h3>
               <v-select
                 v-model="activeVersion"
                 :items="sortedVersions"
@@ -89,30 +89,87 @@
                 class="version-select"
                 style="max-width: 200px;"
               />
+              <!-- Dictionary and Enumerations links -->
+              <div v-if="activeVersion" class="d-flex flex-column gap-1 ml-4">
+                <v-btn
+                  variant="text"
+                  size="small"
+                  color="default"
+                  @click="openDictionary"
+                  class="justify-start px-0 text-black"
+                >
+                  <v-icon start size="small">mdi-book-open-variant</v-icon>
+                  Dictionary: {{ dictionaryFileName }}
+                </v-btn>
+                <v-btn
+                  variant="text"
+                  size="small"
+                  color="default"
+                  @click="openEnumerations"
+                  class="justify-start px-0 text-black"
+                >
+                  <v-icon start size="small">mdi-format-list-numbered</v-icon>
+                  Enumerations: {{ enumerationsFileName }}
+                </v-btn>
+              </div>
             </div>
           </template>
           
           <template #header-actions>
-            <!-- Schema download buttons for active version -->
-            <div v-if="activeVersion" class="d-flex gap-2">
-              <v-btn
-                color="primary"
-                variant="elevated"
-                size="small"
-                @click="downloadJsonSchema(activeVersion)"
-              >
-                <v-icon start size="small">mdi-code-json</v-icon>
-                JSON Schema
-              </v-btn>
-              <v-btn
-                color="primary"
-                variant="elevated"
-                size="small"
-                @click="downloadBsonSchema(activeVersion)"
-              >
-                <v-icon start size="small">mdi-database</v-icon>
-                BSON Schema
-              </v-btn>
+            <div v-if="activeVersion" class="d-flex flex-column gap-2">
+              <!-- Schema download buttons -->
+              <div class="d-flex gap-2">
+                <v-btn
+                  color="primary"
+                  variant="elevated"
+                  size="small"
+                  @click="downloadJsonSchema(activeVersion)"
+                >
+                  <v-icon start size="small">mdi-code-json</v-icon>
+                  JSON Schema
+                </v-btn>
+                <v-btn
+                  color="primary"
+                  variant="elevated"
+                  size="small"
+                  @click="downloadBsonSchema(activeVersion)"
+                >
+                  <v-icon start size="small">mdi-database</v-icon>
+                  BSON Schema
+                </v-btn>
+              </div>
+              
+              <!-- Version action buttons -->
+              <div class="d-flex gap-2">
+                <v-btn
+                  color="secondary"
+                  variant="elevated"
+                  size="small"
+                  @click="showNewVersionDialog = true"
+                >
+                  <v-icon start size="small">mdi-plus</v-icon>
+                  New Version
+                </v-btn>
+                <v-btn
+                  :color="activeVersionData?._locked ? 'warning' : 'success'"
+                  variant="elevated"
+                  size="small"
+                  @click="toggleVersionLock"
+                >
+                  <v-icon start size="small">{{ activeVersionData?._locked ? 'mdi-lock' : 'mdi-lock-open' }}</v-icon>
+                  {{ activeVersionData?._locked ? 'Unlock' : 'Lock' }}
+                </v-btn>
+                <v-btn
+                  v-if="!activeVersionData?._locked"
+                  color="error"
+                  variant="elevated"
+                  size="small"
+                  @click="deleteVersion"
+                >
+                  <v-icon start size="small">mdi-delete</v-icon>
+                  Delete
+                </v-btn>
+              </div>
             </div>
           </template>
           
@@ -121,16 +178,172 @@
               <VersionInformationCards
                 :version="activeVersionData"
                 :on-update="autoSave"
+                :disabled="activeVersionData._locked"
               />
             </div>
         </BaseCard>
       </div>
     </div>
   </v-container>
+
+  <!-- New Version Dialog -->
+  <v-dialog v-model="showNewVersionDialog" max-width="600px">
+    <v-card>
+      <v-card-title class="text-h5 pa-6 pb-4">
+        <v-icon start color="primary" class="mr-2">mdi-plus-circle</v-icon>
+        Create New Version
+      </v-card-title>
+      <v-card-text class="pa-6 pt-0">
+        <div class="d-flex flex-column gap-6">
+          <!-- Version Components -->
+          <div class="version-components">
+            <h4 class="text-subtitle-1 font-weight-medium mb-4 text-medium-emphasis">Version Components</h4>
+            
+            <!-- Major Version -->
+            <div class="version-row mb-4">
+              <div class="version-label">
+                <span class="text-body-1 font-weight-medium">Major</span>
+                <span class="text-caption text-medium-emphasis d-block">Breaking changes</span>
+              </div>
+              <div class="version-controls">
+                <v-text-field
+                  v-model.number="newVersion.major"
+                  type="number"
+                  variant="outlined"
+                  density="compact"
+                  hide-details
+                  class="version-input"
+                  min="0"
+                />
+                <v-btn
+                  icon="mdi-plus"
+                  size="small"
+                  variant="elevated"
+                  color="primary"
+                  @click="incrementVersion('major')"
+                  class="ml-2"
+                />
+              </div>
+            </div>
+            
+            <!-- Minor Version -->
+            <div class="version-row mb-4">
+              <div class="version-label">
+                <span class="text-body-1 font-weight-medium">Minor</span>
+                <span class="text-caption text-medium-emphasis d-block">New features</span>
+              </div>
+              <div class="version-controls">
+                <v-text-field
+                  v-model.number="newVersion.minor"
+                  type="number"
+                  variant="outlined"
+                  density="compact"
+                  hide-details
+                  class="version-input"
+                  min="0"
+                />
+                <v-btn
+                  icon="mdi-plus"
+                  size="small"
+                  variant="elevated"
+                  color="primary"
+                  @click="incrementVersion('minor')"
+                  class="ml-2"
+                />
+              </div>
+            </div>
+            
+            <!-- Patch Version -->
+            <div class="version-row mb-4">
+              <div class="version-label">
+                <span class="text-body-1 font-weight-medium">Patch</span>
+                <span class="text-caption text-medium-emphasis d-block">Bug fixes</span>
+              </div>
+              <div class="version-controls">
+                <v-text-field
+                  v-model.number="newVersion.patch"
+                  type="number"
+                  variant="outlined"
+                  density="compact"
+                  hide-details
+                  class="version-input"
+                  min="0"
+                />
+                <v-btn
+                  icon="mdi-plus"
+                  size="small"
+                  variant="elevated"
+                  color="primary"
+                  @click="incrementVersion('patch')"
+                  class="ml-2"
+                />
+              </div>
+            </div>
+            
+            <!-- Enumerators -->
+            <div class="version-row mb-4">
+              <div class="version-label">
+                <span class="text-body-1 font-weight-medium">Enumerators</span>
+                <span class="text-caption text-medium-emphasis d-block">Enumeration version</span>
+              </div>
+              <div class="version-controls">
+                <v-text-field
+                  v-model.number="newVersion.enumerators"
+                  type="number"
+                  variant="outlined"
+                  density="compact"
+                  hide-details
+                  class="version-input"
+                  min="0"
+                />
+                <v-btn
+                  icon="mdi-plus"
+                  size="small"
+                  variant="elevated"
+                  color="primary"
+                  @click="newVersion.enumerators++"
+                  class="ml-2"
+                />
+              </div>
+            </div>
+          </div>
+          
+          <!-- Preview -->
+          <v-divider />
+          <div class="version-preview">
+            <h4 class="text-subtitle-1 font-weight-medium mb-3 text-medium-emphasis">Preview</h4>
+            <div class="version-display">
+              <span class="text-body-2 text-medium-emphasis">New Version: </span>
+              <span class="text-h5 font-weight-bold text-primary">{{ newVersionString }}</span>
+            </div>
+          </div>
+        </div>
+      </v-card-text>
+      <v-card-actions class="pa-6 pt-0">
+        <v-spacer />
+        <v-btn
+          color="secondary"
+          variant="text"
+          @click="showNewVersionDialog = false"
+        >
+          Cancel
+        </v-btn>
+        <v-btn
+          color="primary"
+          variant="elevated"
+          @click="createNewVersion"
+          :loading="saving"
+        >
+          <v-icon start>mdi-plus</v-icon>
+          Create Version
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { apiService } from '@/utils/api'
 import { useEvents } from '@/composables/useEvents'
@@ -166,6 +379,13 @@ const editingDescription = ref(false)
 const descriptionInput = ref<HTMLElement | null>(null)
 const editingTitle = ref(false)
 const titleInput = ref<HTMLElement | null>(null)
+const showNewVersionDialog = ref(false)
+const newVersion = ref({
+  major: 0,
+  minor: 0,
+  patch: 0,
+  enumerators: 0
+})
 
 // Computed properties
 const sortedVersions = computed(() => {
@@ -178,10 +398,32 @@ const activeVersionData = computed(() => {
   return configuration.value.versions.find(v => v.version === activeVersion.value)
 })
 
-const hasAnyVersionLocked = computed(() => {
-  if (!configuration.value) return false
-  return configuration.value.versions.some(v => v._locked)
+
+
+const newVersionString = computed(() => {
+  return `${newVersion.value.major}.${newVersion.value.minor}.${newVersion.value.patch}.${newVersion.value.enumerators}`
 })
+
+const dictionaryFileName = computed(() => {
+  if (!configuration.value || !activeVersion.value) return ''
+  const baseName = configuration.value.file_name.replace('.yaml', '')
+  const versionParts = activeVersion.value.split('.')
+  if (versionParts.length >= 3) {
+    return `${baseName}.${versionParts[0]}.${versionParts[1]}.${versionParts[2]}.yaml`
+  }
+  return `${baseName}.0.0.0.yaml`
+})
+
+const enumerationsFileName = computed(() => {
+  if (!configuration.value || !activeVersion.value) return ''
+  const versionParts = activeVersion.value.split('.')
+  if (versionParts.length >= 4) {
+    return `enumerations.${versionParts[3]}.yaml`
+  }
+  return 'enumerations.0.yaml'
+})
+
+
 
 // Methods
 const loadConfiguration = async () => {
@@ -191,6 +433,8 @@ const loadConfiguration = async () => {
   try {
     const fileName = route.params.fileName as string
     configuration.value = await apiService.getConfiguration(fileName)
+    
+
     
     // Set active version to the newest one if available
     if (configuration.value?.versions && configuration.value.versions.length > 0) {
@@ -350,11 +594,211 @@ const downloadBsonSchema = async (version: string) => {
   }
 }
 
+// Version management methods
+const initializeNewVersion = () => {
+  if (!configuration.value?.versions || configuration.value.versions.length === 0) {
+    newVersion.value = { major: 1, minor: 0, patch: 0, enumerators: 0 }
+    return
+  }
+  
+  // Get the most recent version
+  const latestVersion = configuration.value.versions[configuration.value.versions.length - 1]
+  const versionParts = latestVersion.version.split('.')
+  
+  if (versionParts.length >= 3) {
+    newVersion.value = {
+      major: parseInt(versionParts[0]) || 0,
+      minor: parseInt(versionParts[1]) || 0,
+      patch: parseInt(versionParts[2]) || 0,
+      enumerators: parseInt(versionParts[3]) || 0
+    }
+  } else {
+    newVersion.value = { major: 1, minor: 0, patch: 0, enumerators: 0 }
+  }
+}
 
+const incrementVersion = (type: 'major' | 'minor' | 'patch') => {
+  if (type === 'major') {
+    newVersion.value.major++
+    newVersion.value.minor = 0
+    newVersion.value.patch = 0
+  } else if (type === 'minor') {
+    newVersion.value.minor++
+    newVersion.value.patch = 0
+  } else if (type === 'patch') {
+    newVersion.value.patch++
+  }
+}
+
+const createNewVersion = async () => {
+  if (!configuration.value) return
+  
+  const versionString = newVersionString.value
+  
+  // Check if version already exists
+  if (configuration.value.versions.some(v => v.version === versionString)) {
+    error.value = 'Version already exists'
+    return
+  }
+  
+  try {
+    // Find the previous latest version (before adding the new one)
+    const previousLatestVersion = configuration.value.versions.length > 0 
+      ? configuration.value.versions[configuration.value.versions.length - 1] 
+      : null
+    
+    // Check if dictionary version changed (first 3 digits)
+    let shouldCopyDictionary = false
+    let previousDictionaryFileName = ''
+    let newDictionaryFileName = ''
+    
+    if (previousLatestVersion) {
+      const oldVersionParts = previousLatestVersion.version.split('.')
+      const newVersionParts = versionString.split('.')
+      
+      // Compare first 3 digits (Major.Minor.Patch)
+      if (oldVersionParts.length >= 3 && newVersionParts.length >= 3) {
+        const oldDictVersion = `${oldVersionParts[0]}.${oldVersionParts[1]}.${oldVersionParts[2]}`
+        const newDictVersion = `${newVersionParts[0]}.${newVersionParts[1]}.${newVersionParts[2]}`
+        
+        if (oldDictVersion !== newDictVersion) {
+          shouldCopyDictionary = true
+          const baseName = configuration.value.file_name.replace('.yaml', '')
+          previousDictionaryFileName = `${baseName}.${oldDictVersion}.yaml`
+          newDictionaryFileName = `${baseName}.${newDictVersion}.yaml`
+        }
+      }
+    }
+    
+    // Create new version object
+    const newVersionObj: ConfigurationVersion = {
+      version: versionString,
+      _locked: false
+    }
+    
+    // Add to configuration
+    configuration.value.versions.push(newVersionObj)
+    
+    // Lock the previous latest version if it exists
+    if (previousLatestVersion) {
+      previousLatestVersion._locked = true
+    }
+    
+    // Save configuration
+    await autoSave()
+    
+    // Copy dictionary if version changed
+    if (shouldCopyDictionary) {
+      try {
+        // Get the previous dictionary
+        const previousDictionary = await apiService.getDictionary(previousDictionaryFileName)
+        
+        // Create the new dictionary with the same content
+        await apiService.saveDictionary(newDictionaryFileName, previousDictionary)
+        
+        console.log(`Dictionary copied: ${previousDictionaryFileName} → ${newDictionaryFileName}`)
+      } catch (err: any) {
+        console.log(`Previous dictionary file does not exist, skipping copy: ${previousDictionaryFileName}`)
+      }
+    }
+    
+    // Set as active version
+    activeVersion.value = versionString
+    
+    // Close dialog
+    showNewVersionDialog.value = false
+    
+    // Reset new version form
+    initializeNewVersion()
+  } catch (err: any) {
+    error.value = err.message || 'Failed to create new version'
+    console.error('Failed to create new version:', err)
+  }
+}
+
+const toggleVersionLock = async () => {
+  if (!configuration.value || !activeVersionData.value) return
+  
+  try {
+    // Find the version object in the configuration and toggle its lock status
+    const versionIndex = configuration.value.versions.findIndex(v => v.version === activeVersion.value)
+    if (versionIndex !== -1) {
+      configuration.value.versions[versionIndex]._locked = !configuration.value.versions[versionIndex]._locked
+      
+      // Save configuration
+      await autoSave()
+    }
+  } catch (err: any) {
+    error.value = err.message || 'Failed to toggle version lock'
+    console.error('Failed to toggle version lock:', err)
+  }
+}
+
+const deleteVersion = async () => {
+  if (!configuration.value || !activeVersionData.value) return
+  
+  // Don't allow deletion if version is locked
+  if (activeVersionData.value._locked) {
+    error.value = 'Cannot delete a locked version. Unlock the version first.'
+    return
+  }
+  
+  // Don't allow deletion if it's the only version
+  if (configuration.value.versions.length <= 1) {
+    error.value = 'Cannot delete the only version'
+    return
+  }
+  
+  try {
+    // Remove version from configuration
+    const index = configuration.value.versions.findIndex(v => v.version === activeVersion.value)
+    if (index !== -1) {
+      configuration.value.versions.splice(index, 1)
+      
+      // Save configuration
+      await autoSave()
+      
+      // Set active version to the newest remaining version
+      if (configuration.value.versions.length > 0) {
+        activeVersion.value = configuration.value.versions[configuration.value.versions.length - 1].version
+      }
+    }
+  } catch (err: any) {
+    error.value = err.message || 'Failed to delete version'
+    console.error('Failed to delete version:', err)
+  }
+}
+
+const openDictionary = () => {
+  if (!dictionaryFileName.value) return
+  
+  // Navigate to the dictionary detail page
+  router.push({
+    name: 'DictionaryDetail',
+    params: { fileName: dictionaryFileName.value }
+  })
+}
+
+const openEnumerations = () => {
+  if (!enumerationsFileName.value) return
+  
+  // Navigate to the enumerations detail page
+  router.push({
+    name: 'EnumeratorDetail',
+    params: { fileName: enumerationsFileName.value }
+  })
+}
 
 // Load configuration on mount
 onMounted(() => {
   loadConfiguration()
+})
+
+// Watch for dialog opening to initialize new version
+watch(showNewVersionDialog, (newValue) => {
+  if (newValue) {
+    initializeNewVersion()
+  }
 })
 </script>
 
@@ -400,7 +844,43 @@ onMounted(() => {
   line-height: 1.3;
   color: rgba(0, 0, 0, 0.87);
   margin: 0;
-  transition: color 0.2s ease;
+}
+
+/* New Version Dialog Styles */
+.version-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.version-label {
+  flex: 1;
+  min-width: 120px;
+}
+
+.version-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.version-input {
+  max-width: 120px;
+}
+
+.version-preview {
+  padding: 16px 0;
+}
+
+.version-display {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background-color: rgba(var(--v-theme-primary), 0.05);
+  border-radius: 8px;
+  border: 1px solid rgba(var(--v-theme-primary), 0.2);
 }
 
 .title-text:hover {

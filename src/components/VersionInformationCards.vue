@@ -8,6 +8,7 @@
     >
       <template #header-actions>
         <v-btn
+          v-if="!props.disabled"
           color="primary"
           variant="outlined"
           size="small"
@@ -23,7 +24,7 @@
           <v-chip
             v-for="(index, i) in version.drop_indexes"
             :key="i"
-            closable
+            :closable="!props.disabled"
             @click:close="removeDropIndex(i)"
           >
             {{ index }}
@@ -40,6 +41,7 @@
     >
       <template #header-actions>
         <v-btn
+          v-if="!props.disabled"
           color="primary"
           variant="outlined"
           size="small"
@@ -55,7 +57,7 @@
           <v-chip
             v-for="(migration, i) in version.migrations"
             :key="i"
-            closable
+            :closable="!props.disabled"
             @click:close="removeMigration(i)"
           >
             {{ migration }}
@@ -72,6 +74,7 @@
     >
       <template #header-actions>
         <v-btn
+          v-if="!props.disabled"
           color="primary"
           variant="outlined"
           size="small"
@@ -93,6 +96,7 @@
             :title="getIndexName(version.add_indexes[i], i)"
             @update:model-value="autoSave"
             :on-delete="() => removeIndex(i)"
+            :disabled="props.disabled"
           />
         </div>
       </div>
@@ -107,10 +111,12 @@
       <div v-if="testDataFiles.length > 0" class="test-data-content">
         <v-select
           v-model="version.test_data"
-          :items="testDataFiles"
+          :items="['', ...testDataFiles]"
           label="Select test data file"
           variant="outlined"
           density="compact"
+          :disabled="props.disabled"
+          clearable
           @update:model-value="autoSave"
         />
       </div>
@@ -171,6 +177,7 @@ interface VersionConfig {
 interface Props {
   version: VersionConfig
   onUpdate: () => void
+  disabled?: boolean
 }
 
 const props = defineProps<Props>()
