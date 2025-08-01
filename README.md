@@ -43,29 +43,50 @@ npm run down
 - **Vite** for build tooling
 - **Vue Router** for navigation
 
+### Recent Major Refactor
+The application has undergone a comprehensive refactor to improve maintainability and user experience:
+
+#### Key Improvements
+- **Unified Property Editor**: Single component handles all property types with polymorphic rendering
+- **Type Safety**: Exact match to OpenAPI schema with comprehensive TypeScript interfaces
+- **Performance**: Lazy loading and optimized rendering with `defineAsyncComponent`
+- **Help System**: Comprehensive help carousel and contextual assistance
+- **API Integration**: Improved error handling and state management
+- **File Operations**: Added "Lock All" functionality for supported file types
+
+#### Migration Guide
+- **Legacy Components**: All Type* and Dictionary* components have been replaced
+- **Property Editing**: Use the new PropertyEditor component for all property editing
+- **Type Definitions**: Updated to match new API schema exactly
+- **Help Content**: Comprehensive help system available throughout the application
+
 ## Technical Specifications
 
 ### Error Handling
-- **Method**: Event-based popup dialogs
+- **Method**: Event-based popup dialogs with EventDialog component
 - **Triggers**: All API 500 responses and processing events
-- **Display**: Modal dialogs with event information
+- **Display**: Modal dialogs with event information and expandable details
 - **No retry mechanisms needed**
+- **Router State**: Complex event data passed via router state instead of query parameters
 
 ### State Management
 - **Persistence**: Server-side only
-- **Auto-save**: On each field update
+- **Auto-save**: On each field update with PUT requests returning updated documents
 - **No client-side state management needed**
+- **Router State**: Used for passing complex data between pages (event details, etc.)
 
 ### UI/UX
-- **Navigation**: Collapsible hamburger menu
-- **Theme**: Material Design defaults, no dark mode
+- **Navigation**: Collapsible hamburger menu with help button in app bar
+- **Theme**: Material Design defaults with comfortable density settings
 - **Loading**: No spinners needed (local API is responsive)
 - **Confirmations**: GitHub-style danger zone with case-sensitive typing
+- **Help System**: Contextual help carousel accessible from app bar and navigation
 
 ### Performance
 - **Lists**: No pagination needed (small datasets)
 - **Large Documents**: Simple JSON editors
 - **Real-time**: No websockets, API is local and responsive
+- **Lazy Loading**: Property type editors loaded on demand
 
 ### Testing
 - **Unit Tests**: Jest
@@ -91,25 +112,27 @@ PropertyEditor (main component)
 │   ├── ConstantPropertyEditor
 │   ├── CustomPropertyEditor
 │   └── OneOfPropertyEditor
-└── Inline Editing (name, description, type, required)
+├── Inline Editing (name, description, type, required)
+└── usePropertyTypeEditor composable (shared logic)
 ```
 
 ### Core Components
 - **PropertyEditor**: Unified property editing with polymorphic type rendering
-- **HelpDialog**: Help content display with rich formatting
-- **FileList**: File listing with "Lock All" functionality
-- **FileCard**: Generic file information display
-- **EventDialog**: Event-based error/processing display
+- **FileList**: File listing with "Lock All" functionality and compact cards
+- **FileCard**: Compact file information display with single-line layout
+- **EventCard**: Event display with expandable sub-events and prominent IDs
+- **EventDialog**: Simplified event-based error/processing display
 - **JsonDocumentEditor**: JSON document editing for test data and migrations
+- **BaseCard**: Reusable card component with title and header-actions slots
 
 ### Layout Components
-- **AppLayout**: Main application layout with collapsible navigation
+- **AppLayout**: Main application layout with collapsible navigation and help button
 - **DetailPageLayout**: Standardized detail page layout
-- **FileListLayout**: File listing layout
+- **FileListLayout**: File listing layout with "Lock All" integration
 
 ### Pages
-- **WelcomePage**: Landing page with help carousel
-- **ConfigurationsPage**: Configuration file listing
+- **WelcomePage**: Landing page with help carousel and comprehensive overview
+- **ConfigurationsPage**: Configuration file listing with auto-navigation to new collections
 - **ConfigurationDetailPage**: Configuration version management
 - **DictionariesPage**: Dictionary file listing
 - **DictionaryDetailPage**: Dictionary property editing with unified PropertyEditor
@@ -119,7 +142,8 @@ PropertyEditor (main component)
 - **TestDataDetailPage**: Document editing with JSON editor
 - **EnumeratorsPage**: Enumerator listing
 - **EnumeratorDetailPage**: Enumeration editing
-- **EventsPage**: Event monitoring with popup dialogs
+- **EventViewerPage**: Detailed event viewing with state management
+- **AdminPage**: Database management and system operations
 
 ## Type System
 
@@ -128,8 +152,8 @@ The application supports a comprehensive type system that matches the OpenAPI sc
 
 - **Array**: Lists of values with configurable item types
 - **Object**: Structured objects with properties and additional properties toggle
-- **Simple**: JSON schema definitions
-- **Complex**: Dual JSON/BSON schema definitions
+- **Simple**: JSON schema definitions with validation
+- **Complex**: Dual JSON/BSON schema definitions with validation
 - **Enum**: Enumerated values with enum name reference
 - **Enum Array**: Arrays of enumerated values
 - **Reference**: References to other type files
@@ -141,13 +165,19 @@ The application supports a comprehensive type system that matches the OpenAPI sc
 - **Dictionary Properties**: Cannot use `simple` or `complex` types
 - **Type Properties**: Only support `simple`, `complex`, `object`, `array`, and `custom` types
 
+### Type Guards
+Comprehensive TypeScript type guards ensure type safety:
+- `isArrayProperty()`, `isObjectProperty()`, `isSimpleProperty()`, etc.
+- Prevents runtime errors when accessing type-specific properties
+- Enables polymorphic rendering with confidence
+
 ## API Integration Points
 
 ### Configuration Management
 - `GET /api/config/` - App startup configuration (BUILT_AT check)
 - `GET /api/configurations/` - List configurations
 - `POST /api/configurations/` - Process all configurations
-- `GET /api/configurations/{file_name}/` - Get specific configuration
+- `GET /api/configurations/{file_name}.yaml/` - Get specific configuration (with .yaml extension)
 - `POST /api/configurations/collection/{name}` - Create new collection
 
 ### Schema Rendering
@@ -158,6 +188,7 @@ The application supports a comprehensive type system that matches the OpenAPI sc
 - All resource types: `GET`, `PUT`, `DELETE` operations with auto-save
 - Lock/unlock operations via `PUT` endpoints
 - File listing via `GET` endpoints
+- "Lock All" functionality for supported file types
 
 ### Database Operations
 - `DELETE /api/database/` - Drop database (with GitHub-style confirmation)
@@ -166,6 +197,7 @@ The application supports a comprehensive type system that matches the OpenAPI sc
 ### Error Handling
 - All endpoints return 200 or 500 with Event objects
 - 500 responses and processing events displayed in popup dialogs
+- Event data passed via router state for complex information
 
 ## Help System
 
@@ -179,11 +211,35 @@ The application includes comprehensive help content for all major features:
 - **Enumerators**: Enum value management
 - **Test Data**: Sample data generation
 - **Migrations**: Data transformation scripts
+- **Admin**: Database and system management
 
 ### Help Access
-- Help carousel on the landing page
-- Help buttons on each major page
-- Contextual help dialogs with rich formatting
+- Help carousel on the landing page with navigation controls
+- Contextual help button in app bar (?) that opens appropriate carousel slide
+- Dynamic help content based on current page context
+- Comprehensive overview with detailed feature explanations
+
+## Recent UI/UX Improvements
+
+### File List Enhancements
+- **Compact File Cards**: Reduced vertical space, single-line layout
+- **Right-Aligned Statistics**: Created/Updated/Size info aligned to the right
+- **Improved Typography**: Page titles (H3), file names (H4)
+- **Better Sorting**: Always sorted by file name
+- **Lock All Integration**: Positioned on same row as page title
+
+### Event System Improvements
+- **Enhanced Event Cards**: Removed duplicate type display, increased ID prominence
+- **Better Expand/Collapse**: More pronounced buttons with text and icons
+- **Cleaner UI**: Removed unnecessary remove buttons from top-level events
+- **Simplified Dialogs**: Streamlined EventDialog for delete/error operations
+- **Auto-Navigation**: Process All button opens event details page
+
+### Workflow Enhancements
+- **Auto-Navigation**: New collections automatically navigate to detail page
+- **Seamless Experience**: Immediate access to new collection configuration
+- **State Management**: Improved router state handling for complex data
+- **Error Handling**: Streamlined notifications and user feedback
 
 ## Performance Optimizations
 
@@ -194,46 +250,38 @@ The application includes comprehensive help content for all major features:
 
 ### Component Reusability
 - Unified PropertyEditor reduces code duplication
-- Shared composables for common functionality
+- Shared composables for common functionality (`usePropertyTypeEditor`, `useFiles`, `useEvents`)
 - Type-safe interfaces prevent runtime errors
 
 ### Responsive Design
 - Mobile-friendly grid layouts
 - Collapsible sections for complex properties
 - Touch-friendly interface elements
+- Comfortable density settings for better usability
 
 ## Development Workflow
 
 ### Component Development
 1. **Property Types**: Add new property type editors in `src/components/property-types/`
-2. **Type Safety**: Update type definitions in `src/types/types.ts`
+2. **Type Safety**: Update type definitions in `src/types/types.ts` with proper type guards
 3. **Help Content**: Add help content in `src/composables/useHelp.ts`
 4. **Testing**: Write unit tests for new components
 
 ### API Integration
-1. **Endpoints**: Add new API endpoints in `src/utils/api.ts`
-2. **Types**: Update type definitions to match API schema
+1. **Endpoints**: Add new API endpoints in `src/utils/api.ts` with proper error handling
+2. **Types**: Update type definitions to match API schema exactly
 3. **Error Handling**: Implement proper error handling for new endpoints
+4. **File Extensions**: Ensure proper file extensions (.yaml) for configuration endpoints
 
 ### Styling
 1. **Material Design**: Follow Vuetify 3 design patterns
 2. **Responsive**: Ensure mobile compatibility
-3. **Theming**: Use the established color scheme
+3. **Theming**: Use the established color scheme and comfortable density
 
-## Recent Refactor
-
-The application has undergone a comprehensive refactor to improve maintainability and user experience:
-
-### Key Improvements
-- **Unified Property Editor**: Single component handles all property types
-- **Type Safety**: Exact match to OpenAPI schema with TypeScript interfaces
-- **Performance**: Lazy loading and optimized rendering
-- **Help System**: Comprehensive help content and contextual assistance
-- **API Integration**: Removed GET after PUT patterns, improved error handling
-- **File Operations**: Added "Lock All" functionality for supported file types
-
-### Migration Guide
-- **Legacy Components**: All Type* and Dictionary* components have been replaced
-- **Property Editing**: Use the new PropertyEditor component for all property editing
-- **Type Definitions**: Updated to match new API schema exactly
-- **Help Content**: Comprehensive help system available throughout the application
+### Key Files to Understand
+- `src/types/types.ts`: Complete type system with type guards
+- `src/components/PropertyEditor.vue`: Main property editing component
+- `src/composables/usePropertyTypeEditor.ts`: Shared property editing logic
+- `src/utils/api.ts`: All API endpoints and error handling
+- `src/pages/WelcomePage.vue`: Help carousel implementation
+- `src/components/AppLayout.vue`: Main layout with navigation and help system

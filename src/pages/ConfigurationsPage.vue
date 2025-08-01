@@ -165,8 +165,8 @@ const createCollection = async () => {
     newCollectionName.value = ''
     nameError.value = null
     
-    // Navigate to the new collection's detail page
-    router.push(`/configurations/${name}`)
+    // Navigate to the new collection's detail page with .yaml extension
+    router.push(`/configurations/${name}.yaml`)
     
   } catch (err: any) {
     errorMessage.value = err.message || 'Failed to create collection'
