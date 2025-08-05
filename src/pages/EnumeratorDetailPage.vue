@@ -333,7 +333,7 @@ const finishEnumNameEdit = (idx: number) => {
 
 const addEnumValue = (enumIdx: number) => {
   if (!enumerator.value?.enumerators?.[enumIdx]) return
-  const newValue: EnumeratorValue = { value: `value_${enumerator.value.enumerators[enumIdx].values.length + 1}`, description: '' }
+  const newValue: EnumeratorValue = { value: 'name', description: '' }
   enumerator.value.enumerators[enumIdx].values.push(newValue)
   if (!editableEnumValues.value[enumIdx]) editableEnumValues.value[enumIdx] = []
   if (!editableEnumDescriptions.value[enumIdx]) editableEnumDescriptions.value[enumIdx] = []
