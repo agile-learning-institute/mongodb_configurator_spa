@@ -103,7 +103,7 @@
               <v-text-field
                 v-model="editableEnumNames[enumIdx]"
                 density="compact"
-                variant="outlined"
+                variant="plain"
                 hide-details
                 :disabled="enumerator._locked"
                 class="mr-3"
@@ -159,7 +159,7 @@
                   <v-text-field
                     v-model="editableEnumValues[enumIdx][valIdx]"
                     density="compact"
-                    variant="outlined"
+                    variant="plain"
                     hide-details
                     :disabled="enumerator._locked"
                     class="mr-2"
@@ -171,7 +171,7 @@
                   <v-text-field
                     v-model="editableEnumDescriptions[enumIdx][valIdx]"
                     density="compact"
-                    variant="outlined"
+                    variant="plain"
                     hide-details
                     :disabled="enumerator._locked"
                     class="mr-2"
