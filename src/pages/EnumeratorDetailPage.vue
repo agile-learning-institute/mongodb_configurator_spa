@@ -111,7 +111,8 @@
                 @blur="finishEnumNameEdit(enumIdx)"
                 @keyup.enter="finishEnumNameEdit(enumIdx)"
               />
-              <v-chip size="small" color="primary">
+              <v-spacer />
+              <v-chip size="small" color="primary" class="mr-2">
                 {{ enumItem.values.length }} values
               </v-chip>
               <v-btn
@@ -121,7 +122,7 @@
                 color="white"
                 @click="addEnumValue(enumIdx)"
                 :disabled="enumerator._locked"
-                class="ml-2"
+                class="mr-2"
               >
                 <span class="text-primary">Add Value</span>
               </v-btn>
@@ -130,6 +131,7 @@
                 variant="text"
                 color="error"
                 @click.stop="deleteEnumeration(enumIdx)"
+                class="mr-2"
               >
                 <v-icon size="16">mdi-delete</v-icon>
               </v-btn>
@@ -142,7 +144,6 @@
               >
                 <v-icon size="16">mdi-chevron-down</v-icon>
               </v-btn>
-              <v-spacer />
             </div>
             <div v-show="!isEnumeratorCollapsed(enumIdx)" class="enum-values">
               <div v-if="!enumItem.values || enumItem.values.length === 0" class="text-center pa-1">
