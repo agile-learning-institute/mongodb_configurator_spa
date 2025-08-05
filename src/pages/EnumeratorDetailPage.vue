@@ -164,7 +164,7 @@
                     :disabled="enumerator._locked"
                     class="mr-2"
                     style="min-width: 150px;"
-                    :data-enum-value-input="`${enumIdx}-${valIdx}`"
+                    :ref="(el) => { if (el && '$el' in el) valueInputRefs[`${enumIdx}-${valIdx}`] = (el as any).$el.querySelector('input') }"
                     @blur="finishEnumValueEdit(enumIdx, valIdx)"
                     @keyup.enter="finishEnumValueEdit(enumIdx, valIdx)"
                   />
@@ -248,6 +248,7 @@ const showUnlockDialog = ref(false)
 const enumeratorFiles = ref<any[]>([])
 const loadingFiles = ref(false)
 const collapsedEnumerators = ref<Set<number>>(new Set())
+const valueInputRefs = ref<Record<string, HTMLInputElement>>({})
 
 // Editable state for enum names and values (by index)
 const editableEnumNames = ref<string[]>([])
@@ -347,11 +348,11 @@ const addEnumValue = (enumIdx: number) => {
   // Focus on the new value name after the DOM updates
   const newValueIdx = enumerator.value.enumerators[enumIdx].values.length - 1
   nextTick(() => {
-    const valueInputs = document.querySelectorAll(`[data-enum-value-input="${enumIdx}-${newValueIdx}"]`)
-    if (valueInputs.length > 0) {
-      const input = valueInputs[0] as HTMLInputElement
-      input.focus()
-      input.select()
+    const refKey = `${enumIdx}-${newValueIdx}`
+    const inputRef = valueInputRefs.value[refKey]
+    if (inputRef) {
+      inputRef.focus()
+      inputRef.select()
     }
   })
   
