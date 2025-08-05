@@ -61,9 +61,9 @@ const handleAddEnumerators = async () => {
     
     // Find the highest version number and the most recent file
     let maxVersion = 0
-    let mostRecentFile = null
+    let mostRecentFile: { file_name: string; _locked?: boolean } | null = null
     
-    existingFiles.forEach((file: any) => {
+    existingFiles.forEach((file: { file_name: string; _locked?: boolean }) => {
       const match = file.file_name.match(/enumerations\.(\d+)\.yaml/)
       if (match) {
         const version = parseInt(match[1], 10)
@@ -77,17 +77,17 @@ const handleAddEnumerators = async () => {
     // Get the full data from the most recent version to use as a starting point
     let baseEnumeratorData = null
     if (mostRecentFile) {
-      baseEnumeratorData = await apiService.getEnumerator(mostRecentFile.file_name)
+      baseEnumeratorData = await apiService.getEnumerator((mostRecentFile as { file_name: string }).file_name)
     }
     
     // Lock the most recent version if it exists and is not already locked
-    if (mostRecentFile && !mostRecentFile._locked) {
+    if (mostRecentFile && !(mostRecentFile as { _locked?: boolean })._locked) {
       // Update only the lock status
       const lockData = {
         ...baseEnumeratorData,
         _locked: true
       }
-      await apiService.saveEnumerator(mostRecentFile.file_name, lockData)
+      await apiService.saveEnumerator((mostRecentFile as { file_name: string }).file_name, lockData)
     }
     
     // Create new version number

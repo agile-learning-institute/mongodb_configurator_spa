@@ -117,7 +117,7 @@
                 :readonly="enumerator._locked"
                 class="mr-3 enumerator-name-input"
                 style="width: 20%; max-width: 150px; font-size: 1.5rem; font-weight: 500; line-height: 1.2; border: none; outline: none;"
-                :ref="(el) => { if (el) enumNameInputRefs[enumIdx] = el }"
+                :ref="(el) => { if (el) enumNameInputRefs[enumIdx] = el as HTMLInputElement }"
                 @blur="finishEnumNameEdit(enumIdx)"
                 @keyup.enter="finishEnumNameEdit(enumIdx)"
               />
@@ -376,7 +376,7 @@ function initEditableStateFromEnumerator(val: any) {
     editableEnumValues.value = {}
     editableEnumDescriptions.value = {}
     // Initialize with only the first enumerator expanded
-    collapsedEnumerators.value = new Set(val.enumerators.map((_: any, i: number) => i > 0 ? i : null).filter(i => i !== null))
+    collapsedEnumerators.value = new Set(val.enumerators.map((_: Enumerator, i: number) => i > 0 ? i : null).filter((i: number | null) => i !== null))
     val.enumerators.forEach((e: Enumerator, i: number) => {
       editableEnumValues.value[i] = e.values.map((v: EnumeratorValue) => v.value)
       editableEnumDescriptions.value[i] = e.values.map((v: EnumeratorValue) => v.description)
@@ -668,15 +668,7 @@ const hasNextVersion = computed(() => {
   })
 })
 
-// Check if current version is the newest
-const isNewestVersion = computed(() => {
-  if (!enumerator.value) return false
-  const currentVer = currentVersion.value
-  return !enumeratorFiles.value.some(file => {
-    const fileVersion = extractVersionFromFileName(file.file_name)
-    return fileVersion > currentVer
-  })
-})
+
 
 // Navigate to previous version
 const navigateToPreviousVersion = async () => {
