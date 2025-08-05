@@ -189,12 +189,50 @@
       </BaseCard>
     </div>
   </v-container>
+
+  <!-- Delete Confirmation Dialog -->
+  <v-dialog v-model="showDeleteDialog" max-width="500">
+    <v-card>
+      <v-card-title class="text-h5">
+        Delete Enumerator?
+      </v-card-title>
+      <v-card-text>
+        <p>Are you sure you want to delete "{{ enumerator?.file_name }}"?</p>
+        <p class="text-caption text-medium-emphasis">
+          This action cannot be undone.
+        </p>
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer />
+        <v-btn @click="showDeleteDialog = false">Cancel</v-btn>
+        <v-btn color="error" @click="confirmDelete">Delete</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+
+  <!-- Unlock Confirmation Dialog -->
+  <v-dialog v-model="showUnlockDialog" max-width="500">
+    <v-card>
+      <v-card-title class="text-h5">
+        Unlock Enumerator?
+      </v-card-title>
+      <v-card-text>
+        <p>Unlocking allows editing this enumerator. Are you sure?</p>
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer />
+        <v-btn @click="cancelUnlock">Cancel</v-btn>
+        <v-btn color="warning" @click="confirmUnlock">Unlock</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import BaseCard from '@/components/BaseCard.vue'
 import { useEnumeratorDetail } from '@/composables/useEnumeratorDetail'
+import { apiService } from '@/utils/api'
 import type { Enumerator, EnumeratorValue } from '@/types/types'
 
 const showDeleteDialog = ref(false)
@@ -338,6 +376,34 @@ const finishEnumDescriptionEdit = (enumIdx: number, valIdx: number) => {
 
 const handleDelete = () => {
   showDeleteDialog.value = true
+}
+
+const unlockEnumerator = async () => {
+  if (!enumerator.value) return
+  enumerator.value._locked = false
+  showUnlockDialog.value = false
+  await autoSaveLocal()
+}
+
+const confirmUnlock = () => {
+  unlockEnumerator()
+}
+
+const cancelUnlock = () => {
+  showUnlockDialog.value = false
+}
+
+const confirmDelete = async () => {
+  if (!enumerator.value) return
+  
+  try {
+    await apiService.deleteEnumerator(enumerator.value.file_name)
+    // Navigate back to enumerators list
+    window.location.href = '/enumerators'
+  } catch (err: any) {
+    error.value = err.message || 'Failed to delete enumerator'
+    console.error('Failed to delete enumerator:', err)
+  }
 }
 </script>
 
