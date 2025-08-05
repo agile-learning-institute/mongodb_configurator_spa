@@ -108,7 +108,7 @@
                 :disabled="enumerator._locked"
                 class="mr-3"
                 style="width: 20%; max-width: 150px;"
-                :data-enum-name-input="enumIdx"
+                :ref="(el) => { if (el && '$el' in el) enumNameInputRefs[enumIdx] = (el as any).$el.querySelector('input') }"
                 @blur="finishEnumNameEdit(enumIdx)"
                 @keyup.enter="finishEnumNameEdit(enumIdx)"
               />
@@ -251,6 +251,7 @@ const enumeratorFiles = ref<any[]>([])
 const loadingFiles = ref(false)
 const collapsedEnumerators = ref<Set<number>>(new Set())
 const valueInputRefs = ref<Record<string, HTMLInputElement>>({})
+const enumNameInputRefs = ref<Record<number, HTMLInputElement>>({})
 
 // Editable state for enum names and values (by index)
 const editableEnumNames = ref<string[]>([])
@@ -311,11 +312,10 @@ const addEnumeration = () => {
   // Focus on the new enumerator name after the DOM updates
   const newEnumIdx = enumerator.value.enumerators.length - 1
   nextTick(() => {
-    const enumNameInputs = document.querySelectorAll(`[data-enum-name-input="${newEnumIdx}"]`)
-    if (enumNameInputs.length > 0) {
-      const input = enumNameInputs[0] as HTMLInputElement
-      input.focus()
-      input.select()
+    const inputRef = enumNameInputRefs.value[newEnumIdx]
+    if (inputRef) {
+      inputRef.focus()
+      inputRef.select()
     }
   })
   
