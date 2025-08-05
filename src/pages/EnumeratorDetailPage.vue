@@ -17,9 +17,8 @@
       <div class="d-flex align-center justify-space-between mb-2">
         <div class="d-flex align-center">
           <div v-if="!editingTitle" class="d-flex align-center">
-            <h1 class="text-h4 mr-4">{{ enumerator.file_name }}</h1>
             <span v-if="enumerator.title" class="text-h6 text-medium-emphasis mr-4">{{ enumerator.title }}</span>
-            <div class="d-flex align-center">
+            <h1 class="text-h4 d-flex align-center">
               <v-btn
                 icon="mdi-chevron-left"
                 variant="text"
@@ -28,7 +27,7 @@
                 @click="decrementVersion"
                 class="mr-1"
               />
-              <span class="text-body-1 text-medium-emphasis">Version: {{ enumerator.version }}</span>
+              Version: {{ enumerator.version }}
               <v-btn
                 icon="mdi-chevron-right"
                 variant="text"
@@ -37,7 +36,7 @@
                 @click="incrementVersion"
                 class="ml-1"
               />
-            </div>
+            </h1>
             <v-btn
               icon="mdi-pencil"
               variant="text"
