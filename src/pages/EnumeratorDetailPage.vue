@@ -78,12 +78,12 @@
       <BaseCard title="Enumerators">
         <template #header-actions>
           <v-btn
+            v-if="!enumerator._locked"
             prepend-icon="mdi-plus"
             variant="elevated"
             color="white"
             size="small"
             @click="addEnumeration"
-            :disabled="enumerator._locked"
             :loading="saving"
           >
             <span class="text-primary">Add Enumeration</span>
@@ -105,7 +105,7 @@
                 density="compact"
                 variant="plain"
                 hide-details
-                :disabled="enumerator._locked"
+                :readonly="enumerator._locked"
                 class="mr-3"
                 style="width: 20%; max-width: 150px;"
                 :ref="(el) => { if (el && '$el' in el) enumNameInputRefs[enumIdx] = (el as any).$el.querySelector('input') }"
@@ -117,17 +117,18 @@
                 {{ enumItem.values.length }} values
               </v-chip>
               <v-btn
+                v-if="!enumerator._locked"
                 prepend-icon="mdi-plus"
                 variant="elevated"
                 size="small"
                 color="white"
                 @click="addEnumValue(enumIdx)"
-                :disabled="enumerator._locked"
                 class="mr-2"
               >
                 <span class="text-primary">Add Value</span>
               </v-btn>
               <v-btn
+                v-if="!enumerator._locked"
                 icon="mdi-delete"
                 variant="text"
                 color="error"
@@ -162,7 +163,7 @@
                     density="compact"
                     variant="plain"
                     hide-details
-                    :disabled="enumerator._locked"
+                    :readonly="enumerator._locked"
                     class="mr-2"
                     style="max-width: 180px;"
                     :ref="(el) => { if (el && '$el' in el) valueInputRefs[`${enumIdx}-${valIdx}`] = (el as any).$el.querySelector('input') }"
@@ -174,7 +175,7 @@
                     density="compact"
                     variant="plain"
                     hide-details
-                    :disabled="enumerator._locked"
+                    :readonly="enumerator._locked"
                     class="mr-2"
                     style="min-width: 200px;"
                     placeholder="Description"
