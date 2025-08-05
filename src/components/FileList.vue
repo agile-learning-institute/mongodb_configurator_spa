@@ -31,13 +31,77 @@
           :file-type="fileType === 'configurations' ? 'configuration' : fileType === 'dictionaries' ? 'dictionary' : fileType === 'types' ? 'type' : fileType === 'enumerators' ? 'enumerator' : fileType === 'test_data' ? 'test-data' : 'migration'"
           :show-process="fileType === 'configurations'"
           @edit="editFile(file.name)"
-          @delete="deleteFile(file.name)"
+          @delete="handleDelete(file.name)"
           @open="openFile(file.name)"
           @process="processFile(file.name)"
         />
       </div>
     </div>
   </div>
+
+  <!-- Delete Warning Dialog -->
+  <v-dialog v-model="showDeleteDialog" max-width="600">
+    <v-card>
+      <v-card-title class="text-h5">
+        ⚠️ Warning: Delete {{ fileType.slice(0, -1) }}
+      </v-card-title>
+      <v-card-text>
+        <p class="mb-3">
+          <strong>Deleting {{ fileType }} that have already been deployed can have severe impacts on configuration validity.</strong>
+        </p>
+        <p class="mb-4">
+          Removing deployed {{ fileType }} may break existing configurations that depend on them.
+        </p>
+        <v-alert
+          type="error"
+          variant="tonal"
+          class="mb-4"
+        >
+          <strong>Warning:</strong> This is a destructive action that will permanently delete the file.
+        </v-alert>
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer />
+        <v-btn @click="cancelDelete">Cancel</v-btn>
+        <v-btn color="error" @click="showDeleteConfirmation">Delete {{ fileType.slice(0, -1) }}</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+
+  <!-- Delete Confirmation Dialog -->
+  <v-dialog v-model="showDeleteConfirmationDialog" max-width="400">
+    <v-card>
+      <v-card-title class="text-h5">
+        Final Confirmation
+      </v-card-title>
+      <v-card-text>
+        <p class="mb-3">
+          <strong>Are you absolutely sure you want to delete "{{ fileToDelete }}"?</strong>
+        </p>
+        <p class="mb-4">
+          Type "DELETE" below to confirm:
+        </p>
+        <v-text-field
+          v-model="deleteConfirmationText"
+          placeholder="Type DELETE to confirm"
+          variant="outlined"
+          density="compact"
+          hide-details
+        />
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer />
+        <v-btn @click="cancelDeleteConfirmation">Cancel</v-btn>
+        <v-btn 
+          color="error" 
+          @click="confirmDelete"
+          :disabled="deleteConfirmationText !== 'DELETE'"
+        >
+          Delete
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script setup lang="ts">
@@ -69,6 +133,10 @@ const {
 } = useFiles(props.fileType)
 
 const locking = ref(false)
+const showDeleteDialog = ref(false)
+const showDeleteConfirmationDialog = ref(false)
+const deleteConfirmationText = ref('')
+const fileToDelete = ref<string | null>(null)
 
 // Load files on mount
 onMounted(() => {
@@ -82,6 +150,44 @@ const editFile = (fileName: string) => {
 
 const openFile = (fileName: string) => {
   emit('open', fileName)
+}
+
+const handleDelete = (fileName: string) => {
+  fileToDelete.value = fileName
+  showDeleteDialog.value = true
+}
+
+const showDeleteConfirmation = () => {
+  showDeleteDialog.value = false
+  showDeleteConfirmationDialog.value = true
+  deleteConfirmationText.value = ''
+}
+
+const cancelDelete = () => {
+  showDeleteDialog.value = false
+  fileToDelete.value = null
+}
+
+const cancelDeleteConfirmation = () => {
+  showDeleteConfirmationDialog.value = false
+  deleteConfirmationText.value = ''
+  fileToDelete.value = null
+}
+
+const confirmDelete = async () => {
+  if (!fileToDelete.value) return
+  
+  try {
+    await deleteFile(fileToDelete.value)
+    // Close the dialog
+    showDeleteConfirmationDialog.value = false
+    deleteConfirmationText.value = ''
+    fileToDelete.value = null
+    // Reload files to update the list
+    await loadFiles()
+  } catch (err: any) {
+    console.error('Failed to delete file:', err)
+  }
 }
 
 const handleLockAll = async () => {

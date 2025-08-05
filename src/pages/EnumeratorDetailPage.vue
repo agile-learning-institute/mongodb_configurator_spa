@@ -36,6 +36,18 @@
                 @click="navigateToNextVersion"
                 class="ml-1"
               />
+              <v-btn
+                v-if="!hasNextVersion"
+                prepend-icon="mdi-plus"
+                variant="text"
+                size="small"
+                color="primary"
+                @click="createNewVersion"
+                class="ml-2"
+                title="Create new version"
+              >
+                Add Version
+              </v-btn>
             </h1>
           </div>
 
@@ -52,7 +64,7 @@
             Lock
           </v-btn>
           <v-btn
-            v-else
+            v-else-if="!hasNextVersion"
             prepend-icon="mdi-lock-open"
             variant="outlined"
             color="success"
@@ -198,39 +210,137 @@
     </div>
   </v-container>
 
-  <!-- Delete Confirmation Dialog -->
-  <v-dialog v-model="showDeleteDialog" max-width="500">
+  <!-- Delete Warning Dialog -->
+  <v-dialog v-model="showDeleteDialog" max-width="600">
     <v-card>
       <v-card-title class="text-h5">
-        Delete Enumerator?
+        ⚠️ Warning: Delete Enumerator
       </v-card-title>
       <v-card-text>
-        <p>Are you sure you want to delete "{{ enumerator?.file_name }}"?</p>
-        <p class="text-caption text-medium-emphasis">
-          This action cannot be undone.
+        <p class="mb-3">
+          <strong>Deleting enumerators that have already been deployed can have severe impacts on configuration validity.</strong>
         </p>
+        <p class="mb-4">
+          Removing deployed enumerators may break existing configurations that depend on them.
+        </p>
+        <v-alert
+          type="error"
+          variant="tonal"
+          class="mb-4"
+        >
+          <strong>Warning:</strong> This is a destructive action that will permanently delete the file.
+        </v-alert>
       </v-card-text>
       <v-card-actions>
         <v-spacer />
-        <v-btn @click="showDeleteDialog = false">Cancel</v-btn>
-        <v-btn color="error" @click="confirmDelete">Delete</v-btn>
+        <v-btn @click="cancelDelete">Cancel</v-btn>
+        <v-btn color="error" @click="showDeleteConfirmation">Delete Enumerator</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+
+  <!-- Delete Confirmation Dialog -->
+  <v-dialog v-model="showDeleteConfirmationDialog" max-width="400">
+    <v-card>
+      <v-card-title class="text-h5">
+        Final Confirmation
+      </v-card-title>
+      <v-card-text>
+        <p class="mb-3">
+          <strong>Are you absolutely sure you want to delete "{{ enumerator?.file_name }}"?</strong>
+        </p>
+        <p class="mb-4">
+          Type "DELETE" below to confirm:
+        </p>
+        <v-text-field
+          v-model="deleteConfirmationText"
+          placeholder="Type DELETE to confirm"
+          variant="outlined"
+          density="compact"
+          hide-details
+        />
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer />
+        <v-btn @click="cancelDeleteConfirmation">Cancel</v-btn>
+        <v-btn 
+          color="error" 
+          @click="confirmDelete"
+          :disabled="deleteConfirmationText !== 'DELETE'"
+        >
+          Delete
+        </v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
 
   <!-- Unlock Confirmation Dialog -->
-  <v-dialog v-model="showUnlockDialog" max-width="500">
+  <v-dialog v-model="showUnlockDialog" max-width="600">
     <v-card>
       <v-card-title class="text-h5">
-        Unlock Enumerator?
+        ⚠️ Warning: Editing Deployed Enumerator
       </v-card-title>
       <v-card-text>
-        <p>Unlocking allows editing this enumerator. Are you sure?</p>
+        <p class="mb-3">
+          <strong>Editing enumerators that have already been deployed can have severe impacts on configuration validity.</strong>
+        </p>
+        <p class="mb-4">
+          Changes to deployed enumerators may break existing configurations that depend on them.
+        </p>
+        <v-alert
+          type="warning"
+          variant="tonal"
+          class="mb-4"
+        >
+          <strong>Recommended:</strong> Create a new version instead of editing the current one.
+        </v-alert>
       </v-card-text>
       <v-card-actions>
         <v-spacer />
         <v-btn @click="cancelUnlock">Cancel</v-btn>
-        <v-btn color="warning" @click="confirmUnlock">Unlock</v-btn>
+        <v-btn color="primary" @click="createNewVersion">Create New Version</v-btn>
+        <v-btn 
+          v-if="showUnlockOption"
+          color="warning" 
+          @click="showUnlockConfirmation"
+        >
+          Unlock Current Version
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+
+  <!-- Unlock Confirmation Dialog -->
+  <v-dialog v-model="showUnlockConfirmationDialog" max-width="400">
+    <v-card>
+      <v-card-title class="text-h5">
+        Final Confirmation
+      </v-card-title>
+      <v-card-text>
+        <p class="mb-3">
+          <strong>Are you absolutely sure you want to unlock this enumerator?</strong>
+        </p>
+        <p class="mb-4">
+          Type "UNLOCK" below to confirm:
+        </p>
+        <v-text-field
+          v-model="unlockConfirmationText"
+          placeholder="Type UNLOCK to confirm"
+          variant="outlined"
+          density="compact"
+          hide-details
+        />
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer />
+        <v-btn @click="cancelUnlockConfirmation">Cancel</v-btn>
+        <v-btn 
+          color="warning" 
+          @click="confirmUnlock"
+          :disabled="unlockConfirmationText !== 'UNLOCK'"
+        >
+          Unlock
+        </v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -244,7 +354,11 @@ import { apiService } from '@/utils/api'
 import type { Enumerator, EnumeratorValue } from '@/types/types'
 
 const showDeleteDialog = ref(false)
+const showDeleteConfirmationDialog = ref(false)
+const deleteConfirmationText = ref('')
 const showUnlockDialog = ref(false)
+const showUnlockConfirmationDialog = ref(false)
+const unlockConfirmationText = ref('')
 const enumeratorFiles = ref<any[]>([])
 const loadingFiles = ref(false)
 const collapsedEnumerators = ref<Set<number>>(new Set())
@@ -261,8 +375,8 @@ function initEditableStateFromEnumerator(val: any) {
     editableEnumNames.value = val.enumerators.map((e: Enumerator) => e.name)
     editableEnumValues.value = {}
     editableEnumDescriptions.value = {}
-    // Initialize all enumerators as collapsed
-    collapsedEnumerators.value = new Set(val.enumerators.map((_: any, i: number) => i))
+    // Initialize with only the first enumerator expanded
+    collapsedEnumerators.value = new Set(val.enumerators.map((_: any, i: number) => i > 0 ? i : null).filter(i => i !== null))
     val.enumerators.forEach((e: Enumerator, i: number) => {
       editableEnumValues.value[i] = e.values.map((v: EnumeratorValue) => v.value)
       editableEnumDescriptions.value[i] = e.values.map((v: EnumeratorValue) => v.description)
@@ -410,6 +524,21 @@ const handleDelete = () => {
   showDeleteDialog.value = true
 }
 
+const showDeleteConfirmation = () => {
+  showDeleteDialog.value = false
+  showDeleteConfirmationDialog.value = true
+  deleteConfirmationText.value = ''
+}
+
+const cancelDelete = () => {
+  showDeleteDialog.value = false
+}
+
+const cancelDeleteConfirmation = () => {
+  showDeleteConfirmationDialog.value = false
+  deleteConfirmationText.value = ''
+}
+
 const unlockEnumerator = async () => {
   if (!enumerator.value) return
   enumerator.value._locked = false
@@ -419,10 +548,61 @@ const unlockEnumerator = async () => {
 
 const confirmUnlock = () => {
   unlockEnumerator()
+  showUnlockConfirmationDialog.value = false
+  unlockConfirmationText.value = ''
+}
+
+const createNewVersion = async () => {
+  if (!enumerator.value) return
+  
+  try {
+    // Get the current version number
+    const currentVer = currentVersion.value
+    const newVersion = currentVer + 1
+    
+    // Create new file name with incremented version
+    const newFileName = `enumerations.${newVersion}.yaml`
+    
+    // Copy the current enumerator data to the new version
+    const newEnumeratorData = {
+      ...enumerator.value,
+      file_name: newFileName,
+      version: newVersion,
+      _locked: false // New version starts unlocked
+    }
+    
+    // Save the new version
+    await apiService.saveEnumerator(newFileName, newEnumeratorData)
+    
+    // Close the dialog
+    showUnlockDialog.value = false
+    
+    // Navigate to the new version
+    window.location.href = `/enumerators/${newFileName}`
+  } catch (err: any) {
+    error.value = err.message || 'Failed to create new version'
+    console.error('Failed to create new version:', err)
+  }
+}
+
+// Check if unlock option should be shown (only for newest version)
+const showUnlockOption = computed(() => {
+  return !hasNextVersion.value
+})
+
+const showUnlockConfirmation = () => {
+  showUnlockDialog.value = false
+  showUnlockConfirmationDialog.value = true
+  unlockConfirmationText.value = ''
 }
 
 const cancelUnlock = () => {
   showUnlockDialog.value = false
+}
+
+const cancelUnlockConfirmation = () => {
+  showUnlockConfirmationDialog.value = false
+  unlockConfirmationText.value = ''
 }
 
 const confirmDelete = async () => {
@@ -430,6 +610,9 @@ const confirmDelete = async () => {
   
   try {
     await apiService.deleteEnumerator(enumerator.value.file_name)
+    // Close the dialog
+    showDeleteConfirmationDialog.value = false
+    deleteConfirmationText.value = ''
     // Navigate back to enumerators list
     window.location.href = '/enumerators'
   } catch (err: any) {
@@ -485,6 +668,16 @@ const hasNextVersion = computed(() => {
   })
 })
 
+// Check if current version is the newest
+const isNewestVersion = computed(() => {
+  if (!enumerator.value) return false
+  const currentVer = currentVersion.value
+  return !enumeratorFiles.value.some(file => {
+    const fileVersion = extractVersionFromFileName(file.file_name)
+    return fileVersion > currentVer
+  })
+})
+
 // Navigate to previous version
 const navigateToPreviousVersion = async () => {
   if (!enumerator.value || !hasPreviousVersion.value) return
@@ -517,11 +710,16 @@ const navigateToNextVersion = async () => {
   }
 }
 
-// Toggle enumerator collapse state
+// Toggle enumerator collapse state with "expand only one" functionality
 const toggleEnumeratorCollapse = (enumIdx: number) => {
   if (collapsedEnumerators.value.has(enumIdx)) {
-    collapsedEnumerators.value.delete(enumIdx)
+    // Expanding this enumerator - collapse all others first
+    const totalEnumerators = enumerator.value?.enumerators?.length || 0
+    collapsedEnumerators.value = new Set(
+      Array.from({ length: totalEnumerators }, (_, i) => i).filter(i => i !== enumIdx)
+    )
   } else {
+    // Collapsing this enumerator - no other changes needed
     collapsedEnumerators.value.add(enumIdx)
   }
 }
