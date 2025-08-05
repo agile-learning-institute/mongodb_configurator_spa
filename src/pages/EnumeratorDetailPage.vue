@@ -16,7 +16,7 @@
       <!-- Title Area -->
       <div class="d-flex align-center justify-space-between mb-2">
         <div class="d-flex align-center">
-          <div v-if="!editingTitle" class="d-flex align-center">
+          <div class="d-flex align-center">
             <span v-if="enumerator.title" class="text-h6 text-medium-emphasis mr-4">{{ enumerator.title }}</span>
             <h1 class="text-h4 d-flex align-center">
               <v-btn
@@ -37,28 +37,8 @@
                 class="ml-1"
               />
             </h1>
-            <v-btn
-              icon="mdi-pencil"
-              variant="text"
-              size="small"
-              class="ml-2"
-              @click="startEditTitle"
-              :disabled="enumerator._locked"
-            />
           </div>
-          <div v-else class="d-flex align-center">
-            <v-text-field
-              ref="titleInput"
-              v-model="enumerator.title"
-              density="compact"
-              variant="outlined"
-              placeholder="Enter title..."
-              class="mr-2"
-              style="min-width: 200px;"
-              @blur="finishEditTitle"
-              @keyup.enter="finishEditTitle"
-            />
-          </div>
+
         </div>
         <div class="d-flex align-center">
           <v-btn
@@ -254,8 +234,6 @@ import type { Enumerator, EnumeratorValue } from '@/types/types'
 
 const showDeleteDialog = ref(false)
 const showUnlockDialog = ref(false)
-const editingTitle = ref(false)
-const titleInput = ref<HTMLInputElement | null>(null)
 const enumeratorFiles = ref<any[]>([])
 const loadingFiles = ref(false)
 
@@ -294,16 +272,7 @@ const autoSaveLocal = async () => {
   await saveEnumerator()
 }
 
-const startEditTitle = () => {
-  editingTitle.value = true
-  setTimeout(() => {
-    titleInput.value?.focus()
-  }, 0)
-}
 
-const finishEditTitle = () => {
-  editingTitle.value = false
-}
 
 const lockEnumerator = async () => {
   if (!enumerator.value) return
