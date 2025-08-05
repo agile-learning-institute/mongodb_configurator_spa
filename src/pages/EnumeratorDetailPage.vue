@@ -62,11 +62,11 @@
             Unlock
           </v-btn>
           <v-btn
+            v-if="!enumerator._locked"
             prepend-icon="mdi-delete"
             variant="outlined"
             color="error"
             @click="handleDelete"
-            :disabled="enumerator._locked"
             class="ml-2"
           >
             Delete
