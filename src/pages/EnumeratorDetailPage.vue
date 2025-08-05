@@ -133,9 +133,18 @@
               >
                 <v-icon size="16">mdi-delete</v-icon>
               </v-btn>
+              <v-btn
+                icon="mdi-chevron-down"
+                variant="text"
+                size="small"
+                @click="toggleEnumeratorCollapse(enumIdx)"
+                :class="{ 'rotate-icon': !isEnumeratorCollapsed(enumIdx) }"
+              >
+                <v-icon size="16">mdi-chevron-down</v-icon>
+              </v-btn>
               <v-spacer />
             </div>
-            <div class="enum-values">
+            <div v-show="!isEnumeratorCollapsed(enumIdx)" class="enum-values">
               <div v-if="!enumItem.values || enumItem.values.length === 0" class="text-center pa-1">
                 <v-icon size="16" color="grey">mdi-format-list-numbered</v-icon>
                 <div class="text-body-2 text-medium-emphasis mt-1">No values defined</div>
@@ -236,6 +245,7 @@ const showDeleteDialog = ref(false)
 const showUnlockDialog = ref(false)
 const enumeratorFiles = ref<any[]>([])
 const loadingFiles = ref(false)
+const collapsedEnumerators = ref<Set<number>>(new Set())
 
 // Editable state for enum names and values (by index)
 const editableEnumNames = ref<string[]>([])
@@ -247,6 +257,8 @@ function initEditableStateFromEnumerator(val: any) {
     editableEnumNames.value = val.enumerators.map((e: Enumerator) => e.name)
     editableEnumValues.value = {}
     editableEnumDescriptions.value = {}
+    // Initialize all enumerators as collapsed
+    collapsedEnumerators.value = new Set(val.enumerators.map((_: any, i: number) => i))
     val.enumerators.forEach((e: Enumerator, i: number) => {
       editableEnumValues.value[i] = e.values.map((v: EnumeratorValue) => v.value)
       editableEnumDescriptions.value[i] = e.values.map((v: EnumeratorValue) => v.description)
@@ -473,6 +485,20 @@ const navigateToNextVersion = async () => {
   }
 }
 
+// Toggle enumerator collapse state
+const toggleEnumeratorCollapse = (enumIdx: number) => {
+  if (collapsedEnumerators.value.has(enumIdx)) {
+    collapsedEnumerators.value.delete(enumIdx)
+  } else {
+    collapsedEnumerators.value.add(enumIdx)
+  }
+}
+
+// Check if enumerator is collapsed
+const isEnumeratorCollapsed = (enumIdx: number) => {
+  return collapsedEnumerators.value.has(enumIdx)
+}
+
 // Load files when component mounts
 onMounted(() => {
   loadEnumeratorFiles()
@@ -533,5 +559,10 @@ onMounted(() => {
 }
 .title-text:hover {
   color: rgba(0, 0, 0, 0.6);
+}
+
+.rotate-icon {
+  transform: rotate(180deg);
+  transition: transform 0.2s ease;
 }
 </style> 
