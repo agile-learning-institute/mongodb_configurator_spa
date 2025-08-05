@@ -163,7 +163,7 @@
                     hide-details
                     :disabled="enumerator._locked"
                     class="mr-2"
-                    style="min-width: 150px;"
+                    style="max-width: 150px;"
                     :ref="(el) => { if (el && '$el' in el) valueInputRefs[`${enumIdx}-${valIdx}`] = (el as any).$el.querySelector('input') }"
                     @blur="finishEnumValueEdit(enumIdx, valIdx)"
                     @keyup.enter="finishEnumValueEdit(enumIdx, valIdx)"
