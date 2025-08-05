@@ -100,15 +100,12 @@
             class="enumerator-item mb-2"
           >
             <div class="d-flex align-center enumerator-header mb-1">
-              <v-text-field
+              <input
                 v-model="editableEnumNames[enumIdx]"
-                density="compact"
-                variant="plain"
-                hide-details
                 :readonly="enumerator._locked"
-                class="mr-3 text-h3"
-                style="width: 20%; max-width: 150px;"
-                :ref="(el) => { if (el && '$el' in el) enumNameInputRefs[enumIdx] = (el as any).$el.querySelector('input') }"
+                class="mr-3 enumerator-name-input"
+                style="width: 20%; max-width: 150px; font-size: 1.5rem; font-weight: 500; line-height: 1.2; border: none; outline: none;"
+                :ref="(el) => { if (el) enumNameInputRefs[enumIdx] = el }"
                 @blur="finishEnumNameEdit(enumIdx)"
                 @keyup.enter="finishEnumNameEdit(enumIdx)"
               />
@@ -559,6 +556,7 @@ onMounted(() => {
 
 .enum-value-item {
   border-bottom: 1px solid #e0e0e0;
+  padding-left: 15px;
 }
 
 .enum-value-item:last-child {
@@ -592,5 +590,14 @@ onMounted(() => {
 .rotate-icon {
   transform: rotate(180deg);
   transition: transform 0.2s ease;
+}
+
+/* Target enumerator name inputs specifically */
+.enumerator-header .v-text-field .v-field__input {
+  font-size: 3rem !important;
+  font-weight: 700 !important;
+  line-height: 1.2 !important;
+  color: red !important;
+  background-color: yellow !important;
 }
 </style> 
