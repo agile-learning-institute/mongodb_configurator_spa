@@ -16,32 +16,41 @@
       <!-- Title Area -->
       <div class="d-flex align-center justify-space-between mb-2">
         <div class="d-flex align-center">
-          <div v-if="!editingTitle" class="d-flex align-center">
-            <h1 class="text-h4 mr-4">{{ enumerator.file_name }}</h1>
+          <div class="d-flex align-center">
             <span v-if="enumerator.title" class="text-h6 text-medium-emphasis mr-4">{{ enumerator.title }}</span>
-            <span class="text-body-1 text-medium-emphasis">Version: {{ enumerator.version }}</span>
-            <v-btn
-              icon="mdi-pencil"
-              variant="text"
-              size="small"
-              class="ml-2"
-              @click="startEditTitle"
-              :disabled="enumerator._locked"
-            />
+            <h1 class="text-h4 d-flex align-center">
+              <v-btn
+                icon="mdi-chevron-left"
+                variant="text"
+                size="small"
+                :disabled="!hasPreviousVersion"
+                @click="navigateToPreviousVersion"
+                class="mr-1"
+              />
+              Version: {{ enumerator.version }}
+              <v-btn
+                icon="mdi-chevron-right"
+                variant="text"
+                size="small"
+                :disabled="!hasNextVersion"
+                @click="navigateToNextVersion"
+                class="ml-1"
+              />
+              <v-btn
+                v-if="!hasNextVersion"
+                prepend-icon="mdi-plus"
+                variant="text"
+                size="small"
+                color="primary"
+                @click="createNewVersion"
+                class="ml-2"
+                title="Create new version"
+              >
+                Add Version
+              </v-btn>
+            </h1>
           </div>
-          <div v-else class="d-flex align-center">
-            <v-text-field
-              ref="titleInput"
-              v-model="enumerator.title"
-              density="compact"
-              variant="outlined"
-              placeholder="Enter title..."
-              class="mr-2"
-              style="min-width: 200px;"
-              @blur="finishEditTitle"
-              @keyup.enter="finishEditTitle"
-            />
-          </div>
+
         </div>
         <div class="d-flex align-center">
           <v-btn
@@ -55,7 +64,7 @@
             Lock
           </v-btn>
           <v-btn
-            v-else
+            v-else-if="!hasNextVersion"
             prepend-icon="mdi-lock-open"
             variant="outlined"
             color="success"
@@ -65,11 +74,11 @@
             Unlock
           </v-btn>
           <v-btn
+            v-if="!enumerator._locked"
             prepend-icon="mdi-delete"
             variant="outlined"
             color="error"
             @click="handleDelete"
-            :disabled="enumerator._locked"
             class="ml-2"
           >
             Delete
@@ -81,12 +90,12 @@
       <BaseCard title="Enumerators">
         <template #header-actions>
           <v-btn
+            v-if="!enumerator._locked"
             prepend-icon="mdi-plus"
             variant="elevated"
             color="white"
             size="small"
             @click="addEnumeration"
-            :disabled="enumerator._locked"
             :loading="saving"
           >
             <span class="text-primary">Add Enumeration</span>
@@ -103,42 +112,51 @@
             class="enumerator-item mb-2"
           >
             <div class="d-flex align-center enumerator-header mb-1">
-              <v-text-field
+              <input
                 v-model="editableEnumNames[enumIdx]"
-                density="compact"
-                variant="outlined"
-                hide-details
-                :disabled="enumerator._locked"
-                class="mr-3"
-                style="min-width: 200px;"
+                :readonly="enumerator._locked"
+                class="mr-3 enumerator-name-input"
+                style="width: 20%; max-width: 150px; font-size: 1.5rem; font-weight: 500; line-height: 1.2; border: none; outline: none;"
+                :ref="(el) => { if (el) enumNameInputRefs[enumIdx] = el as HTMLInputElement }"
                 @blur="finishEnumNameEdit(enumIdx)"
                 @keyup.enter="finishEnumNameEdit(enumIdx)"
               />
-              <v-chip size="small" color="primary">
+              <v-spacer />
+              <v-chip size="small" color="primary" class="mr-2">
                 {{ enumItem.values.length }} values
               </v-chip>
               <v-btn
+                v-if="!enumerator._locked"
                 prepend-icon="mdi-plus"
                 variant="elevated"
                 size="small"
                 color="white"
                 @click="addEnumValue(enumIdx)"
-                :disabled="enumerator._locked"
-                class="ml-2"
+                class="mr-2"
               >
                 <span class="text-primary">Add Value</span>
               </v-btn>
               <v-btn
+                v-if="!enumerator._locked"
                 icon="mdi-delete"
                 variant="text"
                 color="error"
                 @click.stop="deleteEnumeration(enumIdx)"
+                class="mr-2"
               >
                 <v-icon size="16">mdi-delete</v-icon>
               </v-btn>
-              <v-spacer />
+              <v-btn
+                icon="mdi-chevron-down"
+                variant="text"
+                size="small"
+                @click="toggleEnumeratorCollapse(enumIdx)"
+                :class="{ 'rotate-icon': !isEnumeratorCollapsed(enumIdx) }"
+              >
+                <v-icon size="16">mdi-chevron-down</v-icon>
+              </v-btn>
             </div>
-            <div class="enum-values">
+            <div v-show="!isEnumeratorCollapsed(enumIdx)" class="enum-values">
               <div v-if="!enumItem.values || enumItem.values.length === 0" class="text-center pa-1">
                 <v-icon size="16" color="grey">mdi-format-list-numbered</v-icon>
                 <div class="text-body-2 text-medium-emphasis mt-1">No values defined</div>
@@ -147,27 +165,29 @@
                 <div
                   v-for="(_, valIdx) in enumItem.values"
                   :key="valIdx"
-                  class="enum-value-item d-flex align-center mb-1"
+                  class="enum-value-item d-flex align-center"
                 >
                   <v-text-field
                     v-model="editableEnumValues[enumIdx][valIdx]"
                     density="compact"
-                    variant="outlined"
+                    variant="plain"
                     hide-details
-                    :disabled="enumerator._locked"
+                    :readonly="enumerator._locked"
                     class="mr-2"
-                    style="min-width: 150px;"
+                    style="max-width: 180px;"
+                    :ref="(el) => { if (el && '$el' in el) valueInputRefs[`${enumIdx}-${valIdx}`] = (el as any).$el.querySelector('input') }"
                     @blur="finishEnumValueEdit(enumIdx, valIdx)"
                     @keyup.enter="finishEnumValueEdit(enumIdx, valIdx)"
                   />
                   <v-text-field
                     v-model="editableEnumDescriptions[enumIdx][valIdx]"
                     density="compact"
-                    variant="outlined"
+                    variant="plain"
                     hide-details
-                    :disabled="enumerator._locked"
+                    :readonly="enumerator._locked"
                     class="mr-2"
                     style="min-width: 200px;"
+                    placeholder="Description"
                     @blur="finishEnumDescriptionEdit(enumIdx, valIdx)"
                     @keyup.enter="finishEnumDescriptionEdit(enumIdx, valIdx)"
                   />
@@ -189,18 +209,161 @@
       </BaseCard>
     </div>
   </v-container>
+
+  <!-- Delete Warning Dialog -->
+  <v-dialog v-model="showDeleteDialog" max-width="600">
+    <v-card>
+      <v-card-title class="text-h5">
+        ⚠️ Warning: Delete Enumerator
+      </v-card-title>
+      <v-card-text>
+        <p class="mb-3">
+          <strong>Deleting enumerators that have already been deployed can have severe impacts on configuration validity.</strong>
+        </p>
+        <p class="mb-4">
+          Removing deployed enumerators may break existing configurations that depend on them.
+        </p>
+        <v-alert
+          type="error"
+          variant="tonal"
+          class="mb-4"
+        >
+          <strong>Warning:</strong> This is a destructive action that will permanently delete the file.
+        </v-alert>
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer />
+        <v-btn @click="cancelDelete">Cancel</v-btn>
+        <v-btn color="error" @click="showDeleteConfirmation">Delete Enumerator</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+
+  <!-- Delete Confirmation Dialog -->
+  <v-dialog v-model="showDeleteConfirmationDialog" max-width="400">
+    <v-card>
+      <v-card-title class="text-h5">
+        Final Confirmation
+      </v-card-title>
+      <v-card-text>
+        <p class="mb-3">
+          <strong>Are you absolutely sure you want to delete "{{ enumerator?.file_name }}"?</strong>
+        </p>
+        <p class="mb-4">
+          Type "DELETE" below to confirm:
+        </p>
+        <v-text-field
+          v-model="deleteConfirmationText"
+          placeholder="Type DELETE to confirm"
+          variant="outlined"
+          density="compact"
+          hide-details
+        />
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer />
+        <v-btn @click="cancelDeleteConfirmation">Cancel</v-btn>
+        <v-btn 
+          color="error" 
+          @click="confirmDelete"
+          :disabled="deleteConfirmationText !== 'DELETE'"
+        >
+          Delete
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+
+  <!-- Unlock Confirmation Dialog -->
+  <v-dialog v-model="showUnlockDialog" max-width="600">
+    <v-card>
+      <v-card-title class="text-h5">
+        ⚠️ Warning: Editing Deployed Enumerator
+      </v-card-title>
+      <v-card-text>
+        <p class="mb-3">
+          <strong>Editing enumerators that have already been deployed can have severe impacts on configuration validity.</strong>
+        </p>
+        <p class="mb-4">
+          Changes to deployed enumerators may break existing configurations that depend on them.
+        </p>
+        <v-alert
+          type="warning"
+          variant="tonal"
+          class="mb-4"
+        >
+          <strong>Recommended:</strong> Create a new version instead of editing the current one.
+        </v-alert>
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer />
+        <v-btn @click="cancelUnlock">Cancel</v-btn>
+        <v-btn color="primary" @click="createNewVersion">Create New Version</v-btn>
+        <v-btn 
+          v-if="showUnlockOption"
+          color="warning" 
+          @click="showUnlockConfirmation"
+        >
+          Unlock Current Version
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+
+  <!-- Unlock Confirmation Dialog -->
+  <v-dialog v-model="showUnlockConfirmationDialog" max-width="400">
+    <v-card>
+      <v-card-title class="text-h5">
+        Final Confirmation
+      </v-card-title>
+      <v-card-text>
+        <p class="mb-3">
+          <strong>Are you absolutely sure you want to unlock this enumerator?</strong>
+        </p>
+        <p class="mb-4">
+          Type "UNLOCK" below to confirm:
+        </p>
+        <v-text-field
+          v-model="unlockConfirmationText"
+          placeholder="Type UNLOCK to confirm"
+          variant="outlined"
+          density="compact"
+          hide-details
+        />
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer />
+        <v-btn @click="cancelUnlockConfirmation">Cancel</v-btn>
+        <v-btn 
+          color="warning" 
+          @click="confirmUnlock"
+          :disabled="unlockConfirmationText !== 'UNLOCK'"
+        >
+          Unlock
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, watch, computed, onMounted, nextTick } from 'vue'
 import BaseCard from '@/components/BaseCard.vue'
 import { useEnumeratorDetail } from '@/composables/useEnumeratorDetail'
+import { apiService } from '@/utils/api'
 import type { Enumerator, EnumeratorValue } from '@/types/types'
 
 const showDeleteDialog = ref(false)
+const showDeleteConfirmationDialog = ref(false)
+const deleteConfirmationText = ref('')
 const showUnlockDialog = ref(false)
-const editingTitle = ref(false)
-const titleInput = ref<HTMLInputElement | null>(null)
+const showUnlockConfirmationDialog = ref(false)
+const unlockConfirmationText = ref('')
+const enumeratorFiles = ref<any[]>([])
+const loadingFiles = ref(false)
+const collapsedEnumerators = ref<Set<number>>(new Set())
+const valueInputRefs = ref<Record<string, HTMLInputElement>>({})
+const enumNameInputRefs = ref<Record<number, HTMLInputElement>>({})
 
 // Editable state for enum names and values (by index)
 const editableEnumNames = ref<string[]>([])
@@ -212,6 +375,8 @@ function initEditableStateFromEnumerator(val: any) {
     editableEnumNames.value = val.enumerators.map((e: Enumerator) => e.name)
     editableEnumValues.value = {}
     editableEnumDescriptions.value = {}
+    // Initialize with only the first enumerator expanded
+    collapsedEnumerators.value = new Set(val.enumerators.map((_: Enumerator, i: number) => i > 0 ? i : null).filter((i: number | null) => i !== null))
     val.enumerators.forEach((e: Enumerator, i: number) => {
       editableEnumValues.value[i] = e.values.map((v: EnumeratorValue) => v.value)
       editableEnumDescriptions.value[i] = e.values.map((v: EnumeratorValue) => v.description)
@@ -237,16 +402,7 @@ const autoSaveLocal = async () => {
   await saveEnumerator()
 }
 
-const startEditTitle = () => {
-  editingTitle.value = true
-  setTimeout(() => {
-    titleInput.value?.focus()
-  }, 0)
-}
 
-const finishEditTitle = () => {
-  editingTitle.value = false
-}
 
 const lockEnumerator = async () => {
   if (!enumerator.value) return
@@ -259,11 +415,22 @@ const addEnumeration = () => {
   if (!enumerator.value.enumerators) {
     enumerator.value.enumerators = []
   }
-  const newEnum: Enumerator = { name: `enum_${enumerator.value.enumerators.length + 1}`, values: [] }
+  const newEnum: Enumerator = { name: 'Enumerator Name', values: [] }
   enumerator.value.enumerators.push(newEnum)
   editableEnumNames.value.push(newEnum.name)
   editableEnumValues.value[enumerator.value.enumerators.length - 1] = []
   editableEnumDescriptions.value[enumerator.value.enumerators.length - 1] = []
+  
+  // Focus on the new enumerator name after the DOM updates
+  const newEnumIdx = enumerator.value.enumerators.length - 1
+  nextTick(() => {
+    const inputRef = enumNameInputRefs.value[newEnumIdx]
+    if (inputRef) {
+      inputRef.focus()
+      inputRef.select()
+    }
+  })
+  
   autoSaveLocal()
 }
 
@@ -292,12 +459,29 @@ const finishEnumNameEdit = (idx: number) => {
 
 const addEnumValue = (enumIdx: number) => {
   if (!enumerator.value?.enumerators?.[enumIdx]) return
-  const newValue: EnumeratorValue = { value: `value_${enumerator.value.enumerators[enumIdx].values.length + 1}`, description: '' }
+  const newValue: EnumeratorValue = { value: 'name', description: '' }
   enumerator.value.enumerators[enumIdx].values.push(newValue)
   if (!editableEnumValues.value[enumIdx]) editableEnumValues.value[enumIdx] = []
   if (!editableEnumDescriptions.value[enumIdx]) editableEnumDescriptions.value[enumIdx] = []
   editableEnumValues.value[enumIdx].push(newValue.value)
   editableEnumDescriptions.value[enumIdx].push(newValue.description)
+  
+  // Expand the section if it's collapsed
+  if (isEnumeratorCollapsed(enumIdx)) {
+    collapsedEnumerators.value.delete(enumIdx)
+  }
+  
+  // Focus on the new value name after the DOM updates
+  const newValueIdx = enumerator.value.enumerators[enumIdx].values.length - 1
+  nextTick(() => {
+    const refKey = `${enumIdx}-${newValueIdx}`
+    const inputRef = valueInputRefs.value[refKey]
+    if (inputRef) {
+      inputRef.focus()
+      inputRef.select()
+    }
+  })
+  
   autoSaveLocal()
 }
 
@@ -339,6 +523,208 @@ const finishEnumDescriptionEdit = (enumIdx: number, valIdx: number) => {
 const handleDelete = () => {
   showDeleteDialog.value = true
 }
+
+const showDeleteConfirmation = () => {
+  showDeleteDialog.value = false
+  showDeleteConfirmationDialog.value = true
+  deleteConfirmationText.value = ''
+}
+
+const cancelDelete = () => {
+  showDeleteDialog.value = false
+}
+
+const cancelDeleteConfirmation = () => {
+  showDeleteConfirmationDialog.value = false
+  deleteConfirmationText.value = ''
+}
+
+const unlockEnumerator = async () => {
+  if (!enumerator.value) return
+  enumerator.value._locked = false
+  showUnlockDialog.value = false
+  await autoSaveLocal()
+}
+
+const confirmUnlock = () => {
+  unlockEnumerator()
+  showUnlockConfirmationDialog.value = false
+  unlockConfirmationText.value = ''
+}
+
+const createNewVersion = async () => {
+  if (!enumerator.value) return
+  
+  try {
+    // Get the current version number
+    const currentVer = currentVersion.value
+    const newVersion = currentVer + 1
+    
+    // Create new file name with incremented version
+    const newFileName = `enumerations.${newVersion}.yaml`
+    
+    // Copy the current enumerator data to the new version
+    const newEnumeratorData = {
+      ...enumerator.value,
+      file_name: newFileName,
+      version: newVersion,
+      _locked: false // New version starts unlocked
+    }
+    
+    // Save the new version
+    await apiService.saveEnumerator(newFileName, newEnumeratorData)
+    
+    // Close the dialog
+    showUnlockDialog.value = false
+    
+    // Navigate to the new version
+    window.location.href = `/enumerators/${newFileName}`
+  } catch (err: any) {
+    error.value = err.message || 'Failed to create new version'
+    console.error('Failed to create new version:', err)
+  }
+}
+
+// Check if unlock option should be shown (only for newest version)
+const showUnlockOption = computed(() => {
+  return !hasNextVersion.value
+})
+
+const showUnlockConfirmation = () => {
+  showUnlockDialog.value = false
+  showUnlockConfirmationDialog.value = true
+  unlockConfirmationText.value = ''
+}
+
+const cancelUnlock = () => {
+  showUnlockDialog.value = false
+}
+
+const cancelUnlockConfirmation = () => {
+  showUnlockConfirmationDialog.value = false
+  unlockConfirmationText.value = ''
+}
+
+const confirmDelete = async () => {
+  if (!enumerator.value) return
+  
+  try {
+    await apiService.deleteEnumerator(enumerator.value.file_name)
+    // Close the dialog
+    showDeleteConfirmationDialog.value = false
+    deleteConfirmationText.value = ''
+    // Navigate back to enumerators list
+    window.location.href = '/enumerators'
+  } catch (err: any) {
+    error.value = err.message || 'Failed to delete enumerator'
+    console.error('Failed to delete enumerator:', err)
+  }
+}
+
+
+
+// Load enumerator files for navigation
+const loadEnumeratorFiles = async () => {
+  loadingFiles.value = true
+  try {
+    const files = await apiService.getEnumerators()
+    enumeratorFiles.value = files
+  } catch (err: any) {
+    console.error('Failed to load enumerator files:', err)
+  } finally {
+    loadingFiles.value = false
+  }
+}
+
+// Extract version number from file name (e.g., "enumerations.5.yaml" -> 5)
+const extractVersionFromFileName = (fileName: string): number => {
+  const match = fileName.match(/enumerations\.(\d+)\.yaml/)
+  return match ? parseInt(match[1], 10) : 0
+}
+
+// Get current file's version
+const currentVersion = computed(() => {
+  if (!enumerator.value) return 0
+  return extractVersionFromFileName(enumerator.value.file_name)
+})
+
+// Check if previous version exists
+const hasPreviousVersion = computed(() => {
+  if (!enumerator.value) return false
+  const currentVer = currentVersion.value
+  return enumeratorFiles.value.some(file => {
+    const fileVersion = extractVersionFromFileName(file.file_name)
+    return fileVersion === currentVer - 1
+  })
+})
+
+// Check if next version exists
+const hasNextVersion = computed(() => {
+  if (!enumerator.value) return false
+  const currentVer = currentVersion.value
+  return enumeratorFiles.value.some(file => {
+    const fileVersion = extractVersionFromFileName(file.file_name)
+    return fileVersion === currentVer + 1
+  })
+})
+
+
+
+// Navigate to previous version
+const navigateToPreviousVersion = async () => {
+  if (!enumerator.value || !hasPreviousVersion.value) return
+  
+  const currentVer = currentVersion.value
+  const previousFile = enumeratorFiles.value.find(file => {
+    const fileVersion = extractVersionFromFileName(file.file_name)
+    return fileVersion === currentVer - 1
+  })
+  
+  if (previousFile) {
+    // Navigate to the previous file
+    window.location.href = `/enumerators/${previousFile.file_name}`
+  }
+}
+
+// Navigate to next version
+const navigateToNextVersion = async () => {
+  if (!enumerator.value || !hasNextVersion.value) return
+  
+  const currentVer = currentVersion.value
+  const nextFile = enumeratorFiles.value.find(file => {
+    const fileVersion = extractVersionFromFileName(file.file_name)
+    return fileVersion === currentVer + 1
+  })
+  
+  if (nextFile) {
+    // Navigate to the next file
+    window.location.href = `/enumerators/${nextFile.file_name}`
+  }
+}
+
+// Toggle enumerator collapse state with "expand only one" functionality
+const toggleEnumeratorCollapse = (enumIdx: number) => {
+  if (collapsedEnumerators.value.has(enumIdx)) {
+    // Expanding this enumerator - collapse all others first
+    const totalEnumerators = enumerator.value?.enumerators?.length || 0
+    collapsedEnumerators.value = new Set(
+      Array.from({ length: totalEnumerators }, (_, i) => i).filter(i => i !== enumIdx)
+    )
+  } else {
+    // Collapsing this enumerator - no other changes needed
+    collapsedEnumerators.value.add(enumIdx)
+  }
+}
+
+// Check if enumerator is collapsed
+const isEnumeratorCollapsed = (enumIdx: number) => {
+  return collapsedEnumerators.value.has(enumIdx)
+}
+
+// Load files when component mounts
+onMounted(() => {
+  loadEnumeratorFiles()
+})
 </script>
 
 <style scoped>
@@ -352,21 +738,15 @@ const handleDelete = () => {
   margin-bottom: 16px;
 }
 
-.enumerators-list {
-  margin-top: 16px;
-}
 
-.enum-values {
-  padding: 16px 0;
-}
 
-.enum-values-list {
-  margin-top: 16px;
-}
+
+
+
 
 .enum-value-item {
-  padding: 8px 0;
   border-bottom: 1px solid #e0e0e0;
+  padding-left: 15px;
 }
 
 .enum-value-item:last-child {
@@ -395,5 +775,19 @@ const handleDelete = () => {
 }
 .title-text:hover {
   color: rgba(0, 0, 0, 0.6);
+}
+
+.rotate-icon {
+  transform: rotate(180deg);
+  transition: transform 0.2s ease;
+}
+
+/* Target enumerator name inputs specifically */
+.enumerator-header .v-text-field .v-field__input {
+  font-size: 3rem !important;
+  font-weight: 700 !important;
+  line-height: 1.2 !important;
+  color: red !important;
+  background-color: yellow !important;
 }
 </style> 
