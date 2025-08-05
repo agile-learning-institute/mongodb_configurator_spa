@@ -19,7 +19,25 @@
           <div v-if="!editingTitle" class="d-flex align-center">
             <h1 class="text-h4 mr-4">{{ enumerator.file_name }}</h1>
             <span v-if="enumerator.title" class="text-h6 text-medium-emphasis mr-4">{{ enumerator.title }}</span>
-            <span class="text-body-1 text-medium-emphasis">Version: {{ enumerator.version }}</span>
+            <div class="d-flex align-center">
+              <v-btn
+                icon="mdi-chevron-left"
+                variant="text"
+                size="small"
+                :disabled="enumerator._locked || enumerator.version <= 1"
+                @click="decrementVersion"
+                class="mr-1"
+              />
+              <span class="text-body-1 text-medium-emphasis">Version: {{ enumerator.version }}</span>
+              <v-btn
+                icon="mdi-chevron-right"
+                variant="text"
+                size="small"
+                :disabled="enumerator._locked"
+                @click="incrementVersion"
+                class="ml-1"
+              />
+            </div>
             <v-btn
               icon="mdi-pencil"
               variant="text"
@@ -404,6 +422,18 @@ const confirmDelete = async () => {
     error.value = err.message || 'Failed to delete enumerator'
     console.error('Failed to delete enumerator:', err)
   }
+}
+
+const incrementVersion = async () => {
+  if (!enumerator.value || enumerator.value._locked) return
+  enumerator.value.version += 1
+  await autoSaveLocal()
+}
+
+const decrementVersion = async () => {
+  if (!enumerator.value || enumerator.value._locked || enumerator.value.version <= 1) return
+  enumerator.value.version -= 1
+  await autoSaveLocal()
 }
 </script>
 
