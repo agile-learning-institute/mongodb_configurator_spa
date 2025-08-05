@@ -108,6 +108,7 @@
                 :disabled="enumerator._locked"
                 class="mr-3"
                 style="width: 20%; max-width: 150px;"
+                :data-enum-name-input="enumIdx"
                 @blur="finishEnumNameEdit(enumIdx)"
                 @keyup.enter="finishEnumNameEdit(enumIdx)"
               />
@@ -301,11 +302,23 @@ const addEnumeration = () => {
   if (!enumerator.value.enumerators) {
     enumerator.value.enumerators = []
   }
-  const newEnum: Enumerator = { name: `enum_${enumerator.value.enumerators.length + 1}`, values: [] }
+  const newEnum: Enumerator = { name: 'Enumerator Name', values: [] }
   enumerator.value.enumerators.push(newEnum)
   editableEnumNames.value.push(newEnum.name)
   editableEnumValues.value[enumerator.value.enumerators.length - 1] = []
   editableEnumDescriptions.value[enumerator.value.enumerators.length - 1] = []
+  
+  // Focus on the new enumerator name after the DOM updates
+  const newEnumIdx = enumerator.value.enumerators.length - 1
+  nextTick(() => {
+    const enumNameInputs = document.querySelectorAll(`[data-enum-name-input="${newEnumIdx}"]`)
+    if (enumNameInputs.length > 0) {
+      const input = enumNameInputs[0] as HTMLInputElement
+      input.focus()
+      input.select()
+    }
+  })
+  
   autoSaveLocal()
 }
 
