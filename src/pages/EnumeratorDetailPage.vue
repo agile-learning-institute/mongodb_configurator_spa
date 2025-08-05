@@ -23,8 +23,8 @@
                 icon="mdi-chevron-left"
                 variant="text"
                 size="small"
-                :disabled="enumerator._locked || enumerator.version <= 1"
-                @click="decrementVersion"
+                :disabled="!hasPreviousVersion"
+                @click="navigateToPreviousVersion"
                 class="mr-1"
               />
               Version: {{ enumerator.version }}
@@ -32,8 +32,8 @@
                 icon="mdi-chevron-right"
                 variant="text"
                 size="small"
-                :disabled="enumerator._locked"
-                @click="incrementVersion"
+                :disabled="!hasNextVersion"
+                @click="navigateToNextVersion"
                 class="ml-1"
               />
             </h1>
@@ -246,7 +246,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, watch, computed, onMounted } from 'vue'
 import BaseCard from '@/components/BaseCard.vue'
 import { useEnumeratorDetail } from '@/composables/useEnumeratorDetail'
 import { apiService } from '@/utils/api'
@@ -256,6 +256,8 @@ const showDeleteDialog = ref(false)
 const showUnlockDialog = ref(false)
 const editingTitle = ref(false)
 const titleInput = ref<HTMLInputElement | null>(null)
+const enumeratorFiles = ref<any[]>([])
+const loadingFiles = ref(false)
 
 // Editable state for enum names and values (by index)
 const editableEnumNames = ref<string[]>([])
@@ -423,17 +425,89 @@ const confirmDelete = async () => {
   }
 }
 
-const incrementVersion = async () => {
-  if (!enumerator.value || enumerator.value._locked) return
-  enumerator.value.version += 1
-  await autoSaveLocal()
+
+
+// Load enumerator files for navigation
+const loadEnumeratorFiles = async () => {
+  loadingFiles.value = true
+  try {
+    const files = await apiService.getEnumerators()
+    enumeratorFiles.value = files
+  } catch (err: any) {
+    console.error('Failed to load enumerator files:', err)
+  } finally {
+    loadingFiles.value = false
+  }
 }
 
-const decrementVersion = async () => {
-  if (!enumerator.value || enumerator.value._locked || enumerator.value.version <= 1) return
-  enumerator.value.version -= 1
-  await autoSaveLocal()
+// Extract version number from file name (e.g., "enumerations.5.yaml" -> 5)
+const extractVersionFromFileName = (fileName: string): number => {
+  const match = fileName.match(/enumerations\.(\d+)\.yaml/)
+  return match ? parseInt(match[1], 10) : 0
 }
+
+// Get current file's version
+const currentVersion = computed(() => {
+  if (!enumerator.value) return 0
+  return extractVersionFromFileName(enumerator.value.file_name)
+})
+
+// Check if previous version exists
+const hasPreviousVersion = computed(() => {
+  if (!enumerator.value) return false
+  const currentVer = currentVersion.value
+  return enumeratorFiles.value.some(file => {
+    const fileVersion = extractVersionFromFileName(file.file_name)
+    return fileVersion === currentVer - 1
+  })
+})
+
+// Check if next version exists
+const hasNextVersion = computed(() => {
+  if (!enumerator.value) return false
+  const currentVer = currentVersion.value
+  return enumeratorFiles.value.some(file => {
+    const fileVersion = extractVersionFromFileName(file.file_name)
+    return fileVersion === currentVer + 1
+  })
+})
+
+// Navigate to previous version
+const navigateToPreviousVersion = async () => {
+  if (!enumerator.value || !hasPreviousVersion.value) return
+  
+  const currentVer = currentVersion.value
+  const previousFile = enumeratorFiles.value.find(file => {
+    const fileVersion = extractVersionFromFileName(file.file_name)
+    return fileVersion === currentVer - 1
+  })
+  
+  if (previousFile) {
+    // Navigate to the previous file
+    window.location.href = `/enumerators/${previousFile.file_name}`
+  }
+}
+
+// Navigate to next version
+const navigateToNextVersion = async () => {
+  if (!enumerator.value || !hasNextVersion.value) return
+  
+  const currentVer = currentVersion.value
+  const nextFile = enumeratorFiles.value.find(file => {
+    const fileVersion = extractVersionFromFileName(file.file_name)
+    return fileVersion === currentVer + 1
+  })
+  
+  if (nextFile) {
+    // Navigate to the next file
+    window.location.href = `/enumerators/${nextFile.file_name}`
+  }
+}
+
+// Load files when component mounts
+onMounted(() => {
+  loadEnumeratorFiles()
+})
 </script>
 
 <style scoped>
