@@ -176,6 +176,7 @@
                     :disabled="enumerator._locked"
                     class="mr-2"
                     style="min-width: 200px;"
+                    placeholder="Description"
                     @blur="finishEnumDescriptionEdit(enumIdx, valIdx)"
                     @keyup.enter="finishEnumDescriptionEdit(enumIdx, valIdx)"
                   />
