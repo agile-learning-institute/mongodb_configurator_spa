@@ -106,7 +106,7 @@
                 variant="plain"
                 hide-details
                 :readonly="enumerator._locked"
-                class="mr-3"
+                class="mr-3 text-h3"
                 style="width: 20%; max-width: 150px;"
                 :ref="(el) => { if (el && '$el' in el) enumNameInputRefs[enumIdx] = (el as any).$el.querySelector('input') }"
                 @blur="finishEnumNameEdit(enumIdx)"
