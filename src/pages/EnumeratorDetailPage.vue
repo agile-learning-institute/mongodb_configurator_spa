@@ -164,6 +164,7 @@
                     :disabled="enumerator._locked"
                     class="mr-2"
                     style="min-width: 150px;"
+                    :data-enum-value-input="`${enumIdx}-${valIdx}`"
                     @blur="finishEnumValueEdit(enumIdx, valIdx)"
                     @keyup.enter="finishEnumValueEdit(enumIdx, valIdx)"
                   />
@@ -236,7 +237,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, computed, onMounted } from 'vue'
+import { ref, watch, computed, onMounted, nextTick } from 'vue'
 import BaseCard from '@/components/BaseCard.vue'
 import { useEnumeratorDetail } from '@/composables/useEnumeratorDetail'
 import { apiService } from '@/utils/api'
@@ -337,6 +338,23 @@ const addEnumValue = (enumIdx: number) => {
   if (!editableEnumDescriptions.value[enumIdx]) editableEnumDescriptions.value[enumIdx] = []
   editableEnumValues.value[enumIdx].push(newValue.value)
   editableEnumDescriptions.value[enumIdx].push(newValue.description)
+  
+  // Expand the section if it's collapsed
+  if (isEnumeratorCollapsed(enumIdx)) {
+    collapsedEnumerators.value.delete(enumIdx)
+  }
+  
+  // Focus on the new value name after the DOM updates
+  const newValueIdx = enumerator.value.enumerators[enumIdx].values.length - 1
+  nextTick(() => {
+    const valueInputs = document.querySelectorAll(`[data-enum-value-input="${enumIdx}-${newValueIdx}"]`)
+    if (valueInputs.length > 0) {
+      const input = valueInputs[0] as HTMLInputElement
+      input.focus()
+      input.select()
+    }
+  })
+  
   autoSaveLocal()
 }
 
