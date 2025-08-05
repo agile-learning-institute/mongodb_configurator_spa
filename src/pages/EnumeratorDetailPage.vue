@@ -156,7 +156,7 @@
                 <div
                   v-for="(_, valIdx) in enumItem.values"
                   :key="valIdx"
-                  class="enum-value-item d-flex align-center mb-1"
+                  class="enum-value-item d-flex align-center"
                 >
                   <v-text-field
                     v-model="editableEnumValues[enumIdx][valIdx]"
@@ -558,7 +558,6 @@ onMounted(() => {
 
 
 .enum-value-item {
-  padding: 8px 0;
   border-bottom: 1px solid #e0e0e0;
 }
 
