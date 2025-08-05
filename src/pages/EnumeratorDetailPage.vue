@@ -107,7 +107,7 @@
                 hide-details
                 :disabled="enumerator._locked"
                 class="mr-3"
-                style="min-width: 50px;"
+                style="width: 20%; max-width: 150px;"
                 @blur="finishEnumNameEdit(enumIdx)"
                 @keyup.enter="finishEnumNameEdit(enumIdx)"
               />
