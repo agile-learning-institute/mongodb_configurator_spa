@@ -553,9 +553,7 @@ onMounted(() => {
 
 
 
-.enum-values {
-  padding: 16px 0;
-}
+
 
 .enum-values-list {
   margin-top: 16px;
