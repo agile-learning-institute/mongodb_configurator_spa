@@ -551,9 +551,7 @@ onMounted(() => {
   margin-bottom: 16px;
 }
 
-.enumerators-list {
-  margin-top: 16px;
-}
+
 
 .enum-values {
   padding: 16px 0;
