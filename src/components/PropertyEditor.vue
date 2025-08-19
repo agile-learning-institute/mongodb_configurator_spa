@@ -54,8 +54,8 @@
     
     <!-- Body slot for type-specific content -->
     <template #body>
-      <!-- Array property body - handle different items types -->
-      <div v-if="isArrayProperty(property) && property.items" class="array-property-body">
+      <!-- Array property body - only show for array/object items types -->
+      <div v-if="isArrayProperty(property) && property.items && (property.items.type === 'array' || property.items.type === 'object')" class="array-property-body">
         <!-- Array of Object: Show object properties directly -->
         <div v-if="property.items.type === 'object'" class="object-properties">
           <div v-if="!(property.items as any)._collapsed">
