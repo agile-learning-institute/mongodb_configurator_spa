@@ -311,6 +311,20 @@ watch(() => props.property, (newProperty) => {
   margin: 0;
 }
 
+/* Override Vuetify's min-width: 0 for property name */
+.property-name-section .v-text-field {
+  min-width: 180px !important;
+  max-width: 180px !important;
+  flex-shrink: 0 !important;
+}
+
+/* Override Vuetify's flex: 1 and min-width: 0 for property description */
+.property-description-section .v-text-field {
+  min-width: 200px !important;
+  flex: 1 !important;
+  flex-shrink: 1 !important;
+}
+
 .property-body {
   margin-top: 8px;
   padding-top: 8px;
