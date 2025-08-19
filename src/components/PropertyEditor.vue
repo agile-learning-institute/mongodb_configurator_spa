@@ -10,7 +10,7 @@
           hide-details
           :disabled="disabled"
           class="mr-2"
-          :style="{ maxWidth: '180px' }"
+          :style="{ minWidth: '180px' }"
           @blur="handleNameChange"
           @keyup.enter="handleNameChange"
         />
@@ -312,14 +312,14 @@ watch(() => props.property, (newProperty) => {
 }
 
 /* Target only the name input specifically */
-#property-name-root input,
+#property-name-from input,
 [id^="property-name-"] input {
   min-width: 180px !important;
   max-width: 180px !important;
 }
 
 /* Target only the description input specifically */
-#property-description-root input,
+#property-description-from input,
 [id^="property-description-"] input {
   min-width: 200px !important;
 }
