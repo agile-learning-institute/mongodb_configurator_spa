@@ -311,9 +311,8 @@ watch(() => props.property, (newProperty) => {
   margin: 0;
 }
 
-/* Use ID selectors for maximum specificity */
-#property-name-root .v-field__input,
-[id^="property-name-"] .v-field__input {
+/* Use the actual input element ID for maximum direct targeting */
+#input-v-0-4 {
   min-width: 180px !important;
   max-width: 180px !important;
 }
