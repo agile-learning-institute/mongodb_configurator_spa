@@ -33,8 +33,8 @@
     
     <!-- Body slot for type-specific content -->
     <template #body>
-      <!-- Array property body -->
-      <div v-if="isArrayProperty(property) && property.items" class="array-property-body">
+      <!-- Array property body - only show for array/object items types -->
+      <div v-if="isArrayProperty(property) && property.items && (property.items.type === 'array' || property.items.type === 'object')" class="array-property-body">
         <div class="array-item-editor">
           <PropertyEditor
             :property="property.items"
