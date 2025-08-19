@@ -321,6 +321,16 @@ watch(() => props.property, (newProperty) => {
   min-width: 200px !important;
 }
 
+/* More specific targeting to ensure override */
+.property-name-section .v-text-field .v-field .v-field__field .v-field__input {
+  min-width: 180px !important;
+  max-width: 180px !important;
+}
+
+.property-description-section .v-text-field .v-field .v-field__field .v-field__input {
+  min-width: 200px !important;
+}
+
 .property-body {
   margin-top: 8px;
   padding-top: 8px;
