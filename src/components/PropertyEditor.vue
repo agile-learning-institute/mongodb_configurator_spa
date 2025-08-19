@@ -57,26 +57,24 @@
       <!-- Array property body - only show for array/object items types -->
       <div v-if="isArrayProperty(property) && property.items && (property.items.type === 'array' || property.items.type === 'object')" class="array-property-body">
         <!-- Array of Object: Show object properties directly -->
-        <div v-if="property.items.type === 'object'" class="object-properties">
-          <div v-if="!(property.items as any)._collapsed">
-            <div v-if="!(property.items as any).properties || (property.items as any).properties.length === 0" class="text-center pa-4">
-              <v-icon size="48" color="grey">mdi-format-list-bulleted</v-icon>
-              <p class="text-body-2 text-medium-emphasis mt-2">No properties defined. Click the <v-icon icon="mdi-plus" size="small" class="mx-1" /> icon to add your first property</p>
-            </div>
-            
-            <div v-else class="properties-section">
-              <PropertyEditor
-                v-for="(prop, index) in (property.items as any).properties"
-                :key="prop.name || index"
-                :property="prop"
-                :is-root="false"
-                :is-dictionary="isDictionary"
-                :is-type="isType"
-                :disabled="disabled"
-                @change="(updatedProp) => handleArrayObjectPropertyChange(index, updatedProp)"
-                @delete="() => handleArrayObjectPropertyDelete(index)"
-              />
-            </div>
+        <div v-if="property.items.type === 'object' && !(property.items as any)._collapsed" class="object-properties">
+          <div v-if="!(property.items as any).properties || (property.items as any).properties.length === 0" class="text-center pa-4">
+            <v-icon size="48" color="grey">mdi-format-list-bulleted</v-icon>
+            <p class="text-body-2 text-medium-emphasis mt-2">No properties defined. Click the <v-icon icon="mdi-plus" size="small" class="mx-1" /> icon to add your first property</p>
+          </div>
+          
+          <div v-else class="properties-section">
+            <PropertyEditor
+              v-for="(prop, index) in (property.items as any).properties"
+              :key="prop.name || index"
+              :property="prop"
+              :is-root="false"
+              :is-dictionary="isDictionary"
+              :is-type="isType"
+              :disabled="disabled"
+              @change="(updatedProp) => handleArrayObjectPropertyChange(index, updatedProp)"
+              @delete="() => handleArrayObjectPropertyDelete(index)"
+            />
           </div>
         </div>
         
