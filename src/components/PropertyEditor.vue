@@ -54,9 +54,32 @@
     
     <!-- Body slot for type-specific content -->
     <template #body>
-      <!-- Array property body - only show for array/object items types -->
-      <div v-if="isArrayProperty(property) && property.items && (property.items.type === 'array' || property.items.type === 'object')" class="array-property-body">
-        <div class="array-item-editor">
+      <!-- Array property body - handle different items types -->
+      <div v-if="isArrayProperty(property) && property.items" class="array-property-body">
+        <!-- Array of Object: Show object properties directly -->
+        <div v-if="property.items.type === 'object'" class="object-properties">
+          <div v-if="!(property.items as any).properties || (property.items as any).properties.length === 0" class="text-center pa-4">
+            <v-icon size="48" color="grey">mdi-format-list-bulleted</v-icon>
+            <p class="text-body-2 text-medium-emphasis mt-2">No properties defined. Click the <v-icon icon="mdi-plus" size="small" class="mx-1" /> icon to add your first property</p>
+          </div>
+          
+          <div v-else class="properties-section">
+            <PropertyEditor
+              v-for="(prop, index) in (property.items as any).properties"
+              :key="prop.name || index"
+              :property="prop"
+              :is-root="false"
+              :is-dictionary="isDictionary"
+              :is-type="isType"
+              :disabled="disabled"
+              @change="(updatedProp) => handleArrayObjectPropertyChange(index, updatedProp)"
+              @delete="() => handleArrayObjectPropertyDelete(index)"
+            />
+          </div>
+        </div>
+        
+        <!-- Array of Array: Show nested array editor -->
+        <div v-else-if="property.items.type === 'array'" class="array-item-editor">
           <PropertyEditor
             :property="property.items"
             :is-root="false"
@@ -199,6 +222,26 @@ const handlePropertyDelete = (index: number) => {
     emit('change', props.property)
   }
 }
+
+const handleArrayObjectPropertyChange = (index: number, updatedProp: Property) => {
+  if (isArrayProperty(props.property) && props.property.items && props.property.items.type === 'object') {
+    const items = props.property.items as any
+    if (items.properties) {
+      items.properties[index] = updatedProp
+      emit('change', props.property)
+    }
+  }
+}
+
+const handleArrayObjectPropertyDelete = (index: number) => {
+  if (isArrayProperty(props.property) && props.property.items && props.property.items.type === 'object') {
+    const items = props.property.items as any
+    if (items.properties) {
+      items.properties.splice(index, 1)
+      emit('change', props.property)
+    }
+  }
+}
 </script>
 
 <style scoped>
@@ -208,6 +251,11 @@ const handlePropertyDelete = (index: number) => {
 }
 
 .object-property-body {
+  padding: 16px;
+  background-color: #ffffff;
+}
+
+.object-properties {
   padding: 16px;
   background-color: #ffffff;
 }
