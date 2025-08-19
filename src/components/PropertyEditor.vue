@@ -82,15 +82,38 @@
       <!-- Array of Array: Show nested array editor (only when not collapsed) -->
       <div v-else-if="isArrayProperty(property) && property.items && property.items.type === 'array' && !(property.items as any)._collapsed" class="array-property-body">
         <div class="array-item-editor">
-          <!-- Show the nested array's properties -->
-          <PropertyEditor
-            :property="property.items"
-            :is-root="false"
-            :is-dictionary="isDictionary"
-            :is-type="isType"
-            :disabled="disabled"
-            @change="handleItemsChange"
-          />
+          <!-- Show nested array with only items type picker (no type selector) -->
+          <div class="nested-array-header">
+            <div class="nested-array-name">
+              <span class="text-body-2">{{ (property.items as any).name || 'item' }}</span>
+            </div>
+            <div class="nested-array-description">
+              <span class="text-body-2 text-medium-emphasis">{{ (property.items as any).description || '' }}</span>
+            </div>
+            <div class="nested-array-items-type">
+              <span class="text-caption text-medium-emphasis mr-2">Items:</span>
+              <TypeChipPicker
+                v-model="(property.items as any).items?.type || ''"
+                :is-root="false"
+                :is-dictionary="isDictionary"
+                :is-type="isType"
+                :disabled="disabled"
+                @update:model-value="handleNestedArrayItemsTypeChange"
+              />
+            </div>
+          </div>
+          
+          <!-- Show nested array content if it has items -->
+          <div v-if="(property.items as any).items" class="nested-array-content">
+            <PropertyEditor
+              :property="(property.items as any).items"
+              :is-root="false"
+              :is-dictionary="isDictionary"
+              :is-type="isType"
+              :disabled="disabled"
+              @change="handleNestedArrayChange"
+            />
+          </div>
         </div>
       </div>
 
@@ -132,6 +155,7 @@ import ArrayPropertyExtension from './ArrayPropertyExtension.vue'
 import ArrayOfObjectExtension from './ArrayOfObjectExtension.vue'
 import ArrayOfArrayExtension from './ArrayOfArrayExtension.vue'
 import ObjectPropertyExtension from './ObjectPropertyExtension.vue'
+import TypeChipPicker from './TypeChipPicker.vue'
 
 const props = defineProps<{
   property: Property
@@ -261,6 +285,44 @@ const handleArrayArrayCollapsed = (collapsed: boolean) => {
     ;(props.property.items as any)._collapsed = collapsed
   }
 }
+
+const handleNestedArrayItemsTypeChange = (newType: string) => {
+  if (isArrayProperty(props.property) && props.property.items && props.property.items.type === 'array') {
+    const currentItems = (props.property.items as any).items
+    
+    // Create a new items property with the selected type
+    const newItems = {
+      name: '',
+      description: '',
+      type: newType,
+      required: false
+    }
+    
+    // Create a new property object to ensure proper reactivity
+    const newProperty = {
+      ...props.property,
+      items: {
+        ...props.property.items,
+        items: newItems
+      }
+    }
+    
+    emit('change', newProperty)
+  }
+}
+
+const handleNestedArrayChange = (updatedNestedArray: Property) => {
+  if (isArrayProperty(props.property) && props.property.items && props.property.items.type === 'array') {
+    const newProperty = {
+      ...props.property,
+      items: {
+        ...props.property.items,
+        items: updatedNestedArray
+      }
+    }
+    emit('change', newProperty)
+  }
+}
 </script>
 
 <style scoped>
@@ -285,5 +347,35 @@ const handleArrayArrayCollapsed = (collapsed: boolean) => {
 
 .properties-section {
   margin-top: 0;
+}
+
+.nested-array-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 16px;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+  margin-bottom: 8px;
+}
+
+.nested-array-name {
+  min-width: 120px;
+}
+
+.nested-array-description {
+  flex: 1;
+  min-width: 0;
+}
+
+.nested-array-items-type {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.nested-array-content {
+  margin-left: 16px;
 }
 </style> 
