@@ -54,8 +54,8 @@ export default createVuetify({
       density: 'comfortable',
     },
     VTooltip: {
-      color: 'surface',
-      textColor: 'on-surface',
+      color: 'primary',
+      textColor: 'white',
     },
   },
 }) 

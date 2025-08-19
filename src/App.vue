@@ -31,4 +31,13 @@ const {
 
 <style>
 /* Global styles */
+
+/* Ensure tooltip text is always visible with good contrast */
+.v-tooltip .v-tooltip__content,
+.v-overlay__content {
+  color: white !important;
+  background-color: #2E7D32 !important; /* primary color */
+  font-weight: 500;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
 </style> 

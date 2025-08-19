@@ -40,6 +40,8 @@
         <v-tooltip 
           text="Mark this property as required"
           location="top"
+          color="primary"
+          text-color="white"
         >
           <template v-slot:activator="{ props }">
             <v-checkbox
@@ -54,8 +56,24 @@
       </div>
       
       <div class="property-actions" v-if="canBeDeleted">
-        <!-- TODO: Replace with delete button + tooltip in upcoming section -->
-        <!-- Delete button will be implemented here -->
+        <v-tooltip 
+          text="Delete this property"
+          location="top"
+          color="primary"
+          text-color="white"
+        >
+          <template v-slot:activator="{ props }">
+            <v-btn
+              icon="mdi-delete"
+              variant="text"
+              size="small"
+              color="error"
+              v-bind="props"
+              @click="handleDelete"
+              :disabled="disabled"
+            />
+          </template>
+        </v-tooltip>
       </div>
     </div>
     
