@@ -311,14 +311,16 @@ watch(() => props.property, (newProperty) => {
   margin: 0;
 }
 
-/* Use the actual input element ID for maximum direct targeting */
-#input-v-0-4 {
+/* Target only the name input specifically */
+#property-name-root input,
+[id^="property-name-"] input {
   min-width: 180px !important;
   max-width: 180px !important;
 }
 
-#property-description-root .v-field__input,
-[id^="property-description-"] .v-field__input {
+/* Target only the description input specifically */
+#property-description-root input,
+[id^="property-description-"] input {
   min-width: 200px !important;
 }
 
