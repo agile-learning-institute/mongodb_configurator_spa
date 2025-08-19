@@ -16,8 +16,8 @@
   - [x] Add tooltip to delete icon
 
 ## Types and Type Picker
-  - [ ] Change type drop down to a chip picker
-  - [ ] Implement "custom" types correctly.. custom types are references to other type files - GET types for picker
+  - [x] Change type drop down to a chip picker
+  - [x] Implement "custom" types correctly.. custom types are references to other type files - GET types for picker
   - [ ] The only allowed property types for Types but not Dictionaries are Simple, Complex, Object, Array, and {custom} types
   - [ ] Simple and Complex are only valid as root types
   - [ ] {custom} types are not allowed at the root.

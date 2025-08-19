@@ -199,8 +199,7 @@ const showBody = computed(() => {
          isObjectProperty(props.property) || 
          isSimpleProperty(props.property) || 
          isComplexProperty(props.property) ||
-         isOneOfProperty(props.property) ||
-         isCustomProperty(props.property)
+         isOneOfProperty(props.property)
 })
 
 // Event handlers

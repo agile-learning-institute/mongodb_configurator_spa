@@ -32,13 +32,12 @@
               <div class="text-caption text-medium-emphasis mb-2">Built-in Types</div>
               <div class="d-flex flex-wrap gap-2">
                 <v-chip
-                  v-for="type in builtInTypes"
+                  v-for="type in availableBuiltInTypes"
                   :key="type.value"
                   :color="type.value === modelValue ? 'primary' : 'default'"
                   variant="outlined"
                   size="small"
                   @click="selectType(type.value)"
-                  :disabled="!isTypeAllowed(type.value)"
                 >
                   <v-icon start size="small">{{ type.icon }}</v-icon>
                   {{ type.title }}
@@ -106,12 +105,7 @@ const builtInTypes: BuiltInType[] = [
   { title: 'Array', value: 'array', icon: 'mdi-format-list-bulleted' },
   { title: 'Object', value: 'object', icon: 'mdi-shape' },
   { title: 'Simple', value: 'simple', icon: 'mdi-code-json' },
-  { title: 'Complex', value: 'complex', icon: 'mdi-code-braces' },
-  { title: 'Enum', value: 'enum', icon: 'mdi-format-list-checks' },
-  { title: 'Enum Array', value: 'enum_array', icon: 'mdi-format-list-numbered' },
-  { title: 'Reference', value: 'ref', icon: 'mdi-link' },
-  { title: 'Constant', value: 'constant', icon: 'mdi-numeric' },
-  { title: 'One Of', value: 'one_of', icon: 'mdi-format-list-bulleted-square' }
+  { title: 'Complex', value: 'complex', icon: 'mdi-code-braces' }
 ]
 
 // Load custom types from API
@@ -124,7 +118,7 @@ const loadCustomTypes = async () => {
     customTypes.value = (typesData || []).map((type: any) => ({
       name: type.file_name.replace('.yaml', ''),
       file_name: type.file_name
-    }))
+    })).sort((a, b) => a.name.localeCompare(b.name))
   } catch (error) {
     console.error('Failed to load custom types:', error)
     customTypes.value = []
@@ -136,25 +130,26 @@ const loadCustomTypes = async () => {
 // Check if a type is allowed in current context
 const isTypeAllowed = (typeValue: string): boolean => {
   if (props.isRoot) {
-    // Root properties: only Simple and Complex
-    return ['simple', 'complex'].includes(typeValue)
+    // Root properties: only Array, Object, Simple, Complex
+    return ['array', 'object', 'simple', 'complex'].includes(typeValue)
   }
   
-  if (props.isDictionary) {
-    // Dictionary properties: everything except Simple and Complex
-    return !['simple', 'complex'].includes(typeValue)
-  }
-  
-  if (props.isType) {
-    // Type properties: Simple, Complex, Object, Array, and Custom types
-    return ['simple', 'complex', 'object', 'array'].includes(typeValue)
-  }
-  
-  // Default: allow all types
-  return true
+  // Non-root properties: only Array, Object (Simple and Complex are hidden)
+  return ['array', 'object'].includes(typeValue)
 }
 
-// Get available types for current context
+// Get available built-in types for current context
+const availableBuiltInTypes = computed(() => {
+  if (props.isRoot) {
+    // Root properties: show all built-in types
+    return builtInTypes
+  }
+  
+  // Non-root properties: only show Array and Object
+  return builtInTypes.filter(type => ['array', 'object'].includes(type.value))
+})
+
+// Get available types for current context (legacy - can be removed if not used elsewhere)
 const availableTypes = computed(() => {
   return builtInTypes.filter(type => isTypeAllowed(type.value))
 })
