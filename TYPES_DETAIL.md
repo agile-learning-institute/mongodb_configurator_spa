@@ -18,9 +18,9 @@
 ## Types and Type Picker
   - [x] Change type drop down to a chip picker
   - [x] Implement "custom" types correctly.. custom types are references to other type files - GET types for picker
-  - [ ] The only allowed property types for Types but not Dictionaries are Simple, Complex, Object, Array, and {custom} types
-  - [ ] Simple and Complex are only valid as root types
-  - [ ] {custom} types are not allowed at the root.
+  - [x] The only allowed property types for Types but not Dictionaries are Simple, Complex, Object, Array, and {custom} types
+  - [x] Simple and Complex are only valid as root types
+  - [x] {custom} types are not allowed at the root.
 
 ## Object property editor updates
   - [x] Move "Allow Additional Properties" as action icon with tooltip

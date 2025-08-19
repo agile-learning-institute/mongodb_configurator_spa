@@ -17,7 +17,35 @@
       </div>
       
       <div class="property-description-section" :id="`property-description-${property.name || 'root'}`">
+        <!-- Display mode for root properties -->
+        <div v-if="isRoot && !isEditingDescription" 
+             class="description-display mr-2" 
+             :class="{ 'root-description': isRoot }"
+             :style="{ minWidth: '200px', flex: '1' }"
+             @click="startEditDescription">
+          <span v-if="editableDescription" class="description-text">{{ editableDescription }}</span>
+          <span v-else class="description-placeholder">Click to add description</span>
+        </div>
+        
+        <!-- Edit mode for root properties -->
         <v-text-field
+          v-if="isRoot && isEditingDescription"
+          v-model="editableDescription"
+          variant="plain"
+          density="compact"
+          hide-details
+          :disabled="disabled"
+          class="mr-2"
+          :style="{ minWidth: '200px', flex: '1' }"
+          placeholder="Description"
+          @blur="finishEditDescription"
+          @keyup.enter="finishEditDescription"
+          ref="descriptionInput"
+        />
+        
+        <!-- Always editable for non-root properties -->
+        <v-text-field
+          v-if="!isRoot"
           v-model="editableDescription"
           variant="plain"
           density="compact"
@@ -91,12 +119,14 @@
           text-color="white"
         >
           <template v-slot:activator="{ props }">
-            <v-checkbox
-              v-model="editableRequired"
-              hide-details
-              :disabled="disabled"
+            <v-btn
+              :icon="editableRequired ? 'mdi-checkbox-marked' : 'mdi-checkbox-blank-outline'"
+              variant="text"
+              size="small"
+              color="default"
               v-bind="props"
-              @update:model-value="handleRequiredChange"
+              @click="toggleRequired"
+              :disabled="disabled"
             />
           </template>
         </v-tooltip>
@@ -158,7 +188,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch, defineAsyncComponent } from 'vue'
+import { computed, ref, watch, defineAsyncComponent, nextTick } from 'vue'
 import { 
   type Property,
   isArrayProperty,
@@ -205,6 +235,8 @@ const editableDescription = ref(props.property.description)
 const editableType = ref(props.property.type)
 const editableRequired = ref(props.property.required)
 const collapsed = ref(false)
+const isEditingDescription = ref(false)
+const descriptionInput = ref<HTMLElement>()
 
 // Computed properties
 const isRoot = computed(() => props.isRoot ?? false)
@@ -342,6 +374,30 @@ const handleAddProperty = () => {
     props.property.properties.push(newProperty)
     emit('change', props.property)
   }
+}
+
+const startEditDescription = () => {
+  if (isRoot.value && !props.disabled) {
+    isEditingDescription.value = true
+    // Focus the input after it's rendered
+    nextTick(() => {
+      if (descriptionInput.value) {
+        descriptionInput.value.focus()
+      }
+    })
+  }
+}
+
+const finishEditDescription = () => {
+  if (isRoot.value) {
+    isEditingDescription.value = false
+    handleDescriptionChange()
+  }
+}
+
+const toggleRequired = () => {
+  editableRequired.value = !editableRequired.value
+  handleRequiredChange()
 }
 
 // Helper function to create a new property with the specified type
@@ -514,4 +570,36 @@ watch(() => props.property, (newProperty) => {
   padding-top: 8px;
   border-top: 1px solid #e0e0e0;
 }
+
+/* Root property description styling - display mode */
+.description-display {
+  cursor: pointer;
+  padding: 8px 12px;
+  border-radius: 4px;
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.description-display:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.12);
+}
+
+.root-description.description-display {
+  font-size: 2.0rem;
+  font-weight: 500;
+}
+
+.description-text {
+  color: rgba(0, 0, 0, 0.87);
+}
+
+.description-placeholder {
+  color: rgba(0, 0, 0, 0.38);
+  font-style: italic;
+}
+
+
+
+
 </style> 
