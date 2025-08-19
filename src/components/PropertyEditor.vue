@@ -297,7 +297,7 @@ watch(() => props.property, (newProperty) => {
 <style scoped>
 .property-editor {
   border-bottom: 1px solid #e0e0e0;
-  padding: 8px 0 0 0;
+  padding: 0;
   margin: 0;
   background-color: transparent;
 }
@@ -318,6 +318,15 @@ watch(() => props.property, (newProperty) => {
 .property-description-section {
   flex: 1;
   min-width: 0; /* Allow shrinking below min-width when needed */
+}
+
+/* Remove white background from input boxes */
+.property-editor .v-text-field .v-field {
+  background-color: transparent !important;
+}
+
+.property-editor .v-text-field .v-field__field {
+  background-color: transparent !important;
 }
 
 /* Target only the name input specifically */
