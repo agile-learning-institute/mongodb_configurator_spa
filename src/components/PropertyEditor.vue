@@ -1,221 +1,87 @@
 <template>
-  <div class="property-editor">
-    <!-- Property Header with Name and Description -->
-    <div class="property-header d-flex align-center">
-      <div class="property-name-section" v-if="!isRoot" :id="`property-name-${property.name || 'root'}`">
-        <v-text-field
-          v-model="editableName"
-          variant="plain"
-          density="compact"
-          hide-details
-          :disabled="disabled"
-          class="mr-2"
-          :style="{ minWidth: '180px' }"
-          placeholder="Name"
-          @blur="handleNameChange"
-          @keyup.enter="handleNameChange"
-        />
-      </div>
+  <BasePropertyEditor
+    :property="property"
+    :is-root="isRoot"
+    :is-dictionary="isDictionary"
+    :is-type="isType"
+    :disabled="disabled"
+    @change="handleChange"
+    @delete="handleDelete"
+  >
+    <!-- Extension slot for type-specific controls -->
+    <template #extension>
+      <!-- Array extension: Items type picker -->
+      <ArrayPropertyExtension
+        v-if="isArrayProperty(property)"
+        :property="property"
+        :is-dictionary="isDictionary"
+        :is-type="isType"
+        :disabled="disabled"
+        @change="handleChange"
+      />
       
-      <div class="property-description-section" :id="`property-description-${property.name || 'root'}`">
-        <!-- Display mode for root properties -->
-        <div v-if="isRoot && !isEditingDescription" 
-             class="description-display mr-2" 
-             :class="{ 'root-description': isRoot }"
-             :style="{ minWidth: '200px', flex: '1' }"
-             @click="startEditDescription">
-          <span v-if="editableDescription" class="description-text">{{ editableDescription }}</span>
-          <span v-else class="description-placeholder">Click to add description</span>
-        </div>
-        
-        <!-- Edit mode for root properties -->
-        <v-text-field
-          v-if="isRoot && isEditingDescription"
-          v-model="editableDescription"
-          variant="plain"
-          density="compact"
-          hide-details
-          :disabled="disabled"
-          class="mr-2"
-          :style="{ minWidth: '200px', flex: '1' }"
-          placeholder="Description"
-          @blur="finishEditDescription"
-          @keyup.enter="finishEditDescription"
-          ref="descriptionInput"
-        />
-        
-        <!-- Always editable for non-root properties -->
-        <v-text-field
-          v-if="!isRoot"
-          v-model="editableDescription"
-          variant="plain"
-          density="compact"
-          hide-details
-          :disabled="disabled"
-          class="mr-2"
-          :style="{ minWidth: '200px', flex: '1' }"
-          placeholder="Description"
-          @blur="handleDescriptionChange"
-          @keyup.enter="handleDescriptionChange"
-        />
-      </div>
-      
-      <div class="property-type-section">
-        <TypeChipPicker
-          v-model="editableType"
-          :is-root="isRoot"
-          :is-dictionary="isDictionary"
-          :is-type="isType"
-          :disabled="disabled"
-          @update:model-value="handleTypeChange"
-        />
-      </div>
-      
-      <div class="property-add-section" v-if="canAddProperties">
-        <v-tooltip 
-          text="Add Property"
-          location="top"
-          color="primary"
-          text-color="white"
-        >
-          <template v-slot:activator="{ props }">
-            <v-btn
-              icon="mdi-plus"
-              variant="text"
-              size="small"
-              color="default"
-              v-bind="props"
-              @click="handleAddProperty"
-              :disabled="disabled"
-            />
-          </template>
-        </v-tooltip>
-      </div>
-      
-      <div class="property-additional-props-section" v-if="canHaveAdditionalProperties">
-        <v-tooltip 
-          text="Allow additional properties"
-          location="top"
-          color="primary"
-          text-color="white"
-        >
-          <template v-slot:activator="{ props }">
-            <v-btn
-              :icon="getAdditionalPropsIcon()"
-              variant="text"
-              size="large"
-              v-bind="props"
-              @click="toggleAdditionalProperties"
-              :disabled="disabled"
-            />
-          </template>
-        </v-tooltip>
-      </div>
-      
-      <div class="property-required-section" v-if="canBeRequired">
-        <v-tooltip 
-          text="Mark this property as required"
-          location="top"
-          color="primary"
-          text-color="white"
-        >
-          <template v-slot:activator="{ props }">
-            <v-btn
-              :icon="editableRequired ? 'mdi-checkbox-marked' : 'mdi-checkbox-blank-outline'"
-              variant="text"
-              size="small"
-              color="default"
-              v-bind="props"
-              @click="toggleRequired"
-              :disabled="disabled"
-            />
-          </template>
-        </v-tooltip>
-      </div>
-      
-      <div class="property-actions" v-if="canBeDeleted">
-        <v-tooltip 
-          text="Delete this property"
-          location="top"
-          color="primary"
-          text-color="white"
-        >
-          <template v-slot:activator="{ props }">
-            <v-btn
-              icon="mdi-delete"
-              variant="text"
-              size="small"
-              color="error"
-              v-bind="props"
-              @click="handleDelete"
-              :disabled="disabled"
-            />
-          </template>
-        </v-tooltip>
-      </div>
-      
-      <div class="property-collapse-section" v-if="canHaveAdditionalProperties">
-        <v-tooltip 
-          :text="collapsed ? 'Show properties' : 'Hide properties'"
-          location="top"
-          color="primary"
-          text-color="white"
-        >
-          <template v-slot:activator="{ props }">
-            <v-btn
-              :icon="collapsed ? 'mdi-chevron-left' : 'mdi-chevron-down'"
-              variant="text"
-              size="small"
-              color="default"
-              v-bind="props"
-              @click="toggleCollapsed"
-              :disabled="disabled"
-            />
-          </template>
-        </v-tooltip>
-      </div>
-    </div>
-    
-    <!-- Property Type Specific Editor -->
-    <div class="property-body" v-if="showBody && !collapsed">
-      <component
-        :is="propertyTypeEditor"
+      <!-- Object extension: Action icons -->
+      <ObjectPropertyExtension
+        v-if="isObjectProperty(property)"
         :property="property"
         :disabled="disabled"
-        @change="handlePropertyChange"
+        @change="handleChange"
+        @add-property="handleAddProperty"
+        @toggle-collapsed="handleToggleCollapsed"
       />
-    </div>
-  </div>
+    </template>
+    
+    <!-- Body slot for type-specific content -->
+    <template #body>
+      <!-- Array property body -->
+      <div v-if="isArrayProperty(property)" class="array-property-body">
+        <div class="array-item-editor">
+          <PropertyEditor
+            :property="property.items"
+            :is-root="false"
+            :is-dictionary="isDictionary"
+            :is-type="isType"
+            @change="handleItemsChange"
+          />
+        </div>
+      </div>
+      
+      <!-- Object property body -->
+      <div v-else-if="isObjectProperty(property)" class="object-property-body">
+        <div v-if="!property.properties || property.properties.length === 0" class="text-center pa-4">
+          <v-icon size="48" color="grey">mdi-format-list-bulleted</v-icon>
+          <p class="text-body-2 text-medium-emphasis mt-2">No properties defined. Click the <v-icon icon="mdi-plus" size="small" class="mx-1" /> icon to add your first property</p>
+        </div>
+        
+        <div v-else class="properties-section">
+          <PropertyEditor
+            v-for="(prop, index) in property.properties"
+            :key="prop.name || index"
+            :property="prop"
+            :is-root="false"
+            :is-dictionary="isDictionary"
+            :is-type="isType"
+            @change="(updatedProp) => handlePropertyChange(index, updatedProp)"
+            @delete="() => handlePropertyDelete(index)"
+          />
+        </div>
+      </div>
+    </template>
+  </BasePropertyEditor>
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch, defineAsyncComponent, nextTick } from 'vue'
+import { computed } from 'vue'
 import { 
   type Property,
+  type ArrayProperty,
+  type ObjectProperty,
   isArrayProperty,
-  isObjectProperty,
-  isSimpleProperty,
-  isComplexProperty,
-  isEnumProperty,
-  isEnumArrayProperty,
-  isRefProperty,
-  isConstantProperty,
-  isCustomProperty,
-  isOneOfProperty
+  isObjectProperty
 } from '@/types/types'
-import TypeChipPicker from './TypeChipPicker.vue'
-
-// Import property type editors with lazy loading
-const ArrayPropertyEditor = defineAsyncComponent(() => import('./property-types/ArrayPropertyEditor.vue'))
-const ObjectPropertyEditor = defineAsyncComponent(() => import('./property-types/ObjectPropertyEditor.vue'))
-const SimplePropertyEditor = defineAsyncComponent(() => import('./property-types/SimplePropertyEditor.vue'))
-const ComplexPropertyEditor = defineAsyncComponent(() => import('./property-types/ComplexPropertyEditor.vue'))
-const EnumPropertyEditor = defineAsyncComponent(() => import('./property-types/EnumPropertyEditor.vue'))
-const EnumArrayPropertyEditor = defineAsyncComponent(() => import('./property-types/EnumArrayPropertyEditor.vue'))
-const RefPropertyEditor = defineAsyncComponent(() => import('./property-types/RefPropertyEditor.vue'))
-const ConstantPropertyEditor = defineAsyncComponent(() => import('./property-types/ConstantPropertyEditor.vue'))
-const CustomPropertyEditor = defineAsyncComponent(() => import('./property-types/CustomPropertyEditor.vue'))
-const OneOfPropertyEditor = defineAsyncComponent(() => import('./property-types/OneOfPropertyEditor.vue'))
+import BasePropertyEditor from './BasePropertyEditor.vue'
+import ArrayPropertyExtension from './ArrayPropertyExtension.vue'
+import ObjectPropertyExtension from './ObjectPropertyExtension.vue'
 
 const props = defineProps<{
   property: Property
@@ -230,109 +96,13 @@ const emit = defineEmits<{
   delete: []
 }>()
 
-// Reactive state for inline editing
-const editableName = ref(props.property.name)
-const editableDescription = ref(props.property.description)
-const editableType = ref(props.property.type)
-const editableRequired = ref(props.property.required)
-const collapsed = ref(false)
-const isEditingDescription = ref(false)
-const descriptionInput = ref<HTMLElement>()
-
 // Computed properties
-const isRoot = computed(() => props.isRoot ?? false)
-const canBeRequired = computed(() => !isRoot.value)
-const canBeDeleted = computed(() => !isRoot.value)
-const canHaveAdditionalProperties = computed(() => isObjectProperty(props.property))
-const canAddProperties = computed(() => isObjectProperty(props.property))
+const isRoot = computed(() => props.isRoot || false)
+const isDictionary = computed(() => props.isDictionary || false)
+const isType = computed(() => props.isType || false)
 
-// Available types based on context
-const availableTypes = computed(() => {
-  const allTypes = [
-    { title: 'Array', value: 'array' },
-    { title: 'Object', value: 'object' },
-    { title: 'Simple', value: 'simple' },
-    { title: 'Complex', value: 'complex' },
-    { title: 'Enum', value: 'enum' },
-    { title: 'Enum Array', value: 'enum_array' },
-    { title: 'Reference', value: 'ref' },
-    { title: 'Constant', value: 'constant' },
-    { title: 'One Of', value: 'one_of' },
-    { title: 'Custom', value: 'custom' }
-  ]
-  
-  if (props.isType) {
-    // Type files only support: simple, complex, object, array, custom
-    return allTypes.filter(t => ['simple', 'complex', 'object', 'array', 'custom'].includes(t.value))
-  }
-  
-  if (props.isDictionary) {
-    // Dictionary files don't support: simple, complex
-    return allTypes.filter(t => !['simple', 'complex'].includes(t.value))
-  }
-  
-  return allTypes
-})
-
-// Property type editor component
-const propertyTypeEditor = computed(() => {
-  if (isArrayProperty(props.property)) return ArrayPropertyEditor
-  if (isObjectProperty(props.property)) return ObjectPropertyEditor
-  if (isSimpleProperty(props.property)) return SimplePropertyEditor
-  if (isComplexProperty(props.property)) return ComplexPropertyEditor
-  if (isEnumProperty(props.property)) return EnumPropertyEditor
-  if (isEnumArrayProperty(props.property)) return EnumArrayPropertyEditor
-  if (isRefProperty(props.property)) return RefPropertyEditor
-  if (isConstantProperty(props.property)) return ConstantPropertyEditor
-  if (isOneOfProperty(props.property)) return OneOfPropertyEditor
-  if (isCustomProperty(props.property)) return CustomPropertyEditor
-  
-  // Fallback to custom editor for unknown types
-  return CustomPropertyEditor
-})
-
-// Show body for complex types that need additional editing
-const showBody = computed(() => {
-  return isArrayProperty(props.property) || 
-         isObjectProperty(props.property) || 
-         isSimpleProperty(props.property) || 
-         isComplexProperty(props.property) ||
-         isOneOfProperty(props.property)
-})
-
-// Event handlers
-const handleNameChange = () => {
-  props.property.name = editableName.value
-  emit('change', props.property)
-}
-
-const handleDescriptionChange = () => {
-  props.property.description = editableDescription.value
-  emit('change', props.property)
-}
-
-const handleTypeChange = (newType: string) => {
-  // Create new property with the new type
-  const newProperty = createPropertyForType(newType, props.property)
-  
-  // Update the property reference
-  Object.assign(props.property, newProperty)
-  
-  // Update local state
-  editableType.value = newType
-  editableName.value = props.property.name
-  editableDescription.value = props.property.description
-  editableRequired.value = props.property.required
-  
-  emit('change', props.property)
-}
-
-const handleRequiredChange = () => {
-  props.property.required = editableRequired.value
-  emit('change', props.property)
-}
-
-const handlePropertyChange = (updatedProperty: Property) => {
+// Methods
+const handleChange = (updatedProperty: Property) => {
   emit('change', updatedProperty)
 }
 
@@ -340,23 +110,14 @@ const handleDelete = () => {
   emit('delete')
 }
 
-// Additional properties methods
-const getAdditionalPropsIcon = (): string => {
-  if (isObjectProperty(props.property)) {
-    return props.property.additional_properties ? 'mdi-checkbox-marked-circle' : 'mdi-checkbox-blank-circle-outline'
+const handleItemsChange = (updatedItems: any) => {
+  if (isArrayProperty(props.property)) {
+    const updatedProperty = {
+      ...props.property,
+      items: updatedItems
+    }
+    emit('change', updatedProperty)
   }
-  return 'mdi-checkbox-blank-circle-outline'
-}
-
-const toggleAdditionalProperties = () => {
-  if (isObjectProperty(props.property)) {
-    props.property.additional_properties = !props.property.additional_properties
-    emit('change', props.property)
-  }
-}
-
-const toggleCollapsed = () => {
-  collapsed.value = !collapsed.value
 }
 
 const handleAddProperty = () => {
@@ -377,230 +138,43 @@ const handleAddProperty = () => {
   }
 }
 
-const startEditDescription = () => {
-  if (isRoot.value && !props.disabled) {
-    isEditingDescription.value = true
-    // Focus the input after it's rendered
-    nextTick(() => {
-      if (descriptionInput.value) {
-        descriptionInput.value.focus()
-      }
-    })
+const handleToggleCollapsed = (collapsed: boolean) => {
+  // Handle collapse state if needed
+  // For now, we'll just emit the change
+  emit('change', props.property)
+}
+
+const handlePropertyChange = (index: number, updatedProp: Property) => {
+  if (isObjectProperty(props.property) && props.property.properties) {
+    props.property.properties[index] = updatedProp
+    emit('change', props.property)
   }
 }
 
-const finishEditDescription = () => {
-  if (isRoot.value) {
-    isEditingDescription.value = false
-    handleDescriptionChange()
+const handlePropertyDelete = (index: number) => {
+  if (isObjectProperty(props.property) && props.property.properties) {
+    props.property.properties.splice(index, 1)
+    emit('change', props.property)
   }
 }
-
-const toggleRequired = () => {
-  editableRequired.value = !editableRequired.value
-  handleRequiredChange()
-}
-
-// Helper function to create a new property with the specified type
-const createPropertyForType = (type: string, originalProperty: Property): Property => {
-  const baseProperty = {
-    name: originalProperty.name,
-    description: originalProperty.description,
-    type,
-    required: originalProperty.required
-  }
-  
-  switch (type) {
-    case 'array':
-      return {
-        ...baseProperty,
-        items: {
-          name: 'item',
-          description: 'Array item',
-          type: 'string',
-          required: false
-        }
-      } as Property
-    
-    case 'object':
-      return {
-        ...baseProperty,
-        additional_properties: false,
-        properties: []
-      } as Property
-    
-    case 'simple':
-      return {
-        ...baseProperty,
-        schema: {}
-      } as Property
-    
-    case 'complex':
-      return {
-        ...baseProperty,
-        json_type: {},
-        bson_type: {}
-      } as Property
-    
-    case 'enum':
-      return {
-        ...baseProperty,
-        enums: ''
-      } as Property
-    
-    case 'enum_array':
-      return {
-        ...baseProperty,
-        enums: ''
-      } as Property
-    
-    case 'ref':
-      return {
-        ...baseProperty,
-        ref: ''
-      } as Property
-    
-    case 'constant':
-      return {
-        ...baseProperty,
-        constant: ''
-      } as Property
-    
-    case 'one_of':
-      return {
-        ...baseProperty,
-        properties: []
-      } as Property
-    
-    default:
-      // Custom type - just return the base property with the custom type
-      return {
-        ...baseProperty,
-        type
-      } as Property
-  }
-}
-
-// Watch for property changes
-watch(() => props.property, (newProperty) => {
-  editableName.value = newProperty.name
-  editableDescription.value = newProperty.description
-  editableType.value = newProperty.type
-  editableRequired.value = newProperty.required
-}, { deep: true })
 </script>
 
 <style scoped>
-.property-editor {
-  border-bottom: 1px solid #e0e0e0;
-  padding: 0;
-  margin: 0;
-  background-color: transparent;
+.array-property-body {
+  padding: 16px;
+  background-color: #ffffff;
 }
 
-.property-editor:last-child {
-  border-bottom: none;
+.object-property-body {
+  padding: 16px;
+  background-color: #ffffff;
 }
 
-.property-header {
-  display: flex !important;
-  align-items: center;
-  padding: 0;
-  margin: 0;
-  width: 100%;
-}
-
-/* Ensure the description section can expand */
-.property-description-section {
-  flex: 1;
-  min-width: 0; /* Allow shrinking below min-width when needed */
-}
-
-/* Right-justify the required checkbox */
-.property-required-section {
-  margin-left: auto;
-}
-
-/* Additional properties section */
-.property-additional-props-section {
-  margin-left: 8px;
-}
-
-/* Collapse section */
-.property-collapse-section {
-  margin-left: 8px;
-}
-
-/* Add property section */
-.property-add-section {
-  margin-left: 8px;
-}
-
-
-
-/* Remove white background from input boxes - more aggressive targeting */
-.property-editor .v-text-field .v-field,
-.property-editor .v-text-field .v-field__field,
-.property-editor .v-text-field .v-input__control,
-.property-editor .v-text-field .v-field__input {
-  background-color: transparent !important;
-  background: transparent !important;
-}
-
-/* Also target the input element directly */
-.property-editor input {
-  background-color: transparent !important;
-  background: transparent !important;
-}
-
-/* Target only the name input specifically */
-#property-name-from input,
-[id^="property-name-"] input {
-  min-width: 180px !important;
-  max-width: 180px !important;
-}
-
-/* Target only the description input specifically */
-#property-description-from input,
-[id^="property-description-"] input {
-  min-width: 200px !important;
-}
-
-.property-body {
+.array-item-editor {
   margin-top: 8px;
-  padding-top: 8px;
-  border-top: 1px solid #e0e0e0;
 }
 
-/* Root property description styling - display mode */
-.description-display {
-  cursor: pointer;
-  padding: 8px 12px;
-  border-radius: 4px;
-  border: 1px solid transparent;
-  transition: all 0.2s ease;
+.properties-section {
+  margin-top: 0;
 }
-
-.description-display:hover {
-  background-color: rgba(0, 0, 0, 0.04);
-  border-color: rgba(0, 0, 0, 0.12);
-}
-
-.root-description.description-display {
-  font-size: 2.0rem;
-  font-weight: 500;
-}
-
-.description-text {
-  color: rgba(0, 0, 0, 0.87);
-}
-
-.description-placeholder {
-  color: rgba(0, 0, 0, 0.38);
-  font-style: italic;
-}
-
-
-
-
 </style> 
