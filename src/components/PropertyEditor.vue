@@ -11,6 +11,7 @@
           :disabled="disabled"
           class="mr-2"
           :style="{ minWidth: '180px' }"
+          placeholder="Name"
           @blur="handleNameChange"
           @keyup.enter="handleNameChange"
         />
@@ -365,9 +366,9 @@ const handleAddProperty = () => {
     }
     
     const newProperty = {
-      name: `property_${props.property.properties.length + 1}`,
+      name: '',
       description: '',
-      type: 'string',
+      type: 'word',
       required: false
     }
     
