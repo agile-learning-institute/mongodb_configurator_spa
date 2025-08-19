@@ -37,7 +37,11 @@
       </div>
       
       <div class="property-required-section" v-if="canBeRequired">
-        <v-tooltip text="Mark this property as required">
+        <v-tooltip 
+          text="Mark this property as required"
+          location="top"
+          color="primary"
+        >
           <template v-slot:activator="{ props }">
             <v-checkbox
               v-model="editableRequired"
