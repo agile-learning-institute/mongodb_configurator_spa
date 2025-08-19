@@ -228,11 +228,13 @@ const cancelDelete = () => {
 const confirmUnlock = async () => {
   if (!typeData.value) return
   try {
-    // Note: The API doesn't have an unlock endpoint, so we'll just update the local state
-    // In a real implementation, you might need to call a specific unlock endpoint
+    // Update local state
     typeData.value._locked = false
     showUnlockDialog.value = false
     unlockConfirmationText.value = ''
+    
+    // Save the unlocked state to the backend
+    await autoSave()
   } catch (err: any) {
     error.value = err.message || 'Failed to unlock type'
     console.error('Failed to unlock type:', err)
