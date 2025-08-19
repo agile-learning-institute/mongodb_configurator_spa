@@ -24,7 +24,7 @@
           hide-details
           :disabled="disabled"
           class="mr-2"
-          :style="{ minWidth: '200px' }"
+          :style="{ minWidth: '200px', flex: '1' }"
           placeholder="Description"
           @blur="handleDescriptionChange"
           @keyup.enter="handleDescriptionChange"
