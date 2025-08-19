@@ -37,8 +37,17 @@
       </div>
       
       <div class="property-required-section" v-if="canBeRequired">
-        <!-- TODO: Replace with checkbox + tooltip in upcoming section -->
-        <!-- Required checkbox will be implemented here -->
+        <v-tooltip text="Mark this property as required">
+          <template v-slot:activator="{ props }">
+            <v-checkbox
+              v-model="editableRequired"
+              hide-details
+              :disabled="disabled"
+              v-bind="props"
+              @update:model-value="handleRequiredChange"
+            />
+          </template>
+        </v-tooltip>
       </div>
       
       <div class="property-actions" v-if="canBeDeleted">
@@ -318,6 +327,11 @@ watch(() => props.property, (newProperty) => {
 .property-description-section {
   flex: 1;
   min-width: 0; /* Allow shrinking below min-width when needed */
+}
+
+/* Right-justify the required checkbox */
+.property-required-section {
+  margin-left: auto;
 }
 
 /* Remove white background from input boxes - more aggressive targeting */
