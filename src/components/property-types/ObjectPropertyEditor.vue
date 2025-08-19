@@ -6,8 +6,8 @@
       <!-- Empty state -->
       <div v-if="!properties || properties.length === 0" class="text-center pa-4">
         <v-icon size="48" color="grey">mdi-format-list-bulleted</v-icon>
-        <p class="text-body-2 text-medium-emphasis mt-2">No properties defined</p>
-        <p class="text-caption text-medium-emphasis">Click "Add Property" to get started</p>
+        <p class="text-body-2 text-medium-emphasis mt-2">No properties defined. Click the <v-icon icon="mdi-plus" size="small" class="mx-1" /> icon to add your first property</p>
+
       </div>
 
       <!-- Properties list -->
