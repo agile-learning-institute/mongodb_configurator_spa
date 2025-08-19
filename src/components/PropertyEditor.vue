@@ -2,13 +2,14 @@
   <div class="property-editor">
     <!-- Property Header with Name and Description -->
     <div class="property-header" :class="{ 'is-root': isRoot }">
-      <div class="property-name-section">
+      <div class="property-name-section" v-if="!isRoot">
         <v-text-field
           v-model="editableName"
-          :label="isRoot ? 'Root Property Name' : 'Property Name'"
+          label="Property Name"
           variant="outlined"
           density="compact"
           hide-details
+          :disabled="disabled"
           @blur="handleNameChange"
           @keyup.enter="handleNameChange"
         />
@@ -21,6 +22,7 @@
           variant="outlined"
           density="compact"
           hide-details
+          :disabled="disabled"
           @blur="handleDescriptionChange"
           @keyup.enter="handleDescriptionChange"
         />
@@ -34,27 +36,40 @@
           variant="outlined"
           density="compact"
           hide-details
+          :disabled="disabled"
           @update:model-value="handleTypeChange"
         />
       </div>
       
       <div class="property-required-section" v-if="canBeRequired">
-        <v-checkbox
-          v-model="editableRequired"
-          label="Required"
-          hide-details
-          @update:model-value="handleRequiredChange"
-        />
+        <v-tooltip text="Mark this property as required">
+          <template v-slot:activator="{ props }">
+            <v-checkbox
+              v-model="editableRequired"
+              label="Required"
+              hide-details
+              :disabled="disabled"
+              v-bind="props"
+              @update:model-value="handleRequiredChange"
+            />
+          </template>
+        </v-tooltip>
       </div>
       
       <div class="property-actions" v-if="canBeDeleted">
-        <v-btn
-          icon="mdi-delete"
-          variant="text"
-          color="error"
-          size="small"
-          @click="handleDelete"
-        />
+        <v-tooltip text="Delete this property">
+          <template v-slot:activator="{ props }">
+            <v-btn
+              icon="mdi-delete"
+              variant="text"
+              color="error"
+              size="small"
+              :disabled="disabled"
+              v-bind="props"
+              @click="handleDelete"
+            />
+          </template>
+        </v-tooltip>
       </div>
     </div>
     
@@ -63,6 +78,7 @@
       <component
         :is="propertyTypeEditor"
         :property="property"
+        :disabled="disabled"
         @change="handlePropertyChange"
       />
     </div>
@@ -102,6 +118,7 @@ const props = defineProps<{
   isRoot?: boolean
   isDictionary?: boolean
   isType?: boolean
+  disabled?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -326,7 +343,7 @@ watch(() => props.property, (newProperty) => {
 }
 
 .property-header.is-root {
-  grid-template-columns: 2fr 3fr 1fr auto;
+  grid-template-columns: 3fr 1fr auto;
 }
 
 .property-name-section,

@@ -17,21 +17,10 @@
     <div v-else-if="typeData">
       <!-- Page Header -->
       <header class="d-flex align-center justify-space-between mb-6">
-        <h2 class="text-h4 mb-0">{{ typeData.file_name }}</h2>
-        <div class="d-flex gap-2">
+        <h2 class="text-h4 mb-0">{{ typeData.file_name.replace('.yaml', '') }}</h2>
+        <div class="d-flex gap-2" v-if="!typeData._locked">
           <v-btn
-            v-if="typeData._locked"
             color="warning"
-            variant="elevated"
-            @click="unlockType"
-            class="font-weight-bold"
-          >
-            <v-icon start>mdi-lock-open</v-icon>
-            Unlock
-          </v-btn>
-          <v-btn
-            v-else
-            color="info"
             variant="elevated"
             @click="lockType"
             class="font-weight-bold"
@@ -49,6 +38,17 @@
             Delete
           </v-btn>
         </div>
+        <div v-else class="d-flex gap-2">
+          <v-btn
+            color="success"
+            variant="elevated"
+            @click="unlockType"
+            class="font-weight-bold"
+          >
+            <v-icon start>mdi-lock-open</v-icon>
+            Unlock
+          </v-btn>
+        </div>
       </header>
       
       <!-- New PropertyEditor for root property -->
@@ -57,44 +57,78 @@
         :property="typeData.root"
         :is-root="true"
         :is-type="true"
+        :disabled="typeData._locked"
         @change="handleRootPropertyChange"
       />
     </div>
   </v-container>
 
   <!-- Delete Confirmation Dialog -->
-  <v-dialog v-model="showDeleteDialog" max-width="500">
+  <v-dialog v-model="showDeleteDialog" max-width="400">
     <v-card>
       <v-card-title class="text-h5">
-        Delete Type?
+        Final Confirmation
       </v-card-title>
       <v-card-text>
-        <p>Are you sure you want to delete "{{ typeData?.file_name }}"?</p>
-        <p class="text-caption text-medium-emphasis">
-          This action cannot be undone.
+        <p class="mb-3">
+          <strong>Are you absolutely sure you want to delete "{{ typeData?.file_name.replace('.yaml', '') }}"?</strong>
         </p>
+        <p class="mb-4">
+          Type "DELETE" below to confirm:
+        </p>
+        <v-text-field
+          v-model="deleteConfirmationText"
+          placeholder="Type DELETE to confirm"
+          variant="outlined"
+          density="compact"
+          hide-details
+        />
       </v-card-text>
       <v-card-actions>
         <v-spacer />
         <v-btn @click="cancelDelete">Cancel</v-btn>
-        <v-btn color="error" @click="confirmDelete">Delete</v-btn>
+        <v-btn 
+          color="error" 
+          @click="confirmDelete"
+          :disabled="deleteConfirmationText !== 'DELETE'"
+        >
+          Delete
+        </v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
 
   <!-- Unlock Confirmation Dialog -->
-  <v-dialog v-model="showUnlockDialog" max-width="500">
+  <v-dialog v-model="showUnlockDialog" max-width="400">
     <v-card>
       <v-card-title class="text-h5">
-        Unlock Type?
+        Final Confirmation
       </v-card-title>
       <v-card-text>
-        <p>Unlocking allows editing this type. Are you sure?</p>
+        <p class="mb-3">
+          <strong>Are you absolutely sure you want to unlock this type?</strong>
+        </p>
+        <p class="mb-4">
+          Type "UNLOCK" below to confirm:
+        </p>
+        <v-text-field
+          v-model="unlockConfirmationText"
+          placeholder="Type UNLOCK to confirm"
+          variant="outlined"
+          density="compact"
+          hide-details
+        />
       </v-card-text>
       <v-card-actions>
         <v-spacer />
         <v-btn @click="cancelUnlock">Cancel</v-btn>
-        <v-btn color="warning" @click="confirmUnlock">Unlock</v-btn>
+        <v-btn 
+          color="warning" 
+          @click="confirmUnlock"
+          :disabled="unlockConfirmationText !== 'UNLOCK'"
+        >
+          Unlock
+        </v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -114,6 +148,8 @@ const saving = ref(false)
 const error = ref<string | null>(null)
 const showDeleteDialog = ref(false)
 const showUnlockDialog = ref(false)
+const deleteConfirmationText = ref('')
+const unlockConfirmationText = ref('')
 const typeData = ref<TypeData | null>(null)
 
 // Methods
@@ -137,8 +173,7 @@ const autoSave = async () => {
   error.value = null
   try {
     await apiService.saveType(typeData.value.file_name, typeData.value)
-    const freshData = await apiService.getType(typeData.value.file_name)
-    typeData.value = freshData
+    // No need to get after put with the new API
   } catch (err: any) {
     error.value = err.message || 'Failed to save type'
     console.error('Failed to save type:', err)
@@ -187,6 +222,7 @@ const confirmDelete = async () => {
 
 const cancelDelete = () => {
   showDeleteDialog.value = false
+  deleteConfirmationText.value = ''
 }
 
 const confirmUnlock = async () => {
@@ -196,6 +232,7 @@ const confirmUnlock = async () => {
     // In a real implementation, you might need to call a specific unlock endpoint
     typeData.value._locked = false
     showUnlockDialog.value = false
+    unlockConfirmationText.value = ''
   } catch (err: any) {
     error.value = err.message || 'Failed to unlock type'
     console.error('Failed to unlock type:', err)
@@ -204,6 +241,7 @@ const confirmUnlock = async () => {
 
 const cancelUnlock = () => {
   showUnlockDialog.value = false
+  unlockConfirmationText.value = ''
 }
 
 // Load type on mount

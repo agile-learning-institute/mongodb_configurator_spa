@@ -1,19 +1,19 @@
 # Types Detail Page Updates
 
 ## Page / Document level updates
-  - [ ] Title minus .yaml
-  - [ ] Lock does a Lock All, should _locked = True and PUT
-  - [ ] Unlock doesn't PUT
-  - [ ] Locked should hide Action buttons and icons and "disable" name/description editors, and type pickers
-  - [ ] Change name/description to be formatted / enabled / disabled like enumerators value/description sets.
-  - [ ] We should not need to get after put with the new API but it looks like types are still using this pattern.
-  - [ ] Unlock confirmation should match Enumerators
-  - [ ] Delete confirmation should match Enumerators
+  - [x] Title minus .yaml
+  - [x] Lock does a Lock All, should _locked = True and PUT
+  - [x] Unlock doesn't PUT
+  - [x] Locked should hide Action buttons and icons and "disable" name/description editors, and type pickers
+  - [x] Change name/description to be formatted / enabled / disabled like enumerators value/description sets.
+  - [x] We should not need to get after put with the new API but it looks like types are still using this pattern.
+  - [x] Unlock confirmation should match Enumerators
+  - [x] Delete confirmation should match Enumerators
 
 ## Property editor updates - Property Base
-  - [ ] Hide Root Property Name - it's always "root" anyway
-  - [ ] Make required just a checkbox with tooltip
-  - [ ] Add tooltip to delete icon
+  - [x] Hide Root Property Name - it's always "root" anyway
+  - [x] Make required just a checkbox with tooltip
+  - [x] Add tooltip to delete icon
 
 ## Types and Type Picker
   - [ ] Change type drop down to a chip picker
