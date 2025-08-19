@@ -179,7 +179,17 @@ const canBeDeleted = computed(() => {
 
 const showBody = computed(() => {
   // Only show body for types that need it
-  return isObjectProperty(props.property) || isArrayProperty(props.property)
+  if (isObjectProperty(props.property)) {
+    return true
+  }
+  
+  if (isArrayProperty(props.property)) {
+    // Only show body for array of object or array of array
+    const items = props.property.items
+    return items && (items.type === 'object' || items.type === 'array')
+  }
+  
+  return false
 })
 
 // Methods
