@@ -46,12 +46,7 @@
           />
         </div>
       </div>
-      <!-- Debug info for array properties -->
-      <div v-if="isArrayProperty(property) && !property.items" class="array-debug pa-2">
-        <v-alert type="warning" variant="tonal">
-          Array property missing items. Please try changing the type again.
-        </v-alert>
-      </div>
+
       
       <!-- Object property body -->
       <div v-else-if="isObjectProperty(property)" class="object-property-body">

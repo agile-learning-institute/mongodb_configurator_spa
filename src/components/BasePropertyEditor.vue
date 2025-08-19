@@ -200,58 +200,85 @@ const handleDescriptionChange = () => {
 const handleTypeChange = (newType: string) => {
   if (newType !== props.property.type) {
     const oldType = props.property.type
-    props.property.type = newType
     
     // Handle type-specific property creation
     if (newType === 'array' && !isArrayProperty(props.property)) {
-      // Create the array property manually to ensure it's correct
-      props.property.items = {
-        name: 'item',
-        description: 'Array item',
-        type: 'word',
-        required: false
+      // Create a new array property object to ensure proper reactivity
+      const newProperty = {
+        ...props.property,
+        type: newType,
+        items: {
+          name: 'item',
+          description: 'Array item',
+          type: 'word',
+          required: false
+        }
       }
       
-      // Emit the change immediately to ensure the parent component gets the complete property
-      emit('change', props.property)
+      // Emit the change with the new property object
+      emit('change', newProperty)
     } else if (newType === 'object' && !isObjectProperty(props.property)) {
-      // Create the object property manually to ensure it's correct
-      props.property.additional_properties = false
-      props.property.properties = []
+      // Create a new object property object to ensure proper reactivity
+      const newProperty = {
+        ...props.property,
+        type: newType,
+        additional_properties: false,
+        properties: []
+      }
       
-      // Emit the change immediately to ensure the parent component gets the complete property
-      emit('change', props.property)
+      // Emit the change with the new property object
+      emit('change', newProperty)
     } else if (newType === 'simple' && !isSimpleProperty(props.property)) {
-      // Create the simple property manually to ensure it's correct
-      props.property.schema = {}
+      // Create a new simple property object to ensure proper reactivity
+      const newProperty = {
+        ...props.property,
+        type: newType,
+        schema: {}
+      }
       
-      // Emit the change immediately to ensure the parent component gets the complete property
-      emit('change', props.property)
+      // Emit the change with the new property object
+      emit('change', newProperty)
     } else if (newType === 'complex' && !isComplexProperty(props.property)) {
-      // Create the complex property manually to ensure it's correct
-      props.property.json_type = {}
-      props.property.bson_type = {}
+      // Create a new complex property object to ensure proper reactivity
+      const newProperty = {
+        ...props.property,
+        type: newType,
+        json_type: {},
+        bson_type: {}
+      }
       
-      // Emit the change immediately to ensure the parent component gets the complete property
-      emit('change', props.property)
+      // Emit the change with the new property object
+      emit('change', newProperty)
     } else if (newType === 'enum' && !isCustomProperty(props.property)) {
-      // Create the enum property manually to ensure it's correct
-      props.property.enums = ''
+      // Create a new enum property object to ensure proper reactivity
+      const newProperty = {
+        ...props.property,
+        type: newType,
+        enums: ''
+      }
       
-      // Emit the change immediately to ensure the parent component gets the complete property
-      emit('change', props.property)
+      // Emit the change with the new property object
+      emit('change', newProperty)
     } else if (newType === 'enum_array' && !isCustomProperty(props.property)) {
-      // Create the enum array property manually to ensure it's correct
-      props.property.enums = ''
+      // Create a new enum array property object to ensure proper reactivity
+      const newProperty = {
+        ...props.property,
+        type: newType,
+        enums: ''
+      }
       
-      // Emit the change immediately to ensure the parent component gets the complete property
-      emit('change', props.property)
+      // Emit the change with the new property object
+      emit('change', newProperty)
     } else if (newType === 'ref' && !isCustomProperty(props.property)) {
-      // Create the ref property manually to ensure it's correct
-      props.property.ref = ''
+      // Create a new ref property object to ensure proper reactivity
+      const newProperty = {
+        ...props.property,
+        type: newType,
+        ref: ''
+      }
       
-      // Emit the change immediately to ensure the parent component gets the complete property
-      emit('change', props.property)
+      // Emit the change with the new property object
+      emit('change', newProperty)
     }
   }
 }
