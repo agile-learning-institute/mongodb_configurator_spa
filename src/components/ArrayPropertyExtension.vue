@@ -3,19 +3,18 @@
     <div class="items-type-section">
       <span class="text-caption text-medium-emphasis mr-2">Items:</span>
       <TypeChipPicker
-        :selected-type="editableItemsType"
+        v-model="editableItemsType"
         :is-root="false"
         :is-dictionary="isDictionary"
         :is-type="isType"
         :disabled="disabled"
-        @type-change="handleItemsTypeChange"
       />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { ref, watch } from 'vue'
 import { type Property } from '@/types/types'
 import TypeChipPicker from './TypeChipPicker.vue'
 
@@ -30,15 +29,16 @@ const emit = defineEmits<{
   change: [property: Property]
 }>()
 
-const editableItemsType = computed(() => {
-  if (props.property.type === 'array' && 'items' in props.property) {
-    return props.property.items.type
-  }
-  return ''
-})
+const editableItemsType = ref('')
 
-const handleItemsTypeChange = (newType: string) => {
-  if (props.property.type === 'array' && 'items' in props.property) {
+// Initialize the ref with the current items type
+if (props.property.type === 'array' && 'items' in props.property) {
+  editableItemsType.value = props.property.items.type
+}
+
+// Watch for changes in editableItemsType and emit the change
+watch(editableItemsType, (newType) => {
+  if (props.property.type === 'array' && 'items' in props.property && newType !== props.property.items.type) {
     const currentItems = props.property.items
     
     // Create a new items property with the selected type, preserving existing properties when possible
@@ -79,7 +79,14 @@ const handleItemsTypeChange = (newType: string) => {
     
     emit('change', newProperty)
   }
-}
+})
+
+// Watch for property changes to update the local ref
+watch(() => props.property.items?.type, (newType) => {
+  if (newType && newType !== editableItemsType.value) {
+    editableItemsType.value = newType
+  }
+}, { deep: true })
 </script>
 
 <style scoped>
