@@ -311,6 +311,16 @@ watch(() => props.property, (newProperty) => {
   margin: 0;
 }
 
+/* Override Vuetify's min-width: 0px for the actual input elements */
+.property-name-section .v-text-field .v-field__input {
+  min-width: 180px !important;
+  max-width: 180px !important;
+}
+
+.property-description-section .v-text-field .v-field__input {
+  min-width: 200px !important;
+}
+
 .property-body {
   margin-top: 8px;
   padding-top: 8px;
