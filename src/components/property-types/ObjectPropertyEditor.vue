@@ -1,15 +1,5 @@
 <template>
   <div class="object-property-editor">
-    <!-- Additional Properties Toggle -->
-    <div class="additional-properties-section mb-4">
-      <v-checkbox
-        v-model="additionalProperties"
-        label="Allow Additional Properties"
-        hide-details
-        @update:model-value="handleAdditionalPropertiesChange"
-      />
-    </div>
-
     <!-- Properties List -->
     <div class="properties-section">
       <div class="d-flex align-center justify-space-between mb-3">
@@ -76,27 +66,7 @@ const properties = computed(() => {
   return []
 })
 
-const additionalProperties = computed({
-  get: () => {
-    if (isObjectProperty(props.property)) {
-      return props.property.additional_properties || false
-    }
-    return false
-  },
-  set: (value: boolean) => {
-    if (isObjectProperty(props.property)) {
-      props.property.additional_properties = value
-    }
-  }
-})
 
-// Methods
-const handleAdditionalPropertiesChange = (value: boolean | null) => {
-  if (isObjectProperty(props.property)) {
-    props.property.additional_properties = value || false
-    emit('change', props.property)
-  }
-}
 
 const addProperty = () => {
   if (isObjectProperty(props.property)) {
@@ -139,13 +109,8 @@ const removeProperty = (index: number) => {
   background-color: #fafafa;
 }
 
-.additional-properties-section {
-  border-bottom: 1px solid #e0e0e0;
-  padding-bottom: 16px;
-}
-
 .properties-section {
-  margin-top: 16px;
+  margin-top: 0;
 }
 
 .properties-list {

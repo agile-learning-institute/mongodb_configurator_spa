@@ -23,8 +23,8 @@
   - [ ] {custom} types are not allowed at the root.
 
 ## Object property editor updates
-  - [ ] Move "Allow Additional Properties" as action dots-vertical icon with tooltip
-  - [ ] Add action chevron-down / chevron-left icons to "hide" properties.
+  - [x] Move "Allow Additional Properties" as action icon with tooltip
+  - [x] Add action chevron-down / chevron-left icons to "hide" properties.
 
 ## Array property editor updates
 Array property editors may need different editors for different item types.

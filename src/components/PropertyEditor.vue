@@ -42,6 +42,26 @@
         />
       </div>
       
+      <div class="property-additional-props-section" v-if="canHaveAdditionalProperties">
+        <v-tooltip 
+          text="Allow additional properties"
+          location="top"
+          color="primary"
+          text-color="white"
+        >
+          <template v-slot:activator="{ props }">
+            <v-btn
+              :icon="getAdditionalPropsIcon()"
+              variant="text"
+              size="large"
+              v-bind="props"
+              @click="toggleAdditionalProperties"
+              :disabled="disabled"
+            />
+          </template>
+        </v-tooltip>
+      </div>
+      
       <div class="property-required-section" v-if="canBeRequired">
         <v-tooltip 
           text="Mark this property as required"
@@ -81,10 +101,21 @@
           </template>
         </v-tooltip>
       </div>
+      
+      <div class="property-collapse-section" v-if="canHaveAdditionalProperties">
+        <v-btn
+          :icon="collapsed ? 'mdi-chevron-left' : 'mdi-chevron-down'"
+          variant="text"
+          size="small"
+          color="default"
+          @click="toggleCollapsed"
+          :disabled="disabled"
+        />
+      </div>
     </div>
     
     <!-- Property Type Specific Editor -->
-    <div class="property-body" v-if="showBody">
+    <div class="property-body" v-if="showBody && !collapsed">
       <component
         :is="propertyTypeEditor"
         :property="property"
@@ -142,11 +173,13 @@ const editableName = ref(props.property.name)
 const editableDescription = ref(props.property.description)
 const editableType = ref(props.property.type)
 const editableRequired = ref(props.property.required)
+const collapsed = ref(false)
 
 // Computed properties
 const isRoot = computed(() => props.isRoot ?? false)
 const canBeRequired = computed(() => !isRoot.value)
 const canBeDeleted = computed(() => !isRoot.value)
+const canHaveAdditionalProperties = computed(() => isObjectProperty(props.property))
 
 // Available types based on context
 const availableTypes = computed(() => {
@@ -240,6 +273,25 @@ const handlePropertyChange = (updatedProperty: Property) => {
 
 const handleDelete = () => {
   emit('delete')
+}
+
+// Additional properties methods
+const getAdditionalPropsIcon = (): string => {
+  if (isObjectProperty(props.property)) {
+    return props.property.additional_properties ? 'mdi-checkbox-marked-circle' : 'mdi-checkbox-blank-circle-outline'
+  }
+  return 'mdi-checkbox-blank-circle-outline'
+}
+
+const toggleAdditionalProperties = () => {
+  if (isObjectProperty(props.property)) {
+    props.property.additional_properties = !props.property.additional_properties
+    emit('change', props.property)
+  }
+}
+
+const toggleCollapsed = () => {
+  collapsed.value = !collapsed.value
 }
 
 // Helper function to create a new property with the specified type
@@ -360,6 +412,16 @@ watch(() => props.property, (newProperty) => {
 /* Right-justify the required checkbox */
 .property-required-section {
   margin-left: auto;
+}
+
+/* Additional properties section */
+.property-additional-props-section {
+  margin-left: 8px;
+}
+
+/* Collapse section */
+.property-collapse-section {
+  margin-left: 8px;
 }
 
 
