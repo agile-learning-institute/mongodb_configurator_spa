@@ -22,7 +22,7 @@
           density="compact"
           hide-details
           :disabled="disabled"
-          class="property-input"
+          :class="['property-input', { 'root-description': isRoot }]"
           @blur="handleDescriptionChange"
           @keyup.enter="handleDescriptionChange"
         />
@@ -37,7 +37,6 @@
           hide-details
           :disabled="disabled"
           :class="['property-input', { 'root-type': isRoot }]"
-          :class-selection="isRoot ? 'text-h6' : ''"
           @update:model-value="handleTypeChange"
         />
       </div>
@@ -365,6 +364,13 @@ watch(() => props.property, (newProperty) => {
 .property-input .v-field__input {
   padding: 4px 0 !important;
   min-height: 32px !important;
+}
+
+.root-description .v-field__input,
+.root-type .v-field__input {
+  font-size: 1.25rem !important;
+  font-weight: 500 !important;
+  color: rgba(0, 0, 0, 0.87) !important;
 }
 
 .property-required-section {
