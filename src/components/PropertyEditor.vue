@@ -3,40 +3,43 @@
     <!-- Property Header with Name and Description -->
     <div class="property-header" :class="{ 'is-root': isRoot }">
       <div class="property-name-section" v-if="!isRoot">
+        <div class="field-label">Property Name</div>
         <v-text-field
           v-model="editableName"
-          label="Property Name"
-          variant="outlined"
+          variant="plain"
           density="compact"
           hide-details
           :disabled="disabled"
+          class="property-input"
           @blur="handleNameChange"
           @keyup.enter="handleNameChange"
         />
       </div>
       
       <div class="property-description-section">
+        <div class="field-label">Description</div>
         <v-text-field
           v-model="editableDescription"
-          label="Description"
-          variant="outlined"
+          variant="plain"
           density="compact"
           hide-details
           :disabled="disabled"
+          class="property-input"
           @blur="handleDescriptionChange"
           @keyup.enter="handleDescriptionChange"
         />
       </div>
       
       <div class="property-type-section">
+        <div class="field-label">Type</div>
         <v-select
           v-model="editableType"
           :items="availableTypes"
-          label="Type"
-          variant="outlined"
+          variant="plain"
           density="compact"
           hide-details
           :disabled="disabled"
+          class="property-input"
           @update:model-value="handleTypeChange"
         />
       </div>
@@ -322,24 +325,30 @@ watch(() => props.property, (newProperty) => {
 
 <style scoped>
 .property-editor {
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  padding: 16px;
-  margin-bottom: 16px;
-  background-color: #fafafa;
+  border-bottom: 1px solid #e0e0e0;
+  padding: 8px 0;
+  margin-bottom: 0;
+  background-color: transparent;
+}
+
+.property-editor:last-child {
+  border-bottom: none;
 }
 
 .property-editor .is-root {
   background-color: #e3f2fd;
-  border-color: #2196f3;
+  border-radius: 4px;
+  padding: 12px;
+  margin-bottom: 16px;
+  border: 1px solid #2196f3;
 }
 
 .property-header {
   display: grid;
   grid-template-columns: 2fr 3fr 1fr auto auto;
-  gap: 12px;
-  align-items: center;
-  margin-bottom: 16px;
+  gap: 16px;
+  align-items: start;
+  margin-bottom: 8px;
 }
 
 .property-header.is-root {
@@ -352,19 +361,46 @@ watch(() => props.property, (newProperty) => {
   min-width: 0;
 }
 
+.field-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.6);
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.property-input {
+  border: none;
+  background: transparent;
+}
+
+.property-input .v-field {
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+
+.property-input .v-field__input {
+  padding: 4px 0 !important;
+  min-height: 32px !important;
+}
+
 .property-required-section {
   display: flex;
   align-items: center;
+  margin-top: 20px;
 }
 
 .property-actions {
   display: flex;
   gap: 8px;
+  margin-top: 20px;
 }
 
 .property-body {
-  margin-top: 16px;
-  padding-top: 16px;
+  margin-top: 8px;
+  padding-top: 8px;
   border-top: 1px solid #e0e0e0;
 }
 
