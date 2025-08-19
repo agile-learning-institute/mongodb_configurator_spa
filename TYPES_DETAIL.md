@@ -25,10 +25,11 @@
 ## Object property editor updates
   - [x] Move "Allow Additional Properties" as action icon with tooltip
   - [x] Add action chevron-down / chevron-left icons to "hide" properties.
+  - [x] Move "add property" to action icon
 
 ## Array property editor updates
 Array property editors may need different editors for different item types.
-  - [ ] Add Items type chip picker to the right of the main type chip.
-  - [ ] If Items type is Object, use object action icons, and "Properties" child panel from Object property editor
-  - [ ] If Items type is Array, use Array Property in child panel
+  - [x] Add Items type chip picker to the right of the main type chip.
+  - [x] If Items type is Object, use object action icons, and "Properties" child panel from Object property editor
+  - [x] If Items type is Array, use Array Property in child panel
 

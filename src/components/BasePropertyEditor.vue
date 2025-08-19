@@ -8,7 +8,7 @@
           variant="plain"
           density="compact"
           hide-details
-          :disabled="disabled"
+          :readonly="disabled"
           class="mr-2"
           :style="{ minWidth: '180px' }"
           placeholder="Name"
@@ -51,7 +51,7 @@
           variant="plain"
           density="compact"
           hide-details
-          :disabled="disabled"
+          :readonly="disabled"
           class="mr-2"
           :style="{ minWidth: '200px', flex: '1' }"
           placeholder="Description"
@@ -95,7 +95,7 @@
         </v-tooltip>
       </div>
       
-      <div class="property-actions" v-if="canBeDeleted">
+      <div class="property-actions" v-if="canBeDeleted && !disabled">
         <v-tooltip 
           text="Delete this property"
           location="top"
@@ -110,7 +110,6 @@
               color="error"
               v-bind="props"
               @click="handleDelete"
-              :disabled="disabled"
             />
           </template>
         </v-tooltip>
@@ -410,5 +409,27 @@ watch(() => props.property, (newProperty) => {
 .description-placeholder {
   color: rgba(0, 0, 0, 0.38);
   font-style: italic;
+}
+
+/* Ensure readonly inputs don't get dimmed */
+.v-text-field.v-input--readonly .v-field__input,
+.v-text-field.v-input--readonly .v-input__control,
+.v-text-field.v-input--readonly input {
+  opacity: 1 !important;
+  color: rgba(0, 0, 0, 0.87) !important;
+}
+
+.v-text-field.v-input--readonly .v-field {
+  opacity: 1 !important;
+}
+
+/* Ensure disabled buttons don't get dimmed */
+.v-btn.v-btn--disabled {
+  opacity: 1 !important;
+  color: rgba(0, 0, 0, 0.87) !important;
+}
+
+.v-btn.v-btn--disabled .v-btn__content {
+  opacity: 1 !important;
 }
 </style>

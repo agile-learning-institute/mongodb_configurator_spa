@@ -41,6 +41,7 @@
             :is-root="false"
             :is-dictionary="isDictionary"
             :is-type="isType"
+            :disabled="disabled"
             @change="handleItemsChange"
           />
         </div>
@@ -61,6 +62,7 @@
             :is-root="false"
             :is-dictionary="isDictionary"
             :is-type="isType"
+            :disabled="disabled"
             @change="(updatedProp) => handlePropertyChange(index, updatedProp)"
             @delete="() => handlePropertyDelete(index)"
           />

@@ -10,13 +10,12 @@
           :color="getChipColor()"
           :variant="getChipVariant()"
           size="small"
-          v-bind="props"
-          @click="menuOpen = true"
-          :disabled="disabled"
+          v-bind="disabled ? {} : props"
+          @click="!disabled && (menuOpen = true)"
         >
           <v-icon start size="small">{{ getTypeIcon() }}</v-icon>
           {{ getDisplayName() }}
-          <v-icon end size="small">mdi-chevron-down</v-icon>
+          <v-icon end size="small" v-if="!disabled">mdi-chevron-down</v-icon>
         </v-chip>
       </template>
       
@@ -156,8 +155,6 @@ const availableTypes = computed(() => {
 
 // Get chip color based on type
 const getChipColor = (): string => {
-  if (props.disabled) return 'grey'
-  
   const type = builtInTypes.find(t => t.value === props.modelValue)
   if (type) {
     return 'primary'
@@ -238,5 +235,18 @@ onMounted(() => {
 
 .type-category:last-child {
   margin-bottom: 0;
+}
+
+/* Ensure chips maintain full opacity even when disabled */
+.v-chip {
+  opacity: 1 !important;
+}
+
+.v-chip .v-chip__content {
+  opacity: 1 !important;
+}
+
+.v-chip .v-icon {
+  opacity: 1 !important;
 }
 </style>

@@ -1,6 +1,6 @@
 <template>
   <div class="object-property-extension">
-    <div class="property-add-section">
+    <div class="property-add-section" v-if="!disabled">
       <v-tooltip 
         text="Add Property"
         location="top"
@@ -15,13 +15,12 @@
             color="default"
             v-bind="props"
             @click="handleAddProperty"
-            :disabled="disabled"
           />
         </template>
       </v-tooltip>
     </div>
     
-    <div class="property-additional-props-section">
+    <div class="property-additional-props-section" v-if="!disabled">
       <v-tooltip 
         text="Allow additional properties"
         location="top"
@@ -35,13 +34,12 @@
             size="large"
             v-bind="props"
             @click="toggleAdditionalProperties"
-            :disabled="disabled"
           />
         </template>
       </v-tooltip>
     </div>
     
-    <div class="property-collapse-section">
+    <div class="property-collapse-section" v-if="!disabled">
       <v-tooltip 
         :text="collapsed ? 'Show properties' : 'Hide properties'"
         location="top"
@@ -56,7 +54,6 @@
             color="default"
             v-bind="props"
             @click="toggleCollapsed"
-            :disabled="disabled"
           />
         </template>
       </v-tooltip>
