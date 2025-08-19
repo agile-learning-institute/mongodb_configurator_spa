@@ -307,6 +307,8 @@ watch(() => props.property, (newProperty) => {
 }
 
 .property-header {
+  display: flex !important;
+  align-items: center;
   padding: 0;
   margin: 0;
 }
