@@ -1,6 +1,6 @@
 # Types Detail Page Updates
 
-- Page / Document level updates
+## Page / Document level updates
   - [ ] Title minus .yaml
   - [ ] Lock does a Lock All, should _locked = True and PUT
   - [ ] Unlock doesn't PUT
@@ -10,23 +10,23 @@
   - [ ] Unlock confirmation should match Enumerators
   - [ ] Delete confirmation should match Enumerators
 
-- Property editor updates - Property Base
+## Property editor updates - Property Base
   - [ ] Hide Root Property Name - it's always "root" anyway
   - [ ] Make required just a checkbox with tooltip
   - [ ] Add tooltip to delete icon
 
-- Types and Type Picker
+## Types and Type Picker
   - [ ] Change type drop down to a chip picker
   - [ ] Implement "custom" types correctly.. custom types are references to other type files - GET types for picker
   - [ ] The only allowed property types for Types but not Dictionaries are Simple, Complex, Object, Array, and {custom} types
   - [ ] Simple and Complex are only valid as root types
   - [ ] {custom} types are not allowed at the root.
 
-- Object property editor updates
+## Object property editor updates
   - [ ] Move "Allow Additional Properties" as action dots-vertical icon with tooltip
   - [ ] Add action chevron-down / chevron-left icons to "hide" properties.
 
-- Array property editor updates
+## Array property editor updates
 Array property editors may need different editors for different item types.
   - [ ] Add Items type chip picker to the right of the main type chip.
   - [ ] If Items type is Object, use object action icons, and "Properties" child panel from Object property editor
