@@ -127,11 +127,6 @@
 import { computed, ref, watch, nextTick } from 'vue'
 import { 
   type Property,
-  type ArrayProperty,
-  type ObjectProperty,
-  type SimpleProperty,
-  type ComplexProperty,
-  type CustomProperty,
   isArrayProperty,
   isObjectProperty,
   isSimpleProperty,
@@ -209,8 +204,6 @@ const handleTypeChange = (newType: string) => {
     
     // Handle type-specific property creation
     if (newType === 'array' && !isArrayProperty(props.property)) {
-      console.log('Before type change - property:', props.property)
-      
       // Create the array property manually to ensure it's correct
       props.property.items = {
         name: 'item',
@@ -219,73 +212,47 @@ const handleTypeChange = (newType: string) => {
         required: false
       }
       
-      console.log('After setting items - property:', props.property)
-      console.log('Property items:', props.property.items)
-      
-      // Use nextTick to ensure Vue recognizes the change
-      nextTick(() => {
-        console.log('After nextTick - property items:', props.property.items)
-        // Emit the change to ensure the parent component updates
-        emit('change', props.property)
-      })
+      // Emit the change immediately to ensure the parent component gets the complete property
+      emit('change', props.property)
     } else if (newType === 'object' && !isObjectProperty(props.property)) {
-      const newProperty = createPropertyForType(newType, props.property)
-      // Clean up old properties and assign new ones
-      Object.keys(props.property).forEach(key => {
-        if (key !== 'name' && key !== 'description' && key !== 'type' && key !== 'required') {
-          delete (props.property as any)[key]
-        }
-      })
-      Object.assign(props.property, newProperty)
+      // Create the object property manually to ensure it's correct
+      props.property.additional_properties = false
+      props.property.properties = []
+      
+      // Emit the change immediately to ensure the parent component gets the complete property
+      emit('change', props.property)
     } else if (newType === 'simple' && !isSimpleProperty(props.property)) {
-      const newProperty = createPropertyForType(newType, props.property)
-      // Clean up old properties and assign new ones
-      const keysToDelete = Object.keys(props.property).filter(key => 
-        key !== 'name' && key !== 'description' && key !== 'type' && key !== 'required'
-      )
-      keysToDelete.forEach(key => {
-        delete (props.property as any)[key]
-      })
-      Object.assign(props.property, newProperty)
+      // Create the simple property manually to ensure it's correct
+      props.property.schema = {}
+      
+      // Emit the change immediately to ensure the parent component gets the complete property
+      emit('change', props.property)
     } else if (newType === 'complex' && !isComplexProperty(props.property)) {
-      const newProperty = createPropertyForType(newType, props.property)
-      // Clean up old properties and assign new ones
-      Object.keys(props.property).forEach(key => {
-        if (key !== 'name' && key !== 'description' && key !== 'type' && key !== 'required') {
-          delete (props.property as any)[key]
-        }
-      })
-      Object.assign(props.property, newProperty)
+      // Create the complex property manually to ensure it's correct
+      props.property.json_type = {}
+      props.property.bson_type = {}
+      
+      // Emit the change immediately to ensure the parent component gets the complete property
+      emit('change', props.property)
     } else if (newType === 'enum' && !isCustomProperty(props.property)) {
-      const newProperty = createPropertyForType(newType, props.property)
-      // Clean up old properties and assign new ones
-      Object.keys(props.property).forEach(key => {
-        if (key !== 'name' && key !== 'description' && key !== 'type' && key !== 'required') {
-          delete (props.property as any)[key]
-        }
-      })
-      Object.assign(props.property, newProperty)
+      // Create the enum property manually to ensure it's correct
+      props.property.enums = ''
+      
+      // Emit the change immediately to ensure the parent component gets the complete property
+      emit('change', props.property)
     } else if (newType === 'enum_array' && !isCustomProperty(props.property)) {
-      const newProperty = createPropertyForType(newType, props.property)
-      // Clean up old properties and assign new ones
-      Object.keys(props.property).forEach(key => {
-        if (key !== 'name' && key !== 'description' && key !== 'type' && key !== 'required') {
-          delete (props.property as any)[key]
-        }
-      })
-      Object.assign(props.property, newProperty)
+      // Create the enum array property manually to ensure it's correct
+      props.property.enums = ''
+      
+      // Emit the change immediately to ensure the parent component gets the complete property
+      emit('change', props.property)
     } else if (newType === 'ref' && !isCustomProperty(props.property)) {
-      const newProperty = createPropertyForType(newType, props.property)
-      // Clean up old properties and assign new ones
-      Object.keys(props.property).forEach(key => {
-        if (key !== 'name' && key !== 'description' && key !== 'type' && key !== 'required') {
-          delete (props.property as any)[key]
-        }
-      })
-      Object.assign(props.property, newProperty)
+      // Create the ref property manually to ensure it's correct
+      props.property.ref = ''
+      
+      // Emit the change immediately to ensure the parent component gets the complete property
+      emit('change', props.property)
     }
-    
-    emit('change', props.property)
   }
 }
 
@@ -324,72 +291,7 @@ const handleRequiredChange = () => {
   }
 }
 
-// Helper function to create a new property with the specified type
-const createPropertyForType = (type: string, originalProperty: Property): Property => {
-  const baseProperty = {
-    name: originalProperty.name,
-    description: originalProperty.description,
-    type,
-    required: originalProperty.required
-  }
-  
-  switch (type) {
-    case 'array':
-      const arrayProperty = {
-        ...baseProperty,
-        items: {
-          name: 'item',
-          description: 'Array item',
-          type: 'word',
-          required: false
-        } as Property
-      } as ArrayProperty
-      console.log('createPropertyForType - created array property:', arrayProperty)
-      console.log('createPropertyForType - items:', arrayProperty.items)
-      return arrayProperty
-    
-    case 'object':
-      return {
-        ...baseProperty,
-        additional_properties: false,
-        properties: []
-      } as ObjectProperty
-    
-    case 'simple':
-      return {
-        ...baseProperty,
-        schema: {}
-      } as Property
-    
-    case 'complex':
-      return {
-        ...baseProperty,
-        json_type: {},
-        bson_type: {}
-      } as Property
-    
-    case 'enum':
-      return {
-        ...baseProperty,
-        enums: ''
-      } as Property
-    
-    case 'enum_array':
-      return {
-        ...baseProperty,
-        enums: ''
-      } as Property
-    
-    case 'ref':
-      return {
-        ...baseProperty,
-        ref: ''
-      } as Property
-    
-    default:
-      return baseProperty as Property
-  }
-}
+
 
 // Watch for property changes and update local state
 watch(() => props.property, (newProperty) => {

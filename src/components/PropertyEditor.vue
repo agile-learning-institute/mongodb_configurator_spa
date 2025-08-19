@@ -49,13 +49,7 @@
       <!-- Debug info for array properties -->
       <div v-if="isArrayProperty(property) && !property.items" class="array-debug pa-2">
         <v-alert type="warning" variant="tonal">
-          Array property missing items: {{ JSON.stringify(property) }}
-        </v-alert>
-      </div>
-      <!-- Temporary debug info -->
-      <div v-if="isArrayProperty(property)" class="temp-debug pa-2">
-        <v-alert type="info" variant="tonal">
-          Debug: property.type = {{ property.type }}, property.items = {{ property.items ? 'exists' : 'undefined' }}
+          Array property missing items. Please try changing the type again.
         </v-alert>
       </div>
       
@@ -88,8 +82,6 @@
 import { computed } from 'vue'
 import { 
   type Property,
-  type ArrayProperty,
-  type ObjectProperty,
   isArrayProperty,
   isObjectProperty
 } from '@/types/types'
@@ -115,12 +107,7 @@ const isRoot = computed(() => props.isRoot || false)
 const isDictionary = computed(() => props.isDictionary || false)
 const isType = computed(() => props.isType || false)
 
-// Debug logging
-console.log('PropertyEditor - property:', props.property)
-console.log('PropertyEditor - isArrayProperty:', isArrayProperty(props.property))
-if (isArrayProperty(props.property)) {
-  console.log('PropertyEditor - array property items:', props.property.items)
-}
+
 
 // Methods
 const handleChange = (updatedProperty: Property) => {
@@ -159,7 +146,7 @@ const handleAddProperty = () => {
   }
 }
 
-const handleToggleCollapsed = (collapsed: boolean) => {
+const handleToggleCollapsed = () => {
   // Handle collapse state if needed
   // For now, we'll just emit the change
   emit('change', props.property)
