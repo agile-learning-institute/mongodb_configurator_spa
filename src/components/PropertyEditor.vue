@@ -36,7 +36,7 @@
           density="compact"
           hide-details
           :disabled="disabled"
-          class="property-input"
+          :class="['property-input', { 'root-type': isRoot }]"
           @update:model-value="handleTypeChange"
         />
       </div>
@@ -332,14 +332,6 @@ watch(() => props.property, (newProperty) => {
   border-bottom: none;
 }
 
-.property-editor .is-root {
-  background-color: #e3f2fd;
-  border-radius: 4px;
-  padding: 12px;
-  margin-bottom: 16px;
-  border: 1px solid #2196f3;
-}
-
 .property-header {
   display: grid;
   grid-template-columns: 2fr 3fr 1fr auto auto;
@@ -372,6 +364,12 @@ watch(() => props.property, (newProperty) => {
 .property-input .v-field__input {
   padding: 4px 0 !important;
   min-height: 32px !important;
+}
+
+.root-type .v-field__input {
+  font-size: 1.25rem !important;
+  font-weight: 500 !important;
+  color: rgba(0, 0, 0, 0.87) !important;
 }
 
 .property-required-section {
