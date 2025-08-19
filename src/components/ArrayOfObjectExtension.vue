@@ -77,7 +77,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   change: [property: Property]
   addProperty: []
-  toggleCollapsed: [collapsed: boolean]
+  collapsed: [collapsed: boolean]
 }>()
 
 // Local state
@@ -131,7 +131,7 @@ const toggleAdditionalProperties = () => {
 
 const toggleCollapsed = () => {
   collapsed.value = !collapsed.value
-  emit('toggleCollapsed', collapsed.value)
+  emit('collapsed', collapsed.value)
 }
 </script>
 
