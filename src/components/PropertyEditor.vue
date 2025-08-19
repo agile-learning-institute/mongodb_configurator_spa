@@ -311,6 +311,13 @@ watch(() => props.property, (newProperty) => {
   align-items: center;
   padding: 0;
   margin: 0;
+  width: 100%;
+}
+
+/* Ensure the description section can expand */
+.property-description-section {
+  flex: 1;
+  min-width: 0; /* Allow shrinking below min-width when needed */
 }
 
 /* Target only the name input specifically */
