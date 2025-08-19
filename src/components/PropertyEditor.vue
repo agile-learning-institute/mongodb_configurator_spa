@@ -297,8 +297,8 @@ watch(() => props.property, (newProperty) => {
 <style scoped>
 .property-editor {
   border-bottom: 1px solid #e0e0e0;
-  padding: 0;
-  margin-bottom: 0;
+  padding: 8px 0 0 0;
+  margin: 0;
   background-color: transparent;
 }
 
