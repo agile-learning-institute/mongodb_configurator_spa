@@ -10,7 +10,7 @@
           hide-details
           :disabled="disabled"
           class="mr-2"
-          style="max-width: 180px;"
+          :style="{ maxWidth: '180px' }"
           @blur="handleNameChange"
           @keyup.enter="handleNameChange"
         />
@@ -24,7 +24,7 @@
           hide-details
           :disabled="disabled"
           class="mr-2"
-          style="min-width: 200px;"
+          :style="{ minWidth: '200px' }"
           placeholder="Description"
           @blur="handleDescriptionChange"
           @keyup.enter="handleDescriptionChange"
