@@ -37,7 +37,7 @@
         <div
           v-for="(prop, index) in properties"
           :key="index"
-          class="property-item mb-3"
+          class="property-item"
         >
           <PropertyEditor
             :property="prop"
