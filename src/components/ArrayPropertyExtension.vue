@@ -17,7 +17,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { type Property } from '@/types/types'
-import TypeChipPicker from '../TypeChipPicker.vue'
+import TypeChipPicker from './TypeChipPicker.vue'
 
 const props = defineProps<{
   property: Property
