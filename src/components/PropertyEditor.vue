@@ -93,7 +93,7 @@
             <div class="nested-array-items-type">
               <span class="text-caption text-medium-emphasis mr-2">Items:</span>
               <TypeChipPicker
-                v-model="(property.items as any).items?.type || ''"
+                v-model="nestedArrayItemsType"
                 :is-root="false"
                 :is-dictionary="isDictionary"
                 :is-type="isType"
@@ -323,6 +323,14 @@ const handleNestedArrayChange = (updatedNestedArray: Property) => {
     emit('change', newProperty)
   }
 }
+
+// Computed property for nested array items type
+const nestedArrayItemsType = computed(() => {
+  if (isArrayProperty(props.property) && props.property.items && props.property.items.type === 'array') {
+    return (props.property.items as any).items?.type || ''
+  }
+  return ''
+})
 </script>
 
 <style scoped>
