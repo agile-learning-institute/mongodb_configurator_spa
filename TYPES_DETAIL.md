@@ -13,7 +13,7 @@
 ## Property editor updates - Property Base
   - [x] Hide Root Property Name - it's always "root" anyway
   - [x] Make required just a checkbox with tooltip
-  - [ ] Add tooltip to delete icon
+  - [x] Add tooltip to delete icon
 
 ## Types and Type Picker
   - [ ] Change type drop down to a chip picker

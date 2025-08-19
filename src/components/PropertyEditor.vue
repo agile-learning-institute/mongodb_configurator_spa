@@ -32,8 +32,14 @@
       </div>
       
       <div class="property-type-section">
-        <!-- TODO: Replace with chip picker in upcoming section -->
-        <!-- Property type selection will be implemented here -->
+        <TypeChipPicker
+          v-model="editableType"
+          :is-root="isRoot"
+          :is-dictionary="isDictionary"
+          :is-type="isType"
+          :disabled="disabled"
+          @update:model-value="handleTypeChange"
+        />
       </div>
       
       <div class="property-required-section" v-if="canBeRequired">
@@ -104,6 +110,7 @@ import {
   isCustomProperty,
   isOneOfProperty
 } from '@/types/types'
+import TypeChipPicker from './TypeChipPicker.vue'
 
 // Import property type editors with lazy loading
 const ArrayPropertyEditor = defineAsyncComponent(() => import('./property-types/ArrayPropertyEditor.vue'))
@@ -192,7 +199,8 @@ const showBody = computed(() => {
          isObjectProperty(props.property) || 
          isSimpleProperty(props.property) || 
          isComplexProperty(props.property) ||
-         isOneOfProperty(props.property)
+         isOneOfProperty(props.property) ||
+         isCustomProperty(props.property)
 })
 
 // Event handlers
