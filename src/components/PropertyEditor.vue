@@ -37,21 +37,22 @@
       </div>
       
       <div class="property-required-section" v-if="canBeRequired">
-        <v-tooltip 
-          location="top"
-          color="primary"
-        >
-          <template v-slot:activator="{ props }">
-            <v-checkbox
-              v-model="editableRequired"
-              hide-details
-              :disabled="disabled"
-              v-bind="props"
-              @update:model-value="handleRequiredChange"
-            />
-          </template>
-          <span>Mark this property as required</span>
-        </v-tooltip>
+        <div class="tooltip-container">
+          <v-checkbox
+            v-model="editableRequired"
+            hide-details
+            :disabled="disabled"
+            @update:model-value="handleRequiredChange"
+            @mouseenter="showTooltip = true"
+            @mouseleave="showTooltip = false"
+          />
+          <div 
+            v-if="showTooltip" 
+            class="custom-tooltip"
+          >
+            Mark this property as required
+          </div>
+        </div>
       </div>
       
       <div class="property-actions" v-if="canBeDeleted">
@@ -118,6 +119,7 @@ const editableName = ref(props.property.name)
 const editableDescription = ref(props.property.description)
 const editableType = ref(props.property.type)
 const editableRequired = ref(props.property.required)
+const showTooltip = ref(false)
 
 // Computed properties
 const isRoot = computed(() => props.isRoot ?? false)
@@ -338,10 +340,34 @@ watch(() => props.property, (newProperty) => {
   margin-left: auto;
 }
 
-/* Force tooltip text to be visible */
-.property-required-section .v-tooltip .v-tooltip__content {
-  color: white !important;
-  background-color: rgba(0, 0, 0, 0.9) !important;
+/* Custom tooltip styling */
+.tooltip-container {
+  position: relative;
+}
+
+.custom-tooltip {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(0, 0, 0, 0.9);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+  z-index: 1000;
+  margin-bottom: 8px;
+}
+
+.custom-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 4px solid transparent;
+  border-top-color: rgba(0, 0, 0, 0.9);
 }
 
 /* Remove white background from input boxes - more aggressive targeting */
