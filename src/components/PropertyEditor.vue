@@ -356,8 +356,13 @@ watch(() => props.property, (newProperty) => {
   border-radius: 4px;
   font-size: 12px;
   white-space: nowrap;
-  z-index: 1000;
+  z-index: 9999;
   margin-bottom: 8px;
+  /* Prevent truncation */
+  max-width: none;
+  overflow: visible;
+  /* Ensure tooltip is not clipped */
+  pointer-events: none;
 }
 
 .custom-tooltip::after {
@@ -368,6 +373,13 @@ watch(() => props.property, (newProperty) => {
   transform: translateX(-50%);
   border: 4px solid transparent;
   border-top-color: rgba(0, 0, 0, 0.9);
+}
+
+/* Ensure parent containers don't clip the tooltip */
+.property-editor,
+.property-header,
+.property-required-section {
+  overflow: visible !important;
 }
 
 /* Remove white background from input boxes - more aggressive targeting */
