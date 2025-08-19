@@ -2,7 +2,7 @@
   <div class="property-editor">
     <!-- Property Header with Name and Description -->
     <div class="property-header d-flex align-center">
-      <div class="property-name-section" v-if="!isRoot">
+      <div class="property-name-section" v-if="!isRoot" :id="`property-name-${property.name || 'root'}`">
         <v-text-field
           v-model="editableName"
           variant="plain"
@@ -16,7 +16,7 @@
         />
       </div>
       
-      <div class="property-description-section">
+      <div class="property-description-section" :id="`property-description-${property.name || 'root'}`">
         <v-text-field
           v-model="editableDescription"
           variant="plain"
@@ -311,23 +311,15 @@ watch(() => props.property, (newProperty) => {
   margin: 0;
 }
 
-/* Override Vuetify's min-width: 0px for the actual input elements */
-.property-name-section .v-text-field .v-field__input {
+/* Use ID selectors for maximum specificity */
+#property-name-root .v-field__input,
+[id^="property-name-"] .v-field__input {
   min-width: 180px !important;
   max-width: 180px !important;
 }
 
-.property-description-section .v-text-field .v-field__input {
-  min-width: 200px !important;
-}
-
-/* More specific targeting to ensure override */
-.property-name-section .v-text-field .v-field .v-field__field .v-field__input {
-  min-width: 180px !important;
-  max-width: 180px !important;
-}
-
-.property-description-section .v-text-field .v-field .v-field__field .v-field__input {
+#property-description-root .v-field__input,
+[id^="property-description-"] .v-field__input {
   min-width: 200px !important;
 }
 
