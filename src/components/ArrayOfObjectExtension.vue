@@ -85,15 +85,19 @@ const collapsed = ref(false)
 
 // Computed properties
 const additionalPropsTooltip = computed(() => {
-  if (props.property.type === 'array' && 'items' in props.property && 'additional_properties' in props.property.items) {
-    return props.property.items.additional_properties ? 'Disable additional properties' : 'Allow additional properties'
+  if (props.property.type === 'array' && 'items' in props.property && props.property.items.type === 'object') {
+    const items = props.property.items as any
+    const hasAdditionalProps = items.additional_properties !== undefined ? items.additional_properties : false
+    return hasAdditionalProps ? 'Disable additional properties' : 'Allow additional properties'
   }
   return 'Allow additional properties'
 })
 
 const additionalPropsIcon = computed(() => {
-  if (props.property.type === 'array' && 'items' in props.property && 'additional_properties' in props.property.items) {
-    return props.property.items.additional_properties ? 'mdi-checkbox-marked-circle' : 'mdi-checkbox-blank-circle-outline'
+  if (props.property.type === 'array' && 'items' in props.property && props.property.items.type === 'object') {
+    const items = props.property.items as any
+    const hasAdditionalProps = items.additional_properties !== undefined ? items.additional_properties : false
+    return hasAdditionalProps ? 'mdi-checkbox-marked-circle' : 'mdi-checkbox-blank-circle-outline'
   }
   return 'mdi-checkbox-blank-circle-outline'
 })
@@ -108,10 +112,12 @@ const handleAddProperty = () => {
 }
 
 const toggleAdditionalProperties = () => {
-  if (props.property.type === 'array' && 'items' in props.property && 'additional_properties' in props.property.items) {
+  if (props.property.type === 'array' && 'items' in props.property && props.property.items.type === 'object') {
+    const items = props.property.items as any
+    const currentAdditionalProps = items.additional_properties !== undefined ? items.additional_properties : false
     const newItems = {
-      ...props.property.items,
-      additional_properties: !props.property.items.additional_properties
+      ...items,
+      additional_properties: !currentAdditionalProps
     }
     
     const newProperty = {
