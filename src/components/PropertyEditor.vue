@@ -42,6 +42,27 @@
         />
       </div>
       
+      <div class="property-add-section" v-if="canAddProperties">
+        <v-tooltip 
+          text="Add Property"
+          location="top"
+          color="primary"
+          text-color="white"
+        >
+          <template v-slot:activator="{ props }">
+            <v-btn
+              icon="mdi-plus"
+              variant="text"
+              size="small"
+              color="default"
+              v-bind="props"
+              @click="handleAddProperty"
+              :disabled="disabled"
+            />
+          </template>
+        </v-tooltip>
+      </div>
+      
       <div class="property-additional-props-section" v-if="canHaveAdditionalProperties">
         <v-tooltip 
           text="Allow additional properties"
@@ -103,14 +124,24 @@
       </div>
       
       <div class="property-collapse-section" v-if="canHaveAdditionalProperties">
-        <v-btn
-          :icon="collapsed ? 'mdi-chevron-left' : 'mdi-chevron-down'"
-          variant="text"
-          size="small"
-          color="default"
-          @click="toggleCollapsed"
-          :disabled="disabled"
-        />
+        <v-tooltip 
+          :text="collapsed ? 'Show properties' : 'Hide properties'"
+          location="top"
+          color="primary"
+          text-color="white"
+        >
+          <template v-slot:activator="{ props }">
+            <v-btn
+              :icon="collapsed ? 'mdi-chevron-left' : 'mdi-chevron-down'"
+              variant="text"
+              size="small"
+              color="default"
+              v-bind="props"
+              @click="toggleCollapsed"
+              :disabled="disabled"
+            />
+          </template>
+        </v-tooltip>
       </div>
     </div>
     
@@ -180,6 +211,7 @@ const isRoot = computed(() => props.isRoot ?? false)
 const canBeRequired = computed(() => !isRoot.value)
 const canBeDeleted = computed(() => !isRoot.value)
 const canHaveAdditionalProperties = computed(() => isObjectProperty(props.property))
+const canAddProperties = computed(() => isObjectProperty(props.property))
 
 // Available types based on context
 const availableTypes = computed(() => {
@@ -292,6 +324,24 @@ const toggleAdditionalProperties = () => {
 
 const toggleCollapsed = () => {
   collapsed.value = !collapsed.value
+}
+
+const handleAddProperty = () => {
+  if (isObjectProperty(props.property)) {
+    if (!props.property.properties) {
+      props.property.properties = []
+    }
+    
+    const newProperty = {
+      name: `property_${props.property.properties.length + 1}`,
+      description: '',
+      type: 'string',
+      required: false
+    }
+    
+    props.property.properties.push(newProperty)
+    emit('change', props.property)
+  }
 }
 
 // Helper function to create a new property with the specified type
@@ -421,6 +471,11 @@ watch(() => props.property, (newProperty) => {
 
 /* Collapse section */
 .property-collapse-section {
+  margin-left: 8px;
+}
+
+/* Add property section */
+.property-add-section {
   margin-left: 8px;
 }
 

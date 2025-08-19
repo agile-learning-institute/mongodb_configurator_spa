@@ -2,18 +2,6 @@
   <div class="object-property-editor">
     <!-- Properties List -->
     <div class="properties-section">
-      <div class="d-flex align-center justify-space-between mb-3">
-        <h4 class="text-h6">Properties</h4>
-        <v-btn
-          prepend-icon="mdi-plus"
-          variant="outlined"
-          size="small"
-          @click="addProperty"
-          :disabled="disabled"
-        >
-          Add Property
-        </v-btn>
-      </div>
 
       <!-- Empty state -->
       <div v-if="!properties || properties.length === 0" class="text-center pa-4">
@@ -68,23 +56,7 @@ const properties = computed(() => {
 
 
 
-const addProperty = () => {
-  if (isObjectProperty(props.property)) {
-    if (!props.property.properties) {
-      props.property.properties = []
-    }
-    
-    const newProperty = {
-      name: `property_${props.property.properties.length + 1}`,
-      description: '',
-      type: 'string',
-      required: false
-    }
-    
-    props.property.properties.push(newProperty)
-    emit('change', props.property)
-  }
-}
+
 
 const handlePropertyChange = (index: number, updatedProperty: any) => {
   if (isObjectProperty(props.property) && props.property.properties) {
