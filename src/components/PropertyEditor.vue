@@ -3,7 +3,6 @@
     <!-- Property Header with Name and Description -->
     <div class="property-header" :class="{ 'is-root': isRoot }">
       <div class="property-name-section" v-if="!isRoot">
-        <div class="field-label">Property Name</div>
         <v-text-field
           v-model="editableName"
           variant="plain"
@@ -17,7 +16,6 @@
       </div>
       
       <div class="property-description-section">
-        <div class="field-label">Description</div>
         <v-text-field
           v-model="editableDescription"
           variant="plain"
@@ -31,7 +29,6 @@
       </div>
       
       <div class="property-type-section">
-        <div class="field-label">Type</div>
         <v-select
           v-model="editableType"
           :items="availableTypes"
@@ -359,15 +356,6 @@ watch(() => props.property, (newProperty) => {
 .property-description-section,
 .property-type-section {
   min-width: 0;
-}
-
-.field-label {
-  font-size: 0.75rem;
-  font-weight: 500;
-  color: rgba(0, 0, 0, 0.6);
-  margin-bottom: 4px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
 }
 
 .property-input {
