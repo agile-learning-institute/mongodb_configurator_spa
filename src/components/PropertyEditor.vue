@@ -10,6 +10,7 @@
           hide-details
           :disabled="disabled"
           class="property-input"
+          style="max-width: 180px;"
           @blur="handleNameChange"
           @keyup.enter="handleNameChange"
         />
@@ -22,54 +23,27 @@
           density="compact"
           hide-details
           :disabled="disabled"
-          :class="['property-input', { 'root-description': isRoot }]"
+          class="property-input"
+          style="min-width: 200px;"
+          placeholder="Description"
           @blur="handleDescriptionChange"
           @keyup.enter="handleDescriptionChange"
         />
       </div>
       
       <div class="property-type-section">
-        <v-select
-          v-model="editableType"
-          :items="availableTypes"
-          variant="plain"
-          density="compact"
-          hide-details
-          :disabled="disabled"
-          :class="['property-input', { 'root-type': isRoot }]"
-          @update:model-value="handleTypeChange"
-        />
+        <!-- TODO: Replace with chip picker in upcoming section -->
+        <!-- Property type selection will be implemented here -->
       </div>
       
       <div class="property-required-section" v-if="canBeRequired">
-        <v-tooltip text="Mark this property as required">
-          <template v-slot:activator="{ props }">
-            <v-checkbox
-              v-model="editableRequired"
-              label="Required"
-              hide-details
-              :disabled="disabled"
-              v-bind="props"
-              @update:model-value="handleRequiredChange"
-            />
-          </template>
-        </v-tooltip>
+        <!-- TODO: Replace with checkbox + tooltip in upcoming section -->
+        <!-- Required checkbox will be implemented here -->
       </div>
       
       <div class="property-actions" v-if="canBeDeleted">
-        <v-tooltip text="Delete this property">
-          <template v-slot:activator="{ props }">
-            <v-btn
-              icon="mdi-delete"
-              variant="text"
-              color="error"
-              size="small"
-              :disabled="disabled"
-              v-bind="props"
-              @click="handleDelete"
-            />
-          </template>
-        </v-tooltip>
+        <!-- TODO: Replace with delete button + tooltip in upcoming section -->
+        <!-- Delete button will be implemented here -->
       </div>
     </div>
     
@@ -323,7 +297,7 @@ watch(() => props.property, (newProperty) => {
 <style scoped>
 .property-editor {
   border-bottom: 1px solid #e0e0e0;
-  padding: 8px 0;
+  padding: 0;
   margin-bottom: 0;
   background-color: transparent;
 }
@@ -333,20 +307,21 @@ watch(() => props.property, (newProperty) => {
 }
 
 .property-header {
-  display: grid;
-  grid-template-columns: 2fr 3fr 1fr auto auto;
-  gap: 16px;
-  align-items: start;
-  margin-bottom: 8px;
-}
-
-.property-header.is-root {
-  grid-template-columns: 3fr 1fr auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0;
+  margin: 0;
 }
 
 .property-name-section,
-.property-description-section,
-.property-type-section {
+.property-description-section {
+  min-width: 0;
+}
+
+.property-type-section,
+.property-required-section,
+.property-actions {
   min-width: 0;
 }
 
@@ -366,25 +341,6 @@ watch(() => props.property, (newProperty) => {
   min-height: 32px !important;
 }
 
-.root-description .v-field__input,
-.root-type .v-field__input {
-  font-size: 1.25rem !important;
-  font-weight: 500 !important;
-  color: rgba(0, 0, 0, 0.87) !important;
-}
-
-.property-required-section {
-  display: flex;
-  align-items: center;
-  margin-top: 20px;
-}
-
-.property-actions {
-  display: flex;
-  gap: 8px;
-  margin-top: 20px;
-}
-
 .property-body {
   margin-top: 8px;
   padding-top: 8px;
@@ -393,12 +349,9 @@ watch(() => props.property, (newProperty) => {
 
 @media (max-width: 768px) {
   .property-header {
-    grid-template-columns: 1fr;
+    flex-direction: column;
+    align-items: stretch;
     gap: 8px;
-  }
-  
-  .property-header.is-root {
-    grid-template-columns: 1fr;
   }
 }
 </style> 
