@@ -10,9 +10,30 @@
   >
     <!-- Extension slot for type-specific controls -->
     <template #extension>
-      <!-- Array extension: Items type picker -->
+      <!-- Array extensions: Type-specific based on items type -->
+      <ArrayOfObjectExtension
+        v-if="isArrayProperty(property) && property.items && property.items.type === 'object'"
+        :property="property"
+        :is-dictionary="isDictionary"
+        :is-type="isType"
+        :disabled="disabled"
+        @change="handleChange"
+        @add-property="handleAddProperty"
+        @toggle-collapsed="handleToggleCollapsed"
+      />
+      
+      <ArrayOfArrayExtension
+        v-else-if="isArrayProperty(property) && property.items && property.items.type === 'array'"
+        :property="property"
+        :is-dictionary="isDictionary"
+        :is-type="isType"
+        :disabled="disabled"
+        @change="handleChange"
+        @toggle-collapsed="handleToggleCollapsed"
+      />
+      
       <ArrayPropertyExtension
-        v-if="isArrayProperty(property)"
+        v-else-if="isArrayProperty(property)"
         :property="property"
         :is-dictionary="isDictionary"
         :is-type="isType"
@@ -82,6 +103,8 @@ import {
 } from '@/types/types'
 import BasePropertyEditor from './BasePropertyEditor.vue'
 import ArrayPropertyExtension from './ArrayPropertyExtension.vue'
+import ArrayOfObjectExtension from './ArrayOfObjectExtension.vue'
+import ArrayOfArrayExtension from './ArrayOfArrayExtension.vue'
 import ObjectPropertyExtension from './ObjectPropertyExtension.vue'
 
 const props = defineProps<{
@@ -137,6 +160,22 @@ const handleAddProperty = () => {
     }
     
     props.property.properties.push(newProperty)
+    emit('change', props.property)
+  } else if (isArrayProperty(props.property) && props.property.items && props.property.items.type === 'object') {
+    // Handle adding property to array of object items
+    const items = props.property.items as any // Type assertion for object properties
+    if (!items.properties) {
+      items.properties = []
+    }
+    
+    const newProperty = {
+      name: '',
+      description: '',
+      type: 'word',
+      required: false
+    }
+    
+    items.properties.push(newProperty)
     emit('change', props.property)
   }
 }
