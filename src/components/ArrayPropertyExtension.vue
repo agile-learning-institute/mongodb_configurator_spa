@@ -58,6 +58,10 @@ const emit = defineEmits<{
 // Reactive state
 const editableItemsType = ref(props.property.items?.type || 'string')
 
+// Debug logging
+console.log('ArrayPropertyExtension - property:', props.property)
+console.log('ArrayPropertyExtension - items:', props.property.items)
+
 // Computed properties
 const isDictionary = computed(() => props.isDictionary || false)
 const isType = computed(() => props.isType || false)

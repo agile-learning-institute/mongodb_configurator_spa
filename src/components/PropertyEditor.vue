@@ -34,7 +34,7 @@
     <!-- Body slot for type-specific content -->
     <template #body>
       <!-- Array property body -->
-      <div v-if="isArrayProperty(property)" class="array-property-body">
+      <div v-if="isArrayProperty(property) && property.items" class="array-property-body">
         <div class="array-item-editor">
           <PropertyEditor
             :property="property.items"
@@ -45,6 +45,18 @@
             @change="handleItemsChange"
           />
         </div>
+      </div>
+      <!-- Debug info for array properties -->
+      <div v-if="isArrayProperty(property) && !property.items" class="array-debug pa-2">
+        <v-alert type="warning" variant="tonal">
+          Array property missing items: {{ JSON.stringify(property) }}
+        </v-alert>
+      </div>
+      <!-- Temporary debug info -->
+      <div v-if="isArrayProperty(property)" class="temp-debug pa-2">
+        <v-alert type="info" variant="tonal">
+          Debug: property.type = {{ property.type }}, property.items = {{ property.items ? 'exists' : 'undefined' }}
+        </v-alert>
       </div>
       
       <!-- Object property body -->
@@ -102,6 +114,13 @@ const emit = defineEmits<{
 const isRoot = computed(() => props.isRoot || false)
 const isDictionary = computed(() => props.isDictionary || false)
 const isType = computed(() => props.isType || false)
+
+// Debug logging
+console.log('PropertyEditor - property:', props.property)
+console.log('PropertyEditor - isArrayProperty:', isArrayProperty(props.property))
+if (isArrayProperty(props.property)) {
+  console.log('PropertyEditor - array property items:', props.property.items)
+}
 
 // Methods
 const handleChange = (updatedProperty: Property) => {

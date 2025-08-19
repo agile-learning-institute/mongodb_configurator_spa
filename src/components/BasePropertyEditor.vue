@@ -209,25 +209,79 @@ const handleTypeChange = (newType: string) => {
     
     // Handle type-specific property creation
     if (newType === 'array' && !isArrayProperty(props.property)) {
-      const newProperty = createPropertyForType(newType, props.property)
-      Object.assign(props.property, newProperty)
+      console.log('Before type change - property:', props.property)
+      
+      // Create the array property manually to ensure it's correct
+      props.property.items = {
+        name: 'item',
+        description: 'Array item',
+        type: 'word',
+        required: false
+      }
+      
+      console.log('After setting items - property:', props.property)
+      console.log('Property items:', props.property.items)
+      
+      // Use nextTick to ensure Vue recognizes the change
+      nextTick(() => {
+        console.log('After nextTick - property items:', props.property.items)
+        // Emit the change to ensure the parent component updates
+        emit('change', props.property)
+      })
     } else if (newType === 'object' && !isObjectProperty(props.property)) {
       const newProperty = createPropertyForType(newType, props.property)
+      // Clean up old properties and assign new ones
+      Object.keys(props.property).forEach(key => {
+        if (key !== 'name' && key !== 'description' && key !== 'type' && key !== 'required') {
+          delete (props.property as any)[key]
+        }
+      })
       Object.assign(props.property, newProperty)
     } else if (newType === 'simple' && !isSimpleProperty(props.property)) {
       const newProperty = createPropertyForType(newType, props.property)
+      // Clean up old properties and assign new ones
+      const keysToDelete = Object.keys(props.property).filter(key => 
+        key !== 'name' && key !== 'description' && key !== 'type' && key !== 'required'
+      )
+      keysToDelete.forEach(key => {
+        delete (props.property as any)[key]
+      })
       Object.assign(props.property, newProperty)
     } else if (newType === 'complex' && !isComplexProperty(props.property)) {
       const newProperty = createPropertyForType(newType, props.property)
+      // Clean up old properties and assign new ones
+      Object.keys(props.property).forEach(key => {
+        if (key !== 'name' && key !== 'description' && key !== 'type' && key !== 'required') {
+          delete (props.property as any)[key]
+        }
+      })
       Object.assign(props.property, newProperty)
     } else if (newType === 'enum' && !isCustomProperty(props.property)) {
       const newProperty = createPropertyForType(newType, props.property)
+      // Clean up old properties and assign new ones
+      Object.keys(props.property).forEach(key => {
+        if (key !== 'name' && key !== 'description' && key !== 'type' && key !== 'required') {
+          delete (props.property as any)[key]
+        }
+      })
       Object.assign(props.property, newProperty)
     } else if (newType === 'enum_array' && !isCustomProperty(props.property)) {
       const newProperty = createPropertyForType(newType, props.property)
+      // Clean up old properties and assign new ones
+      Object.keys(props.property).forEach(key => {
+        if (key !== 'name' && key !== 'description' && key !== 'type' && key !== 'required') {
+          delete (props.property as any)[key]
+        }
+      })
       Object.assign(props.property, newProperty)
     } else if (newType === 'ref' && !isCustomProperty(props.property)) {
       const newProperty = createPropertyForType(newType, props.property)
+      // Clean up old properties and assign new ones
+      Object.keys(props.property).forEach(key => {
+        if (key !== 'name' && key !== 'description' && key !== 'type' && key !== 'required') {
+          delete (props.property as any)[key]
+        }
+      })
       Object.assign(props.property, newProperty)
     }
     
@@ -281,22 +335,25 @@ const createPropertyForType = (type: string, originalProperty: Property): Proper
   
   switch (type) {
     case 'array':
-      return {
+      const arrayProperty = {
         ...baseProperty,
         items: {
           name: 'item',
           description: 'Array item',
-          type: 'string',
+          type: 'word',
           required: false
-        }
-      } as Property
+        } as Property
+      } as ArrayProperty
+      console.log('createPropertyForType - created array property:', arrayProperty)
+      console.log('createPropertyForType - items:', arrayProperty.items)
+      return arrayProperty
     
     case 'object':
       return {
         ...baseProperty,
         additional_properties: false,
         properties: []
-      } as Property
+      } as ObjectProperty
     
     case 'simple':
       return {
