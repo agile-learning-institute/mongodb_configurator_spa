@@ -192,8 +192,11 @@ const handleRootPropertyChange = (updatedProperty: TypeProperty) => {
 const lockType = async () => {
   if (!typeData.value) return
   try {
-    await apiService.lockAllTypes()
+    // Update local state
     typeData.value._locked = true
+    
+    // Save the locked state to the backend
+    await autoSave()
   } catch (err: any) {
     error.value = err.message || 'Failed to lock type'
     console.error('Failed to lock type:', err)
