@@ -38,7 +38,6 @@
       
       <div class="property-required-section" v-if="canBeRequired">
         <v-tooltip 
-          text="Mark this property as required"
           location="top"
           color="primary"
         >
@@ -51,6 +50,7 @@
               @update:model-value="handleRequiredChange"
             />
           </template>
+          <span>Mark this property as required</span>
         </v-tooltip>
       </div>
       
@@ -336,6 +336,12 @@ watch(() => props.property, (newProperty) => {
 /* Right-justify the required checkbox */
 .property-required-section {
   margin-left: auto;
+}
+
+/* Force tooltip text to be visible */
+.property-required-section .v-tooltip .v-tooltip__content {
+  color: white !important;
+  background-color: rgba(0, 0, 0, 0.9) !important;
 }
 
 /* Remove white background from input boxes - more aggressive targeting */
