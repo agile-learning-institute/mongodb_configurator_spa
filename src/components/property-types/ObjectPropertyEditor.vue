@@ -155,5 +155,10 @@ const removeProperty = (index: number) => {
 
 .property-item {
   background-color: transparent;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.property-item:last-child {
+  border-bottom: none;
 }
 </style> 
