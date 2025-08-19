@@ -29,7 +29,7 @@
         :is-type="isType"
         :disabled="disabled"
         @change="handleChange"
-        @toggle-collapsed="handleToggleCollapsed"
+        @collapsed="handleArrayArrayCollapsed"
       />
       
       <ArrayPropertyExtension
@@ -79,9 +79,10 @@
         </div>
       </div>
       
-      <!-- Array of Array: Show nested array editor -->
-      <div v-else-if="isArrayProperty(property) && property.items && property.items.type === 'array'" class="array-property-body">
+      <!-- Array of Array: Show nested array editor (only when not collapsed) -->
+      <div v-else-if="isArrayProperty(property) && property.items && property.items.type === 'array' && !(property.items as any)._collapsed" class="array-property-body">
         <div class="array-item-editor">
+          <!-- Show the nested array's properties -->
           <PropertyEditor
             :property="property.items"
             :is-root="false"
@@ -250,6 +251,13 @@ const handleArrayObjectCollapsed = (collapsed: boolean) => {
   if (isArrayProperty(props.property) && props.property.items && props.property.items.type === 'object') {
     // We'll use a WeakMap or similar to store the collapsed state, but for now
     // we'll just store it on the property itself as a temporary UI state
+    ;(props.property.items as any)._collapsed = collapsed
+  }
+}
+
+const handleArrayArrayCollapsed = (collapsed: boolean) => {
+  // Store the collapsed state locally for this array of array
+  if (isArrayProperty(props.property) && props.property.items && props.property.items.type === 'array') {
     ;(props.property.items as any)._collapsed = collapsed
   }
 }
