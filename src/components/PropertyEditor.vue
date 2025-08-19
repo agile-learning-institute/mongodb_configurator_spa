@@ -1,7 +1,7 @@
 <template>
   <div class="property-editor">
     <!-- Property Header with Name and Description -->
-    <div class="property-header" :class="{ 'is-root': isRoot }">
+    <div class="property-header d-flex align-center">
       <div class="property-name-section" v-if="!isRoot">
         <v-text-field
           v-model="editableName"
@@ -9,7 +9,7 @@
           density="compact"
           hide-details
           :disabled="disabled"
-          class="property-input"
+          class="mr-2"
           style="max-width: 180px;"
           @blur="handleNameChange"
           @keyup.enter="handleNameChange"
@@ -23,7 +23,7 @@
           density="compact"
           hide-details
           :disabled="disabled"
-          class="property-input"
+          class="mr-2"
           style="min-width: 200px;"
           placeholder="Description"
           @blur="handleDescriptionChange"
@@ -307,51 +307,13 @@ watch(() => props.property, (newProperty) => {
 }
 
 .property-header {
-  display: flex;
-  align-items: center;
-  gap: 8px;
   padding: 0;
   margin: 0;
-}
-
-.property-name-section,
-.property-description-section {
-  min-width: 0;
-}
-
-.property-type-section,
-.property-required-section,
-.property-actions {
-  min-width: 0;
-}
-
-.property-input {
-  border: none;
-  background: transparent;
-}
-
-.property-input .v-field {
-  border: none !important;
-  box-shadow: none !important;
-  background: transparent !important;
-}
-
-.property-input .v-field__input {
-  padding: 4px 0 !important;
-  min-height: 32px !important;
 }
 
 .property-body {
   margin-top: 8px;
   padding-top: 8px;
   border-top: 1px solid #e0e0e0;
-}
-
-@media (max-width: 768px) {
-  .property-header {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 8px;
-  }
 }
 </style> 
