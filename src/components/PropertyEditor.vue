@@ -320,13 +320,19 @@ watch(() => props.property, (newProperty) => {
   min-width: 0; /* Allow shrinking below min-width when needed */
 }
 
-/* Remove white background from input boxes */
-.property-editor .v-text-field .v-field {
+/* Remove white background from input boxes - more aggressive targeting */
+.property-editor .v-text-field .v-field,
+.property-editor .v-text-field .v-field__field,
+.property-editor .v-text-field .v-input__control,
+.property-editor .v-text-field .v-field__input {
   background-color: transparent !important;
+  background: transparent !important;
 }
 
-.property-editor .v-text-field .v-field__field {
+/* Also target the input element directly */
+.property-editor input {
   background-color: transparent !important;
+  background: transparent !important;
 }
 
 /* Target only the name input specifically */
