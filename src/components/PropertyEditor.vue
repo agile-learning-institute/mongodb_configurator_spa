@@ -5,6 +5,7 @@
     :is-dictionary="isDictionary"
     :is-type="isType"
     :disabled="disabled"
+    :hide-type-selector="hideTypeSelector"
     @change="handleChange"
     @delete="handleDelete"
   >
@@ -82,197 +83,16 @@
       <!-- Array of Array: Show nested array editor (only when not collapsed) -->
       <div v-else-if="isArrayProperty(property) && property.items && property.items.type === 'array' && !(property.items as any)._collapsed" class="array-property-body">
         <div class="array-item-editor">
-          <!-- Show nested array with only items type picker (no type selector) -->
-          <div class="nested-array-header">
-            <div class="nested-array-name">
-              <span class="text-body-2">{{ (property.items as any).name || 'item' }}</span>
-            </div>
-            <div class="nested-array-description">
-              <span class="text-body-2 text-medium-emphasis">{{ (property.items as any).description || '' }}</span>
-            </div>
-            <div class="nested-array-items-type">
-              <span class="text-caption text-medium-emphasis mr-2">Items:</span>
-              <TypeChipPicker
-                v-model="nestedArrayItemsType"
-                :is-root="false"
-                :is-dictionary="isDictionary"
-                :is-type="isType"
-                :disabled="disabled"
-                @update:model-value="handleNestedArrayItemsTypeChange"
-              />
-            </div>
-          </div>
-          
-          <!-- Show nested array content if it has items -->
-          <div v-if="(property.items as any).items" class="nested-array-content">
-            <!-- Recursively show nested array headers (no property actions) -->
-            <div v-if="(property.items as any).items.type === 'array'" class="nested-array-level">
-              <div class="nested-array-header">
-                <div class="nested-array-name">
-                  <span class="text-body-2">{{ (property.items as any).items.name || 'item' }}</span>
-                </div>
-                <div class="nested-array-description">
-                  <span class="text-body-2 text-medium-emphasis">{{ (property.items as any).items.description || '' }}</span>
-                </div>
-                <div class="nested-array-items-type">
-                  <span class="text-caption text-medium-emphasis mr-2">Items:</span>
-                  <TypeChipPicker
-                    v-model="nestedArrayItemsTypeLevel2"
-                    :is-root="false"
-                    :is-dictionary="isDictionary"
-                    :is-type="isType"
-                    :disabled="disabled"
-                    @update:model-value="handleNestedArrayItemsTypeChangeLevel2"
-                  />
-                </div>
-              </div>
-              
-              <!-- Continue recursion for deeper levels -->
-              <div v-if="(property.items as any).items.items" class="nested-array-content">
-                <div v-if="(property.items as any).items.items.type === 'array'" class="nested-array-level">
-                  <div class="nested-array-header">
-                    <div class="nested-array-name">
-                      <span class="text-body-2">{{ (property.items as any).items.items.name || 'item' }}</span>
-                    </div>
-                    <div class="nested-array-description">
-                      <span class="text-body-2 text-medium-emphasis">{{ (property.items as any).items.items.description || '' }}</span>
-                    </div>
-                    <div class="nested-array-items-type">
-                      <span class="text-caption text-medium-emphasis mr-2">Items:</span>
-                      <TypeChipPicker
-                        v-model="nestedArrayItemsTypeLevel3"
-                        :is-root="false"
-                        :is-dictionary="isDictionary"
-                        :is-type="isType"
-                        :disabled="disabled"
-                        @update:model-value="handleNestedArrayItemsTypeChangeLevel3"
-                      />
-                    </div>
-                  </div>
-                  
-                  <!-- Continue recursion for deeper levels -->
-                  <div v-if="(property.items as any).items.items.items" class="nested-array-content">
-                    <div v-if="(property.items as any).items.items.items.type === 'array'" class="nested-array-level">
-                      <div class="nested-array-header">
-                        <div class="nested-array-name">
-                          <span class="text-body-2">{{ (property.items as any).items.items.items.name || 'item' }}</span>
-                        </div>
-                        <div class="nested-array-description">
-                          <span class="text-body-2 text-medium-emphasis">{{ (property.items as any).items.items.items.description || '' }}</span>
-                        </div>
-                        <div class="nested-array-items-type">
-                          <span class="text-caption text-medium-emphasis mr-2">Items:</span>
-                          <TypeChipPicker
-                            v-model="nestedArrayItemsTypeLevel4"
-                            :is-root="false"
-                            :is-dictionary="isDictionary"
-                            :is-type="isType"
-                            :disabled="disabled"
-                            @update:model-value="handleNestedArrayItemsTypeChangeLevel4"
-                          />
-                        </div>
-                      </div>
-                      
-                      <!-- Final level - show the actual property editor for non-array types -->
-                      <div v-if="(property.items as any).items.items.items.items && (property.items as any).items.items.items.items.type !== 'array'" class="nested-array-content">
-                        <!-- For object types, show object properties with actions -->
-                        <div v-if="nestedObjectLevel4" class="nested-object-properties">
-                          <!-- Object header with actions -->
-                          <div class="nested-object-header">
-                            <div class="nested-object-actions">
-                              <v-btn
-                                v-if="!disabled"
-                                icon="mdi-plus"
-                                size="small"
-                                variant="text"
-                                color="primary"
-                                @click="handleAddNestedObjectPropertyLevel4"
-                                class="mr-2"
-                              >
-                                <v-tooltip activator="parent" location="top">Add Property</v-tooltip>
-                              </v-btn>
-                              
-                              <v-btn
-                                v-if="!disabled"
-                                :icon="nestedObjectLevel4?.additionalProperties ? 'mdi-checkbox-marked-circle' : 'mdi-checkbox-blank-circle-outline'"
-                                size="small"
-                                variant="text"
-                                color="primary"
-                                @click="handleToggleNestedObjectAdditionalPropertiesLevel4"
-                                class="mr-2"
-                              >
-                                <v-tooltip activator="parent" location="top">
-                                  {{ nestedObjectLevel4?.additionalProperties ? 'Disallow additional properties' : 'Allow additional properties' }}
-                                </v-tooltip>
-                              </v-btn>
-                              
-                              <v-btn
-                                :icon="isNestedObjectCollapsedLevel4 ? 'mdi-chevron-left' : 'mdi-chevron-down'"
-                                size="small"
-                                variant="text"
-                                color="primary"
-                                @click="handleToggleNestedObjectCollapsedLevel4"
-                              >
-                                <v-tooltip activator="parent" location="top">
-                                  {{ isNestedObjectCollapsedLevel4 ? 'Show properties' : 'Hide properties' }}
-                                </v-tooltip>
-                              </v-btn>
-                            </div>
-                          </div>
-                          
-                          <!-- Object properties list -->
-                          <div v-if="!isNestedObjectCollapsedLevel4" class="nested-object-properties-list">
-                            <div v-if="!hasNestedObjectPropertiesLevel4" class="text-center pa-4">
-                              <v-icon size="48" color="grey">mdi-format-list-bulleted</v-icon>
-                              <p class="text-body-2 text-medium-emphasis mt-2">No properties defined. Click the <v-icon icon="mdi-plus" size="small" class="mx-1" /> icon to add your first property</p>
-                            </div>
-                            
-                            <div v-else class="properties-section">
-                              <PropertyEditor
-                                v-for="(prop, index) in nestedObjectPropertiesLevel4"
-                                :key="prop.name || index"
-                                :property="prop"
-                                :is-root="false"
-                                :is-dictionary="isDictionary"
-                                :is-type="isType"
-                                :disabled="disabled"
-                                @change="(updatedProp) => handleNestedObjectPropertyChangeLevel4(index, updatedProp)"
-                                @delete="() => handleNestedObjectPropertyDeleteLevel4(index)"
-                              />
-                            </div>
-                          </div>
-                        </div>
-                        
-                        <!-- For other non-array types, show the regular property editor -->
-                        <div v-else>
-                          <PropertyEditor
-                            :property="(property.items as any).items.items.items.items"
-                            :is-root="false"
-                            :is-dictionary="isDictionary"
-                            :is-type="isType"
-                            :disabled="disabled"
-                            @change="handleNestedArrayChangeLevel4"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            <!-- For non-array items types, show the property editor -->
-            <div v-else class="nested-array-content">
-              <PropertyEditor
-                :property="(property.items as any).items"
-                :is-root="false"
-                :is-dictionary="isDictionary"
-                :is-type="isType"
-                :disabled="disabled"
-                @change="handleNestedArrayChange"
-              />
-            </div>
-          </div>
+          <!-- Use PropertyEditor for the nested array with type selector hidden -->
+          <PropertyEditor
+            :property="property.items"
+            :is-root="false"
+            :is-dictionary="isDictionary"
+            :is-type="isType"
+            :disabled="disabled"
+            :hide-type-selector="true"
+            @change="handleItemsChange"
+          />
         </div>
       </div>
 
@@ -322,6 +142,7 @@ const props = defineProps<{
   isDictionary?: boolean
   isType?: boolean
   disabled?: boolean
+  hideTypeSelector?: boolean
 }>()
 
 const emit = defineEmits<{
