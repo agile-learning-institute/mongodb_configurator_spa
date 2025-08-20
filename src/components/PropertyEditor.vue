@@ -123,16 +123,6 @@
       <div v-else-if="isSimpleProperty(property)" class="simple-property-body">
         <div class="schema-configuration pa-4">
           <h4 class="text-h6 mb-3">Schema Configuration</h4>
-          <v-alert
-            type="info"
-            variant="tonal"
-            class="mb-4"
-          >
-            <template v-slot:prepend>
-              <v-icon icon="mdi-information" />
-            </template>
-            Simple properties use JSON Schema validation. Configure the schema below to define validation rules.
-          </v-alert>
           
           <v-textarea
             v-model="simplePropertySchema"
@@ -150,16 +140,6 @@
       <div v-else-if="isComplexProperty(property)" class="complex-property-body">
         <div class="type-configuration pa-4">
           <h4 class="text-h6 mb-3">Type Configuration</h4>
-          <v-alert
-            type="info"
-            variant="tonal"
-            class="mb-4"
-          >
-            <template v-slot:prepend>
-              <v-icon icon="mdi-information" />
-            </template>
-            Complex properties support both JSON Schema and BSON type definitions for MongoDB validation.
-          </v-alert>
           
           <v-row>
             <v-col cols="12" md="6">
