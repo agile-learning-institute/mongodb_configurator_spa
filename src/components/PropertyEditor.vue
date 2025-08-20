@@ -176,7 +176,7 @@
                       <!-- Final level - show the actual property editor for non-array types -->
                       <div v-if="(property.items as any).items.items.items.items && (property.items as any).items.items.items.items.type !== 'array'" class="nested-array-content">
                         <!-- For object types, show object properties with actions -->
-                        <div v-if="(property.items as any).items.items.items.items.type === 'object'" class="nested-object-properties">
+                        <div v-if="nestedObjectLevel4" class="nested-object-properties">
                           <!-- Object header with actions -->
                           <div class="nested-object-header">
                             <div class="nested-object-actions">
@@ -194,7 +194,7 @@
                               
                               <v-btn
                                 v-if="!disabled"
-                                :icon="(property.items as any).items.items.items.items.additionalProperties ? 'mdi-checkbox-marked-circle' : 'mdi-checkbox-blank-circle-outline'"
+                                :icon="nestedObjectLevel4?.additionalProperties ? 'mdi-checkbox-marked-circle' : 'mdi-checkbox-blank-circle-outline'"
                                 size="small"
                                 variant="text"
                                 color="primary"
@@ -202,34 +202,34 @@
                                 class="mr-2"
                               >
                                 <v-tooltip activator="parent" location="top">
-                                  {{ (property.items as any).items.items.items.items.additionalProperties ? 'Disallow additional properties' : 'Allow additional properties' }}
+                                  {{ nestedObjectLevel4?.additionalProperties ? 'Disallow additional properties' : 'Allow additional properties' }}
                                 </v-tooltip>
                               </v-btn>
                               
                               <v-btn
-                                :icon="(property.items as any).items.items.items.items._collapsed ? 'mdi-chevron-left' : 'mdi-chevron-down'"
+                                :icon="isNestedObjectCollapsedLevel4 ? 'mdi-chevron-left' : 'mdi-chevron-down'"
                                 size="small"
                                 variant="text"
                                 color="primary"
                                 @click="handleToggleNestedObjectCollapsedLevel4"
                               >
                                 <v-tooltip activator="parent" location="top">
-                                  {{ (property.items as any).items.items.items.items._collapsed ? 'Show properties' : 'Hide properties' }}
+                                  {{ isNestedObjectCollapsedLevel4 ? 'Show properties' : 'Hide properties' }}
                                 </v-tooltip>
                               </v-btn>
                             </div>
                           </div>
                           
                           <!-- Object properties list -->
-                          <div v-if="!(property.items as any).items.items.items.items._collapsed" class="nested-object-properties-list">
-                            <div v-if="!(property.items as any).items.items.items.items.properties || (property.items as any).items.items.items.items.properties.length === 0)" class="text-center pa-4">
+                          <div v-if="!isNestedObjectCollapsedLevel4" class="nested-object-properties-list">
+                            <div v-if="!hasNestedObjectPropertiesLevel4" class="text-center pa-4">
                               <v-icon size="48" color="grey">mdi-format-list-bulleted</v-icon>
                               <p class="text-body-2 text-medium-emphasis mt-2">No properties defined. Click the <v-icon icon="mdi-plus" size="small" class="mx-1" /> icon to add your first property</p>
                             </div>
                             
                             <div v-else class="properties-section">
                               <PropertyEditor
-                                v-for="(prop, index) in (property.items as any).items.items.items.items.properties"
+                                v-for="(prop, index) in nestedObjectPropertiesLevel4"
                                 :key="prop.name || index"
                                 :property="prop"
                                 :is-root="false"
@@ -517,6 +517,32 @@ const nestedArrayItemsTypeLevel4 = computed(() => {
     return (props.property.items as any).items?.items?.items?.items?.type || ''
   }
   return ''
+})
+
+// Computed properties for nested object at level 4
+const nestedObjectLevel4 = computed(() => {
+  if (isArrayProperty(props.property) && props.property.items && props.property.items.type === 'array' && 
+      (props.property.items as any).items?.type === 'array' && 
+      (props.property.items as any).items?.items?.type === 'array' && 
+      (props.property.items as any).items?.items?.items?.type === 'array' &&
+      (props.property.items as any).items?.items?.items?.items?.type === 'object') {
+    return (props.property.items as any).items.items.items.items
+  }
+  return null
+})
+
+const nestedObjectPropertiesLevel4 = computed(() => {
+  const obj = nestedObjectLevel4.value
+  return obj?.properties || []
+})
+
+const hasNestedObjectPropertiesLevel4 = computed(() => {
+  return nestedObjectPropertiesLevel4.value.length > 0
+})
+
+const isNestedObjectCollapsedLevel4 = computed(() => {
+  const obj = nestedObjectLevel4.value
+  return obj?._collapsed || false
 })
 
 // Methods for deeper nested array levels
