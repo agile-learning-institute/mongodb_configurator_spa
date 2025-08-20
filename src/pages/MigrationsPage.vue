@@ -82,7 +82,7 @@ const createNewMigration = async () => {
     const newMigrationPayload: any[] = []
     
     // PUT the new document to create it
-    const fileName = `${name}.yaml`
+    const fileName = `${name}.json`
     const response = await fetch(`/api/migrations/${fileName}/`, {
       method: 'PUT',
       headers: {

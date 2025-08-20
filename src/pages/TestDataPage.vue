@@ -82,7 +82,7 @@ const createNewTestData = async () => {
     const newTestDataPayload: any[] = []
     
     // PUT the new document to create it
-    const fileName = `${name}.yaml`
+    const fileName = `${name}.json`
     const response = await fetch(`/api/test_data/${fileName}/`, {
       method: 'PUT',
       headers: {
