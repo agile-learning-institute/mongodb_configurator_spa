@@ -100,24 +100,38 @@ The application has undergone a comprehensive refactor to improve maintainabilit
 The application now uses a unified property editing system that handles all property types with polymorphic rendering:
 
 ```
-PropertyEditor (main component)
-├── Property Type Editors (polymorphic based on type)
-│   ├── ArrayPropertyEditor
-│   ├── ObjectPropertyEditor
-│   ├── SimplePropertyEditor
-│   ├── ComplexPropertyEditor
-│   ├── EnumPropertyEditor
-│   ├── EnumArrayPropertyEditor
-│   ├── RefPropertyEditor
-│   ├── ConstantPropertyEditor
-│   ├── CustomPropertyEditor
-│   └── OneOfPropertyEditor
-├── Inline Editing (name, description, type, required)
+PropertyEditor (main orchestrator)
+├── BasePropertyEditor (common header elements)
+│   ├── Name, Description, Type, Required, Delete
+│   └── Extension slot for type-specific controls
+├── Type-Specific Extensions
+│   ├── ArrayPropertyExtension (items type picker)
+│   ├── ObjectPropertyExtension (add property, additional props, show/hide)
+│   ├── ArrayOfObjectExtension (array + object functionality)
+│   └── ArrayOfArrayExtension (nested array handling)
+├── Conditional Body Rendering
+│   ├── Object properties list (for object types)
+│   ├── Array item editor (for array of object/array)
+│   └── No body (for simple/complex/custom types)
 └── usePropertyTypeEditor composable (shared logic)
 ```
 
+### Component Architecture Benefits
+- **Modular Design**: Each extension handles specific functionality
+- **Reusable Components**: BasePropertyEditor used across all property types
+- **Clean Separation**: Header controls vs. body content clearly separated
+- **Easy Maintenance**: Add new property types by creating new extensions
+- **Type Safety**: Full TypeScript support with proper type guards
+
 ### Core Components
-- **PropertyEditor**: Unified property editing with polymorphic type rendering
+- **PropertyEditor**: Main orchestrator for all property editing with polymorphic rendering
+- **BasePropertyEditor**: Common header component with name, description, type, required, delete
+- **Type Extensions**: Specialized components for different property types:
+  - `ArrayPropertyExtension`: Items type picker for arrays
+  - `ObjectPropertyExtension`: Object-specific actions (add property, additional props, show/hide)
+  - `ArrayOfObjectExtension`: Array of object functionality
+  - `ArrayOfArrayExtension`: Nested array handling with recursion
+- **TypeChipPicker**: Chip-based type selection with custom types integration
 - **FileList**: File listing with "Lock All" functionality and compact cards
 - **FileCard**: Compact file information display with single-line layout
 - **EventCard**: Event display with expandable sub-events and prominent IDs
@@ -220,6 +234,29 @@ The application includes comprehensive help content for all major features:
 - Comprehensive overview with detailed feature explanations
 
 ## Recent UI/UX Improvements
+
+### Type Editor System Overhaul (Latest)
+- **Unified Property Editor**: Single `PropertyEditor` component handles all property types with polymorphic rendering
+- **Base Property Editor**: `BasePropertyEditor` provides common header elements (name, description, type, required, delete)
+- **Type-Specific Extensions**: Specialized extension components for different property types:
+  - `ArrayPropertyExtension`: Items type picker for arrays
+  - `ObjectPropertyExtension`: Add property, additional properties toggle, show/hide chevron
+  - `ArrayOfObjectExtension`: Combines array and object functionality for array of object
+  - `ArrayOfArrayExtension`: Handles nested arrays with natural recursion
+- **Smart Body Rendering**: Conditional body display based on property type and items type
+- **Array of Object Support**: Full object property management within array items
+- **Array of Array Support**: Recursive nested array editing with type selector hidden
+- **Locking Behavior**: Read-only inputs (not dimmed) with hidden action icons when locked
+- **Tooltip System**: Comprehensive tooltips for all action icons with proper color contrast
+
+### Property Editor Features
+- **Type Chip Picker**: Replaced dropdown with chip-based type selection
+- **Custom Types Integration**: Fetches and displays custom types from API (`GET /api/types/`)
+- **Type Restrictions**: Root properties (Array, Object, Simple, Complex), non-root (Array, Object, Custom)
+- **Required Field**: Material Design checkbox icon with tooltip
+- **Action Icons**: Plus (add property), toggle (additional properties), chevron (show/hide)
+- **Collapsible Properties**: Show/hide functionality for object properties (UI state only)
+- **No Properties Message**: Helpful message with plus icon for empty object properties
 
 ### File List Enhancements
 - **Compact File Cards**: Reduced vertical space, single-line layout
