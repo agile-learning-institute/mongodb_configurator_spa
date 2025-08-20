@@ -105,14 +105,102 @@
           
           <!-- Show nested array content if it has items -->
           <div v-if="(property.items as any).items" class="nested-array-content">
-            <PropertyEditor
-              :property="(property.items as any).items"
-              :is-root="false"
-              :is-dictionary="isDictionary"
-              :is-type="isType"
-              :disabled="disabled"
-              @change="handleNestedArrayChange"
-            />
+            <!-- Recursively show nested array headers (no property actions) -->
+            <div v-if="(property.items as any).items.type === 'array'" class="nested-array-level">
+              <div class="nested-array-header">
+                <div class="nested-array-name">
+                  <span class="text-body-2">{{ (property.items as any).items.name || 'item' }}</span>
+                </div>
+                <div class="nested-array-description">
+                  <span class="text-body-2 text-medium-emphasis">{{ (property.items as any).items.description || '' }}</span>
+                </div>
+                <div class="nested-array-items-type">
+                  <span class="text-caption text-medium-emphasis mr-2">Items:</span>
+                  <TypeChipPicker
+                    v-model="nestedArrayItemsTypeLevel2"
+                    :is-root="false"
+                    :is-dictionary="isDictionary"
+                    :is-type="isType"
+                    :disabled="disabled"
+                    @update:model-value="handleNestedArrayItemsTypeChangeLevel2"
+                  />
+                </div>
+              </div>
+              
+              <!-- Continue recursion for deeper levels -->
+              <div v-if="(property.items as any).items.items" class="nested-array-content">
+                <div v-if="(property.items as any).items.items.type === 'array'" class="nested-array-level">
+                  <div class="nested-array-header">
+                    <div class="nested-array-name">
+                      <span class="text-body-2">{{ (property.items as any).items.items.name || 'item' }}</span>
+                    </div>
+                    <div class="nested-array-description">
+                      <span class="text-body-2 text-medium-emphasis">{{ (property.items as any).items.items.description || '' }}</span>
+                    </div>
+                    <div class="nested-array-items-type">
+                      <span class="text-caption text-medium-emphasis mr-2">Items:</span>
+                      <TypeChipPicker
+                        v-model="nestedArrayItemsTypeLevel3"
+                        :is-root="false"
+                        :is-dictionary="isDictionary"
+                        :is-type="isType"
+                        :disabled="disabled"
+                        @update:model-value="handleNestedArrayItemsTypeChangeLevel3"
+                      />
+                    </div>
+                  </div>
+                  
+                  <!-- Continue recursion for deeper levels -->
+                  <div v-if="(property.items as any).items.items.items" class="nested-array-content">
+                    <div v-if="(property.items as any).items.items.items.type === 'array'" class="nested-array-level">
+                      <div class="nested-array-header">
+                        <div class="nested-array-name">
+                          <span class="text-body-2">{{ (property.items as any).items.items.items.name || 'item' }}</span>
+                        </div>
+                        <div class="nested-array-description">
+                          <span class="text-body-2 text-medium-emphasis">{{ (property.items as any).items.items.items.description || '' }}</span>
+                        </div>
+                        <div class="nested-array-items-type">
+                          <span class="text-caption text-medium-emphasis mr-2">Items:</span>
+                          <TypeChipPicker
+                            v-model="nestedArrayItemsTypeLevel4"
+                            :is-root="false"
+                            :is-dictionary="isDictionary"
+                            :is-type="isType"
+                            :disabled="disabled"
+                            @update:model-value="handleNestedArrayItemsTypeChangeLevel4"
+                          />
+                        </div>
+                      </div>
+                      
+                      <!-- Final level - show the actual property editor for non-array types -->
+                      <div v-if="(property.items as any).items.items.items.items && (property.items as any).items.items.items.items.type !== 'array'" class="nested-array-content">
+                        <PropertyEditor
+                          :property="(property.items as any).items.items.items.items"
+                          :is-root="false"
+                          :is-dictionary="isDictionary"
+                          :is-type="isType"
+                          :disabled="disabled"
+                          @change="handleNestedArrayChangeLevel4"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- For non-array items types, show the property editor -->
+            <div v-else class="nested-array-content">
+              <PropertyEditor
+                :property="(property.items as any).items"
+                :is-root="false"
+                :is-dictionary="isDictionary"
+                :is-type="isType"
+                :disabled="disabled"
+                @change="handleNestedArrayChange"
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -331,6 +419,147 @@ const nestedArrayItemsType = computed(() => {
   }
   return ''
 })
+
+// Computed properties for deeper nested array levels
+const nestedArrayItemsTypeLevel2 = computed(() => {
+  if (isArrayProperty(props.property) && props.property.items && props.property.items.type === 'array' && 
+      (props.property.items as any).items?.type === 'array') {
+    return (props.property.items as any).items?.items?.type || ''
+  }
+  return ''
+})
+
+const nestedArrayItemsTypeLevel3 = computed(() => {
+  if (isArrayProperty(props.property) && props.property.items && props.property.items.type === 'array' && 
+      (props.property.items as any).items?.type === 'array' && 
+      (props.property.items as any).items?.items?.type === 'array') {
+    return (props.property.items as any).items?.items?.items?.type || ''
+  }
+  return ''
+})
+
+const nestedArrayItemsTypeLevel4 = computed(() => {
+  if (isArrayProperty(props.property) && props.property.items && props.property.items.type === 'array' && 
+      (props.property.items as any).items?.type === 'array' && 
+      (props.property.items as any).items?.items?.type === 'array' && 
+      (props.property.items as any).items?.items?.items?.type === 'array') {
+    return (props.property.items as any).items?.items?.items?.items?.type || ''
+  }
+  return ''
+})
+
+// Methods for deeper nested array levels
+const handleNestedArrayItemsTypeChangeLevel2 = (newType: string) => {
+  if (isArrayProperty(props.property) && props.property.items && props.property.items.type === 'array' && 
+      (props.property.items as any).items?.type === 'array') {
+    const newItems = {
+      name: '',
+      description: '',
+      type: newType,
+      required: false
+    }
+    
+    const newProperty = {
+      ...props.property,
+      items: {
+        ...props.property.items,
+        items: {
+          ...(props.property.items as any).items,
+          items: newItems
+        }
+      }
+    }
+    
+    emit('change', newProperty)
+  }
+}
+
+const handleNestedArrayItemsTypeChangeLevel3 = (newType: string) => {
+  if (isArrayProperty(props.property) && props.property.items && props.property.items.type === 'array' && 
+      (props.property.items as any).items?.type === 'array' && 
+      (props.property.items as any).items?.items?.type === 'array') {
+    const newItems = {
+      name: '',
+      description: '',
+      type: newType,
+      required: false
+    }
+    
+    const newProperty = {
+      ...props.property,
+      items: {
+        ...props.property.items,
+        items: {
+          ...(props.property.items as any).items,
+          items: {
+            ...(props.property.items as any).items?.items,
+            items: newItems
+          }
+        }
+      }
+    }
+    
+    emit('change', newProperty)
+  }
+}
+
+const handleNestedArrayItemsTypeChangeLevel4 = (newType: string) => {
+  if (isArrayProperty(props.property) && props.property.items && props.property.items.type === 'array' && 
+      (props.property.items as any).items?.type === 'array' && 
+      (props.property.items as any).items?.items?.type === 'array' && 
+      (props.property.items as any).items?.items?.items?.type === 'array') {
+    const newItems = {
+      name: '',
+      description: '',
+      type: newType,
+      required: false
+    }
+    
+    const newProperty = {
+      ...props.property,
+      items: {
+        ...props.property.items,
+        items: {
+          ...(props.property.items as any).items,
+          items: {
+            ...(props.property.items as any).items?.items,
+            items: {
+              ...(props.property.items as any).items?.items?.items,
+              items: newItems
+            }
+          }
+        }
+      }
+    }
+    
+    emit('change', newProperty)
+  }
+}
+
+const handleNestedArrayChangeLevel4 = (updatedNestedArray: Property) => {
+  if (isArrayProperty(props.property) && props.property.items && props.property.items.type === 'array' && 
+      (props.property.items as any).items?.type === 'array' && 
+      (props.property.items as any).items?.items?.type === 'array' && 
+      (props.property.items as any).items?.items?.items?.type === 'array') {
+    const newProperty = {
+      ...props.property,
+      items: {
+        ...props.property.items,
+        items: {
+          ...(props.property.items as any).items,
+          items: {
+            ...(props.property.items as any).items?.items,
+            items: {
+              ...(props.property.items as any).items?.items?.items,
+              items: updatedNestedArray
+            }
+          }
+        }
+      }
+    }
+    emit('change', newProperty)
+  }
+}
 </script>
 
 <style scoped>
@@ -385,5 +614,9 @@ const nestedArrayItemsType = computed(() => {
 
 .nested-array-content {
   margin-left: 16px;
+}
+
+.nested-array-level {
+  margin-bottom: 8px;
 }
 </style> 
