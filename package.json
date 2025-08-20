@@ -15,6 +15,7 @@
     "container": "docker build -t ghcr.io/agile-learning-institute/mongodb_configurator_spa:latest .",
     "api": "npm run down && docker compose --profile configurator-api up -d",
     "service": "npm run down && docker compose --profile configurator up -d",
+    "pull": "docker compose --profile configurator pull",
     "down": "docker compose down configurator_spa configurator_api mongodb"
   },
   "repository": {

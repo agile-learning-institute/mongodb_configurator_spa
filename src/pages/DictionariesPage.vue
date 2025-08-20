@@ -2,7 +2,15 @@
   <v-container>
     <div class="d-flex justify-space-between align-center mb-6">
       <h3>Dictionaries</h3>
-      <div class="d-flex align-center">
+      <div class="d-flex align-center gap-2">
+        <v-btn
+          color="primary"
+          variant="elevated"
+          prepend-icon="mdi-plus"
+          @click="showNewDialog = true"
+        >
+          New
+        </v-btn>
         <v-btn
           v-if="canLockAll"
           color="info"
@@ -21,6 +29,37 @@
       @edit="handleEdit"
       @open="handleOpen"
     />
+
+    <!-- New Dictionary Dialog -->
+    <v-dialog v-model="showNewDialog" max-width="400">
+      <v-card>
+        <v-card-title class="text-h5">
+          Create New Dictionary
+        </v-card-title>
+        <v-card-text>
+          <v-text-field
+            v-model="newDictionaryName"
+            label="Dictionary Name"
+            placeholder="Enter dictionary name (e.g., 'user_schema')"
+            variant="outlined"
+            density="compact"
+            hide-details
+            @keyup.enter="createNewDictionary"
+          />
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer />
+          <v-btn @click="showNewDialog = false">Cancel</v-btn>
+          <v-btn 
+            color="primary" 
+            @click="createNewDictionary"
+            :disabled="!newDictionaryName.trim()"
+          >
+            Create
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
@@ -35,6 +74,10 @@ const fileListRef = ref()
 // Lock all functionality
 const canLockAll = ref(false)
 const locking = ref(false)
+
+// New dictionary functionality
+const showNewDialog = ref(false)
+const newDictionaryName = ref('')
 
 const handleEdit = (fileName: string) => {
   router.push(`/dictionaries/${fileName}`)
@@ -52,6 +95,41 @@ const handleLockAll = async () => {
     } finally {
       locking.value = false
     }
+  }
+}
+
+const createNewDictionary = async () => {
+  const name = newDictionaryName.value.trim()
+  if (!name) return
+  
+  try {
+    // Create a new empty dictionary document via PUT
+    const newDictionaryData = {
+      root: {
+        name: name
+      }
+    }
+    
+    // PUT the new document to create it
+    const fileName = `${name}.yaml`
+    const response = await fetch(`/api/dictionaries/${fileName}/`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(newDictionaryData)
+    })
+    
+    if (response.ok) {
+      // Navigate to the newly created dictionary
+      router.push(`/dictionaries/${fileName}`)
+      showNewDialog.value = false
+      newDictionaryName.value = ''
+    } else {
+      console.error('Failed to create dictionary:', response.statusText)
+    }
+  } catch (error) {
+    console.error('Error creating new dictionary:', error)
   }
 }
 

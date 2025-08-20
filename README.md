@@ -29,6 +29,9 @@ npm run container
 # run the SPA as well as the backing services in local containers
 npm run service
 
+# pull the latest published containers
+npm run pull
+
 # shut down all of the containers after testing 
 npm run down
 
