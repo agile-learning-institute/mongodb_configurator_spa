@@ -190,6 +190,11 @@ const showBody = computed(() => {
     return items && (items.type === 'object' || items.type === 'array')
   }
   
+  // Show body for Simple and Complex properties to display their schema/type configuration
+  if (isSimpleProperty(props.property) || isComplexProperty(props.property)) {
+    return true
+  }
+  
   return false
 })
 

@@ -98,7 +98,7 @@
 
       
       <!-- Object property body -->
-      <div v-else-if="isObjectProperty(property)" class="object-property-body">
+      <div v-else-if="isObjectProperty(property) && !(property as any)._collapsed" class="object-property-body">
         <div v-if="!property.properties || property.properties.length === 0" class="text-center pa-4">
           <v-icon size="48" color="grey">mdi-format-list-bulleted</v-icon>
           <p class="text-body-2 text-medium-emphasis mt-2">No properties defined. Click the <v-icon icon="mdi-plus" size="small" class="mx-1" /> icon to add your first property</p>
@@ -118,6 +118,75 @@
           />
         </div>
       </div>
+      
+      <!-- Simple property body - show schema configuration -->
+      <div v-else-if="isSimpleProperty(property)" class="simple-property-body">
+        <div class="schema-configuration pa-4">
+          <h4 class="text-h6 mb-3">Schema Configuration</h4>
+          <v-alert
+            type="info"
+            variant="tonal"
+            class="mb-4"
+          >
+            <template v-slot:prepend>
+              <v-icon icon="mdi-information" />
+            </template>
+            Simple properties use JSON Schema validation. Configure the schema below to define validation rules.
+          </v-alert>
+          
+          <v-textarea
+            v-model="simplePropertySchema"
+            label="JSON Schema"
+            placeholder='{"type": "string", "minLength": 1, "maxLength": 100}'
+            variant="outlined"
+            rows="6"
+            :readonly="disabled"
+            @blur="handleSimplePropertySchemaChange"
+          />
+        </div>
+      </div>
+      
+      <!-- Complex property body - show JSON and BSON type configuration -->
+      <div v-else-if="isComplexProperty(property)" class="complex-property-body">
+        <div class="type-configuration pa-4">
+          <h4 class="text-h6 mb-3">Type Configuration</h4>
+          <v-alert
+            type="info"
+            variant="tonal"
+            class="mb-4"
+          >
+            <template v-slot:prepend>
+              <v-icon icon="mdi-information" />
+            </template>
+            Complex properties support both JSON Schema and BSON type definitions for MongoDB validation.
+          </v-alert>
+          
+          <v-row>
+            <v-col cols="12" md="6">
+              <v-textarea
+                v-model="complexPropertyJsonType"
+                label="JSON Type Definition"
+                placeholder='{"type": "object", "properties": {...}}'
+                variant="outlined"
+                rows="6"
+                :readonly="disabled"
+                @blur="handleComplexPropertyJsonTypeChange"
+              />
+            </v-col>
+            <v-col cols="12" md="6">
+              <v-textarea
+                v-model="complexPropertyBsonType"
+                label="BSON Type Definition"
+                placeholder='{"bsonType": "object", "properties": {...}}'
+                variant="outlined"
+                rows="6"
+                :readonly="disabled"
+                @blur="handleComplexPropertyBsonTypeChange"
+              />
+            </v-col>
+          </v-row>
+        </div>
+      </div>
     </template>
   </BasePropertyEditor>
 </template>
@@ -127,7 +196,9 @@ import { computed } from 'vue'
 import { 
   type Property,
   isArrayProperty,
-  isObjectProperty
+  isObjectProperty,
+  isSimpleProperty,
+  isComplexProperty
 } from '@/types/types'
 import BasePropertyEditor from './BasePropertyEditor.vue'
 import ArrayPropertyExtension from './ArrayPropertyExtension.vue'
@@ -155,6 +226,27 @@ const isRoot = computed(() => props.isRoot || false)
 const isDictionary = computed(() => props.isDictionary || false)
 const isType = computed(() => props.isType || false)
 
+// Computed properties for Simple and Complex property editing
+const simplePropertySchema = computed(() => {
+  if (isSimpleProperty(props.property)) {
+    return JSON.stringify(props.property.schema, null, 2)
+  }
+  return ''
+})
+
+const complexPropertyJsonType = computed(() => {
+  if (isComplexProperty(props.property)) {
+    return JSON.stringify(props.property.json_type, null, 2)
+  }
+  return ''
+})
+
+const complexPropertyBsonType = computed(() => {
+  if (isComplexProperty(props.property)) {
+    return JSON.stringify(props.property.bson_type, null, 2)
+  }
+  return ''
+})
 
 
 // Methods
@@ -241,12 +333,19 @@ const handleArrayObjectPropertyChange = (index: number, updatedProp: Property) =
 }
 
 const handleArrayObjectPropertyDelete = (index: number) => {
-  if (isArrayProperty(props.property) && props.property.items && props.property.items.type === 'object') {
-    const items = props.property.items as any
-    if (items.properties) {
-      items.properties.splice(index, 1)
-      emit('change', props.property)
+  if (isArrayProperty(props.property) && props.property.items && isObjectProperty(props.property.items)) {
+    const updatedProperties = [...(props.property.items as any).properties]
+    updatedProperties.splice(index, 1)
+    
+    const updatedProperty = {
+      ...props.property,
+      items: {
+        ...props.property.items,
+        properties: updatedProperties
+      }
     }
+    
+    emit('change', updatedProperty)
   }
 }
 
@@ -265,6 +364,54 @@ const handleArrayArrayCollapsed = (collapsed: boolean) => {
     ;(props.property.items as any)._collapsed = collapsed
   }
 }
+
+const handleSimplePropertySchemaChange = (event: Event) => {
+  const value = (event.target as HTMLTextAreaElement).value;
+  if (isSimpleProperty(props.property)) {
+    try {
+      const parsedSchema = JSON.parse(value);
+      const updatedProperty = {
+        ...props.property,
+        schema: parsedSchema
+      };
+      emit('change', updatedProperty);
+    } catch (error) {
+      console.error('Invalid JSON schema:', error);
+    }
+  }
+};
+
+const handleComplexPropertyJsonTypeChange = (event: Event) => {
+  const value = (event.target as HTMLTextAreaElement).value;
+  if (isComplexProperty(props.property)) {
+    try {
+      const parsedJsonType = JSON.parse(value);
+      const updatedProperty = {
+        ...props.property,
+        json_type: parsedJsonType
+      };
+      emit('change', updatedProperty);
+    } catch (error) {
+      console.error('Invalid JSON type definition:', error);
+    }
+  }
+};
+
+const handleComplexPropertyBsonTypeChange = (event: Event) => {
+  const value = (event.target as HTMLTextAreaElement).value;
+  if (isComplexProperty(props.property)) {
+    try {
+      const parsedBsonType = JSON.parse(value);
+      const updatedProperty = {
+        ...props.property,
+        bson_type: parsedBsonType
+      };
+      emit('change', updatedProperty);
+    } catch (error) {
+      console.error('Invalid BSON type definition:', error);
+    }
+  }
+};
 
 
 
@@ -353,5 +500,23 @@ const handleArrayArrayCollapsed = (collapsed: boolean) => {
 
 .nested-object-properties-list {
   margin-left: 16px;
+}
+
+.simple-property-body {
+  padding: 16px;
+  background-color: #ffffff;
+}
+
+.complex-property-body {
+  padding: 16px;
+  background-color: #ffffff;
+}
+
+.schema-configuration {
+  /* Add specific styles for schema configuration if needed */
+}
+
+.type-configuration {
+  /* Add specific styles for type configuration if needed */
 }
 </style> 
