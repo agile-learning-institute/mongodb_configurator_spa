@@ -5,7 +5,7 @@
     :is-dictionary="isDictionary"
     :is-type="isType"
     :disabled="disabled"
-    :hide-type-selector="hideTypeSelector"
+    :hideTypeSelector="hideTypeSelector"
     @change="handleChange"
     @delete="handleDelete"
   >
@@ -90,7 +90,7 @@
             :is-dictionary="isDictionary"
             :is-type="isType"
             :disabled="disabled"
-            :hide-type-selector="true"
+            :hideTypeSelector="true"
             @change="handleItemsChange"
           />
         </div>

@@ -60,7 +60,7 @@
         />
       </div>
       
-      <div class="property-type-section" v-if="!props['hide-type-selector']">
+      <div class="property-type-section" v-if="!props.hideTypeSelector">
         <TypeChipPicker
           v-model="editableType"
           :is-root="isRoot"
@@ -141,7 +141,7 @@ const props = defineProps<{
   isDictionary?: boolean
   isType?: boolean
   disabled?: boolean
-  hide-type-selector?: boolean
+  hideTypeSelector?: boolean
 }>()
 
 const emit = defineEmits<{
