@@ -103,11 +103,31 @@ const createNewType = async () => {
   if (!name) return
   
   try {
-    // Navigate to the new type (it will be created when saved)
+    // Create a new empty type document via PUT
+    const newTypeData = {
+      root: {
+        name: name
+      }
+    }
+    
+    // PUT the new document to create it
     const fileName = `${name}.yaml`
-    router.push(`/types/${fileName}`)
-    showNewDialog.value = false
-    newTypeName.value = ''
+    const response = await fetch(`/api/types/${fileName}/`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(newTypeData)
+    })
+    
+    if (response.ok) {
+      // Navigate to the newly created type
+      router.push(`/types/${fileName}`)
+      showNewDialog.value = false
+      newTypeName.value = ''
+    } else {
+      console.error('Failed to create type:', response.statusText)
+    }
   } catch (error) {
     console.error('Error creating new type:', error)
   }

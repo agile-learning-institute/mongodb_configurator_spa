@@ -78,11 +78,27 @@ const createNewMigration = async () => {
   if (!name) return
   
   try {
-    // Navigate to the new migration (it will be created when saved)
+    // Create a new empty migration document via PUT
+    const newMigrationPayload: any[] = []
+    
+    // PUT the new document to create it
     const fileName = `${name}.yaml`
-    router.push(`/migrations/${fileName}`)
-    showNewDialog.value = false
-    newMigrationName.value = ''
+    const response = await fetch(`/api/migrations/${fileName}/`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(newMigrationPayload)
+    })
+    
+    if (response.ok) {
+      // Navigate to the newly created migration
+      router.push(`/migrations/${fileName}`)
+      showNewDialog.value = false
+      newMigrationName.value = ''
+    } else {
+      console.error('Failed to create migration:', response.statusText)
+    }
   } catch (error) {
     console.error('Error creating new migration:', error)
   }

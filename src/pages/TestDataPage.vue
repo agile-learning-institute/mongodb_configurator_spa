@@ -78,11 +78,27 @@ const createNewTestData = async () => {
   if (!name) return
   
   try {
-    // Navigate to the new test data (it will be created when saved)
+    // Create a new empty test data document via PUT
+    const newTestDataPayload: any[] = []
+    
+    // PUT the new document to create it
     const fileName = `${name}.yaml`
-    router.push(`/test_data/${fileName}`)
-    showNewDialog.value = false
-    newTestDataName.value = ''
+    const response = await fetch(`/api/test_data/${fileName}/`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(newTestDataPayload)
+    })
+    
+    if (response.ok) {
+      // Navigate to the newly created test data
+      router.push(`/test_data/${fileName}`)
+      showNewDialog.value = false
+      newTestDataName.value = ''
+    } else {
+      console.error('Failed to create test data:', response.statusText)
+    }
   } catch (error) {
     console.error('Error creating new test data:', error)
   }

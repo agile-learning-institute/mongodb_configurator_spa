@@ -103,11 +103,31 @@ const createNewDictionary = async () => {
   if (!name) return
   
   try {
-    // Navigate to the new dictionary (it will be created when saved)
+    // Create a new empty dictionary document via PUT
+    const newDictionaryData = {
+      root: {
+        name: name
+      }
+    }
+    
+    // PUT the new document to create it
     const fileName = `${name}.yaml`
-    router.push(`/dictionaries/${fileName}`)
-    showNewDialog.value = false
-    newDictionaryName.value = ''
+    const response = await fetch(`/api/dictionaries/${fileName}/`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(newDictionaryData)
+    })
+    
+    if (response.ok) {
+      // Navigate to the newly created dictionary
+      router.push(`/dictionaries/${fileName}`)
+      showNewDialog.value = false
+      newDictionaryName.value = ''
+    } else {
+      console.error('Failed to create dictionary:', response.statusText)
+    }
   } catch (error) {
     console.error('Error creating new dictionary:', error)
   }
