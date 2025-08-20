@@ -52,11 +52,11 @@ watch(editableItemsType, (newType) => {
     // Preserve type-specific properties when changing between compatible types
     if (newType === 'object' && currentItems.type === 'object') {
       // Keep existing object properties
-      newItems.additional_properties = currentItems.additional_properties !== undefined ? currentItems.additional_properties : false
-      newItems.properties = currentItems.properties || []
+      newItems.additional_properties = (currentItems as any).additional_properties !== undefined ? (currentItems as any).additional_properties : false
+      newItems.properties = (currentItems as any).properties || []
     } else if (newType === 'array' && currentItems.type === 'array') {
       // Keep existing array items
-      newItems.items = currentItems.items
+      newItems.items = (currentItems as any).items
     } else if (newType === 'object') {
       // Initialize new object properties
       newItems.additional_properties = false
@@ -82,7 +82,7 @@ watch(editableItemsType, (newType) => {
 })
 
 // Watch for property changes to update the local ref
-watch(() => props.property.items?.type, (newType) => {
+watch(() => (props.property as any).items?.type, (newType) => {
   if (newType && newType !== editableItemsType.value) {
     editableItemsType.value = newType
   }

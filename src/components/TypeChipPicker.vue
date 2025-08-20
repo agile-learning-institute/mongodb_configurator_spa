@@ -117,7 +117,7 @@ const loadCustomTypes = async () => {
     customTypes.value = (typesData || []).map((type: any) => ({
       name: type.file_name.replace('.yaml', ''),
       file_name: type.file_name
-    })).sort((a, b) => a.name.localeCompare(b.name))
+    })).sort((a: CustomType, b: CustomType) => a.name.localeCompare(b.name))
   } catch (error) {
     console.error('Failed to load custom types:', error)
     customTypes.value = []
@@ -126,16 +126,7 @@ const loadCustomTypes = async () => {
   }
 }
 
-// Check if a type is allowed in current context
-const isTypeAllowed = (typeValue: string): boolean => {
-  if (props.isRoot) {
-    // Root properties: only Array, Object, Simple, Complex
-    return ['array', 'object', 'simple', 'complex'].includes(typeValue)
-  }
-  
-  // Non-root properties: only Array, Object (Simple and Complex are hidden)
-  return ['array', 'object'].includes(typeValue)
-}
+
 
 // Get available built-in types for current context
 const availableBuiltInTypes = computed(() => {
@@ -148,10 +139,7 @@ const availableBuiltInTypes = computed(() => {
   return builtInTypes.filter(type => ['array', 'object'].includes(type.value))
 })
 
-// Get available types for current context (legacy - can be removed if not used elsewhere)
-const availableTypes = computed(() => {
-  return builtInTypes.filter(type => isTypeAllowed(type.value))
-})
+
 
 // Get chip color based on type
 const getChipColor = (): string => {
@@ -165,7 +153,7 @@ const getChipColor = (): string => {
 }
 
 // Get chip variant
-const getChipVariant = (): string => {
+const getChipVariant = (): "text" | "flat" | "elevated" | "tonal" | "outlined" | "plain" => {
   return 'elevated'
 }
 

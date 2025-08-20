@@ -2,17 +2,17 @@
   <div class="array-of-array-extension">
     <!-- Extend the base array extension (items type picker) -->
     <ArrayPropertyExtension
-      :property="property"
-      :is-dictionary="isDictionary"
-      :is-type="isType"
-      :disabled="disabled"
+      :property="props.property"
+      :is-dictionary="props.isDictionary"
+      :is-type="props.isType"
+      :disabled="props.disabled"
       @change="handleArrayChange"
     />
     
     <!-- Array-specific actions -->
     <div class="array-actions">
       <!-- Show/Hide Items chevron -->
-      <div v-if="!disabled" class="action-section">
+      <div v-if="!props.disabled" class="action-section">
         <v-tooltip :text="collapsed ? 'Show Items' : 'Hide Items'" location="top">
           <template v-slot:activator="{ props }">
             <v-btn

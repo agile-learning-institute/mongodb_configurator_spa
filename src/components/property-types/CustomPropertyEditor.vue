@@ -3,11 +3,7 @@
 </template>
 
 <script setup lang="ts">
-import { type CustomProperty } from '@/types/types'
-
-const props = defineProps<{
-  property: CustomProperty
-}>()
+// Custom types show no additional content - just the main property row
 </script>
 
  

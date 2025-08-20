@@ -62,7 +62,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 import { type ObjectProperty, isObjectProperty } from '@/types/types'
 
 const props = defineProps<{
@@ -79,10 +79,7 @@ const emit = defineEmits<{
 // Reactive state
 const collapsed = ref(false)
 
-// Computed properties
-const canHaveAdditionalProperties = computed(() => {
-  return isObjectProperty(props.property)
-})
+
 
 // Methods
 const handleAddProperty = () => {

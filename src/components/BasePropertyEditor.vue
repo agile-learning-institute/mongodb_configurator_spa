@@ -210,7 +210,6 @@ const handleDescriptionChange = () => {
 
 const handleTypeChange = (newType: string) => {
   if (newType !== props.property.type) {
-    const oldType = props.property.type
     
     // Handle type-specific property creation
     if (newType === 'array' && !isArrayProperty(props.property)) {
@@ -263,7 +262,7 @@ const handleTypeChange = (newType: string) => {
     } else if (newType === 'enum' && !isCustomProperty(props.property)) {
       // Create a new enum property object to ensure proper reactivity
       const newProperty = {
-        ...props.property,
+        ...(props.property as any),
         type: newType,
         enums: ''
       }
@@ -273,7 +272,7 @@ const handleTypeChange = (newType: string) => {
     } else if (newType === 'enum_array' && !isCustomProperty(props.property)) {
       // Create a new enum array property object to ensure proper reactivity
       const newProperty = {
-        ...props.property,
+        ...(props.property as any),
         type: newType,
         enums: ''
       }
@@ -283,7 +282,7 @@ const handleTypeChange = (newType: string) => {
     } else if (newType === 'ref' && !isCustomProperty(props.property)) {
       // Create a new ref property object to ensure proper reactivity
       const newProperty = {
-        ...props.property,
+        ...(props.property as any),
         type: newType,
         ref: ''
       }
