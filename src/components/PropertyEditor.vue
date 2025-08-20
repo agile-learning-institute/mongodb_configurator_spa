@@ -175,14 +175,85 @@
                       
                       <!-- Final level - show the actual property editor for non-array types -->
                       <div v-if="(property.items as any).items.items.items.items && (property.items as any).items.items.items.items.type !== 'array'" class="nested-array-content">
-                        <PropertyEditor
-                          :property="(property.items as any).items.items.items.items"
-                          :is-root="false"
-                          :is-dictionary="isDictionary"
-                          :is-type="isType"
-                          :disabled="disabled"
-                          @change="handleNestedArrayChangeLevel4"
-                        />
+                        <!-- For object types, show object properties with actions -->
+                        <div v-if="(property.items as any).items.items.items.items.type === 'object'" class="nested-object-properties">
+                          <!-- Object header with actions -->
+                          <div class="nested-object-header">
+                            <div class="nested-object-actions">
+                              <v-btn
+                                v-if="!disabled"
+                                icon="mdi-plus"
+                                size="small"
+                                variant="text"
+                                color="primary"
+                                @click="handleAddNestedObjectPropertyLevel4"
+                                class="mr-2"
+                              >
+                                <v-tooltip activator="parent" location="top">Add Property</v-tooltip>
+                              </v-btn>
+                              
+                              <v-btn
+                                v-if="!disabled"
+                                :icon="(property.items as any).items.items.items.items.additionalProperties ? 'mdi-checkbox-marked-circle' : 'mdi-checkbox-blank-circle-outline'"
+                                size="small"
+                                variant="text"
+                                color="primary"
+                                @click="handleToggleNestedObjectAdditionalPropertiesLevel4"
+                                class="mr-2"
+                              >
+                                <v-tooltip activator="parent" location="top">
+                                  {{ (property.items as any).items.items.items.items.additionalProperties ? 'Disallow additional properties' : 'Allow additional properties' }}
+                                </v-tooltip>
+                              </v-btn>
+                              
+                              <v-btn
+                                :icon="(property.items as any).items.items.items.items._collapsed ? 'mdi-chevron-left' : 'mdi-chevron-down'"
+                                size="small"
+                                variant="text"
+                                color="primary"
+                                @click="handleToggleNestedObjectCollapsedLevel4"
+                              >
+                                <v-tooltip activator="parent" location="top">
+                                  {{ (property.items as any).items.items.items.items._collapsed ? 'Show properties' : 'Hide properties' }}
+                                </v-tooltip>
+                              </v-btn>
+                            </div>
+                          </div>
+                          
+                          <!-- Object properties list -->
+                          <div v-if="!(property.items as any).items.items.items.items._collapsed" class="nested-object-properties-list">
+                            <div v-if="!(property.items as any).items.items.items.items.properties || (property.items as any).items.items.items.items.properties.length === 0)" class="text-center pa-4">
+                              <v-icon size="48" color="grey">mdi-format-list-bulleted</v-icon>
+                              <p class="text-body-2 text-medium-emphasis mt-2">No properties defined. Click the <v-icon icon="mdi-plus" size="small" class="mx-1" /> icon to add your first property</p>
+                            </div>
+                            
+                            <div v-else class="properties-section">
+                              <PropertyEditor
+                                v-for="(prop, index) in (property.items as any).items.items.items.items.properties"
+                                :key="prop.name || index"
+                                :property="prop"
+                                :is-root="false"
+                                :is-dictionary="isDictionary"
+                                :is-type="isType"
+                                :disabled="disabled"
+                                @change="(updatedProp) => handleNestedObjectPropertyChangeLevel4(index, updatedProp)"
+                                @delete="() => handleNestedObjectPropertyDeleteLevel4(index)"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <!-- For other non-array types, show the regular property editor -->
+                        <div v-else>
+                          <PropertyEditor
+                            :property="(property.items as any).items.items.items.items"
+                            :is-root="false"
+                            :is-dictionary="isDictionary"
+                            :is-type="isType"
+                            :disabled="disabled"
+                            @change="handleNestedArrayChangeLevel4"
+                          />
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -560,6 +631,87 @@ const handleNestedArrayChangeLevel4 = (updatedNestedArray: Property) => {
     emit('change', newProperty)
   }
 }
+
+// Methods for nested object properties at level 4
+const handleAddNestedObjectPropertyLevel4 = () => {
+  if (isArrayProperty(props.property) && props.property.items && props.property.items.type === 'array' && 
+      (props.property.items as any).items?.type === 'array' && 
+      (props.property.items as any).items?.items?.type === 'array' && 
+      (props.property.items as any).items?.items?.items?.type === 'array' &&
+      (props.property.items as any).items?.items?.items?.items?.type === 'object') {
+    
+    const nestedObject = (props.property.items as any).items.items.items.items
+    if (!nestedObject.properties) {
+      nestedObject.properties = []
+    }
+    
+    const newProperty = {
+      name: '',
+      description: '',
+      type: 'word',
+      required: false
+    }
+    
+    nestedObject.properties.push(newProperty)
+    emit('change', props.property)
+  }
+}
+
+const handleToggleNestedObjectAdditionalPropertiesLevel4 = () => {
+  if (isArrayProperty(props.property) && props.property.items && props.property.items.type === 'array' && 
+      (props.property.items as any).items?.type === 'array' && 
+      (props.property.items as any).items?.items?.type === 'array' && 
+      (props.property.items as any).items?.items?.items?.type === 'array' &&
+      (props.property.items as any).items?.items?.items?.items?.type === 'object') {
+    
+    const nestedObject = (props.property.items as any).items.items.items.items
+    nestedObject.additionalProperties = !nestedObject.additionalProperties
+    emit('change', props.property)
+  }
+}
+
+const handleToggleNestedObjectCollapsedLevel4 = () => {
+  if (isArrayProperty(props.property) && props.property.items && props.property.items.type === 'array' && 
+      (props.property.items as any).items?.type === 'array' && 
+      (props.property.items as any).items?.items?.type === 'array' && 
+      (props.property.items as any).items?.items?.items?.type === 'array' &&
+      (props.property.items as any).items?.items?.items?.items?.type === 'object') {
+    
+    const nestedObject = (props.property.items as any).items.items.items.items
+    nestedObject._collapsed = !nestedObject._collapsed
+    emit('change', props.property)
+  }
+}
+
+const handleNestedObjectPropertyChangeLevel4 = (index: number, updatedProp: Property) => {
+  if (isArrayProperty(props.property) && props.property.items && props.property.items.type === 'array' && 
+      (props.property.items as any).items?.type === 'array' && 
+      (props.property.items as any).items?.items?.type === 'array' && 
+      (props.property.items as any).items?.items?.items?.type === 'array' &&
+      (props.property.items as any).items?.items?.items?.items?.type === 'object') {
+    
+    const nestedObject = (props.property.items as any).items.items.items.items
+    if (nestedObject.properties) {
+      nestedObject.properties[index] = updatedProp
+      emit('change', props.property)
+    }
+  }
+}
+
+const handleNestedObjectPropertyDeleteLevel4 = (index: number) => {
+  if (isArrayProperty(props.property) && props.property.items && props.property.items.type === 'array' && 
+      (props.property.items as any).items?.type === 'array' && 
+      (props.property.items as any).items?.items?.type === 'array' && 
+      (props.property.items as any).items?.items?.items?.type === 'array' &&
+      (props.property.items as any).items?.items?.items?.items?.type === 'object') {
+    
+    const nestedObject = (props.property.items as any).items.items.items.items
+    if (nestedObject.properties) {
+      nestedObject.properties.splice(index, 1)
+      emit('change', props.property)
+    }
+  }
+}
 </script>
 
 <style scoped>
@@ -618,5 +770,27 @@ const handleNestedArrayChangeLevel4 = (updatedNestedArray: Property) => {
 
 .nested-array-level {
   margin-bottom: 8px;
+}
+
+.nested-object-properties {
+  margin-top: 8px;
+}
+
+.nested-object-header {
+  display: flex;
+  justify-content: flex-end;
+  padding: 8px 0;
+  border-bottom: 1px solid #e0e0e0;
+  margin-bottom: 8px;
+}
+
+.nested-object-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.nested-object-properties-list {
+  margin-left: 16px;
 }
 </style> 
