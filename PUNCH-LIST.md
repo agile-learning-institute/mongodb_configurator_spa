@@ -53,10 +53,10 @@ Cursor instructions: Complete each of the sections identified below with a ## he
 - [x] Unlock button, implement standard unlock warnings
 
 ## Dictionaries List
-- [ ] Remove delete action icon
+- [x] Remove delete action icon
 
 ## Types List
-- [ ] Remove delete action icon
+- [x] Remove delete action icon
 
 ## Enumerators List
 - [ ] Change buttons to [New][Lock All] standards
