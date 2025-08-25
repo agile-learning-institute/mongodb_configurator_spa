@@ -10,7 +10,7 @@
           @click="handleAddEnumerators"
           class="mr-2"
         >
-          Add Enumerators
+          New
         </v-btn>
         <v-btn
           v-if="canLockAll"
