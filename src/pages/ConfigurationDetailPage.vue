@@ -112,12 +112,12 @@
                 <v-btn
                   v-if="!hasNextVersion"
                   prepend-icon="mdi-plus"
-                  variant="text"
+                  variant="elevated"
                   size="small"
                   color="primary"
-                  @click="showNewVersionDialog = true"
-                  class="ml-1"
+                  class="ml-1 new-version-btn"
                   title="Create new version"
+                  @click="showNewVersionDialog = true"
                 >
                   New Version
                 </v-btn>
@@ -965,5 +965,21 @@ watch(showNewVersionDialog, (newValue) => {
 
 .cursor-pointer {
   cursor: pointer;
+}
+
+/* New Version Button Styling */
+.new-version-btn {
+  background-color: var(--v-theme-primary) !important;
+  color: white !important;
+  font-weight: 600 !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+  border: 2px solid var(--v-theme-primary) !important;
+}
+
+.new-version-btn:hover {
+  background-color: var(--v-theme-primary-darken-1) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+  transition: all 0.2s ease !important;
 }
 </style> 
