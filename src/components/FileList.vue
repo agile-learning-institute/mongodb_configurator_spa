@@ -31,7 +31,7 @@
             :file="file"
             :file-type="fileType === 'configurations' ? 'configuration' : fileType === 'dictionaries' ? 'dictionary' : fileType === 'types' ? 'type' : fileType === 'enumerators' ? 'enumerator' : fileType === 'test_data' ? 'test-data' : 'migration'"
             :show-process="false"
-            :show-delete="fileType !== 'configurations'"
+            :show-delete="fileType !== 'configurations' && fileType !== 'dictionaries' && fileType !== 'types'"
             @edit="editFile(file.name)"
             @delete="handleDelete(file.name)"
             @open="openFile(file.name)"
