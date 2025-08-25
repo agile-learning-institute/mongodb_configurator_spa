@@ -63,7 +63,7 @@
               :disabled="disabled"
               :error="!!itemErrors[index]"
               :error-messages="itemErrors[index]"
-              :rows="getTextareaRows()"
+              :rows="getItemRows(index)"
               auto-grow
               @update:model-value="updateItem(index, $event)"
               @blur="validateItem(index)"
@@ -135,6 +135,31 @@ const getTextareaRows = () => {
       return 4 // Default minimum rows
   }
 }
+
+// Calculate rows needed for specific content
+const getContentRows = (text: string) => {
+  if (!text) return 4 // Minimum rows
+  
+  const lines = text.split('\n').length
+  const estimatedRows = Math.max(4, lines + 1) // Add 1 for padding, minimum 4
+  return Math.min(estimatedRows, 20) // Cap at 20 rows to prevent excessive height
+}
+
+// Get rows for a specific item by index
+const getItemRows = (index: number) => {
+  if (props.sizeMode !== 'fit-content') {
+    return getTextareaRows()
+  }
+  
+  const text = itemTexts.value[index] || ''
+  return getContentRows(text)
+}
+
+// Watch for changes in itemTexts to recalculate rows
+watch(itemTexts, () => {
+  // Force re-render of textareas to update their row counts
+  // This is handled automatically by Vue's reactivity system
+}, { deep: true })
 
 // Initialize text inputs from model value
 const initializeTexts = () => {
