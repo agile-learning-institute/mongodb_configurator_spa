@@ -107,30 +107,25 @@ onMounted(() => {
 const helpSlides = [
   {
     icon: 'mdi-information-outline',
-    title: 'Overview',
-    description: 'If you are responsible for the quality of the data in a MongoDB database, or the performance of queries in that database, then the MongoDB Configurator is here to help. Using the configurator you can package your database configurations into an immutable container for testing and deployment.',
+    title: 'Welcome',
+    description: 'The mongoDB Configurator makes it easy for you to implement the MongoDB Schema Versioning Pattern best practices. Using MongoDB schema validation provides data quality assurances that do not rely exclusively on the proper use of ODM utilities. The Configurator also provides a means to manage indexing as a component of the versioned configurations.',
     detailedContent: `
       <h2>Key Features</h2>
       <ul>
-        <li><strong>Collection Configurations:</strong> Anchor your configurations, allowing you to define release versions and configure indexing.</li>
-        <li><strong>Data Dictionaries:</strong> Create human-readable schema definitions that isolate the complexity of BSON/JSON schema with named custom types</li>
-        <li><strong>Custom Types:</strong> Create human-readable type primitives for use in a dictionary</li>
-        <li><strong>Enumerators:</strong> If you're concerned with data quality, the gold standard is an enumerated set of valid values</li>
-        <li><strong>Test Data:</strong> Create and load test data to verify configurations or make a convenient database available to developers</li>
-        <li><strong>Migrations:</strong> In the unfortunate circumstance when a schema change requires that the database be updated, the configurator gives you a way to define, configure and test complex migration pipelines</li>
+        <li><strong>Online Help</strong> is available using <i class="mdi mdi-help-circle"></i> <i class="mdi mdi-arrow-top-right"></i> from any page.</li>
+        <li><strong>Collection Configurations</strong> control the configuration process. For a quick start you can create a <strong>New Configuration</strong> and review help screens from there.</li>
+        <li><strong>Data Dictionaries</strong> provide a human friendly way to define data structures without the complexity of json/bson schema.</li>
+        <li><strong>Custom Types</strong> are the type abstraction used with json/bson schema complexity.</li>
+        <li><strong>Enumerators</strong> provide a versioned location for enumerator validation values.</li>
+        <li><strong>Test Data</strong> can be loaded into the database to support a robust developer experience.</li>
+        <li><strong>Migrations</strong> allow you to run migration pipelines to alter existing data when schema changes require it.</li>
       </ul>
-      
-      <h2>Navigation</h2>
-      <p>Use the navigation drawer on the left to access different sections of the application. Each section provides specialized tools for managing specific aspects of your MongoDB schemas.</p>
-      
-      <h2>Help System</h2>
-      <p>This help system provides detailed information about each feature. Click the help icon (?) in any section to access contextual help content.</p>
     `
   },
   {
     icon: 'mdi-compass',
-    title: 'Configuration',
-    description: 'Collection configurations anchor the management of your MongoDB database. This is where you configure schema validation and indexing options.',
+    title: 'Collection Configuration',
+    description: 'Collection Configuration versions consist of a 3-part semantic Schema version number, and an Enumerators version. When configuration the collection, a version is only applied if it is newer than the current version. Creating a new version will lock the currently active version. See [slide=locking] for more information about what it means to *lock* a configuration.',
     detailedContent: `
       <h2>Schema Versioning</h2>
       <p>Schema validation is the primary feature of the configurator. Implementing a version-based approach to defining and applying schema validation is accomplished in the configuration file. Each version number identifies a Dictionary version with the first three digits and an Enumerators version with the fourth digit. See Dictionary and Enumerator for more information on those features.</p>
@@ -259,6 +254,79 @@ const helpSlides = [
       
       <h2>Usage</h2>
       <p>Use this page to verify that your API is configured correctly and to troubleshoot configuration issues. The color-coded source indicators help you understand where each configuration value originates.</p>
+    `
+  },
+  {
+    icon: 'mdi-calendar-clock',
+    title: 'Events',
+    description: 'Monitor and track processing events and system operations.',
+    detailedContent: `
+      <h2>Event System</h2>
+      <p>The Events system provides comprehensive tracking of all processing operations and system events within the MongoDB Configurator.</p>
+      
+      <h2>Event Types</h2>
+      <ul>
+        <li><strong>Processing Events:</strong> Track the progress of configuration processing operations</li>
+        <li><strong>System Events:</strong> Monitor database operations, file changes, and system status</li>
+        <li><strong>Error Events:</strong> Capture and display detailed error information for troubleshooting</li>
+      </ul>
+      
+      <h2>Event Viewer</h2>
+      <p>The Event Viewer page displays detailed information about events including:</p>
+      <ul>
+        <li><strong>Event ID:</strong> Unique identifier for each event</li>
+        <li><strong>Event Type:</strong> Category of the event (processing, system, error)</li>
+        <li><strong>Status:</strong> Current state of the event (pending, processing, completed, error)</li>
+        <li><strong>Timestamps:</strong> Start and end times for the event</li>
+        <li><strong>Details:</strong> Comprehensive information about the event execution</li>
+        <li><strong>Sub-events:</strong> Nested events that provide granular tracking</li>
+      </ul>
+      
+      <h2>Usage</h2>
+      <p>Use the Events system to monitor processing operations, troubleshoot issues, and track system performance. Events are automatically created for all major operations and provide detailed information for debugging and monitoring.</p>
+    `
+  },
+  {
+    icon: 'mdi-lock',
+    title: 'Locking',
+    description: 'Understand how configuration locking works and its impact on your workflow.',
+    detailedContent: `
+      <h2>Configuration Locking</h2>
+      <p>Configuration locking is a critical feature that ensures the integrity and consistency of your MongoDB configurations during deployment and processing.</p>
+      
+      <h2>What is Locking?</h2>
+      <p>When a configuration is <strong>locked</strong>, it becomes read-only and cannot be modified. This prevents accidental changes to configurations that are currently active or have been deployed to production environments.</p>
+      
+      <h2>When Does Locking Occur?</h2>
+      <ul>
+        <li><strong>Version Creation:</strong> When you create a new version of a configuration, the previous version is automatically locked</li>
+        <li><strong>Manual Locking:</strong> You can manually lock configurations to prevent further modifications</li>
+        <li><strong>Deployment:</strong> Configurations are locked when they are deployed to ensure consistency</li>
+      </ul>
+      
+      <h2>Locking Behavior</h2>
+      <ul>
+        <li><strong>Read-Only Access:</strong> Locked configurations can be viewed but not edited</li>
+        <li><strong>No Property Changes:</strong> Property names, types, descriptions, and requirements cannot be modified</li>
+        <li><strong>No Structure Changes:</strong> Adding, removing, or reordering properties is not allowed</li>
+        <li><strong>Visual Indicators:</strong> Locked configurations display a clear "Locked" status indicator</li>
+      </ul>
+      
+      <h2>Unlocking Considerations</h2>
+      <p>While it's possible to unlock configurations, this should be done with extreme caution:</p>
+      <ul>
+        <li><strong>Production Impact:</strong> Unlocking deployed configurations can affect active systems</li>
+        <li><strong>Version Consistency:</strong> Changes to locked configurations may create version conflicts</li>
+        <li><strong>Data Integrity:</strong> Modifying locked configurations can affect data validation and indexing</li>
+      </ul>
+      
+      <h2>Best Practices</h2>
+      <ul>
+        <li><strong>Plan Ahead:</strong> Ensure configurations are complete before locking</li>
+        <li><strong>Version Management:</strong> Use version numbers to track configuration evolution</li>
+        <li><strong>Testing:</strong> Test configurations thoroughly before locking</li>
+        <li><strong>Documentation:</strong> Document the purpose and scope of each locked configuration</li>
+      </ul>
     `
   }
 ]
