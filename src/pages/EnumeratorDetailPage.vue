@@ -77,6 +77,7 @@
               Lock
             </v-btn>
             <v-btn
+              v-if="!enumerator._locked"
               color="error"
               variant="elevated"
               @click="handleDelete"
