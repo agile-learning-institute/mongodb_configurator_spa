@@ -2,8 +2,8 @@
   <v-app>
     <!-- App Bar -->
     <v-app-bar color="primary" theme="dark" class="app-header">
-      <v-app-bar-nav-icon @click="toggleDrawer" />
-      <v-toolbar-title class="text-h5 font-weight-medium">MongoDB Configurator</v-toolbar-title>
+      <v-app-bar-nav-icon @click="toggleDrawer" data-test="nav-toggle" />
+      <v-toolbar-title class="text-h5 font-weight-medium" data-test="app-title">MongoDB Configurator</v-toolbar-title>
       <v-spacer></v-spacer>
       
       <!-- Process All Button -->
@@ -15,8 +15,9 @@
         @click="processAllConfigurations"
         :loading="processing"
         :disabled="processing"
+        data-test="process-all-btn"
       >
-        <v-icon start>mdi-cog</v-icon>
+        <v-icon start data-test="process-all-icon">mdi-cog</v-icon>
         Process All
       </v-btn>
       
@@ -29,14 +30,15 @@
         @click="showDropDatabaseDialog = true"
         :loading="dropping"
         :disabled="dropping"
+        data-test="drop-database-btn"
       >
-        <v-icon start>mdi-delete</v-icon>
+        <v-icon start data-test="drop-database-icon">mdi-delete</v-icon>
         Drop Database
       </v-btn>
       
       <!-- Admin Button -->
-      <v-btn icon to="/admin" title="Admin" class="admin-btn">
-        <v-icon>mdi-cog</v-icon>
+      <v-btn icon to="/admin" title="Admin" class="admin-btn" data-test="admin-btn">
+        <v-icon data-test="admin-icon">mdi-cog</v-icon>
       </v-btn>
       
       <!-- Help Button -->
@@ -47,8 +49,9 @@
         class="help-btn"
         :color="isOnHelpPage ? 'white' : undefined"
         :variant="isOnHelpPage ? 'elevated' : 'text'"
+        data-test="help-btn"
       >
-        <v-icon>mdi-help-circle</v-icon>
+        <v-icon data-test="help-icon">mdi-help-circle</v-icon>
       </v-btn>
     </v-app-bar>
 
@@ -60,24 +63,25 @@
       :permanent="$vuetify.display.mdAndUp"
       :temporary="$vuetify.display.smAndDown"
       :rail="!drawer && $vuetify.display.mdAndUp"
+      data-test="navigation-drawer"
     >
       <v-list density="comfortable" nav class="navigation-list">
         <!-- Navigation Items -->
-        <v-list-item v-for="item in navItems" :key="item.title" :to="item.to" link>
+        <v-list-item v-for="item in navItems" :key="item.title" :to="item.to" link :data-test="`nav-item-${item.title.toLowerCase().replace(/\s+/g, '-')}`">
           <template v-slot:prepend>
-            <v-icon size="large">{{ item.icon }}</v-icon>
+            <v-icon size="large" :data-test="`nav-icon-${item.title.toLowerCase().replace(/\s+/g, '-')}`">{{ item.icon }}</v-icon>
           </template>
-          <v-list-item-title class="text-body-1 font-weight-medium">{{ item.title }}</v-list-item-title>
+          <v-list-item-title class="text-body-1 font-weight-medium" :data-test="`nav-title-${item.title.toLowerCase().replace(/\s+/g, '-')}`">{{ item.title }}</v-list-item-title>
         </v-list-item>
       </v-list>
       
       <!-- Help Link at Bottom -->
       <div class="help-link-container">
-        <v-list-item to="/" link class="help-link">
+        <v-list-item to="/" link class="help-link" data-test="help-nav-item">
           <template v-slot:prepend>
-            <v-icon size="large">mdi-help-circle</v-icon>
+            <v-icon size="large" data-test="help-nav-icon">mdi-help-circle</v-icon>
           </template>
-          <v-list-item-title class="text-body-1 font-weight-medium">Help</v-list-item-title>
+          <v-list-item-title class="text-body-1 font-weight-medium" data-test="help-nav-title">Help</v-list-item-title>
         </v-list-item>
       </div>
     </v-navigation-drawer>
@@ -90,17 +94,17 @@
     </v-main>
 
     <!-- Drop Database Confirmation Dialog -->
-    <v-dialog v-model="showDropDatabaseDialog" max-width="500px">
+    <v-dialog v-model="showDropDatabaseDialog" max-width="500px" data-test="drop-database-dialog">
       <v-card>
-        <v-card-title class="text-error">
-          <v-icon color="error" class="mr-2">mdi-alert</v-icon>
+        <v-card-title class="text-error" data-test="drop-database-dialog-title">
+          <v-icon color="error" class="mr-2" data-test="drop-database-dialog-icon">mdi-alert</v-icon>
           Drop Database
         </v-card-title>
         <v-card-text>
-          <p class="text-body-1 mb-3">
+          <p class="text-body-1 mb-3" data-test="drop-database-warning">
             This action will permanently delete all data in the database. This action cannot be undone.
           </p>
-          <p class="text-body-2 text-medium-emphasis mb-3">
+          <p class="text-body-2 text-medium-emphasis mb-3" data-test="drop-database-instruction">
             To confirm, please type <strong>DROP</strong> in the field below:
           </p>
           <v-text-field
@@ -109,6 +113,7 @@
             :error="dropConfirmation !== '' && dropConfirmation !== 'DROP'"
             :error-messages="dropConfirmation !== '' && dropConfirmation !== 'DROP' ? 'Please type DROP exactly' : undefined"
             :disabled="dropping"
+            data-test="drop-confirmation-input"
           />
         </v-card-text>
         <v-card-actions>
@@ -116,6 +121,7 @@
           <v-btn
             @click="showDropDatabaseDialog = false"
             :disabled="dropping"
+            data-test="drop-database-cancel-btn"
           >
             Cancel
           </v-btn>
@@ -124,8 +130,9 @@
             @click="dropDatabase"
             :loading="dropping"
             :disabled="dropConfirmation !== 'DROP' || dropping"
+            data-test="drop-database-confirm-btn"
           >
-            <v-icon start>mdi-delete</v-icon>
+            <v-icon start data-test="drop-database-confirm-icon">mdi-delete</v-icon>
             Drop Database
           </v-btn>
         </v-card-actions>

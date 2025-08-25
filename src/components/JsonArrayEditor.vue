@@ -1,38 +1,40 @@
 <template>
-  <div class="json-array-editor">
+  <div class="json-array-editor" data-test="json-array-editor">
     <!-- Header with title and add button -->
-    <div class="d-flex align-center mb-3">
-      <div class="text-h6 font-weight-bold mr-3">{{ title }}</div>
+    <div class="d-flex align-center mb-3" data-test="array-editor-header">
+      <div class="text-h6 font-weight-bold mr-3" data-test="array-editor-title">{{ title }}</div>
       <v-btn
         color="primary"
         variant="outlined"
         size="small"
         @click="addItem"
         :disabled="disabled"
+        data-test="add-item-btn"
       >
-        <v-icon start size="small">mdi-plus</v-icon>
+        <v-icon start size="small" data-test="add-item-icon">mdi-plus</v-icon>
         Add {{ itemLabel }}
       </v-btn>
     </div>
 
     <!-- Empty state -->
-    <div v-if="!modelValue || modelValue.length === 0" class="text-center pa-4">
-      <v-icon size="32" color="grey">mdi-format-list-bulleted</v-icon>
-      <div class="text-body-2 text-medium-emphasis mt-2">No {{ itemLabel }}s defined</div>
+    <div v-if="!modelValue || modelValue.length === 0" class="text-center pa-4" data-test="array-editor-empty">
+      <v-icon size="32" color="grey" data-test="empty-icon">mdi-format-list-bulleted</v-icon>
+      <div class="text-body-2 text-medium-emphasis mt-2" data-test="empty-message">No {{ itemLabel }}s defined</div>
     </div>
 
     <!-- List of JSON objects with configurable accordion behavior -->
-    <div v-else>
-      <v-expansion-panels v-model="expandedPanel" :multiple="allowMultiple">
+    <div v-else data-test="array-editor-content">
+      <v-expansion-panels v-model="expandedPanel" :multiple="allowMultiple" data-test="array-expansion-panels">
         <v-expansion-panel
           v-for="(_, index) in modelValue"
           :key="index"
           class="mb-2"
+          :data-test="`array-panel-${index}`"
         >
-          <v-expansion-panel-title>
+          <v-expansion-panel-title data-test="array-panel-title">
             <div class="d-flex justify-space-between align-center w-100">
               <div class="d-flex align-center">
-                <span class="text-caption text-medium-emphasis mr-2">
+                <span class="text-caption text-medium-emphasis mr-2" data-test="array-item-label">
                   {{ itemLabel }} {{ index + 1 }}
                 </span>
               </div>
@@ -44,8 +46,9 @@
                 @click.stop="removeItem(index)"
                 :disabled="disabled"
                 class="pa-0 ma-0"
+                :data-test="`remove-item-btn-${index}`"
               >
-                <v-icon size="16">mdi-delete</v-icon>
+                <v-icon size="16" :data-test="`remove-item-icon-${index}`">mdi-delete</v-icon>
               </v-btn>
             </div>
           </v-expansion-panel-title>
@@ -64,6 +67,7 @@
               auto-grow
               @update:model-value="updateItem(index, $event)"
               @blur="validateItem(index)"
+              :data-test="`array-item-textarea-${index}`"
             />
           </v-expansion-panel-text>
         </v-expansion-panel>
@@ -76,6 +80,7 @@
       color="error"
       timeout="3000"
       location="top"
+      data-test="array-editor-error-snackbar"
     >
       {{ errorMessage }}
     </v-snackbar>

@@ -1,35 +1,37 @@
 <template>
-  <v-dialog v-model="show" max-width="800" persistent>
+  <v-dialog v-model="show" max-width="800" persistent data-test="event-dialog">
     <v-card>
-      <v-card-title class="d-flex align-center">
+      <v-card-title class="d-flex align-center" data-test="event-dialog-title">
         <v-icon 
           :color="getStatusColor()" 
           class="mr-3"
           size="24"
+          data-test="event-dialog-status-icon"
         >
           {{ getStatusIcon() }}
         </v-icon>
         <div class="flex-grow-1">
-          <div class="text-h6">{{ title }}</div>
-          <div class="text-caption text-medium-emphasis">{{ subtitle }}</div>
+          <div class="text-h6" data-test="event-dialog-title-text">{{ title }}</div>
+          <div class="text-caption text-medium-emphasis" data-test="event-dialog-subtitle">{{ subtitle }}</div>
         </div>
         <v-btn
           icon
           variant="text"
           @click="close"
+          data-test="event-dialog-close-btn"
         >
-          <v-icon>mdi-close</v-icon>
+          <v-icon data-test="event-dialog-close-icon">mdi-close</v-icon>
         </v-btn>
       </v-card-title>
       
       <v-card-text class="pt-0">
-        <div v-if="event">
+        <div v-if="event" data-test="event-dialog-content">
           <EventCard :event="event" />
         </div>
-        <div v-else class="text-center pa-4">
-          <v-icon size="48" color="grey">mdi-alert-circle</v-icon>
-          <div class="text-h6 mt-4">Error</div>
-          <div class="text-body-2 text-medium-emphasis mt-2">
+        <div v-else class="text-center pa-4" data-test="event-dialog-error">
+          <v-icon size="48" color="grey" data-test="event-dialog-error-icon">mdi-alert-circle</v-icon>
+          <div class="text-h6 mt-4" data-test="event-dialog-error-title">Error</div>
+          <div class="text-body-2 text-medium-emphasis mt-2" data-test="event-dialog-error-message">
             {{ message }}
           </div>
         </div>
@@ -40,6 +42,7 @@
         <v-btn
           color="primary"
           @click="close"
+          data-test="event-dialog-close-action-btn"
         >
           Close
         </v-btn>

@@ -4,11 +4,12 @@
     :icon="getStatusIcon()"
     class="event-card mb-3"
     :class="getStatusClass()"
+    :data-test="`event-card-${event.id}`"
   >
     <template #header-actions>
       <div class="d-flex align-center flex-grow-1">
         <div class="flex-grow-1">
-          <div class="text-h6 font-weight-medium text-white">
+          <div class="text-h6 font-weight-medium text-white" data-test="event-id">
             {{ event.id }}
           </div>
         </div>
@@ -22,11 +23,12 @@
         color="white"
         @click="subEventsExpanded = !subEventsExpanded"
         class="mr-2"
+        data-test="expand-collapse-btn"
       >
-        <v-icon size="18" class="mr-1">
+        <v-icon size="18" class="mr-1" data-test="expand-collapse-icon">
           {{ subEventsExpanded ? 'mdi-chevron-up' : 'mdi-chevron-down' }}
         </v-icon>
-        {{ subEventsExpanded ? 'Collapse' : 'Expand' }}
+        <span data-test="expand-collapse-text">{{ subEventsExpanded ? 'Collapse' : 'Expand' }}</span>
       </v-btn>
       
       <!-- Status Badge -->
@@ -35,44 +37,45 @@
         size="small"
         variant="tonal"
         class="ml-2"
+        data-test="event-status-chip"
       >
         {{ event.status }}
       </v-chip>
     </template>
 
     <!-- Timestamps -->
-    <div class="d-flex align-center mb-3">
-      <v-icon size="16" color="grey" class="mr-2">mdi-clock-outline</v-icon>
-      <span class="text-caption text-medium-emphasis">
+    <div class="d-flex align-center mb-3" data-test="event-timestamps">
+      <v-icon size="16" color="grey" class="mr-2" data-test="timestamp-icon">mdi-clock-outline</v-icon>
+      <span class="text-caption text-medium-emphasis" data-test="start-time">
         Started: {{ formatDateTime(event.starts) }}
       </span>
       <v-spacer />
-      <span v-if="event.ends" class="text-caption text-medium-emphasis">
+      <span v-if="event.ends" class="text-caption text-medium-emphasis" data-test="end-time">
         Ended: {{ formatDateTime(event.ends) }}
       </span>
-      <span v-else class="text-caption text-warning">
+      <span v-else class="text-caption text-warning" data-test="in-progress">
         In Progress...
       </span>
     </div>
     
     <!-- Event Data -->
-    <div v-if="event.data" class="mb-3">
-      <div class="text-caption text-medium-emphasis mb-1">Event Data:</div>
-      <v-card variant="outlined" class="pa-2">
-        <pre class="text-caption mb-0" style="white-space: pre-wrap; font-family: monospace;">{{ JSON.stringify(event.data, null, 2) }}</pre>
+    <div v-if="event.data" class="mb-3" data-test="event-data">
+      <div class="text-caption text-medium-emphasis mb-1" data-test="event-data-label">Event Data:</div>
+      <v-card variant="outlined" class="pa-2" data-test="event-data-content">
+        <pre class="text-caption mb-0" style="white-space: pre-wrap; font-family: monospace;" data-test="event-data-json">{{ JSON.stringify(event.data, null, 2) }}</pre>
       </v-card>
     </div>
     
     <!-- Sub-events -->
-    <div v-if="event.sub_events && event.sub_events.length > 0" class="mt-3">
+    <div v-if="event.sub_events && event.sub_events.length > 0" class="mt-3" data-test="sub-events-section">
       <div class="d-flex align-center justify-space-between mb-2">
-        <div class="text-caption text-medium-emphasis">
+        <div class="text-caption text-medium-emphasis" data-test="sub-events-count">
           Sub-events ({{ event.sub_events.length }}):
         </div>
       </div>
       
       <!-- Sub-events Summary (always visible) -->
-      <div class="mb-2">
+      <div class="mb-2" data-test="sub-events-summary">
         <div class="d-flex flex-wrap gap-1">
           <v-chip
             v-for="subEvent in event.sub_events"
@@ -81,24 +84,25 @@
             size="x-small"
             variant="tonal"
             class="text-caption"
+            :data-test="`sub-event-chip-${subEvent.id}`"
           >
-            <v-icon size="12" class="mr-1">
+            <v-icon size="12" class="mr-1" :data-test="`sub-event-icon-${subEvent.id}`">
               {{ getSubEventStatusIcon(subEvent.status) }}
             </v-icon>
-            {{ subEvent.type }}
+            <span :data-test="`sub-event-type-${subEvent.id}`">{{ subEvent.type }}</span>
           </v-chip>
         </div>
       </div>
       
       <!-- Expanded Sub-events -->
       <v-expand-transition>
-        <div v-if="subEventsExpanded" class="ml-4">
+        <div v-if="subEventsExpanded" class="ml-4" data-test="expanded-sub-events">
           <EventCard
             v-for="subEvent in event.sub_events"
             :key="subEvent.id"
             :event="subEvent"
             :is-sub-event="true"
-            class="mb-2"
+            :data-test="`sub-event-card-${subEvent.id}`"
           />
         </div>
       </v-expand-transition>

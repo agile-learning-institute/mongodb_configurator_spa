@@ -1,20 +1,20 @@
 <template>
-  <v-dialog :model-value="modelValue" @update:model-value="$emit('update:modelValue', $event)" max-width="800" persistent>
+  <v-dialog :model-value="modelValue" @update:model-value="$emit('update:modelValue', $event)" max-width="800" persistent data-test="help-dialog">
     <v-card>
-      <v-card-title class="d-flex align-center">
-        <v-icon icon="mdi-help-circle" class="mr-2" />
-        {{ title }}
+      <v-card-title class="d-flex align-center" data-test="help-dialog-title">
+        <v-icon icon="mdi-help-circle" class="mr-2" data-test="help-dialog-icon" />
+        <span data-test="help-dialog-title-text">{{ title }}</span>
         <v-spacer />
-        <v-btn icon="mdi-close" variant="text" @click="$emit('update:modelValue', false)" />
+        <v-btn icon="mdi-close" variant="text" @click="$emit('update:modelValue', false)" data-test="help-dialog-close-btn" />
       </v-card-title>
       
-      <v-card-text class="help-content">
-        <div v-html="content"></div>
+      <v-card-text class="help-content" data-test="help-dialog-content">
+        <div v-html="content" data-test="help-dialog-html-content"></div>
       </v-card-text>
       
       <v-card-actions>
         <v-spacer />
-        <v-btn @click="$emit('update:modelValue', false)">Close</v-btn>
+        <v-btn @click="$emit('update:modelValue', false)" data-test="help-dialog-close-action-btn">Close</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>

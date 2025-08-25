@@ -1,6 +1,6 @@
 <template>
-  <v-card class="mb-4">
-    <v-card-title>
+  <v-card class="mb-4" data-test="action-bar">
+    <v-card-title data-test="action-bar-title">
       Actions
     </v-card-title>
     <v-card-text>
@@ -11,8 +11,9 @@
             color="primary"
             @click="$emit('upload')"
             :disabled="disabled"
+            data-test="upload-btn"
           >
-            <v-icon left>mdi-upload</v-icon>
+            <v-icon left data-test="upload-icon">mdi-upload</v-icon>
             Upload
           </v-btn>
         </v-col>
@@ -22,8 +23,9 @@
             color="secondary"
             @click="$emit('download')"
             :disabled="disabled || !hasSelection"
+            data-test="download-btn"
           >
-            <v-icon left>mdi-download</v-icon>
+            <v-icon left data-test="download-icon">mdi-download</v-icon>
             Download
           </v-btn>
         </v-col>
@@ -33,8 +35,9 @@
             color="success"
             @click="$emit('process')"
             :disabled="disabled || !hasSelection"
+            data-test="process-btn"
           >
-            <v-icon left>mdi-play</v-icon>
+            <v-icon left data-test="process-icon">mdi-play</v-icon>
             Process
           </v-btn>
         </v-col>
@@ -44,14 +47,15 @@
             color="error"
             @click="$emit('delete')"
             :disabled="disabled || !hasSelection"
+            data-test="delete-btn"
           >
-            <v-icon left>mdi-delete</v-icon>
+            <v-icon left data-test="delete-icon">mdi-delete</v-icon>
             Delete
           </v-btn>
         </v-col>
       </v-row>
       
-      <v-row v-if="showFilters" class="mt-4">
+      <v-row v-if="showFilters" class="mt-4" data-test="action-bar-filters">
         <v-col cols="12" sm="6" md="3">
           <v-text-field
             v-model="searchQuery"
@@ -59,6 +63,7 @@
             prepend-icon="mdi-magnify"
             clearable
             @input="$emit('search', searchQuery)"
+            data-test="search-input"
           />
         </v-col>
         <v-col cols="12" sm="6" md="3">
@@ -67,6 +72,7 @@
             :items="sortOptions"
             label="Sort by"
             @change="$emit('sort', sortBy)"
+            data-test="sort-select"
           />
         </v-col>
         <v-col cols="12" sm="6" md="3">
@@ -75,6 +81,7 @@
             :items="filterOptions"
             label="Filter by"
             @change="$emit('filter', filterBy)"
+            data-test="filter-select"
           />
         </v-col>
         <v-col cols="12" sm="6" md="3">
@@ -82,8 +89,9 @@
             block
             @click="$emit('refresh')"
             :loading="loading"
+            data-test="refresh-btn"
           >
-            <v-icon left>mdi-refresh</v-icon>
+            <v-icon left data-test="refresh-icon">mdi-refresh</v-icon>
             Refresh
           </v-btn>
         </v-col>

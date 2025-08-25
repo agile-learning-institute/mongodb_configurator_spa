@@ -1,8 +1,8 @@
 <template>
-  <div class="base-property-editor">
+  <div class="base-property-editor" :data-test="`base-property-editor-${property.name || 'root'}`">
     <!-- Property Header with Name, Description, Type, Extension Slot, Required, and Delete -->
-    <div class="property-header d-flex align-center">
-      <div class="property-name-section" v-if="!isRoot" :id="`property-name-${property.name || 'root'}`">
+    <div class="property-header d-flex align-center" data-test="property-header">
+      <div class="property-name-section" v-if="!isRoot" :id="`property-name-${property.name || 'root'}`" data-test="property-name-section">
         <v-text-field
           v-model="editableName"
           variant="plain"
@@ -14,18 +14,20 @@
           placeholder="Name"
           @blur="handleNameChange"
           @keyup.enter="handleNameChange"
+          data-test="property-name-input"
         />
       </div>
       
-      <div class="property-description-section" :id="`property-description-${property.name || 'root'}`">
+      <div class="property-description-section" :id="`property-description-${property.name || 'root'}`" data-test="property-description-section">
         <!-- Display mode for root properties -->
         <div v-if="isRoot && !isEditingDescription" 
              class="description-display mr-2" 
              :class="{ 'root-description': isRoot }"
              :style="{ minWidth: '200px', flex: '1' }"
-             @click="startEditDescription">
-          <span v-if="editableDescription" class="description-text">{{ editableDescription }}</span>
-          <span v-else class="description-placeholder">Click to add description</span>
+             @click="startEditDescription"
+             data-test="description-display">
+          <span v-if="editableDescription" class="description-text" data-test="description-text">{{ editableDescription }}</span>
+          <span v-else class="description-placeholder" data-test="description-placeholder">Click to add description</span>
         </div>
         
         <!-- Edit mode for root properties -->
@@ -42,6 +44,7 @@
           @blur="finishEditDescription"
           @keyup.enter="finishEditDescription"
           ref="descriptionInput"
+          data-test="description-input-edit"
         />
         
         <!-- Always editable for non-root properties -->
@@ -57,10 +60,11 @@
           placeholder="Description"
           @blur="handleDescriptionChange"
           @keyup.enter="handleDescriptionChange"
+          data-test="description-input"
         />
       </div>
       
-      <div class="property-type-section" v-if="!props.hideTypeSelector">
+      <div class="property-type-section" v-if="!props.hideTypeSelector" data-test="property-type-section">
         <TypeChipPicker
           v-model="editableType"
           :is-root="isRoot"
@@ -68,13 +72,14 @@
           :is-type="isType"
           :disabled="disabled"
           @update:model-value="handleTypeChange"
+          data-test="type-chip-picker"
         />
       </div>
       
       <!-- Extension slot for type-specific controls -->
       <slot name="extension"></slot>
       
-      <div class="property-required-section" v-if="canBeRequired">
+      <div class="property-required-section" v-if="canBeRequired" data-test="property-required-section">
         <v-tooltip 
           text="Mark this property as required"
           location="top"
@@ -90,12 +95,13 @@
               v-bind="props"
               @click="toggleRequired"
               :disabled="disabled"
+              data-test="required-toggle-btn"
             />
           </template>
         </v-tooltip>
       </div>
       
-      <div class="property-actions" v-if="canBeDeleted && !disabled">
+      <div class="property-actions" v-if="canBeDeleted && !disabled" data-test="property-actions">
         <v-tooltip 
           text="Delete this property"
           location="top"
@@ -110,6 +116,7 @@
               color="error"
               v-bind="props"
               @click="handleDelete"
+              data-test="delete-property-btn"
             />
           </template>
         </v-tooltip>
@@ -117,7 +124,7 @@
     </div>
     
     <!-- Property Body - only for types that need it -->
-    <div class="property-body" v-if="showBody">
+    <div class="property-body" v-if="showBody" data-test="property-body">
       <slot name="body"></slot>
     </div>
   </div>

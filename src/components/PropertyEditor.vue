@@ -8,6 +8,7 @@
     :hideTypeSelector="hideTypeSelector"
     @change="handleChange"
     @delete="handleDelete"
+    :data-test="`property-editor-${property.name || 'root'}`"
   >
     <!-- Extension slot for type-specific controls -->
     <template #extension>
@@ -21,6 +22,7 @@
         @change="handleChange"
         @add-property="handleAddProperty"
         @collapsed="handleArrayObjectCollapsed"
+        data-test="array-of-object-extension"
       />
       
       <ArrayOfArrayExtension
@@ -31,6 +33,7 @@
         :disabled="disabled"
         @change="handleChange"
         @collapsed="handleArrayArrayCollapsed"
+        data-test="array-of-array-extension"
       />
       
       <ArrayPropertyExtension
@@ -40,6 +43,7 @@
         :is-type="isType"
         :disabled="disabled"
         @change="handleChange"
+        data-test="array-property-extension"
       />
       
       <!-- Object extension: Action icons -->
@@ -50,6 +54,7 @@
         @change="handleChange"
         @add-property="handleAddProperty"
         @toggle-collapsed="handleToggleCollapsed"
+        data-test="object-property-extension"
       />
     </template>
     
@@ -57,14 +62,14 @@
     <template #body>
       <!-- Array property body - handle different items types -->
       <!-- Array of Object: Show object properties directly (only when not collapsed) -->
-      <div v-if="isArrayProperty(property) && property.items && property.items.type === 'object' && !(property.items as any)._collapsed" class="array-property-body">
+      <div v-if="isArrayProperty(property) && property.items && property.items.type === 'object' && !(property.items as any)._collapsed" class="array-property-body" data-test="array-of-object-body">
         <div class="object-properties">
-          <div v-if="!(property.items as any).properties || (property.items as any).properties.length === 0" class="text-center pa-4">
-            <v-icon size="48" color="grey">mdi-format-list-bulleted</v-icon>
-            <p class="text-body-2 text-medium-emphasis mt-2">No properties defined. Click the <v-icon icon="mdi-plus" size="small" class="mx-1" /> icon to add your first property</p>
+          <div v-if="!(property.items as any).properties || (property.items as any).properties.length === 0" class="text-center pa-4" data-test="no-properties-message">
+            <v-icon size="48" color="grey" data-test="no-properties-icon">mdi-format-list-bulleted</v-icon>
+            <p class="text-body-2 text-medium-emphasis mt-2" data-test="no-properties-text">No properties defined. Click the <v-icon icon="mdi-plus" size="small" class="mx-1" data-test="add-property-icon" /> icon to add your first property</p>
           </div>
           
-          <div v-else class="properties-section">
+          <div v-else class="properties-section" data-test="properties-section">
             <PropertyEditor
               v-for="(prop, index) in (property.items as any).properties"
               :key="prop.name || index"
@@ -75,13 +80,14 @@
               :disabled="disabled"
               @change="(updatedProp) => handleArrayObjectPropertyChange(index, updatedProp)"
               @delete="() => handleArrayObjectPropertyDelete(index)"
+              :data-test="`nested-property-${prop.name || index}`"
             />
           </div>
         </div>
       </div>
       
       <!-- Array of Array: Show nested array editor (only when not collapsed) -->
-      <div v-else-if="isArrayProperty(property) && property.items && property.items.type === 'array' && !(property.items as any)._collapsed" class="array-property-body">
+      <div v-else-if="isArrayProperty(property) && property.items && property.items.type === 'array' && !(property.items as any)._collapsed" class="array-property-body" data-test="array-of-array-body">
         <div class="array-item-editor">
           <!-- Use PropertyEditor for the nested array with type selector hidden -->
           <PropertyEditor
@@ -92,19 +98,20 @@
             :disabled="disabled"
             :hideTypeSelector="true"
             @change="handleItemsChange"
+            data-test="nested-array-property"
           />
         </div>
       </div>
 
       
       <!-- Object property body -->
-      <div v-else-if="isObjectProperty(property) && !(property as any)._collapsed" class="object-property-body">
-        <div v-if="!property.properties || property.properties.length === 0" class="text-center pa-4">
-          <v-icon size="48" color="grey">mdi-format-list-bulleted</v-icon>
-          <p class="text-body-2 text-medium-emphasis mt-2">No properties defined. Click the <v-icon icon="mdi-plus" size="small" class="mx-1" /> icon to add your first property</p>
+      <div v-else-if="isObjectProperty(property) && !(property as any)._collapsed" class="object-property-body" data-test="object-property-body">
+        <div v-if="!property.properties || property.properties.length === 0" class="text-center pa-4" data-test="no-object-properties-message">
+          <v-icon size="48" color="grey" data-test="no-object-properties-icon">mdi-format-list-bulleted</v-icon>
+          <p class="text-body-2 text-medium-emphasis mt-2" data-test="no-object-properties-text">No properties defined. Click the <v-icon icon="mdi-plus" size="small" class="mx-1" data-test="add-object-property-icon" /> icon to add your first property</p>
         </div>
         
-        <div v-else class="properties-section">
+        <div v-else class="properties-section" data-test="object-properties-section">
           <PropertyEditor
             v-for="(prop, index) in property.properties"
             :key="prop.name || index"
@@ -115,14 +122,15 @@
             :disabled="disabled"
             @change="(updatedProp) => handlePropertyChange(index, updatedProp)"
             @delete="() => handlePropertyDelete(index)"
+            :data-test="`object-property-${prop.name || index}`"
           />
         </div>
       </div>
       
       <!-- Simple property body - show schema configuration -->
-      <div v-else-if="isSimpleProperty(property)" class="simple-property-body">
+      <div v-else-if="isSimpleProperty(property)" class="simple-property-body" data-test="simple-property-body">
         <div class="schema-configuration pa-4">
-          <h4 class="text-h6 mb-3">Schema Configuration</h4>
+          <h4 class="text-h6 mb-3" data-test="schema-configuration-title">Schema Configuration</h4>
           
           <v-textarea
             v-model="simplePropertySchema"
@@ -132,14 +140,15 @@
             rows="6"
             :readonly="disabled"
             @blur="handleSimplePropertySchemaChange"
+            data-test="simple-property-schema-input"
           />
         </div>
       </div>
       
       <!-- Complex property body - show JSON and BSON type configuration -->
-      <div v-else-if="isComplexProperty(property)" class="complex-property-body">
+      <div v-else-if="isComplexProperty(property)" class="complex-property-body" data-test="complex-property-body">
         <div class="type-configuration pa-4">
-          <h4 class="text-h6 mb-3">Type Configuration</h4>
+          <h4 class="text-h6 mb-3" data-test="type-configuration-title">Type Configuration</h4>
           
           <v-row>
             <v-col cols="12" md="6">
@@ -151,6 +160,7 @@
                 rows="6"
                 :readonly="disabled"
                 @blur="handleComplexPropertyJsonTypeChange"
+                data-test="complex-property-json-input"
               />
             </v-col>
             <v-col cols="12" md="6">
@@ -162,6 +172,7 @@
                 rows="6"
                 :readonly="disabled"
                 @blur="handleComplexPropertyBsonTypeChange"
+                data-test="complex-property-bson-input"
               />
             </v-col>
           </v-row>

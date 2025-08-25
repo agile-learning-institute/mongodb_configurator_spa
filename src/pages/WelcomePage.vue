@@ -3,10 +3,10 @@
     <v-row justify="center" align="center" style="min-height: 100vh;">
       <v-col cols="12" class="pa-0">
         <!-- Help Carousel -->
-        <v-card class="help-carousel" variant="outlined" elevation="0">
-          <v-card-title class="d-flex align-center pa-6">
-            <v-icon :icon="helpSlides[currentSlide].icon" class="mr-2" />
-            <span class="text-h4">{{ helpSlides[currentSlide].title }}</span>
+        <v-card class="help-carousel" variant="outlined" elevation="0" data-test="help-carousel">
+          <v-card-title class="d-flex align-center pa-6" data-test="carousel-title">
+            <v-icon :icon="helpSlides[currentSlide].icon" class="mr-2" :data-test="`carousel-icon-${currentSlide}`" />
+            <span class="text-h4" data-test="carousel-title-text">{{ helpSlides[currentSlide].title }}</span>
           </v-card-title>
           <v-card-text class="pa-0">
             <div class="carousel-container">
@@ -17,25 +17,27 @@
                 size="large"
                 class="carousel-nav-btn prev-btn"
                 @click="previousSlide"
+                data-test="carousel-prev-btn"
               />
               
-              <v-window v-model="currentSlide" class="help-window">
+              <v-window v-model="currentSlide" class="help-window" data-test="help-window">
                 <v-window-item
                   v-for="(slide, index) in helpSlides"
                   :key="index"
                   :value="index"
+                  :data-test="`carousel-slide-${index}`"
                 >
                   <div class="d-flex flex-column justify-start align-start h-100 pa-8" style="height: calc(100vh - 120px); width: 100%;">
                     
                     <!-- Overview slide with detailed content -->
-                    <div v-if="slide.detailedContent" class="overview-content">
-                      <p class="text-h5 text-medium-emphasis mb-6">{{ slide.description }}</p>
-                      <div class="detailed-content" v-html="slide.detailedContent"></div>
+                    <div v-if="slide.detailedContent" class="overview-content" :data-test="`slide-content-${index}`">
+                      <p class="text-h5 text-medium-emphasis mb-6" :data-test="`slide-description-${index}`">{{ slide.description }}</p>
+                      <div class="detailed-content" v-html="slide.detailedContent" :data-test="`slide-detailed-content-${index}`"></div>
                     </div>
                     
                     <!-- Other slides with simple description -->
-                    <div v-else>
-                      <p class="text-h5 text-medium-emphasis mb-8">{{ slide.description }}</p>
+                    <div v-else :data-test="`slide-content-${index}`">
+                      <p class="text-h5 text-medium-emphasis mb-8" :data-test="`slide-description-${index}`">{{ slide.description }}</p>
                     </div>
                     
                   </div>
@@ -49,11 +51,12 @@
                 size="large"
                 class="carousel-nav-btn next-btn"
                 @click="nextSlide"
+                data-test="carousel-next-btn"
               />
             </div>
             
             <!-- Navigation dots -->
-            <div class="d-flex justify-center pa-2">
+            <div class="d-flex justify-center pa-2" data-test="carousel-dots">
               <v-btn
                 v-for="(_, index) in helpSlides"
                 :key="index"
@@ -61,6 +64,7 @@
                 variant="text"
                 size="small"
                 @click="currentSlide = index"
+                :data-test="`carousel-dot-${index}`"
               />
             </div>
           </v-card-text>
@@ -73,6 +77,7 @@
       v-model="showHelp"
       :title="currentHelp?.title || ''"
       :content="currentHelp?.content || ''"
+      data-test="help-dialog"
     />
   </v-container>
 </template>

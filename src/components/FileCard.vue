@@ -5,11 +5,12 @@
     :clickable="showEdit && !file._locked"
     :compact="true"
     @click="handleCardClick"
+    :data-test="`file-card-${file.name}`"
   >
     <template #title>
       <div class="d-flex align-center justify-space-between w-100">
         <div class="d-flex align-center">
-          <h4 class="text-white ma-0">{{ file.name }}</h4>
+          <h4 class="text-white ma-0" data-test="file-name">{{ file.name }}</h4>
         </div>
       </div>
     </template>
@@ -18,16 +19,16 @@
       <div class="d-flex align-center">
         <div class="d-flex align-center text-caption text-white mr-4">
           <div class="text-right mr-4" style="width: 120px;">
-            <span class="text-white-50">Created:</span>
-            <span class="ml-1">{{ formatDate(file.created_at) }}</span>
+            <span class="text-white-50" data-test="created-label">Created:</span>
+            <span class="ml-1" data-test="created-date">{{ formatDate(file.created_at) }}</span>
           </div>
           <div class="text-right mr-4" style="width: 120px;">
-            <span class="text-white-50">Updated:</span>
-            <span class="ml-1">{{ formatDate(file.updated_at) }}</span>
+            <span class="text-white-50" data-test="updated-label">Updated:</span>
+            <span class="ml-1" data-test="updated-date">{{ formatDate(file.updated_at) }}</span>
           </div>
           <div class="text-right mr-4" style="width: 100px;">
-            <span class="text-white-50">Size:</span>
-            <span class="ml-1">{{ formatFileSize(file.size) }}</span>
+            <span class="text-white-50" data-test="size-label">Size:</span>
+            <span class="ml-1" data-test="file-size">{{ formatFileSize(file.size) }}</span>
           </div>
         </div>
         
@@ -36,6 +37,7 @@
           color="warning"
           size="small"
           class="mr-2"
+          data-test="locked-chip"
         >
           Locked
         </v-chip>
@@ -48,8 +50,9 @@
           color="white"
           @click.stop="$emit('delete')"
           title="Delete"
+          data-test="delete-btn"
         >
-          <v-icon size="18">mdi-delete</v-icon>
+          <v-icon size="18" data-test="delete-icon">mdi-delete</v-icon>
         </v-btn>
         
         <v-btn
@@ -60,8 +63,9 @@
           color="white"
           @click.stop="$emit('process')"
           title="Process"
+          data-test="process-btn"
         >
-          <v-icon size="18">mdi-cog</v-icon>
+          <v-icon size="18" data-test="process-icon">mdi-cog</v-icon>
         </v-btn>
 
         <!-- Expand/collapse button for section cards -->
@@ -73,8 +77,9 @@
           color="white"
           @click.stop="$emit('toggle-expand')"
           :title="expanded ? 'Collapse' : 'Expand'"
+          data-test="expand-toggle-btn"
         >
-          <v-icon size="18">{{ expanded ? 'mdi-chevron-up' : 'mdi-chevron-down' }}</v-icon>
+          <v-icon size="18" data-test="expand-toggle-icon">{{ expanded ? 'mdi-chevron-up' : 'mdi-chevron-down' }}</v-icon>
         </v-btn>
 
         <!-- Custom action buttons slot -->
@@ -83,11 +88,11 @@
     </template>
     
     <!-- Section card content -->
-    <div v-if="isSectionCard && expanded">
+    <div v-if="isSectionCard && expanded" data-test="expanded-content">
       <slot />
     </div>
     <!-- Collapsed content for section cards -->
-    <div v-else-if="isSectionCard && !expanded" class="text-medium-emphasis">
+    <div v-else-if="isSectionCard && !expanded" class="text-medium-emphasis" data-test="collapsed-content">
       <slot name="collapsed" />
     </div>
   </BaseCard>

@@ -1,10 +1,11 @@
 <template>
-  <div class="version-information-cards">
+  <div class="version-information-cards" data-test="version-information-cards">
     <!-- Drop Indexes Card -->
     <BaseCard 
       :title="`Drop Indexes${!version.drop_indexes || version.drop_indexes.length === 0 ? ' (none)' : ''}`"
       icon="mdi-delete"
       :is-secondary="true"
+      data-test="drop-indexes-card"
     >
       <template #header-actions>
         <v-btn
@@ -13,19 +14,21 @@
           variant="outlined"
           size="small"
           @click="addDropIndex"
+          data-test="add-drop-index-btn"
         >
-          <v-icon start size="small">mdi-plus</v-icon>
+          <v-icon start size="small" data-test="add-drop-index-icon">mdi-plus</v-icon>
           Add
         </v-btn>
       </template>
       
-      <div v-if="version.drop_indexes && version.drop_indexes.length > 0" class="drop-indexes-content">
+      <div v-if="version.drop_indexes && version.drop_indexes.length > 0" class="drop-indexes-content" data-test="drop-indexes-content">
         <div class="d-flex flex-wrap gap-2">
           <v-chip
             v-for="(index, i) in version.drop_indexes"
             :key="i"
             :closable="!props.disabled"
             @click:close="removeDropIndex(i)"
+            :data-test="`drop-index-chip-${i}`"
           >
             {{ index }}
           </v-chip>
@@ -38,6 +41,7 @@
       :title="`Migrations${!version.migrations || version.migrations.length === 0 ? ' (none)' : ''}`"
       icon="mdi-database-sync"
       :is-secondary="true"
+      data-test="migrations-card"
     >
       <template #header-actions>
         <v-btn
@@ -46,19 +50,21 @@
           variant="outlined"
           size="small"
           @click="addMigration"
+          data-test="add-migration-btn"
         >
-          <v-icon start size="small">mdi-plus</v-icon>
+          <v-icon start size="small" data-test="add-migration-icon">mdi-plus</v-icon>
           Add
         </v-btn>
       </template>
       
-      <div v-if="version.migrations && version.migrations.length > 0" class="migrations-content">
+      <div v-if="version.migrations && version.migrations.length > 0" class="migrations-content" data-test="migrations-content">
         <div class="d-flex flex-wrap gap-2">
           <v-chip
             v-for="(migration, i) in version.migrations"
             :key="i"
             :closable="!props.disabled"
             @click:close="removeMigration(i)"
+            :data-test="`migration-chip-${i}`"
           >
             {{ migration }}
           </v-chip>
@@ -71,6 +77,7 @@
       :title="`Add Indexes${!version.add_indexes || version.add_indexes.length === 0 ? ' (none)' : ''}`"
       icon="mdi-database-plus"
       :is-secondary="true"
+      data-test="add-indexes-card"
     >
       <template #header-actions>
         <v-btn
@@ -79,17 +86,19 @@
           variant="outlined"
           size="small"
           @click="addIndex"
+          data-test="add-index-btn"
         >
-          <v-icon start size="small">mdi-plus</v-icon>
+          <v-icon start size="small" data-test="add-index-icon">mdi-plus</v-icon>
           Add
         </v-btn>
       </template>
       
-      <div v-if="version.add_indexes && version.add_indexes.length > 0" class="add-indexes-content">
+      <div v-if="version.add_indexes && version.add_indexes.length > 0" class="add-indexes-content" data-test="add-indexes-content">
         <div
           v-for="(_index, i) in version.add_indexes"
           :key="i"
           class="index-item mb-4"
+          :data-test="`index-item-${i}`"
         >
           <JsonDocumentEditor
             v-model="version.add_indexes[i]"
@@ -97,6 +106,7 @@
             @update:model-value="autoSave"
             :on-delete="() => removeIndex(i)"
             :disabled="props.disabled"
+            :data-test="`index-editor-${i}`"
           />
         </div>
       </div>

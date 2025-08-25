@@ -1,7 +1,7 @@
 <template>
   <v-container>
     <div class="d-flex justify-space-between align-center mb-6">
-      <h3>Configurations</h3>
+      <h3 data-test="page-title">Configurations</h3>
       <div class="d-flex align-center">
         <v-btn
           v-if="canLockAll"
@@ -11,14 +11,17 @@
           @click="handleLockAll"
           :loading="locking"
           class="mr-3"
+          data-test="lock-all-btn"
         >
+          <v-icon start data-test="lock-all-icon">mdi-lock</v-icon>
           Lock All
         </v-btn>
         <v-btn
           color="primary"
           @click="showNewCollectionDialog = true"
+          data-test="new-collection-btn"
         >
-          <v-icon start>mdi-plus</v-icon>
+          <v-icon start data-test="new-collection-icon">mdi-plus</v-icon>
           New Collection
         </v-btn>
       </div>
@@ -29,12 +32,13 @@
       file-type="configurations"
       @edit="handleEdit"
       @open="handleOpen"
+      data-test="configurations-file-list"
     />
 
     <!-- New Collection Dialog -->
-    <v-dialog v-model="showNewCollectionDialog" max-width="500px">
+    <v-dialog v-model="showNewCollectionDialog" max-width="500px" data-test="new-collection-dialog">
       <v-card>
-        <v-card-title>Create New Collection</v-card-title>
+        <v-card-title data-test="new-collection-dialog-title">Create New Collection</v-card-title>
         <v-card-text>
           <v-text-field
             v-model="newCollectionName"
@@ -44,8 +48,9 @@
             placeholder="my_collection"
             :disabled="creating"
             @keyup.enter="createCollection"
+            data-test="new-collection-name-input"
           />
-          <p class="text-caption text-medium-emphasis mt-2">
+          <p class="text-caption text-medium-emphasis mt-2" data-test="new-collection-help-text">
             Collection names must start with a letter and contain only letters, numbers, and underscores.
           </p>
         </v-card-text>
@@ -54,6 +59,7 @@
           <v-btn
             @click="showNewCollectionDialog = false"
             :disabled="creating"
+            data-test="new-collection-cancel-btn"
           >
             Cancel
           </v-btn>
@@ -62,6 +68,7 @@
             @click="createCollection"
             :loading="creating"
             :disabled="!newCollectionName.trim()"
+            data-test="new-collection-create-btn"
           >
             Create
           </v-btn>
@@ -74,6 +81,7 @@
       v-model="showErrorSnackbar"
       color="error"
       timeout="5000"
+      data-test="error-snackbar"
     >
       {{ errorMessage }}
     </v-snackbar>

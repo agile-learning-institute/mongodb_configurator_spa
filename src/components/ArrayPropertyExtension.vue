@@ -1,13 +1,14 @@
 <template>
-  <div class="array-property-extension">
-    <div class="items-type-section">
-      <span class="text-caption text-medium-emphasis mr-2">Items:</span>
+  <div class="array-property-extension" data-test="array-property-extension">
+    <div class="items-type-section" data-test="items-type-section">
+      <span class="text-caption text-medium-emphasis mr-2" data-test="items-type-label">Items:</span>
       <TypeChipPicker
         v-model="editableItemsType"
         :is-root="false"
         :is-dictionary="isDictionary"
         :is-type="isType"
         :disabled="disabled"
+        data-test="items-type-picker"
       />
     </div>
   </div>
