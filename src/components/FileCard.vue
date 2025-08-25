@@ -43,19 +43,6 @@
         </v-chip>
         
         <v-btn
-          v-if="showDelete"
-          icon
-          size="small"
-          variant="text"
-          color="white"
-          @click.stop="$emit('delete')"
-          title="Delete"
-          data-test="delete-btn"
-        >
-          <v-icon size="18" data-test="delete-icon">mdi-delete</v-icon>
-        </v-btn>
-        
-        <v-btn
           v-if="showProcess"
           icon
           size="small"
@@ -114,7 +101,6 @@ interface Props {
   file: FileInfo
   fileType?: 'configuration' | 'dictionary' | 'type' | 'enumerator' | 'test-data' | 'migration'
   showEdit?: boolean
-  showDelete?: boolean
   showActions?: boolean
   showProcess?: boolean
   isSectionCard?: boolean
@@ -124,7 +110,6 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {
   showEdit: true,
-  showDelete: true,
   showActions: true,
   showProcess: false,
   isSectionCard: false,
@@ -134,7 +119,6 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<{
   edit: []
-  delete: []
   open: []
   process: []
   'toggle-expand': []
