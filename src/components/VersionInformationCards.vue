@@ -380,19 +380,8 @@ const testDataFileName = computed(() => {
   // Extract collection name from file_name (remove .yaml extension)
   const collectionName = props.configuration.file_name.replace('.yaml', '')
   
-  // Extract version parts and create 4-digit version
-  const versionParts = props.version.version.split('.')
-  if (versionParts.length >= 4) {
-    // Format: major.minor.patch.enumerator -> major.minor.patch.enumerator
-    const major = versionParts[0] || '0'
-    const minor = versionParts[1] || '0'
-    const patch = versionParts[2] || '0'
-    const enumerator = versionParts[3] || '0'
-    
-    return `${collectionName}.${major}${minor}${patch}${enumerator}.json`
-  }
-  
-  return `${collectionName}.0000.json`
+  // Use the full semantic version format
+  return `${collectionName}.${props.version.version}.json`
 })
 
 // Load test data files
