@@ -33,13 +33,25 @@
       <div v-if="version.drop_indexes && version.drop_indexes.length > 0" class="drop-indexes-content" data-test="drop-indexes-content">
         <div class="d-flex flex-wrap gap-2">
           <v-chip
-            v-for="(index, i) in version.drop_indexes"
-            :key="i"
-            :closable="!props.disabled"
-            @click:close="removeDropIndex(i)"
-            :data-test="`drop-index-chip-${i}`"
+            v-for="dropIndex in version.drop_indexes"
+            :key="dropIndex"
+            color="primary"
+            variant="outlined"
+            class="standard-chip"
+            data-test="drop-index-chip"
           >
-            {{ index }}
+            <v-icon start size="small">mdi-database-minus</v-icon>
+            {{ dropIndex }}
+            <v-icon
+              end
+              size="small"
+              color="error"
+              class="delete-icon"
+              @click="removeDropIndex(dropIndex)"
+              data-test="remove-drop-index-btn"
+            >
+              mdi-close
+            </v-icon>
           </v-chip>
         </div>
       </div>
@@ -546,9 +558,11 @@ const addSelectedDropIndex = () => {
   showDropIndexDialog.value = false
 }
 
-const removeDropIndex = (index: number) => {
+const removeDropIndex = (indexName: string) => {
   if (props.version.drop_indexes) {
-    props.version.drop_indexes.splice(index, 1)
+    props.version.drop_indexes = props.version.drop_indexes.filter(
+      (dropIndex) => dropIndex !== indexName
+    )
     props.onUpdate()
   }
 }
