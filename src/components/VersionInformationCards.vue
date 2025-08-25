@@ -7,9 +7,6 @@
       :is-secondary="true"
       data-test="step-1-card"
     >
-      <div class="text-body-2 text-medium-emphasis pa-4">
-        No content here, just the text
-      </div>
     </BaseCard>
 
     <!-- Step 2: Drop Indexes Card -->
