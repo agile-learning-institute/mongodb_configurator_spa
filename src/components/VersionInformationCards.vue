@@ -248,13 +248,31 @@
         </v-card-title>
         
         <v-card-text>
-          <JsonDocumentEditor
-            v-model="editingIndexData"
-            title=""
-            :show-info="false"
+          <v-textarea
+            v-model="jsonText"
+            placeholder="Enter JSON content..."
+            variant="outlined"
+            density="compact"
             :disabled="props.disabled"
-            data-test="index-json-editor"
+            :error="!!jsonError"
+            :error-messages="jsonError"
+            :rows="8"
+            auto-grow
+            @update:model-value="handleJsonChange"
+            @blur="validateJson"
+            data-test="index-json-textarea"
           />
+          
+          <!-- Error Display -->
+          <v-alert
+            v-if="jsonError"
+            type="error"
+            variant="tonal"
+            class="mt-3"
+            data-test="json-error-alert"
+          >
+            {{ jsonError }}
+          </v-alert>
         </v-card-text>
         
         <v-card-actions>
@@ -476,6 +494,8 @@ const showIndexEditorDialog = ref(false)
 const showIndexJsonEditorDialog = ref(false) // New state for JSON editor
 const editingIndexTitle = ref('')
 const editingIndexData = ref<any>({})
+const jsonText = ref('')
+const jsonError = ref('')
 
 // Computed properties for file names
 const dictionaryFileName = computed(() => {
@@ -680,7 +700,25 @@ const addNewIndex = () => {
 const openIndexEditor = (index: number, indexData: any) => {
   editingIndexTitle.value = `Edit Index: ${indexData.name}`
   editingIndexData.value = { ...indexData }
+  jsonText.value = JSON.stringify(indexData, null, 2)
+  jsonError.value = ''
   showIndexJsonEditorDialog.value = true // Show JSON editor for existing indexes
+}
+
+const handleJsonChange = (value: string) => {
+  jsonText.value = value
+  jsonError.value = ''
+}
+
+const validateJson = () => {
+  try {
+    if (jsonText.value.trim()) {
+      JSON.parse(jsonText.value)
+      jsonError.value = ''
+    }
+  } catch (error) {
+    jsonError.value = 'Invalid JSON format'
+  }
 }
 
 const saveIndex = async () => {
@@ -726,6 +764,12 @@ const saveIndex = async () => {
 
 const saveIndexJson = async () => {
   try {
+    // Validate JSON before saving
+    if (jsonText.value.trim()) {
+      const parsedData = JSON.parse(jsonText.value)
+      editingIndexData.value = parsedData
+    }
+    
     if (editingIndexData.value.name?.trim()) {
       // Ensure add_indexes array exists
       if (!props.version.add_indexes) {
@@ -747,6 +791,7 @@ const saveIndexJson = async () => {
     }
   } catch (err) {
     console.error('Failed to save index JSON:', err)
+    jsonError.value = 'Invalid JSON format'
   }
 }
 
