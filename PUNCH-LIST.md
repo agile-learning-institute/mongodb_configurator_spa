@@ -63,8 +63,8 @@ Cursor instructions: Complete each of the sections identified below with a ## he
 - [x] Remove delete action icon
 
 ## Enumerators Detail Page
-- [ ] JSON Editors size to fit content
-- [ ] Remove accordion one-only open feature
+- [x] Add Lock/Unlock and Delete buttons the same as on Dictionaries or Types
+- [x] Remove accordion one-only open feature of enumerations.
 
 ## Test Data List
 - [ ] Remove delete action icon
