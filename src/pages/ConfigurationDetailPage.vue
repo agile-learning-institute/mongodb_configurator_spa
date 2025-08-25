@@ -139,15 +139,6 @@
               <!-- Version action buttons -->
               <div class="d-flex gap-2">
                 <v-btn
-                  color="secondary"
-                  variant="elevated"
-                  size="small"
-                  @click="showNewVersionDialog = true"
-                >
-                  <v-icon start size="small">mdi-plus</v-icon>
-                  New Version
-                </v-btn>
-                <v-btn
                   :color="activeVersionData?._locked ? 'warning' : 'success'"
                   variant="elevated"
                   size="small"
