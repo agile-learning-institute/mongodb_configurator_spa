@@ -398,13 +398,13 @@ const activeVersionData = computed(() => {
 const hasPreviousVersion = computed(() => {
   if (!configuration.value || !activeVersion.value) return false
   const currentIndex = sortedVersions.value.findIndex(v => v === activeVersion.value)
-  return currentIndex < sortedVersions.value.length - 1
+  return currentIndex > 0
 })
 
 const hasNextVersion = computed(() => {
   if (!configuration.value || !activeVersion.value) return false
   const currentIndex = sortedVersions.value.findIndex(v => v === activeVersion.value)
-  return currentIndex > 0
+  return currentIndex < sortedVersions.value.length - 1
 })
 
 
@@ -801,11 +801,25 @@ const navigateToPreviousVersion = () => {
 }
 
 const navigateToNextVersion = () => {
-  if (!configuration.value || !activeVersion.value) return
+  console.log('navigateToNextVersion called')
+  console.log('configuration.value:', configuration.value)
+  console.log('activeVersion.value:', activeVersion.value)
+  console.log('sortedVersions.value:', sortedVersions.value)
+  
+  if (!configuration.value || !activeVersion.value) {
+    console.log('Early return - missing configuration or activeVersion')
+    return
+  }
   
   const currentIndex = sortedVersions.value.findIndex(v => v === activeVersion.value)
+  console.log('currentIndex:', currentIndex)
+  
   if (currentIndex < sortedVersions.value.length - 1) {
-    activeVersion.value = sortedVersions.value[currentIndex + 1]
+    const nextVersion = sortedVersions.value[currentIndex + 1]
+    console.log('Setting activeVersion to next version:', nextVersion)
+    activeVersion.value = nextVersion
+  } else {
+    console.log('No next version available')
   }
 }
 
