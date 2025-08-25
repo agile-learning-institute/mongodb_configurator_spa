@@ -363,14 +363,6 @@
         >
           Cancel
         </v-btn>
-        <v-btn
-          color="primary"
-          @click="addSelectedDropIndex"
-          :disabled="!newDropIndexName.trim()"
-          data-test="drop-index-add-btn"
-        >
-          Add
-        </v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -582,7 +574,20 @@ const loadPreviouslyCreatedIndexes = async () => {
 }
 
 const selectPreviouslyCreatedIndex = (indexName: string) => {
-  newDropIndexName.value = indexName
+  // Immediately add the selected index to the drop list
+  if (!props.version.drop_indexes) {
+    props.version.drop_indexes = []
+  }
+  
+  // Check if index is already in the list
+  if (!props.version.drop_indexes.includes(indexName)) {
+    props.version.drop_indexes.push(indexName)
+    props.onUpdate()
+  }
+  
+  // Close the dialog after adding
+  showDropIndexDialog.value = false
+  newDropIndexName.value = ''
 }
 
 const addSelectedDropIndex = () => {
