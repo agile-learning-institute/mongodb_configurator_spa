@@ -123,43 +123,82 @@
 
     <!-- Step 5: Add Indexes Card -->
     <BaseCard 
-      :title="`Step 5: Add these indexes${!version.add_indexes || version.add_indexes.length === 0 ? ' (none)' : ''}`"
+      title="Step 5: Add Indexes"
       icon="mdi-database-plus"
       :is-secondary="true"
-      data-test="add-indexes-card"
+      data-test="step-5-card"
     >
-      <template #header-actions>
-        <v-btn
-          v-if="!props.disabled"
+      <div class="d-flex flex-wrap gap-2">
+        <!-- Index Chips -->
+        <v-chip
+          v-for="(indexData, index) in version.add_indexes"
+          :key="index"
           color="primary"
           variant="outlined"
+          class="index-chip clickable"
+          @click="openIndexEditor(index, indexData)"
+          data-test="index-chip"
+        >
+          <v-icon start size="small">mdi-database-plus</v-icon>
+          {{ indexData.name || `Index ${index + 1}` }}
+        </v-chip>
+        
+        <!-- Add New Index Button -->
+        <v-btn
+          v-if="!props.disabled"
           size="small"
-          @click="addIndex"
-          data-test="add-index-btn"
+          variant="outlined"
+          color="primary"
+          @click="addNewIndex"
+          data-test="add-new-index-btn"
         >
-          <v-icon start size="small" data-test="add-index-icon">mdi-plus</v-icon>
-          Add
+          <v-icon start size="small">mdi-plus</v-icon>
+          Add Index
         </v-btn>
-      </template>
-      
-      <div v-if="version.add_indexes && version.add_indexes.length > 0" class="add-indexes-content" data-test="add-indexes-content">
-        <div
-          v-for="(_index, i) in version.add_indexes"
-          :key="i"
-          class="index-item mb-4"
-          :data-test="`index-item-${i}`"
-        >
-          <JsonDocumentEditor
-            v-model="version.add_indexes[i]"
-            :title="getIndexName(version.add_indexes[i], i)"
-            @update:model-value="autoSave"
-            :on-delete="() => removeIndex(i)"
-            :disabled="props.disabled"
-            :data-test="`index-editor-${i}`"
-          />
-        </div>
       </div>
     </BaseCard>
+
+    <!-- Index Editor Dialog -->
+    <v-dialog
+      v-model="showIndexEditorDialog"
+      max-width="800px"
+      persistent
+    >
+      <v-card>
+        <v-card-title class="d-flex align-center gap-2">
+          <v-icon>mdi-database-edit</v-icon>
+          {{ editingIndexTitle }}
+        </v-card-title>
+        
+        <v-card-text>
+          <JsonDocumentEditor
+            v-model="editingIndexData"
+            title="Index Configuration"
+            :disabled="props.disabled"
+            data-test="index-json-editor"
+          />
+        </v-card-text>
+        
+        <v-card-actions>
+          <v-spacer />
+          <v-btn
+            variant="text"
+            @click="showIndexEditorDialog = false"
+            data-test="cancel-index-edit-btn"
+          >
+            Cancel
+          </v-btn>
+          <v-btn
+            color="primary"
+            @click="saveIndex"
+            :disabled="props.disabled"
+            data-test="save-index-btn"
+          >
+            Save
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
 
     <!-- Step 6: Load Test Data Card -->
     <BaseCard 
@@ -354,6 +393,11 @@ const previouslyCreatedIndexes = ref<string[]>([])
 const showNewMigrationDialog = ref(false)
 const newMigrationName = ref('')
 
+// Index Editor Dialog state
+const showIndexEditorDialog = ref(false)
+const editingIndexTitle = ref('')
+const editingIndexData = ref<any>({})
+
 // Computed properties for file names
 const dictionaryFileName = computed(() => {
   if (!props.configuration || !props.version.version) return ''
@@ -542,26 +586,52 @@ const createNewMigration = async () => {
   }
 }
 
-const addIndex = () => {
-  // Prompt for index name
-  const indexName = prompt('Enter index name:')
-  if (!indexName || !indexName.trim()) {
-    return // User cancelled or entered empty name
-  }
-  
-  if (!props.version.add_indexes) {
-    props.version.add_indexes = []
-  }
-  
-  // Create new index with the specified structure
-  const newIndex = {
-    name: indexName.trim(),
+const addNewIndex = () => {
+  editingIndexTitle.value = 'New Index'
+  editingIndexData.value = {
+    name: '',
     key: {},
     options: {}
   }
-  
-  props.version.add_indexes.push(newIndex)
-  props.onUpdate()
+  showIndexEditorDialog.value = true
+}
+
+const openIndexEditor = (index: number, indexData: any) => {
+  editingIndexTitle.value = `Edit Index ${index + 1}`
+  editingIndexData.value = { ...indexData }
+  showIndexEditorDialog.value = true
+}
+
+const saveIndex = async () => {
+  try {
+    // Find the index in the version.add_indexes array and update it
+    if (editingIndexData.value.name) {
+      // Ensure add_indexes array exists
+      if (!props.version.add_indexes) {
+        props.version.add_indexes = []
+      }
+      
+      // If editing existing index, update it
+      const indexToUpdate = props.version.add_indexes.find((idx: any) => 
+        idx.name === editingIndexData.value.name
+      )
+      
+      if (indexToUpdate) {
+        // Update existing index
+        Object.assign(indexToUpdate, editingIndexData.value)
+      } else {
+        // Add new index
+        props.version.add_indexes.push({ ...editingIndexData.value })
+      }
+      
+      // Call the update function to save changes
+      props.onUpdate()
+      showIndexEditorDialog.value = false
+    }
+  } catch (err) {
+    console.error('Failed to save index:', err)
+    // Optionally show a snackbar or dialog for error
+  }
 }
 
 const removeIndex = (index: number) => {
