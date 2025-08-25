@@ -154,6 +154,70 @@
     </BaseCard>
   </div>
 
+  <!-- Drop Index Selection Dialog -->
+  <v-dialog v-model="showDropIndexDialog" max-width="600px">
+    <v-card>
+      <v-card-title>Add Index to Drop List</v-card-title>
+      <v-card-text>
+        <div class="d-flex flex-column gap-4">
+          <!-- Free Text Entry -->
+          <div>
+            <h4 class="text-subtitle-1 font-weight-medium mb-2">Enter Index Name</h4>
+            <v-text-field
+              v-model="newDropIndexName"
+              label="Index name to drop"
+              placeholder="Enter index name or select from list below"
+              variant="outlined"
+              density="compact"
+              @keyup.enter="addSelectedDropIndex"
+              data-test="drop-index-name-input"
+            />
+          </div>
+
+          <!-- Previously Created Indexes -->
+          <div v-if="previouslyCreatedIndexes.length > 0">
+            <h4 class="text-subtitle-1 font-weight-medium mb-2">Previously Created Indexes</h4>
+            <div class="text-body-2 text-medium-emphasis mb-3">Click an index to add it to the drop list:</div>
+            <div class="d-flex flex-wrap gap-2">
+              <v-chip
+                v-for="index in previouslyCreatedIndexes"
+                :key="index"
+                color="primary"
+                variant="outlined"
+                class="index-chip"
+                @click="selectPreviouslyCreatedIndex(index)"
+              >
+                {{ index }}
+              </v-chip>
+            </div>
+          </div>
+
+          <div v-else class="text-center pa-4">
+            <v-icon size="32" color="grey">mdi-database-off</v-icon>
+            <div class="text-body-2 text-medium-emphasis mt-2">No previously created indexes found</div>
+          </div>
+        </div>
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer />
+        <v-btn
+          @click="showDropIndexDialog = false"
+          data-test="drop-index-cancel-btn"
+        >
+          Cancel
+        </v-btn>
+        <v-btn
+          color="primary"
+          @click="addSelectedDropIndex"
+          :disabled="!newDropIndexName.trim()"
+          data-test="drop-index-add-btn"
+        >
+          Add
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+
   <!-- Migration Selection Dialog -->
   <v-dialog v-model="showMigrationDialog" max-width="600px">
     <v-card>
@@ -216,6 +280,11 @@ const testDataFiles = ref<string[]>([])
 const migrationFiles = ref<string[]>([])
 const showMigrationDialog = ref(false)
 
+// Drop Index Dialog state
+const showDropIndexDialog = ref(false)
+const newDropIndexName = ref('')
+const previouslyCreatedIndexes = ref<string[]>([])
+
 // Load test data files
 const loadTestDataFiles = async () => {
   try {
@@ -237,11 +306,42 @@ const loadMigrationFiles = async () => {
 }
 
 // Add/Remove methods
-const addDropIndex = () => {
-  // Prompt for index name to drop
-  const indexName = prompt('Enter index name to drop:')
-  if (!indexName || !indexName.trim()) {
-    return // User cancelled or entered empty name
+const addDropIndex = async () => {
+  // Load previously created indexes if not already loaded
+  if (previouslyCreatedIndexes.value.length === 0) {
+    await loadPreviouslyCreatedIndexes()
+  }
+  
+  // Show drop index selection dialog
+  showDropIndexDialog.value = true
+}
+
+const loadPreviouslyCreatedIndexes = async () => {
+  try {
+    // This would typically come from an API call to get all indexes
+    // For now, we'll simulate with some common index names
+    // In a real implementation, this would fetch from the database or configuration
+    previouslyCreatedIndexes.value = [
+      'idx_name',
+      'idx_email',
+      'idx_created_at',
+      'idx_status',
+      'idx_user_id'
+    ]
+  } catch (err) {
+    console.error('Failed to load previously created indexes:', err)
+    previouslyCreatedIndexes.value = []
+  }
+}
+
+const selectPreviouslyCreatedIndex = (indexName: string) => {
+  newDropIndexName.value = indexName
+}
+
+const addSelectedDropIndex = () => {
+  const indexName = newDropIndexName.value.trim()
+  if (!indexName) {
+    return // User didn't enter anything
   }
   
   if (!props.version.drop_indexes) {
@@ -249,8 +349,12 @@ const addDropIndex = () => {
   }
   
   // Add the index name to drop
-  props.version.drop_indexes.push(indexName.trim())
+  props.version.drop_indexes.push(indexName)
   props.onUpdate()
+  
+  // Reset and close dialog
+  newDropIndexName.value = ''
+  showDropIndexDialog.value = false
 }
 
 const removeDropIndex = (index: number) => {
@@ -366,5 +470,53 @@ onMounted(() => {
 
 .migration-chip.selected {
   font-weight: 600;
+}
+
+/* New Version Dialog Styles */
+.version-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.version-label {
+  flex: 1;
+  min-width: 120px;
+}
+
+.version-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.version-input {
+  max-width: 120px;
+}
+
+.version-preview {
+  padding: 16px 0;
+}
+
+.version-display {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background-color: rgba(var(--v-theme-primary), 0.05);
+  border-radius: 8px;
+  border: 1px solid rgba(var(--v-theme-primary), 0.2);
+}
+
+/* Drop Index Dialog Styles */
+.index-chip {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.index-chip:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 </style> 
