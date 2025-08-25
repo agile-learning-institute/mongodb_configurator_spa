@@ -163,7 +163,7 @@
             @click.stop="deleteIndex(index)"
             data-test="delete-index-btn"
           >
-            mdi-delete
+            mdi-close
           </v-icon>
         </v-chip>
       </div>
