@@ -273,6 +273,7 @@ interface Props {
   version: VersionConfig
   onUpdate: () => void
   disabled?: boolean
+  configuration?: any // Full configuration object to access all versions
 }
 
 const props = defineProps<Props>()
@@ -318,16 +319,30 @@ const addDropIndex = async () => {
 
 const loadPreviouslyCreatedIndexes = async () => {
   try {
-    // This would typically come from an API call to get all indexes
-    // For now, we'll simulate with some common index names
-    // In a real implementation, this would fetch from the database or configuration
-    previouslyCreatedIndexes.value = [
-      'idx_name',
-      'idx_email',
-      'idx_created_at',
-      'idx_status',
-      'idx_user_id'
-    ]
+    // Get all index names from all versions of the current configuration
+    const allIndexNames = new Set<string>()
+    
+    if (props.configuration && props.configuration.versions) {
+      // Iterate through all versions to collect index names
+      props.configuration.versions.forEach((version: any) => {
+        if (version.add_indexes && Array.isArray(version.add_indexes)) {
+          version.add_indexes.forEach((indexData: any) => {
+            // Extract index name from the index data
+            if (indexData && typeof indexData === 'object' && indexData.name) {
+              allIndexNames.add(indexData.name)
+            } else if (typeof indexData === 'string') {
+              // Handle case where indexData might be a string
+              allIndexNames.add(indexData)
+            }
+          })
+        }
+      })
+    }
+    
+    // Convert Set to array and sort alphabetically
+    previouslyCreatedIndexes.value = Array.from(allIndexNames).sort()
+    
+    console.log('Loaded previously created indexes:', previouslyCreatedIndexes.value)
   } catch (err) {
     console.error('Failed to load previously created indexes:', err)
     previouslyCreatedIndexes.value = []

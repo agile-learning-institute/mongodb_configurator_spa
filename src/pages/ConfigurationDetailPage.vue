@@ -167,6 +167,7 @@
                 :version="activeVersionData"
                 :on-update="autoSave"
                 :disabled="activeVersionData._locked"
+                :configuration="configuration"
               />
             </div>
         </BaseCard>
