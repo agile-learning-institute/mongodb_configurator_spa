@@ -15,41 +15,42 @@ Cursor instructions: Complete each of the sections identified below with a ## he
 - [x] Make "Expand/Collapse" more obvious, move to the left edge of title line and use emphasized chevrons.
 
 ## Configurations List
-- [ ] Change title text "Configurations" to "Collection Configurations"
-- [ ] Change buttons to [New][Lock All] standards on other lists
-- [ ] Remove Delete and Process action icons from list items
+- [x] Change title text "Configurations" to "Collection Configurations"
+- [x] Change buttons to [New][Lock All] standards on other lists
+- [x] Remove Delete and Process action icons from list items
 
 ### New Collection process
-- [ ] Implement document creation in UI, discontinue use of POST /configurations
+- [x] Implement document creation in UI
+    - Use PUT document endpoints in place of POST /configurations
     - In addition to prompting for collection name, prompt for "version" with controls from new-version dialog
-    - Use to the newest version of enumerators
-    - Create configuration, dictionary, and test data files.
+    - Always Use to the newest version of enumerators
+    - Create (PUT) configuration, dictionary, and test data files.
         - Configuration using name and version provided
-        - Dictionary object with _id, name:word, last_saved:breadcrumb properties
+        - Dictionary object with _id:identifier, name:word, last_saved:breadcrumb properties
         - Test data is []
 
 ## Configuration Detail Page
-- [ ] Change "Process Configuration" button text to "Configure Collection".
-- [ ] Remove dictionary and enumerators link from title line.
-- [ ] Move JSON Schema and BSON Schema buttons to page title.
-- [ ] Replace version drop down with < {version} > arrows like Enumerators.
-- [ ] Make "New Version" replace > on newest version.
-- [ ] Show new text-body section headers.
-    - Step 1: Drop existing schema validation
-        - [ ] No content here, just the text
-    - Step 2: Drop the following indexes
-        - [ ] Add Index dialog should show previously created index names, still allow any text value
-    - Step 3: Execute the following migrations 
-        - [ ] Click to open migration file. 
-        - [ ] "New Migration" button on migration file picker dialog
-    - Step 4: Apply Schema (link to dictionary, and enumerators)
-    - Step 4: Add these indexes
-        - [ ] Make Indexes chips with click-to-edit and delete x. 
-        - [ ] Edit in pop-up json editor.
-    - Step 5: Load Test Data
-        - [ ] Implement fixed test data file name with collection and version 
-        - [ ] Link to Test Data details
-- [ ] Unlock button, implement standard unlock warnings
+- [x] Change "Process Configuration" button text to "Configure Collection".
+- [x] Remove dictionary and enumerators link from title line.
+- [x] Move JSON Schema and BSON Schema buttons to page title.
+- [x] Replace version drop down with < {version} > arrows like Enumerators.
+- [x] Make "New Version" replace > on newest version.
+- [x] Show new text-body section headers.
+    - [x] Step 1: Drop existing schema validation
+        - [x] No content here, just the text
+    - [x] Step 2: Drop the following indexes
+        - [x] Add Index dialog should show previously created index names, still allow any text value
+    - [x] Step 3: Execute the following migrations 
+        - [x] Click to open migration file. 
+        - [x] "New Migration" button on migration file picker dialog
+    - [x] Step 4: Apply Schema (link to dictionary, and enumerators)
+    - [x] Step 5: Add these indexes
+        - [x] Make Indexes chips with click-to-edit and delete x. 
+        - [x] Edit in pop-up json editor.
+    - [x] Step 6: Load Test Data
+        - [x] Implement fixed test data file name with collection and version 
+        - [x] Link to Test Data details
+- [x] Unlock button, implement standard unlock warnings
 
 ## Dictionaries List
 - [ ] Remove delete action icon
