@@ -75,9 +75,9 @@ Cursor instructions: Complete each of the sections identified below with a ## he
 - [x] Remove accordion one-only open feature
 
 ## Migrations List
-- [ ] Remove delete action icon
+- [x] Remove delete action icon
 
 ## Migrations Detail Page
-- [ ] Remove Lock action icon
-- [ ] Add delete button with standard warnings
-- [ ] JSON Editors size to fit content
+- [x] Remove Lock action icon
+- [x] Add delete button with standard warnings
+- [x] JSON Editors size to fit content
