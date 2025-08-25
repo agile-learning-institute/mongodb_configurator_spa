@@ -185,7 +185,7 @@
     <!-- Index Editor Dialog -->
     <v-dialog
       v-model="showIndexEditorDialog"
-      max-width="800px"
+      max-width="600px"
       persistent
     >
       <v-card>
@@ -195,31 +195,23 @@
         </v-card-title>
         
         <v-card-text>
-          <v-textarea
-            v-model="jsonText"
-            placeholder="Enter JSON content..."
+          <v-text-field
+            v-model="editingIndexData.name"
+            label="Index Name"
+            placeholder="Enter index name (e.g., user_email)"
             variant="outlined"
             density="compact"
             :disabled="props.disabled"
-            :error="!!jsonError"
-            :error-messages="jsonError"
-            :rows="8"
-            auto-grow
-            @update:model-value="handleJsonChange"
-            @blur="validateJson"
-            data-test="index-json-textarea"
+            @keyup.enter="saveIndex"
+            data-test="index-name-input"
           />
           
-          <!-- Error Display -->
-          <v-alert
-            v-if="jsonError"
-            type="error"
-            variant="tonal"
-            class="mt-3"
-            data-test="json-error-alert"
-          >
-            {{ jsonError }}
-          </v-alert>
+          <div v-if="editingIndexTitle === 'New Index'" class="mt-4">
+            <v-alert type="info" variant="tonal" class="mb-0">
+              <strong>Default Index Structure:</strong> A basic index will be created with the name you provide. 
+              Click the index chip after creation to edit the full structure.
+            </v-alert>
+          </div>
         </v-card-text>
         
         <v-card-actions>
@@ -234,10 +226,52 @@
           <v-btn
             color="primary"
             @click="saveIndex"
-            :disabled="props.disabled"
+            :disabled="props.disabled || !editingIndexData.name?.trim()"
             data-test="save-index-btn"
           >
-            Save
+            {{ editingIndexTitle === 'New Index' ? 'Create' : 'Save' }}
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <!-- Index JSON Editor Dialog -->
+    <v-dialog
+      v-model="showIndexJsonEditorDialog"
+      max-width="800px"
+      persistent
+    >
+      <v-card>
+        <v-card-title class="d-flex align-center gap-2">
+          <v-icon>mdi-code-json</v-icon>
+          Edit Index: {{ editingIndexData.name }}
+        </v-card-title>
+        
+        <v-card-text>
+          <JsonDocumentEditor
+            v-model="editingIndexData"
+            title="Index Configuration"
+            :disabled="props.disabled"
+            data-test="index-json-editor"
+          />
+        </v-card-text>
+        
+        <v-card-actions>
+          <v-spacer />
+          <v-btn
+            variant="text"
+            @click="showIndexJsonEditorDialog = false"
+            data-test="cancel-json-edit-btn"
+          >
+            Cancel
+          </v-btn>
+          <v-btn
+            color="primary"
+            @click="saveIndexJson"
+            :disabled="props.disabled"
+            data-test="save-json-btn"
+          >
+            Save Changes
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -438,10 +472,9 @@ const newMigrationName = ref('')
 
 // Index Editor Dialog state
 const showIndexEditorDialog = ref(false)
+const showIndexJsonEditorDialog = ref(false) // New state for JSON editor
 const editingIndexTitle = ref('')
 const editingIndexData = ref<any>({})
-const jsonText = ref('')
-const jsonError = ref('')
 
 // Computed properties for file names
 const dictionaryFileName = computed(() => {
@@ -640,45 +673,18 @@ const addNewIndex = () => {
     key: {},
     options: {}
   }
-  jsonText.value = JSON.stringify(editingIndexData.value, null, 2)
-  jsonError.value = ''
   showIndexEditorDialog.value = true
 }
 
 const openIndexEditor = (index: number, indexData: any) => {
-  editingIndexTitle.value = indexData.name || `Index ${index + 1}`
+  editingIndexTitle.value = `Edit Index: ${indexData.name}`
   editingIndexData.value = { ...indexData }
-  jsonText.value = JSON.stringify(indexData, null, 2)
-  jsonError.value = ''
-  showIndexEditorDialog.value = true
-}
-
-const handleJsonChange = (value: string) => {
-  jsonText.value = value
-  jsonError.value = ''
-}
-
-const validateJson = () => {
-  try {
-    if (jsonText.value.trim()) {
-      JSON.parse(jsonText.value)
-      jsonError.value = ''
-    }
-  } catch (error) {
-    jsonError.value = 'Invalid JSON format'
-  }
+  showIndexJsonEditorDialog.value = true // Show JSON editor for existing indexes
 }
 
 const saveIndex = async () => {
   try {
-    // Validate JSON before saving
-    if (jsonText.value.trim()) {
-      const parsedData = JSON.parse(jsonText.value)
-      editingIndexData.value = parsedData
-    }
-    
-    // Find the index in the version.add_indexes array and update it
-    if (editingIndexData.value.name) {
+    if (editingIndexData.value.name?.trim()) {
       // Ensure add_indexes array exists
       if (!props.version.add_indexes) {
         props.version.add_indexes = []
@@ -693,17 +699,53 @@ const saveIndex = async () => {
         // Update existing index
         Object.assign(indexToUpdate, editingIndexData.value)
       } else {
-        // Add new index
-        props.version.add_indexes.push({ ...editingIndexData.value })
+        // Add new index with default structure
+        const newIndex = {
+          name: editingIndexData.value.name.trim(),
+          key: { [editingIndexData.value.name.trim()]: 1 }, // Default key
+          options: {} // Default empty options
+        }
+        props.version.add_indexes.push(newIndex)
       }
       
       // Call the update function to save changes
       props.onUpdate()
       showIndexEditorDialog.value = false
+      showIndexJsonEditorDialog.value = false // Close JSON editor
+      
+      // Reset form for new indexes
+      if (editingIndexTitle.value === 'New Index') {
+        editingIndexData.value = { name: '', key: {}, options: {} }
+      }
     }
   } catch (err) {
     console.error('Failed to save index:', err)
-    jsonError.value = 'Invalid JSON format'
+  }
+}
+
+const saveIndexJson = async () => {
+  try {
+    if (editingIndexData.value.name?.trim()) {
+      // Ensure add_indexes array exists
+      if (!props.version.add_indexes) {
+        props.version.add_indexes = []
+      }
+      
+      // Find and update the existing index
+      const indexToUpdate = props.version.add_indexes.find((idx: any) => 
+        idx.name === editingIndexData.value.name
+      )
+      
+      if (indexToUpdate) {
+        // Update existing index
+        Object.assign(indexToUpdate, editingIndexData.value)
+        // Call the update function to save changes
+        props.onUpdate()
+        showIndexJsonEditorDialog.value = false
+      }
+    }
+  } catch (err) {
+    console.error('Failed to save index JSON:', err)
   }
 }
 
