@@ -458,13 +458,8 @@ const createNewMigration = async () => {
     // Ensure the migration name has .json extension
     const fileName = migrationName.endsWith('.json') ? migrationName : `${migrationName}.json`
     
-    // Create a new migration file with basic structure
-    const newMigrationData = {
-      file_name: fileName,
-      description: `Migration: ${migrationName}`,
-      version: "1.0.0",
-      operations: []
-    }
+    // Create a new migration file as an empty list
+    const newMigrationData: any[] = []
     
     // Save the new migration file
     await apiService.saveMigration(fileName, newMigrationData)
