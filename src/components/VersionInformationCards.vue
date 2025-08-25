@@ -92,42 +92,32 @@
       :is-secondary="true"
       data-test="step-4-card"
     >
-      <div class="d-flex flex-column gap-3">
-        <div class="text-body-2 text-medium-emphasis mb-2">Link to dictionary, and enumerators</div>
-        
+      <div class="d-flex gap-2">
         <!-- Dictionary File Link -->
-        <div class="d-flex align-center gap-2">
-          <span class="text-subtitle-2 font-weight-medium">Dictionary:</span>
-          <v-chip
-            v-if="dictionaryFileName"
-            color="primary"
-            variant="outlined"
-            class="file-chip clickable"
-            @click="openDictionaryFile"
-            data-test="dictionary-file-chip"
-          >
-            <v-icon start size="small">mdi-book-open-variant</v-icon>
-            {{ dictionaryFileName }}
-          </v-chip>
-          <span v-else class="text-caption text-medium-emphasis">No dictionary file</span>
-        </div>
+        <v-chip
+          v-if="dictionaryFileName"
+          color="primary"
+          variant="outlined"
+          class="file-chip clickable"
+          @click="openDictionaryFile"
+          data-test="dictionary-file-chip"
+        >
+          <v-icon start size="small">mdi-book-open-variant</v-icon>
+          {{ dictionaryFileName }}
+        </v-chip>
 
         <!-- Enumerators File Link -->
-        <div class="d-flex align-center gap-2">
-          <span class="text-subtitle-2 font-weight-medium">Enumerators:</span>
-          <v-chip
-            v-if="enumeratorsFileName"
-            color="primary"
-            variant="outlined"
-            class="file-chip clickable"
-            @click="openEnumeratorsFile"
-            data-test="enumerators-file-chip"
-          >
-            <v-icon start size="small">mdi-format-list-numbered</v-icon>
-            {{ enumeratorsFileName }}
-          </v-chip>
-          <span v-else class="text-caption text-medium-emphasis">No enumerators file</span>
-        </div>
+        <v-chip
+          v-if="enumeratorsFileName"
+          color="primary"
+          variant="outlined"
+          class="file-chip clickable"
+          @click="openEnumeratorsFile"
+          data-test="enumerators-file-chip"
+        >
+          <v-icon start size="small">mdi-format-list-numbered</v-icon>
+          {{ enumeratorsFileName }}
+        </v-chip>
       </div>
     </BaseCard>
 
