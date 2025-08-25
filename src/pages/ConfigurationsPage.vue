@@ -2,7 +2,16 @@
   <v-container>
     <div class="d-flex justify-space-between align-center mb-6">
       <h3 data-test="page-title">Collection Configurations</h3>
-      <div class="d-flex align-center">
+      <div class="d-flex align-center gap-2">
+        <v-btn
+          color="primary"
+          variant="elevated"
+          prepend-icon="mdi-plus"
+          @click="showNewCollectionDialog = true"
+          data-test="new-collection-btn"
+        >
+          New
+        </v-btn>
         <v-btn
           v-if="canLockAll"
           color="info"
@@ -10,19 +19,9 @@
           prepend-icon="mdi-lock"
           @click="handleLockAll"
           :loading="locking"
-          class="mr-3"
           data-test="lock-all-btn"
         >
-          <v-icon start data-test="lock-all-icon">mdi-lock</v-icon>
           Lock All
-        </v-btn>
-        <v-btn
-          color="primary"
-          @click="showNewCollectionDialog = true"
-          data-test="new-collection-btn"
-        >
-          <v-icon start data-test="new-collection-icon">mdi-plus</v-icon>
-          New Collection
         </v-btn>
       </div>
     </div>
