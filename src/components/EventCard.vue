@@ -7,14 +7,6 @@
     :data-test="`event-card-${event.id}`"
   >
     <template #header-actions>
-      <div class="d-flex align-center flex-grow-1">
-        <div class="flex-grow-1">
-          <div class="text-h6 font-weight-medium text-white" data-test="event-id">
-            {{ event.id }}
-          </div>
-        </div>
-      </div>
-      
       <!-- Expand/Collapse Button (only for events with sub-events) -->
       <v-btn
         v-if="event.sub_events && event.sub_events.length > 0"
@@ -22,14 +14,21 @@
         variant="text"
         color="white"
         @click="subEventsExpanded = !subEventsExpanded"
-        class="mr-2"
+        class="mr-3"
         data-test="expand-collapse-btn"
       >
-        <v-icon size="18" class="mr-1" data-test="expand-collapse-icon">
+        <v-icon size="24" data-test="expand-collapse-icon">
           {{ subEventsExpanded ? 'mdi-chevron-up' : 'mdi-chevron-down' }}
         </v-icon>
-        <span data-test="expand-collapse-text">{{ subEventsExpanded ? 'Collapse' : 'Expand' }}</span>
       </v-btn>
+      
+      <div class="d-flex align-center flex-grow-1">
+        <div class="flex-grow-1">
+          <div class="text-h6 font-weight-medium text-white" data-test="event-id">
+            {{ event.id }}
+          </div>
+        </div>
+      </div>
       
       <!-- Status Badge -->
       <v-chip
