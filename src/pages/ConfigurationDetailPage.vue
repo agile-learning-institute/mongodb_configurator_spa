@@ -40,13 +40,31 @@
           
           <div class="d-flex gap-2">
             <v-btn
+              color="primary"
+              variant="elevated"
+              size="small"
+              @click="downloadJsonSchema(activeVersion)"
+            >
+              <v-icon start size="small">mdi-code-json</v-icon>
+              JSON Schema
+            </v-btn>
+            <v-btn
+              color="primary"
+              variant="elevated"
+              size="small"
+              @click="downloadBsonSchema(activeVersion)"
+            >
+              <v-icon start size="small">mdi-database</v-icon>
+              BSON Schema
+            </v-btn>
+            <v-btn
               color="secondary"
               @click="processAllVersions"
               :loading="processing"
 
             >
               <v-icon start>mdi-cog</v-icon>
-              Process Configuration
+              Configure Collection
             </v-btn>
           </div>
         </div>
@@ -80,65 +98,43 @@
           <template #title>
             <div class="d-flex align-center gap-2">
               <h3 class="text-h5 mb-0 mr-2">Version:</h3>
-              <v-select
-                v-model="activeVersion"
-                :items="sortedVersions"
-                variant="outlined"
-                density="compact"
-                hide-details
-                class="version-select"
-                style="max-width: 200px;"
-              />
-              <!-- Dictionary and Enumerations links -->
-              <div v-if="activeVersion" class="d-flex flex-column gap-1 ml-4">
+              <div class="d-flex align-center">
                 <v-btn
+                  icon="mdi-chevron-left"
                   variant="text"
                   size="small"
-                  color="default"
-                  @click="openDictionary"
-                  class="justify-start px-0 text-black"
-                >
-                  <v-icon start size="small">mdi-book-open-variant</v-icon>
-                  Dictionary: {{ dictionaryFileName }}
-                </v-btn>
+                  :disabled="!hasPreviousVersion"
+                  @click="navigateToPreviousVersion"
+                  class="mr-1"
+                />
+                <span class="text-h6 font-weight-medium">{{ activeVersion }}</span>
                 <v-btn
+                  v-if="!hasNextVersion"
+                  prepend-icon="mdi-plus"
                   variant="text"
                   size="small"
-                  color="default"
-                  @click="openEnumerations"
-                  class="justify-start px-0 text-black"
+                  color="primary"
+                  @click="showNewVersionDialog = true"
+                  class="ml-1"
+                  title="Create new version"
                 >
-                  <v-icon start size="small">mdi-format-list-numbered</v-icon>
-                  Enumerations: {{ enumerationsFileName }}
+                  New Version
                 </v-btn>
+                <v-btn
+                  v-else
+                  icon="mdi-chevron-right"
+                  variant="text"
+                  size="small"
+                  :disabled="!hasNextVersion"
+                  @click="navigateToNextVersion"
+                  class="ml-1"
+                />
               </div>
             </div>
           </template>
           
           <template #header-actions>
-            <div v-if="activeVersion" class="d-flex flex-column gap-2">
-              <!-- Schema download buttons -->
-              <div class="d-flex gap-2">
-                <v-btn
-                  color="primary"
-                  variant="elevated"
-                  size="small"
-                  @click="downloadJsonSchema(activeVersion)"
-                >
-                  <v-icon start size="small">mdi-code-json</v-icon>
-                  JSON Schema
-                </v-btn>
-                <v-btn
-                  color="primary"
-                  variant="elevated"
-                  size="small"
-                  @click="downloadBsonSchema(activeVersion)"
-                >
-                  <v-icon start size="small">mdi-database</v-icon>
-                  BSON Schema
-                </v-btn>
-              </div>
-              
+            <div v-if="activeVersion && activeVersionData" class="d-flex flex-column gap-2">
               <!-- Version action buttons -->
               <div class="d-flex gap-2">
                 <v-btn
@@ -182,6 +178,47 @@
               />
             </div>
         </BaseCard>
+
+        <!-- Configuration Process Steps -->
+        <div class="configuration-process-steps mt-6">
+          <h3 class="text-h5 mb-4">Configuration Process</h3>
+          
+          <!-- Step 1: Drop existing schema validation -->
+          <div class="step-section mb-4">
+            <h4 class="text-h6 font-weight-medium mb-2">Step 1: Drop existing schema validation</h4>
+            <p class="text-body-2 text-medium-emphasis">No content here, just the text</p>
+          </div>
+
+          <!-- Step 2: Drop the following indexes -->
+          <div class="step-section mb-4">
+            <h4 class="text-h6 font-weight-medium mb-2">Step 2: Drop the following indexes</h4>
+            <p class="text-body-2 text-medium-emphasis">Add Index dialog should show previously created index names, still allow any text value</p>
+          </div>
+
+          <!-- Step 3: Execute the following migrations -->
+          <div class="step-section mb-4">
+            <h4 class="text-h6 font-weight-medium mb-2">Step 3: Execute the following migrations</h4>
+            <p class="text-body-2 text-medium-emphasis">Click to open migration file. "New Migration" button on migration file picker dialog</p>
+          </div>
+
+          <!-- Step 4: Apply Schema -->
+          <div class="step-section mb-4">
+            <h4 class="text-h6 font-weight-medium mb-2">Step 4: Apply Schema</h4>
+            <p class="text-body-2 text-medium-emphasis">Link to dictionary, and enumerators</p>
+          </div>
+
+          <!-- Step 5: Add these indexes -->
+          <div class="step-section mb-4">
+            <h4 class="text-h6 font-weight-medium mb-2">Step 5: Add these indexes</h4>
+            <p class="text-body-2 text-medium-emphasis">Make Indexes chips with click-to-edit and delete x. Edit in pop-up json editor.</p>
+          </div>
+
+          <!-- Step 6: Load Test Data -->
+          <div class="step-section mb-4">
+            <h4 class="text-h6 font-weight-medium mb-2">Step 6: Load Test Data</h4>
+            <p class="text-body-2 text-medium-emphasis">Implement fixed test data file name with collection and version. Link to Test Data details.</p>
+          </div>
+        </div>
       </div>
     </div>
   </v-container>
@@ -398,6 +435,15 @@ const activeVersionData = computed(() => {
   return configuration.value.versions.find(v => v.version === activeVersion.value)
 })
 
+const hasPreviousVersion = computed(() => {
+  if (!configuration.value || !activeVersion.value) return false
+  return configuration.value.versions.some(v => v.version < activeVersion.value)
+})
+
+const hasNextVersion = computed(() => {
+  if (!configuration.value || !activeVersion.value) return false
+  return configuration.value.versions.some(v => v.version > activeVersion.value)
+})
 
 
 const newVersionString = computed(() => {
@@ -769,6 +815,24 @@ const deleteVersion = async () => {
   }
 }
 
+const navigateToPreviousVersion = () => {
+  if (!configuration.value || !activeVersion.value) return
+  
+  const currentIndex = sortedVersions.value.findIndex(v => v === activeVersion.value)
+  if (currentIndex > 0) {
+    activeVersion.value = sortedVersions.value[currentIndex - 1]
+  }
+}
+
+const navigateToNextVersion = () => {
+  if (!configuration.value || !activeVersion.value) return
+  
+  const currentIndex = sortedVersions.value.findIndex(v => v === activeVersion.value)
+  if (currentIndex < sortedVersions.value.length - 1) {
+    activeVersion.value = sortedVersions.value[currentIndex + 1]
+  }
+}
+
 const openDictionary = () => {
   if (!dictionaryFileName.value) return
   
@@ -911,5 +975,31 @@ watch(showNewVersionDialog, (newValue) => {
 
 .cursor-pointer {
   cursor: pointer;
+}
+
+/* Configuration Process Steps Styles */
+.configuration-process-steps {
+  background-color: #fafafa;
+  border-radius: 8px;
+  padding: 24px;
+  border: 1px solid #e0e0e0;
+}
+
+.step-section {
+  padding: 16px;
+  background-color: white;
+  border-radius: 6px;
+  border-left: 4px solid var(--v-theme-primary);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.step-section h4 {
+  color: var(--v-theme-primary);
+  margin-bottom: 8px;
+}
+
+.step-section p {
+  margin: 0;
+  line-height: 1.5;
 }
 </style> 
