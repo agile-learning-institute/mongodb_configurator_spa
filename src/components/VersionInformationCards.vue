@@ -527,9 +527,8 @@ const getIndexName = (indexData: any, index: number) => {
 
 const openMigrationFile = (migrationName: string) => {
   // Navigate to the migration file detail page
-  // Remove .json extension if present for the route
-  const cleanName = migrationName.replace('.json', '')
-  router.push({ name: 'MigrationsDetail', params: { fileName: cleanName } })
+  // Keep the .json extension for the route
+  router.push({ name: 'MigrationsDetail', params: { fileName: migrationName } })
 }
 
 onMounted(() => {
