@@ -70,9 +70,9 @@ Cursor instructions: Complete each of the sections identified below with a ## he
 - [ ] Remove delete action icon
 
 ## Test Data Detail Page
-- [ ] Add delete button with warnings
-- [ ] JSON Editors size to fit content
-- [ ] Remove accordion one-only open feature
+- [x] Add delete button with warnings
+- [x] JSON Editors size to fit content
+- [x] Remove accordion one-only open feature
 
 ## Migrations List
 - [ ] Remove delete action icon
