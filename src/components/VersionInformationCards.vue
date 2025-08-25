@@ -92,8 +92,42 @@
       :is-secondary="true"
       data-test="step-4-card"
     >
-      <div class="text-body-2 text-medium-emphasis pa-4">
-        Link to dictionary, and enumerators
+      <div class="d-flex flex-column gap-3">
+        <div class="text-body-2 text-medium-emphasis mb-2">Link to dictionary, and enumerators</div>
+        
+        <!-- Dictionary File Link -->
+        <div class="d-flex align-center gap-2">
+          <span class="text-subtitle-2 font-weight-medium">Dictionary:</span>
+          <v-chip
+            v-if="dictionaryFileName"
+            color="primary"
+            variant="outlined"
+            class="file-chip clickable"
+            @click="openDictionaryFile"
+            data-test="dictionary-file-chip"
+          >
+            <v-icon start size="small">mdi-book-open-variant</v-icon>
+            {{ dictionaryFileName }}
+          </v-chip>
+          <span v-else class="text-caption text-medium-emphasis">No dictionary file</span>
+        </div>
+
+        <!-- Enumerators File Link -->
+        <div class="d-flex align-center gap-2">
+          <span class="text-subtitle-2 font-weight-medium">Enumerators:</span>
+          <v-chip
+            v-if="enumeratorsFileName"
+            color="primary"
+            variant="outlined"
+            class="file-chip clickable"
+            @click="openEnumeratorsFile"
+            data-test="enumerators-file-chip"
+          >
+            <v-icon start size="small">mdi-format-list-numbered</v-icon>
+            {{ enumeratorsFileName }}
+          </v-chip>
+          <span v-else class="text-caption text-medium-emphasis">No enumerators file</span>
+        </div>
       </div>
     </BaseCard>
 
@@ -291,7 +325,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { apiService } from '@/utils/api'
 import BaseCard from './BaseCard.vue'
@@ -326,6 +360,26 @@ const previouslyCreatedIndexes = ref<string[]>([])
 // Migration Dialog state
 const showNewMigrationDialog = ref(false)
 const newMigrationName = ref('')
+
+// Computed properties for file names
+const dictionaryFileName = computed(() => {
+  if (!props.configuration || !props.version.version) return ''
+  const baseName = props.configuration.file_name.replace('.yaml', '')
+  const versionParts = props.version.version.split('.')
+  if (versionParts.length >= 3) {
+    return `${baseName}.${versionParts[0]}.${versionParts[1]}.${versionParts[2]}.yaml`
+  }
+  return `${baseName}.0.0.0.yaml`
+})
+
+const enumeratorsFileName = computed(() => {
+  if (!props.version.version) return ''
+  const versionParts = props.version.version.split('.')
+  if (versionParts.length >= 4) {
+    return `enumerations.${versionParts[3]}.yaml`
+  }
+  return 'enumerations.0.yaml'
+})
 
 // Load test data files
 const loadTestDataFiles = async () => {
@@ -531,6 +585,18 @@ const openMigrationFile = (migrationName: string) => {
   router.push({ name: 'MigrationsDetail', params: { fileName: migrationName } })
 }
 
+const openDictionaryFile = () => {
+  if (dictionaryFileName.value) {
+    router.push({ name: 'DictionaryDetail', params: { fileName: dictionaryFileName.value } })
+  }
+}
+
+const openEnumeratorsFile = () => {
+  if (enumeratorsFileName.value) {
+    router.push({ name: 'EnumeratorsDetail', params: { fileName: enumeratorsFileName.value } })
+  }
+}
+
 onMounted(() => {
   loadTestDataFiles()
   loadMigrationFiles()
@@ -619,5 +685,18 @@ onMounted(() => {
 .index-chip:hover {
   transform: translateY(-1px);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* File Chip Styles */
+.file-chip {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.file-chip:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  background-color: var(--v-theme-primary) !important;
+  color: white !important;
 }
 </style> 
