@@ -288,9 +288,23 @@ const createCollection = async () => {
   try {
     // Get the newest enumerator version
     const enumeratorFiles = await apiService.getEnumerators()
-    const newestEnumeratorVersion = enumeratorFiles.length > 0 
-      ? Math.max(...enumeratorFiles.map((f: any) => parseInt(f.name.replace('enumerations.', '').replace('.yaml', '')))) 
-      : 0
+    let newestEnumeratorVersion = 0
+    
+    if (enumeratorFiles && enumeratorFiles.length > 0) {
+      // Filter out any files that don't have the expected structure
+      const validFiles = enumeratorFiles.filter((f: any) => f && f.file_name && typeof f.file_name === 'string')
+      
+      if (validFiles.length > 0) {
+        const versions = validFiles
+          .map((f: any) => {
+            const match = f.file_name.match(/enumerations\.(\d+)\.yaml/)
+            return match ? parseInt(match[1], 10) : 0
+          })
+          .filter((version: number) => !isNaN(version))
+        
+        newestEnumeratorVersion = versions.length > 0 ? Math.max(...versions) : 0
+      }
+    }
     
     const version = `${newVersion.value.major}.${newVersion.value.minor}.${newVersion.value.patch}.${newestEnumeratorVersion}`
     const configFileName = `${name}.yaml`
