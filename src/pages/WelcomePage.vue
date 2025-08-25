@@ -31,13 +31,18 @@
                     
                     <!-- Overview slide with detailed content -->
                     <div v-if="slide.detailedContent" class="overview-content" :data-test="`slide-content-${index}`">
-                      <p class="text-h5 text-medium-emphasis mb-6" :data-test="`slide-description-${index}`">{{ slide.description }}</p>
+                      <p class="text-h5 text-medium-emphasis mb-6" :data-test="`slide-description-${index}`" v-html="slide.description"></p>
                       <div class="detailed-content" v-html="slide.detailedContent" :data-test="`slide-detailed-content-${index}`"></div>
+                      
+                      <!-- Quick start section for Welcome slide -->
+                      <div v-if="slide.title === 'Welcome'" class="mt-6">
+                        <p>For a quick start you can create a <v-btn variant="outlined" size="small" color="primary" @click="createNewCollection">New Collection</v-btn> and review help screens from there.</p>
+                      </div>
                     </div>
                     
                     <!-- Other slides with simple description -->
                     <div v-else :data-test="`slide-content-${index}`">
-                      <p class="text-h5 text-medium-emphasis mb-8" :data-test="`slide-description-${index}`">{{ slide.description }}</p>
+                      <p class="text-h5 text-medium-emphasis mb-8" :data-test="`slide-description-${index}`" v-html="slide.description"></p>
                     </div>
                     
                   </div>
@@ -79,19 +84,68 @@
       :content="currentHelp?.content || ''"
       data-test="help-dialog"
     />
+
+    <!-- New Collection Dialog -->
+    <v-dialog v-model="showNewCollectionDialog" max-width="500px" data-test="new-collection-dialog">
+      <v-card>
+        <v-card-title data-test="new-collection-dialog-title">Create New Collection</v-card-title>
+        <v-card-text>
+          <v-text-field
+            v-model="newCollectionName"
+            label="Collection Name"
+            :error="!!nameError"
+            :error-messages="nameError || undefined"
+            placeholder="my_collection"
+            :disabled="creating"
+            @keyup.enter="createCollection"
+            data-test="new-collection-name-input"
+          />
+          <p class="text-caption text-medium-emphasis mt-2" data-test="new-collection-help-text">
+            Collection names must start with a letter and contain only letters, numbers, and underscores.
+          </p>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer />
+          <v-btn
+            @click="showNewCollectionDialog = false"
+            :disabled="creating"
+            data-test="new-collection-cancel-btn"
+          >
+            Cancel
+          </v-btn>
+          <v-btn
+            color="primary"
+            @click="createCollection"
+            :loading="creating"
+            :disabled="!newCollectionName.trim()"
+            data-test="new-collection-create-btn"
+          >
+            Create
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useHelp } from '@/composables/useHelp'
+import { apiService } from '@/utils/api'
 import HelpDialog from '@/components/HelpDialog.vue'
 
 const { showHelp, currentHelp } = useHelp()
+const router = useRouter()
 
 const currentSlide = ref(0)
 const route = useRoute()
+
+// New collection dialog state
+const showNewCollectionDialog = ref(false)
+const newCollectionName = ref('')
+const nameError = ref<string | null>(null)
+const creating = ref(false)
 
 // Initialize slide based on URL parameter
 onMounted(() => {
@@ -104,18 +158,66 @@ onMounted(() => {
   }
 })
 
+// Validate collection name
+const validateCollectionName = (name: string): boolean => {
+  const pattern = /^[a-zA-Z][a-zA-Z0-9_]*$/
+  if (!pattern.test(name)) {
+    nameError.value = 'Collection name must start with a letter and contain only letters, numbers, and underscores'
+    return false
+  }
+  nameError.value = null
+  return true
+}
+
+// Create new collection
+const createCollection = async () => {
+  const name = newCollectionName.value.trim()
+  
+  if (!name) {
+    nameError.value = 'Collection name is required'
+    return
+  }
+
+  if (!validateCollectionName(name)) {
+    return
+  }
+
+  creating.value = true
+  try {
+    await apiService.createNewCollection(name)
+    
+    // Close dialog and reset
+    showNewCollectionDialog.value = false
+    newCollectionName.value = ''
+    nameError.value = null
+    
+    // Navigate to the new collection's detail page with .yaml extension
+    router.push(`/configurations/${name}.yaml`)
+    
+  } catch (err: any) {
+    nameError.value = err.message || 'Failed to create collection'
+  } finally {
+    creating.value = false
+  }
+}
+
+// Open new collection dialog
+const createNewCollection = () => {
+  showNewCollectionDialog.value = true
+}
+
 const helpSlides = [
   {
     icon: 'mdi-information-outline',
     title: 'Welcome',
-    description: 'The mongoDB Configurator makes it easy for you to implement the MongoDB Schema Versioning Pattern best practices. Using MongoDB schema validation provides data quality assurances that do not rely exclusively on the proper use of ODM utilities. The Configurator also provides a means to manage indexing as a component of the versioned configurations.',
+    description: 'The mongoDB Configurator makes it easy for you to implement the <a href="https://www.mongodb.com/company/blog/building-with-patterns-the-schema-versioning-pattern" target="_blank">MongoDB Schema Versioning Pattern</a> best practices.',
     detailedContent: `
       <h2>Key Features</h2>
       <ul>
         <li><strong>Online Help</strong> is available using <i class="mdi mdi-help-circle"></i> <i class="mdi mdi-arrow-top-right"></i> from any page.</li>
-        <li><strong>Collection Configurations</strong> control the configuration process. For a quick start you can create a <strong>New Configuration</strong> and review help screens from there.</li>
-        <li><strong>Data Dictionaries</strong> provide a human friendly way to define data structures without the complexity of json/bson schema.</li>
-        <li><strong>Custom Types</strong> are the type abstraction used with json/bson schema complexity.</li>
+        <li><strong>Collection Configurations</strong> control the configuration process.</li>
+        <li><strong>Data Dictionaries</strong> provide a human friendly way to define data structures.</li>
+        <li><strong>Custom Types</strong> specify json/bson schemas for Dictionary types.</li>
         <li><strong>Enumerators</strong> provide a versioned location for enumerator validation values.</li>
         <li><strong>Test Data</strong> can be loaded into the database to support a robust developer experience.</li>
         <li><strong>Migrations</strong> allow you to run migration pipelines to alter existing data when schema changes require it.</li>
@@ -125,30 +227,30 @@ const helpSlides = [
   {
     icon: 'mdi-compass',
     title: 'Collection Configuration',
-    description: 'Collection Configuration versions consist of a 3-part semantic Schema version number, and an Enumerators version. When configuration the collection, a version is only applied if it is newer than the current version. Creating a new version will lock the currently active version. See [slide=locking] for more information about what it means to *lock* a configuration.',
+    description: '',
     detailedContent: `
-      <h2>Schema Versioning</h2>
-      <p>Schema validation is the primary feature of the configurator. Implementing a version-based approach to defining and applying schema validation is accomplished in the configuration file. Each version number identifies a Dictionary version with the first three digits and an Enumerators version with the fourth digit. See Dictionary and Enumerator for more information on those features.</p>
-      
-      <h2>Processing</h2>
-      <p>When a configuration is processed, the configuration version of the collection that currently exists is evaluated, and only newer versions are applied. The utility is non-destructive as it will not apply version configurations that have already been applied within the database. When a Configuration Version is applied, the following steps are accomplished:</p>
+      <h2>Configuration Processing</h2>
+      <p>Collection configuration it's done using a six step process:</p>
       <ol>
-        <li><strong>Remove Schema Validation:</strong> Remove any existing schema validation configurations</li>
-        <li><strong>Drop Indexes:</strong> If indexes should be removed, this is when they're dropped</li>
-        <li><strong>Execute Migration:</strong> If migrations are required, this is when they run</li>
-        <li><strong>Add Indexes:</strong> If new indexes for this version are identified, this is when they're created</li>
-        <li><strong>Apply Schema Validation:</strong> Apply the new schema validation configurations to the collection</li>
-        <li><strong>Load Test Data:</strong> If test data is provided and loading test data is configured, the container will automatically load the specified test data. This is a great way to test your indexing and schema validation configurations</li>
+        <li>Drop any existing Schema Validation</li>
+        <li>Drop any indexes that should be removed</li>
+        <li>Run any migrations that are needed to transform data</li>
+        <li>Create any new indexes that are needed</li>
+        <li>Apply the Validation Schema</li>
+        <li>Load Test Data (when enabled)</li>
       </ol>
+      
+      <h2>Schema Versioning</h2>
+      <p>Collection Configuration versions use a 3-part semantic Schema version number plus an Enumerators version. When configuring a collection, only newer versions are applied. Creating a new version automatically locks the currently active version. See <a href="#locking-panel">configuration locking</a> for more information about configuration locking.</p>
     `
   },
   {
     icon: 'mdi-book-open-variant',
     title: 'Dictionary',
-    description: 'Create human-readable schema definitions that isolate the terse syntax of BSON/JSON schema.',
+    description: 'Create simple technology agnostic schema definitions.',
     detailedContent: `
       <h2>Simple Schema</h2>
-      <p>The concept of configuration dictionary is to make the process of documenting data schema more accessible to non-software engineers. People without a software engineering context can be intimidated by the syntax involved in defining a JSON schema, or even more confused if you're asking them to understand BSON. A simple schema uses the idea of custom types that are defined with human-accessible names. See below for additional detail about custom types, as well as several special simple schema types:</p>
+      <p>Configurator data dictionaries provide a simplified approach to defining data structures and validation constraints. This approach is technology agnostic and Creates dictionaries that can easily be shared with non-technical users. The configurator can also use these dictionaries to create json or bson schema for software engineers. These are the types used in a Dictionary:</p>
       <ul>
         <li><strong>Custom Type:</strong> A human description of a data type (i.e. street address, phone number, sentence, or paragraph).</li>
         <li><strong>Enumerated Types:</strong> A data type that represents an item from an enumerated list. See Enumerators.</li>
@@ -193,9 +295,13 @@ const helpSlides = [
       
       <h2>Primitive Types</h2>
       <ul>
-        <li><strong>Simple Primitive:</strong> Basic data types like strings, numbers, booleans with validation</li>
-        <li><strong>Complex Primitive:</strong> Advanced primitive types with JSON/BSON schema definitions</li>
+        <li><strong>Simple Primitive:</strong> Primitives where the only difference between a json schema and bson schema would be the change from a "type" property to a "bsonType" property. String types with pattern constraints can usually be simple primitives.</li>
+        <li><strong>Complex Primitive:</strong> Allow you to define different constraints for bson/json schema. Object ID's that are 24-character strings when rendered to json schema are an example of a complex primitive.</li>
       </ul>
+      
+      <div class="mt-6 pa-4 bg-warning-lighten-5 border-warning border rounded">
+        <p class="text-body-2 mb-0"><strong>Note:</strong> Custom types are not versioned. Once locked, they should be considered immutable assets used by your data dictionaries. If you should need to change a custom type that has already been deployed to meaningful environments, you will need to create a new custom type with a slightly different name. See <a href="#locking-panel">configuration locking</a> for more information about what it means to <em>lock</em> a configuration.</p>
+      </div>
     `
   },
   {
@@ -203,11 +309,12 @@ const helpSlides = [
     title: 'Enumerator',
     description: 'Create sets of allowed values for Enum or Enum Array properties.',
     detailedContent: `
-      <h2>Enumerations</h2>
-      <p>An enumeration is the name we use to describe the list of values and their descriptions.</p>
+      <h2>Enum and Enum Array Type Support</h2>
+      <p>To support Dictionary <em>enum</em> and <em>enum_array</em> types simple schema leverages a list of valid enumerators, and the individual enumeration values with descriptions. Enumerators are loaded to a specified collection during configuration, making it easy to provide the information needed by a Javascript Web application to support choosers or drop downs. Enumerator versions are managed automatically, and only the latest enumerators should be unlocked. See <a href="#locking-panel">configuration locking</a> for more information about what it means to <em>lock</em> a configuration.</p>
       
-      <h2>Enumerators</h2>
-      <p>A versioned file containing a list of Enumerations. This is the version number used when defining a schema version.</p>
+      <div class="mt-6 pa-4 bg-info-lighten-5 border-info border rounded">
+        <p class="text-body-2 mb-0"><strong>Note:</strong> These enumerators are for use when the list of valid enumerations are relatively stable. The configurator makes it easy to add new values to a list, but the deployment of that change does require a new version of the database configuration be deployed. Dynamic enumerator lists that allow real-time updates should be implemented as normal string primitives, with a custom data store for the valid values.</p>
+      </div>
     `
   },
   {
@@ -452,4 +559,4 @@ const nextSlide = () => {
   font-weight: 600;
   color: #1976d2;
 }
-</style> 
+</style>
