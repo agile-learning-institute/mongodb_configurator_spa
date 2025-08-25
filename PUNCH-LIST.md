@@ -59,8 +59,8 @@ Cursor instructions: Complete each of the sections identified below with a ## he
 - [x] Remove delete action icon
 
 ## Enumerators List
-- [ ] Change buttons to [New][Lock All] standards
-- [ ] Remove delete action icon
+- [x] Change buttons to [New][Lock All] standards
+- [x] Remove delete action icon
 
 ## Enumerators Detail Page
 - [ ] JSON Editors size to fit content
