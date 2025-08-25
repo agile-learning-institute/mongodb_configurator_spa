@@ -250,7 +250,7 @@
         <v-card-text>
           <JsonDocumentEditor
             v-model="editingIndexData"
-            title="Index Configuration"
+            title=""
             :disabled="props.disabled"
             data-test="index-json-editor"
           />
