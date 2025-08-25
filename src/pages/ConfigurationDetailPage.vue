@@ -387,7 +387,7 @@ const newVersion = ref({
 // Computed properties
 const sortedVersions = computed(() => {
   if (!configuration.value?.versions) return []
-  return [...configuration.value.versions].reverse().map(v => v.version) // Just return version strings
+  return configuration.value.versions.map(v => v.version) // Use natural order from API
 })
 
 const activeVersionData = computed(() => {
