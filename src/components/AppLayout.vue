@@ -3,22 +3,21 @@
     <!-- App Bar -->
     <v-app-bar color="primary" theme="dark" class="app-header">
       <v-app-bar-nav-icon @click="toggleDrawer" data-test="nav-toggle" />
-      <v-toolbar-title class="text-h5 font-weight-medium" data-test="app-title">MongoDB Configurator</v-toolbar-title>
+      <v-toolbar-title class="text-h5 font-weight-medium" data-test="app-title">
+        <router-link to="/" class="text-decoration-none text-primary">MongoDB Configurator</router-link>
+      </v-toolbar-title>
       <v-spacer></v-spacer>
       
-      <!-- Process All Button -->
+      <!-- Configure Database Button -->
       <v-btn
-        color="white"
-        variant="elevated"
-        size="large"
-        class="mr-3 process-btn"
+        color="primary"
         @click="processAllConfigurations"
         :loading="processing"
-        :disabled="processing"
+        class="mr-3"
         data-test="process-all-btn"
       >
         <v-icon start data-test="process-all-icon">mdi-cog</v-icon>
-        Process All
+        Configure Database
       </v-btn>
       
       <!-- Drop Database Button -->
@@ -47,7 +46,7 @@
         @click="toggleHelp" 
         title="Help" 
         class="help-btn"
-        :color="isOnHelpPage ? 'white' : undefined"
+        :color="isOnHelpPage ? 'primary' : undefined"
         :variant="isOnHelpPage ? 'elevated' : 'text'"
         data-test="help-btn"
       >
@@ -109,7 +108,7 @@
           </p>
           <v-text-field
             v-model="dropConfirmation"
-            label="Type DROP to confirm"
+            placeholder="Type DROP to confirm"
             :error="dropConfirmation !== '' && dropConfirmation !== 'DROP'"
             :error-messages="dropConfirmation !== '' && dropConfirmation !== 'DROP' ? 'Please type DROP exactly' : undefined"
             :disabled="dropping"
