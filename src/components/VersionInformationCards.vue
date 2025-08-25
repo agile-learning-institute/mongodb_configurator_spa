@@ -86,9 +86,10 @@
             color="primary"
             variant="outlined"
             class="standard-chip clickable"
-            @click:close="removeMigration(i)"
             @click="openMigrationFile(migration)"
-            :data-test="`migration-chip-${i}`"
+            @click:close="removeMigration(i)"
+            :closable="!props.disabled"
+            data-test="migration-chip"
           >
             <v-icon start size="small">mdi-file-document</v-icon>
             {{ migration }}
