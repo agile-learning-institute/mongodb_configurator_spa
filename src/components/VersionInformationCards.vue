@@ -205,13 +205,6 @@
             @keyup.enter="saveIndex"
             data-test="index-name-input"
           />
-          
-          <div v-if="editingIndexTitle === 'New Index'" class="mt-4">
-            <v-alert type="info" variant="tonal" class="mb-0">
-              <strong>Default Index Structure:</strong> A basic index will be created with the name you provide. 
-              Click the index chip after creation to edit the full structure.
-            </v-alert>
-          </div>
         </v-card-text>
         
         <v-card-actions>
