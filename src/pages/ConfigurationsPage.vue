@@ -63,6 +63,19 @@
               </p>
             </div>
 
+            <!-- Collection Description -->
+            <div>
+              <v-text-field
+                v-model="newCollectionDescription"
+                label="Collection Description"
+                placeholder="Describe the purpose of this collection"
+                :disabled="creating"
+                variant="outlined"
+                density="compact"
+                data-test="new-collection-description-input"
+              />
+            </div>
+
             <!-- Version Components -->
             <div class="version-components">
               <h4 class="text-subtitle-1 font-weight-medium mb-4 text-medium-emphasis">Version Components</h4>
@@ -209,6 +222,7 @@ const fileListRef = ref()
 // New collection dialog state
 const showNewCollectionDialog = ref(false)
 const newCollectionName = ref('')
+const newCollectionDescription = ref('')
 const nameError = ref<string | null>(null)
 const creating = ref(false)
 
@@ -313,7 +327,7 @@ const createCollection = async () => {
     const configuration = {
       file_name: configFileName,
       title: name,
-      description: `Configuration for ${name} collection`,
+      description: newCollectionDescription.value || `Configuration for ${name} collection`,
       versions: [{
         version: version,
         dictionary: `${name}.${newVersion.value.major}.${newVersion.value.minor}.${newVersion.value.patch}.yaml`,
@@ -326,7 +340,13 @@ const createCollection = async () => {
     // Create dictionary file
     const dictionary = {
       root: {
-        name: ""
+        name: "root",
+        type: "object",
+        properties: [
+          {"name": "_id", "type": "identifier"},
+          {"name": "name", "type": "word"},
+          {"name": "last_saved", "type": "breadcrumb"}
+        ]
       }
     }
     
@@ -341,6 +361,7 @@ const createCollection = async () => {
     // Close dialog and reset
     showNewCollectionDialog.value = false
     newCollectionName.value = ''
+    newCollectionDescription.value = ''
     nameError.value = null
     newVersion.value = { major: 0, minor: 0, patch: 0 }
     
