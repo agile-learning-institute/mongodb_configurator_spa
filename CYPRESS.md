@@ -1,0 +1,50 @@
+# Implement Cypress E2E Testing
+- [ ] Install cypress, add npm scripts to run cypress tests and cypress dev mode.
+- [ ] migrations.cy.ts
+    - open http://localhost:8082/migrations
+    - click New - enter test-migration
+    - assert path http://localhost:8082/migrations/test-migration.json
+    - assert empty list
+    - click [Add Migration] and enter {"foo":"bar"}
+    - assert data displayed
+    - click [Add Migration] and enter {"far":"boo"}
+    - assert data displayed
+    - click [delete] on migration 1
+    - assert only {"far":"boo"} displayed
+    - open http://localhost:8082/migrations/test-migration.json
+    - assert data displayed
+    - click delete
+    - assert path http://localhost:8082/migrations
+    - assert test-migration.json not in list
+
+- [ ] test_data.cy.ts
+    - open http://localhost:8082/test_data
+    - click New - enter test-data
+    - assert path http://localhost:8082/test_data/test-data.json
+    - assert empty list
+    - click [Add Document] and enter {"foo":"bar"}
+    - assert data displayed
+    - click [Add Document] and enter {"far":"boo"}
+    - assert data displayed
+    - click [delete] on migration 1
+    - assert only {"far":"boo"} displayed
+    - open http://localhost:8082/test_data/test-data.json
+    - assert data displayed
+    - click delete
+    - assert path http://localhost:8082/test_data
+    - assert test-data.json not in list
+
+- [ ] enumerators.cy.ts
+    - open http://localhost:8082/enumerators
+    - click New
+    - assert Version 3
+    - assert default_status
+    - click add_value
+    - enter test-name
+    - enter test-description
+    - assert displayed
+    - open http://localhost:8082/enumerators/enumerations.3.yaml
+    - assert default_status with new value
+    - click Delete and verify
+    - assert path http://localhost:8082/enumerators
+    - assert enumerations.3.yaml not in list
