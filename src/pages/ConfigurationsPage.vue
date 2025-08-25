@@ -325,9 +325,9 @@ const createCollection = async () => {
     
     // Create dictionary file
     const dictionary = {
-      _id: 'identifier',
-      name: 'word',
-      last_saved: 'breadcrumb'
+      root: {
+        name: ""
+      }
     }
     
     // Create test data file
