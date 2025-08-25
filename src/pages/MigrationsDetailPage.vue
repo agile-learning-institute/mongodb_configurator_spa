@@ -21,22 +21,13 @@
       >
         <template #header-actions>
           <v-btn
-            v-if="locked"
-            color="white"
-            variant="text"
-            @click="showUnlockDialog = true"
+            color="error"
+            variant="elevated"
+            @click="showDeleteDialog = true"
+            class="font-weight-bold"
           >
-            <v-icon start>mdi-lock</v-icon>
-            Locked
-          </v-btn>
-          <v-btn
-            v-else
-            color="white"
-            variant="text"
-            @click="lockMigration"
-          >
-            <v-icon start>mdi-lock</v-icon>
-            Lock
+            <v-icon start>mdi-delete</v-icon>
+            Delete
           </v-btn>
         </template>
 
@@ -44,7 +35,7 @@
           v-model="migration"
           title="Migrations"
           item-label="Migration"
-          :disabled="locked"
+          :disabled="false"
           :auto-save="autoSave"
           :allow-multiple="true"
           size-mode="fit-content"
@@ -52,17 +43,22 @@
       </BaseCard>
     </div>
     
-    <!-- Unlock Dialog -->
-    <v-dialog v-model="showUnlockDialog" max-width="400">
+    <!-- Delete Confirmation Dialog -->
+    <v-dialog v-model="showDeleteDialog" max-width="500">
       <v-card>
-        <v-card-title>Unlock Migration?</v-card-title>
+        <v-card-title class="text-h5">
+          Delete Migration File?
+        </v-card-title>
         <v-card-text>
-          Unlocking allows editing this migration. Are you sure?
+          <p>Are you sure you want to delete "{{ fileName }}"?</p>
+          <p class="text-caption text-medium-emphasis">
+            This action cannot be undone.
+          </p>
         </v-card-text>
         <v-card-actions>
           <v-spacer />
-          <v-btn @click="showUnlockDialog = false">Cancel</v-btn>
-          <v-btn color="primary" @click="unlockMigration">Unlock</v-btn>
+          <v-btn @click="showDeleteDialog = false">Cancel</v-btn>
+          <v-btn color="error" @click="confirmDelete">Delete</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -81,8 +77,7 @@ const loading = ref(false)
 const saving = ref(false)
 const error = ref<string | null>(null)
 const migration = ref<any[] | null>(null)
-const locked = ref(false)
-const showUnlockDialog = ref(false)
+const showDeleteDialog = ref(false)
 
 const fileName = computed(() => route.params.fileName as string)
 
@@ -104,7 +99,7 @@ const loadMigration = async () => {
 
 // Auto-save functionality
 const autoSave = async () => {
-  if (!migration.value || locked.value) return
+  if (!migration.value) return
   
   saving.value = true
   try {
@@ -112,24 +107,23 @@ const autoSave = async () => {
   } catch (err: any) {
     error.value = err.message || 'Failed to save migration'
     console.error('Failed to save migration:', err)
-    throw err
   } finally {
     saving.value = false
   }
 }
 
-// Lock/unlock functionality
-const lockMigration = () => {
-  if (!migration.value) return
-  locked.value = true
-  autoSave()
-}
-
-const unlockMigration = () => {
-  if (!migration.value) return
-  locked.value = false
-  showUnlockDialog.value = false
-  autoSave()
+// Confirm delete functionality
+const confirmDelete = async () => {
+  try {
+    await apiService.deleteMigration(fileName.value)
+    // Navigate back to migrations list
+    window.location.href = '/migrations'
+  } catch (err: any) {
+    error.value = err.message || 'Failed to delete migration'
+    console.error('Failed to delete migration:', err)
+  } finally {
+    showDeleteDialog.value = false
+  }
 }
 
 // Load migration on mount
