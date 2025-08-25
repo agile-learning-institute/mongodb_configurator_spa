@@ -70,15 +70,15 @@
         <div class="d-flex flex-wrap gap-2">
           <v-chip
             v-for="(migration, i) in version.migrations"
-            :key="i"
-            :closable="!props.disabled"
+            :key="migration"
+            color="primary"
+            variant="outlined"
+            class="standard-chip clickable"
             @click:close="removeMigration(i)"
             @click="openMigrationFile(migration)"
             :data-test="`migration-chip-${i}`"
-            class="migration-chip clickable"
-            color="primary"
-            variant="outlined"
           >
+            <v-icon start size="small">mdi-file-document</v-icon>
             {{ migration }}
           </v-chip>
         </div>
@@ -98,7 +98,7 @@
           v-if="dictionaryFileName"
           color="primary"
           variant="outlined"
-          class="file-chip clickable"
+          class="standard-chip clickable"
           @click="openDictionaryFile"
           data-test="dictionary-file-chip"
         >
@@ -111,7 +111,7 @@
           v-if="enumeratorsFileName"
           color="primary"
           variant="outlined"
-          class="file-chip clickable"
+          class="standard-chip clickable"
           @click="openEnumeratorsFile"
           data-test="enumerators-file-chip"
         >
@@ -149,7 +149,7 @@
           :key="index"
           color="primary"
           variant="outlined"
-          class="index-chip clickable"
+          class="standard-chip clickable"
           @click="openIndexEditor(index, indexData)"
           data-test="index-chip"
         >
@@ -159,7 +159,7 @@
             end
             size="small"
             color="error"
-            class="ml-2 delete-icon"
+            class="delete-icon"
             @click.stop="deleteIndex(index)"
             data-test="delete-index-btn"
           >
@@ -243,7 +243,7 @@
           v-if="testDataFileName"
           color="primary"
           variant="outlined"
-          class="file-chip clickable"
+          class="standard-chip clickable"
           @click="openTestDataFile"
           data-test="test-data-file-chip"
         >
@@ -284,7 +284,7 @@
                 :key="index"
                 color="primary"
                 variant="outlined"
-                class="index-chip"
+                class="standard-chip"
                 @click="selectPreviouslyCreatedIndex(index)"
               >
                 {{ index }}
@@ -360,7 +360,7 @@
                 :key="migration"
                 color="primary"
                 variant="outlined"
-                class="migration-chip"
+                class="standard-chip"
                 @click="addSelectedMigration(migration)"
               >
                 {{ migration }}
@@ -741,12 +741,16 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.index-chip {
+.standard-chip {
   cursor: pointer;
   transition: all 0.2s ease;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 8px 12px;
+  height: 32px;
 }
 
-.index-chip:hover {
+.standard-chip:hover {
   transform: translateY(-1px);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
@@ -754,30 +758,11 @@ onMounted(() => {
 .delete-icon {
   opacity: 0.7;
   transition: opacity 0.2s ease;
+  margin-left: 8px;
 }
 
 .delete-icon:hover {
   opacity: 1;
-}
-
-.file-chip {
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.file-chip:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-}
-
-.migration-chip {
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.migration-chip:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 /* Version Navigation Styles */
