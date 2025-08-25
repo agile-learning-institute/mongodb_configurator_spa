@@ -1,8 +1,20 @@
 <template>
   <div class="version-information-cards" data-test="version-information-cards">
-    <!-- Drop Indexes Card -->
+    <!-- Step 1: Drop existing schema validation -->
     <BaseCard 
-      :title="`Drop Indexes${!version.drop_indexes || version.drop_indexes.length === 0 ? ' (none)' : ''}`"
+      title="Step 1: Drop existing schema validation"
+      icon="mdi-database-remove"
+      :is-secondary="true"
+      data-test="step-1-card"
+    >
+      <div class="text-body-2 text-medium-emphasis pa-4">
+        No content here, just the text
+      </div>
+    </BaseCard>
+
+    <!-- Step 2: Drop Indexes Card -->
+    <BaseCard 
+      :title="`Step 2: Drop the following indexes${!version.drop_indexes || version.drop_indexes.length === 0 ? ' (none)' : ''}`"
       icon="mdi-delete"
       :is-secondary="true"
       data-test="drop-indexes-card"
@@ -36,9 +48,9 @@
       </div>
     </BaseCard>
 
-    <!-- Migrations Card -->
+    <!-- Step 3: Migrations Card -->
     <BaseCard 
-      :title="`Migrations${!version.migrations || version.migrations.length === 0 ? ' (none)' : ''}`"
+      :title="`Step 3: Execute the following migrations${!version.migrations || version.migrations.length === 0 ? ' (none)' : ''}`"
       icon="mdi-database-sync"
       :is-secondary="true"
       data-test="migrations-card"
@@ -72,9 +84,21 @@
       </div>
     </BaseCard>
 
-    <!-- Add Indexes Card -->
+    <!-- Step 4: Apply Schema Card -->
     <BaseCard 
-      :title="`Add Indexes${!version.add_indexes || version.add_indexes.length === 0 ? ' (none)' : ''}`"
+      title="Step 4: Apply Schema"
+      icon="mdi-database-check"
+      :is-secondary="true"
+      data-test="step-4-card"
+    >
+      <div class="text-body-2 text-medium-emphasis pa-4">
+        Link to dictionary, and enumerators
+      </div>
+    </BaseCard>
+
+    <!-- Step 5: Add Indexes Card -->
+    <BaseCard 
+      :title="`Step 5: Add these indexes${!version.add_indexes || version.add_indexes.length === 0 ? ' (none)' : ''}`"
       icon="mdi-database-plus"
       :is-secondary="true"
       data-test="add-indexes-card"
@@ -112,9 +136,9 @@
       </div>
     </BaseCard>
 
-    <!-- Test Data Card -->
+    <!-- Step 6: Test Data Card -->
     <BaseCard 
-      :title="`Test Data${!version.test_data ? ' (none)' : ''}`"
+      :title="`Step 6: Load Test Data${!version.test_data ? ' (none)' : ''}`"
       icon="mdi-file-document"
       :is-secondary="true"
     >

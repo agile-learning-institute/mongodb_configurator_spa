@@ -178,47 +178,6 @@
               />
             </div>
         </BaseCard>
-
-        <!-- Configuration Process Steps -->
-        <div class="configuration-process-steps mt-6">
-          <h3 class="text-h5 mb-4">Configuration Process</h3>
-          
-          <!-- Step 1: Drop existing schema validation -->
-          <div class="step-section mb-4">
-            <h4 class="text-h6 font-weight-medium mb-2">Step 1: Drop existing schema validation</h4>
-            <p class="text-body-2 text-medium-emphasis">No content here, just the text</p>
-          </div>
-
-          <!-- Step 2: Drop the following indexes -->
-          <div class="step-section mb-4">
-            <h4 class="text-h6 font-weight-medium mb-2">Step 2: Drop the following indexes</h4>
-            <p class="text-body-2 text-medium-emphasis">Add Index dialog should show previously created index names, still allow any text value</p>
-          </div>
-
-          <!-- Step 3: Execute the following migrations -->
-          <div class="step-section mb-4">
-            <h4 class="text-h6 font-weight-medium mb-2">Step 3: Execute the following migrations</h4>
-            <p class="text-body-2 text-medium-emphasis">Click to open migration file. "New Migration" button on migration file picker dialog</p>
-          </div>
-
-          <!-- Step 4: Apply Schema -->
-          <div class="step-section mb-4">
-            <h4 class="text-h6 font-weight-medium mb-2">Step 4: Apply Schema</h4>
-            <p class="text-body-2 text-medium-emphasis">Link to dictionary, and enumerators</p>
-          </div>
-
-          <!-- Step 5: Add these indexes -->
-          <div class="step-section mb-4">
-            <h4 class="text-h6 font-weight-medium mb-2">Step 5: Add these indexes</h4>
-            <p class="text-body-2 text-medium-emphasis">Make Indexes chips with click-to-edit and delete x. Edit in pop-up json editor.</p>
-          </div>
-
-          <!-- Step 6: Load Test Data -->
-          <div class="step-section mb-4">
-            <h4 class="text-h6 font-weight-medium mb-2">Step 6: Load Test Data</h4>
-            <p class="text-body-2 text-medium-emphasis">Implement fixed test data file name with collection and version. Link to Test Data details.</p>
-          </div>
-        </div>
       </div>
     </div>
   </v-container>
@@ -975,31 +934,5 @@ watch(showNewVersionDialog, (newValue) => {
 
 .cursor-pointer {
   cursor: pointer;
-}
-
-/* Configuration Process Steps Styles */
-.configuration-process-steps {
-  background-color: #fafafa;
-  border-radius: 8px;
-  padding: 24px;
-  border: 1px solid #e0e0e0;
-}
-
-.step-section {
-  padding: 16px;
-  background-color: white;
-  border-radius: 6px;
-  border-left: 4px solid var(--v-theme-primary);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.step-section h4 {
-  color: var(--v-theme-primary);
-  margin-bottom: 8px;
-}
-
-.step-section p {
-  margin: 0;
-  line-height: 1.5;
 }
 </style> 
