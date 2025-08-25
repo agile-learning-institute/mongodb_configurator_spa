@@ -128,6 +128,20 @@
       :is-secondary="true"
       data-test="step-5-card"
     >
+      <template #header-actions>
+        <v-btn
+          v-if="!props.disabled"
+          size="small"
+          variant="outlined"
+          color="primary"
+          @click="addNewIndex"
+          data-test="add-index-btn"
+        >
+          <v-icon start size="small">mdi-plus</v-icon>
+          Add
+        </v-btn>
+      </template>
+      
       <div class="d-flex flex-wrap gap-2">
         <!-- Index Chips -->
         <v-chip
@@ -141,20 +155,17 @@
         >
           <v-icon start size="small">mdi-database-plus</v-icon>
           {{ indexData.name || `Index ${index + 1}` }}
+          <v-icon
+            end
+            size="small"
+            color="error"
+            class="ml-2 delete-icon"
+            @click.stop="deleteIndex(index)"
+            data-test="delete-index-btn"
+          >
+            mdi-delete
+          </v-icon>
         </v-chip>
-        
-        <!-- Add New Index Button -->
-        <v-btn
-          v-if="!props.disabled"
-          size="small"
-          variant="outlined"
-          color="primary"
-          @click="addNewIndex"
-          data-test="add-new-index-btn"
-        >
-          <v-icon start size="small">mdi-plus</v-icon>
-          Add Index
-        </v-btn>
       </div>
     </BaseCard>
 
@@ -681,8 +692,8 @@ const saveIndex = async () => {
   }
 }
 
-const removeIndex = (index: number) => {
-  if (props.version.add_indexes) {
+const deleteIndex = (index: number) => {
+  if (props.version.add_indexes && props.version.add_indexes[index]) {
     props.version.add_indexes.splice(index, 1)
     props.onUpdate()
   }
@@ -730,79 +741,6 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.version-information-cards {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.index-item {
-  border: 1px solid rgba(0, 0, 0, 0.12);
-  border-radius: 4px;
-  padding: 12px;
-}
-
-.migration-picker {
-  max-height: 400px;
-  overflow-y: auto;
-}
-
-.migration-chip {
-  cursor: pointer;
-  transition: all 0.2s ease-in-out;
-}
-
-.migration-chip:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-}
-
-.migration-chip.selected {
-  font-weight: 600;
-}
-
-.clickable {
-  cursor: pointer;
-}
-
-/* New Version Dialog Styles */
-.version-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-}
-
-.version-label {
-  flex: 1;
-  min-width: 120px;
-}
-
-.version-controls {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.version-input {
-  max-width: 120px;
-}
-
-.version-preview {
-  padding: 16px 0;
-}
-
-.version-display {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 16px;
-  background-color: rgba(var(--v-theme-primary), 0.05);
-  border-radius: 8px;
-  border: 1px solid rgba(var(--v-theme-primary), 0.2);
-}
-
-/* Drop Index Dialog Styles */
 .index-chip {
   cursor: pointer;
   transition: all 0.2s ease;
@@ -813,7 +751,15 @@ onMounted(() => {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
-/* File Chip Styles */
+.delete-icon {
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+}
+
+.delete-icon:hover {
+  opacity: 1;
+}
+
 .file-chip {
   cursor: pointer;
   transition: all 0.2s ease;
@@ -822,7 +768,74 @@ onMounted(() => {
 .file-chip:hover {
   transform: translateY(-1px);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  background-color: var(--v-theme-primary) !important;
+}
+
+.migration-chip {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.migration-chip:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Version Navigation Styles */
+.new-version-btn {
+  background: linear-gradient(135deg, #1976d2, #1565c0) !important;
   color: white !important;
+  font-weight: 600 !important;
+  box-shadow: 0 4px 12px rgba(25, 118, 210, 0.3) !important;
+  transition: all 0.3s ease !important;
+}
+
+.new-version-btn:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 20px rgba(25, 118, 210, 0.4) !important;
+}
+
+/* Version Components Styles */
+.version-components {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.version-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.version-label {
+  min-width: 60px;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.7);
+}
+
+.version-controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.version-input {
+  width: 60px;
+  text-align: center;
+}
+
+.version-preview {
+  font-family: monospace;
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.6);
+  background: rgba(0, 0, 0, 0.05);
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.version-display {
+  font-family: monospace;
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.6);
 }
 </style> 
