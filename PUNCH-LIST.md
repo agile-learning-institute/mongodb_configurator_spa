@@ -12,7 +12,7 @@ Cursor instructions: Complete each of the sections identified below with a ## he
 - [x] The title `MongoDB Configurator` text should link to the landing page.
 
 ## Processing Events Viewer
-- [ ] Make "Expand/Collapse" more obvious, move to the left edge of title line and use emphasized chevrons.
+- [x] Make "Expand/Collapse" more obvious, move to the left edge of title line and use emphasized chevrons.
 
 ## Configurations List
 - [ ] Change title text "Configurations" to "Collection Configurations"

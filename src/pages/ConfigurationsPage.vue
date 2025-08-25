@@ -1,7 +1,7 @@
 <template>
   <v-container>
     <div class="d-flex justify-space-between align-center mb-6">
-      <h3 data-test="page-title">Configurations</h3>
+      <h3 data-test="page-title">Collection Configurations</h3>
       <div class="d-flex align-center">
         <v-btn
           v-if="canLockAll"
