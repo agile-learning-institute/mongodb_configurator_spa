@@ -38,34 +38,36 @@
             />
           </div>
           
-          <div class="d-flex gap-2">
-            <v-btn
-              color="primary"
-              variant="elevated"
-              size="small"
-              @click="downloadJsonSchema(activeVersion)"
-            >
-              <v-icon start size="small">mdi-code-json</v-icon>
-              JSON Schema
-            </v-btn>
-            <v-btn
-              color="primary"
-              variant="elevated"
-              size="small"
-              @click="downloadBsonSchema(activeVersion)"
-            >
-              <v-icon start size="small">mdi-database</v-icon>
-              BSON Schema
-            </v-btn>
+          <div class="d-flex flex-column gap-2">
             <v-btn
               color="secondary"
               @click="processAllVersions"
               :loading="processing"
-
             >
               <v-icon start>mdi-cog</v-icon>
               Configure Collection
             </v-btn>
+            
+            <div class="d-flex gap-2">
+              <v-btn
+                color="primary"
+                variant="outlined"
+                size="small"
+                @click="downloadJsonSchema(activeVersion)"
+              >
+                <v-icon start size="small">mdi-code-json</v-icon>
+                JSON Schema
+              </v-btn>
+              <v-btn
+                color="primary"
+                variant="outlined"
+                size="small"
+                @click="downloadBsonSchema(activeVersion)"
+              >
+                <v-icon start size="small">mdi-database</v-icon>
+                BSON Schema
+              </v-btn>
+            </div>
           </div>
         </div>
         
