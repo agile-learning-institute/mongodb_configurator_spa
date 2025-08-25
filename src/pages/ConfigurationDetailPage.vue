@@ -106,6 +106,7 @@
                   :disabled="!hasPreviousVersion"
                   @click="navigateToPreviousVersion"
                   class="mr-1"
+                  data-test="previous-version-btn"
                 />
                 <span class="text-h6 font-weight-medium">{{ activeVersion }}</span>
                 <v-btn
@@ -777,11 +778,25 @@ const deleteVersion = async () => {
 }
 
 const navigateToPreviousVersion = () => {
-  if (!configuration.value || !activeVersion.value) return
+  console.log('navigateToPreviousVersion called')
+  console.log('configuration.value:', configuration.value)
+  console.log('activeVersion.value:', activeVersion.value)
+  console.log('sortedVersions.value:', sortedVersions.value)
+  
+  if (!configuration.value || !activeVersion.value) {
+    console.log('Early return - missing configuration or activeVersion')
+    return
+  }
   
   const currentIndex = sortedVersions.value.findIndex(v => v === activeVersion.value)
+  console.log('currentIndex:', currentIndex)
+  
   if (currentIndex > 0) {
-    activeVersion.value = sortedVersions.value[currentIndex - 1]
+    const previousVersion = sortedVersions.value[currentIndex - 1]
+    console.log('Setting activeVersion to previous version:', previousVersion)
+    activeVersion.value = previousVersion
+  } else {
+    console.log('No previous version available')
   }
 }
 
