@@ -73,7 +73,11 @@
             :key="i"
             :closable="!props.disabled"
             @click:close="removeMigration(i)"
+            @click="openMigrationFile(migration)"
             :data-test="`migration-chip-${i}`"
+            class="migration-chip clickable"
+            color="primary"
+            variant="outlined"
           >
             {{ migration }}
           </v-chip>
@@ -223,23 +227,54 @@
     <v-card>
       <v-card-title>Select Migration</v-card-title>
       <v-card-text>
-        <div v-if="migrationFiles.length === 0" class="text-center pa-4">
-          <v-icon size="32" color="grey">mdi-file-document</v-icon>
-          <div class="text-body-2 text-medium-emphasis mt-2">No migration files available</div>
-        </div>
-        <div v-else class="migration-picker">
-          <div class="text-body-2 text-medium-emphasis mb-3">Click a migration to add it:</div>
-          <div class="d-flex flex-wrap gap-2">
-            <v-chip
-              v-for="migration in migrationFiles"
-              :key="migration"
-              color="primary"
-              variant="outlined"
-              class="migration-chip"
-              @click="addSelectedMigration(migration)"
-            >
-              {{ migration }}
-            </v-chip>
+        <div class="d-flex flex-column gap-4">
+          <!-- Add New Migration Section -->
+          <div>
+            <h4 class="text-subtitle-1 font-weight-medium mb-2">Create New Migration</h4>
+            <div class="d-flex gap-2">
+              <v-text-field
+                v-model="newMigrationName"
+                label="Migration name"
+                placeholder="Enter migration name (e.g., add_user_index)"
+                variant="outlined"
+                density="compact"
+                @keyup.enter="createNewMigration"
+                data-test="new-migration-name-input"
+              />
+              <v-btn
+                color="primary"
+                variant="elevated"
+                @click="createNewMigration"
+                :disabled="!newMigrationName.trim()"
+                data-test="create-migration-btn"
+              >
+                <v-icon start size="small">mdi-plus</v-icon>
+                Create
+              </v-btn>
+            </div>
+          </div>
+
+          <!-- Existing Migrations Section -->
+          <div v-if="migrationFiles.length > 0">
+            <h4 class="text-subtitle-1 font-weight-medium mb-2">Existing Migrations</h4>
+            <div class="text-body-2 text-medium-emphasis mb-3">Click a migration to add it:</div>
+            <div class="d-flex flex-wrap gap-2">
+              <v-chip
+                v-for="migration in migrationFiles"
+                :key="migration"
+                color="primary"
+                variant="outlined"
+                class="migration-chip"
+                @click="addSelectedMigration(migration)"
+              >
+                {{ migration }}
+              </v-chip>
+            </div>
+          </div>
+
+          <div v-else class="text-center pa-4">
+            <v-icon size="32" color="grey">mdi-file-document</v-icon>
+            <div class="text-body-2 text-medium-emphasis mt-2">No existing migration files available</div>
           </div>
         </div>
       </v-card-text>
@@ -285,6 +320,10 @@ const showMigrationDialog = ref(false)
 const showDropIndexDialog = ref(false)
 const newDropIndexName = ref('')
 const previouslyCreatedIndexes = ref<string[]>([])
+
+// Migration Dialog state
+const showNewMigrationDialog = ref(false)
+const newMigrationName = ref('')
 
 // Load test data files
 const loadTestDataFiles = async () => {
@@ -409,6 +448,43 @@ const addSelectedMigration = (migration: string) => {
   showMigrationDialog.value = false
 }
 
+const createNewMigration = async () => {
+  const migrationName = newMigrationName.value.trim()
+  if (!migrationName) {
+    return // User didn't enter anything
+  }
+
+  try {
+    // Create a new migration file with basic structure
+    const newMigrationData = {
+      file_name: migrationName,
+      description: `Migration: ${migrationName}`,
+      version: "1.0.0",
+      operations: []
+    }
+    
+    // Save the new migration file
+    await apiService.saveMigration(migrationName, newMigrationData)
+    
+    // Add the migration to the current version
+    if (!props.version.migrations) {
+      props.version.migrations = []
+    }
+    props.version.migrations.push(migrationName)
+    props.onUpdate()
+    
+    // Reload migration files to include the new one
+    await loadMigrationFiles()
+    
+    // Reset and close dialog
+    newMigrationName.value = ''
+    showMigrationDialog.value = false
+  } catch (err) {
+    console.error('Failed to create new migration:', err)
+    // Optionally show a snackbar or dialog for error
+  }
+}
+
 const addIndex = () => {
   // Prompt for index name
   const indexName = prompt('Enter index name:')
@@ -449,6 +525,13 @@ const getIndexName = (indexData: any, index: number) => {
   return `Index ${index + 1}`
 }
 
+const openMigrationFile = (migrationName: string) => {
+  // Navigate to the migration file detail page
+  // Remove .json extension if present for the route
+  const cleanName = migrationName.replace('.json', '')
+  window.location.href = `/migrations/${cleanName}`
+}
+
 onMounted(() => {
   loadTestDataFiles()
   loadMigrationFiles()
@@ -485,6 +568,10 @@ onMounted(() => {
 
 .migration-chip.selected {
   font-weight: 600;
+}
+
+.clickable {
+  cursor: pointer;
 }
 
 /* New Version Dialog Styles */
