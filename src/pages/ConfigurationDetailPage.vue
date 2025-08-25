@@ -396,12 +396,14 @@ const activeVersionData = computed(() => {
 
 const hasPreviousVersion = computed(() => {
   if (!configuration.value || !activeVersion.value) return false
-  return configuration.value.versions.some(v => v.version < activeVersion.value)
+  const currentIndex = sortedVersions.value.findIndex(v => v === activeVersion.value)
+  return currentIndex < sortedVersions.value.length - 1
 })
 
 const hasNextVersion = computed(() => {
   if (!configuration.value || !activeVersion.value) return false
-  return configuration.value.versions.some(v => v.version > activeVersion.value)
+  const currentIndex = sortedVersions.value.findIndex(v => v === activeVersion.value)
+  return currentIndex > 0
 })
 
 
