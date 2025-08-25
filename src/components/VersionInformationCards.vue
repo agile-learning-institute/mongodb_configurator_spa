@@ -251,6 +251,7 @@
           <JsonDocumentEditor
             v-model="editingIndexData"
             title=""
+            :show-info="false"
             :disabled="props.disabled"
             data-test="index-json-editor"
           />
