@@ -292,6 +292,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { apiService } from '@/utils/api'
 import BaseCard from './BaseCard.vue'
 import JsonDocumentEditor from './JsonDocumentEditor.vue'
@@ -312,6 +313,7 @@ interface Props {
 }
 
 const props = defineProps<Props>()
+const router = useRouter()
 const testDataFiles = ref<string[]>([])
 const migrationFiles = ref<string[]>([])
 const showMigrationDialog = ref(false)
@@ -527,7 +529,7 @@ const openMigrationFile = (migrationName: string) => {
   // Navigate to the migration file detail page
   // Remove .json extension if present for the route
   const cleanName = migrationName.replace('.json', '')
-  window.location.href = `/migrations/${cleanName}`
+  router.push({ name: 'MigrationsDetail', params: { fileName: cleanName } })
 }
 
 onMounted(() => {
