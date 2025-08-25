@@ -342,6 +342,7 @@ const createCollection = async () => {
       root: {
         name: "root",
         type: "object",
+        description: newCollectionDescription.value || `Dictionary for ${name} collection`,
         properties: [
           {"name": "_id", "type": "identifier"},
           {"name": "name", "type": "word"},
