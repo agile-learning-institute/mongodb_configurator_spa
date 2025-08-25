@@ -186,7 +186,6 @@
     <v-dialog
       v-model="showIndexEditorDialog"
       max-width="600px"
-      persistent
     >
       <v-card>
         <v-card-title class="d-flex align-center gap-2">
@@ -232,7 +231,6 @@
     <v-dialog
       v-model="showIndexJsonEditorDialog"
       max-width="800px"
-      persistent
     >
       <v-card>
         <v-card-title class="d-flex align-center gap-2">
