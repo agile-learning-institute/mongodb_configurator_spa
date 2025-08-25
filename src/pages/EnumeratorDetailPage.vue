@@ -53,36 +53,39 @@
 
         </div>
         <div class="d-flex align-center">
-          <v-btn
-            v-if="!enumerator._locked"
-            prepend-icon="mdi-lock"
-            variant="outlined"
-            color="warning"
-            @click="lockEnumerator"
-            :loading="saving"
-          >
-            Lock
-          </v-btn>
-          <v-btn
-            v-else-if="!hasNextVersion"
-            prepend-icon="mdi-lock-open"
-            variant="outlined"
-            color="success"
-            @click="showUnlockDialog = true"
-            :loading="saving"
-          >
-            Unlock
-          </v-btn>
-          <v-btn
-            v-if="!enumerator._locked"
-            prepend-icon="mdi-delete"
-            variant="outlined"
-            color="error"
-            @click="handleDelete"
-            class="ml-2"
-          >
-            Delete
-          </v-btn>
+          <div class="d-flex gap-2">
+            <v-btn
+              v-if="enumerator._locked"
+              color="warning"
+              variant="elevated"
+              @click="showUnlockDialog = true"
+              :loading="saving"
+              class="font-weight-bold"
+            >
+              <v-icon start>mdi-lock-open</v-icon>
+              Unlock
+            </v-btn>
+            <v-btn
+              v-else
+              color="info"
+              variant="elevated"
+              @click="lockEnumerator"
+              :loading="saving"
+              class="font-weight-bold"
+            >
+              <v-icon start>mdi-lock</v-icon>
+              Lock
+            </v-btn>
+            <v-btn
+              color="error"
+              variant="elevated"
+              @click="handleDelete"
+              class="font-weight-bold"
+            >
+              <v-icon start>mdi-delete</v-icon>
+              Delete
+            </v-btn>
+          </div>
         </div>
       </div>
 
@@ -702,16 +705,13 @@ const navigateToNextVersion = async () => {
   }
 }
 
-// Toggle enumerator collapse state with "expand only one" functionality
+// Toggle enumerator collapse state - simple toggle without affecting others
 const toggleEnumeratorCollapse = (enumIdx: number) => {
   if (collapsedEnumerators.value.has(enumIdx)) {
-    // Expanding this enumerator - collapse all others first
-    const totalEnumerators = enumerator.value?.enumerators?.length || 0
-    collapsedEnumerators.value = new Set(
-      Array.from({ length: totalEnumerators }, (_, i) => i).filter(i => i !== enumIdx)
-    )
+    // Expanding this enumerator
+    collapsedEnumerators.value.delete(enumIdx)
   } else {
-    // Collapsing this enumerator - no other changes needed
+    // Collapsing this enumerator
     collapsedEnumerators.value.add(enumIdx)
   }
 }
