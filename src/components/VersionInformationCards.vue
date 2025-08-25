@@ -455,22 +455,25 @@ const createNewMigration = async () => {
   }
 
   try {
+    // Ensure the migration name has .json extension
+    const fileName = migrationName.endsWith('.json') ? migrationName : `${migrationName}.json`
+    
     // Create a new migration file with basic structure
     const newMigrationData = {
-      file_name: migrationName,
+      file_name: fileName,
       description: `Migration: ${migrationName}`,
       version: "1.0.0",
       operations: []
     }
     
     // Save the new migration file
-    await apiService.saveMigration(migrationName, newMigrationData)
+    await apiService.saveMigration(fileName, newMigrationData)
     
     // Add the migration to the current version
     if (!props.version.migrations) {
       props.version.migrations = []
     }
-    props.version.migrations.push(migrationName)
+    props.version.migrations.push(fileName)
     props.onUpdate()
     
     // Reload migration files to include the new one
