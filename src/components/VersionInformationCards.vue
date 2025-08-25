@@ -244,7 +244,7 @@
       <v-card>
         <v-card-title class="d-flex align-center gap-2">
           <v-icon>mdi-code-json</v-icon>
-          Edit Index: {{ editingIndexData.name }}
+          {{ editingIndexData.name }}
         </v-card-title>
         
         <v-card-text>
