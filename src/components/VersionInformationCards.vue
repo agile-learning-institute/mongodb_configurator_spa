@@ -161,23 +161,26 @@
       </div>
     </BaseCard>
 
-    <!-- Step 6: Test Data Card -->
+    <!-- Step 6: Load Test Data Card -->
     <BaseCard 
-      :title="`Step 6: Load Test Data${!version.test_data ? ' (none)' : ''}`"
-      icon="mdi-file-document"
+      title="Step 6: Load Test Data"
+      icon="mdi-database-import"
       :is-secondary="true"
+      data-test="step-6-card"
     >
-      <div v-if="testDataFiles.length > 0" class="test-data-content">
-        <v-select
-          v-model="version.test_data"
-          :items="['', ...testDataFiles]"
-          label="Select test data file"
+      <div class="d-flex gap-2">
+        <!-- Test Data File Link -->
+        <v-chip
+          v-if="testDataFileName"
+          color="primary"
           variant="outlined"
-          density="compact"
-          :disabled="props.disabled"
-          clearable
-          @update:model-value="autoSave"
-        />
+          class="file-chip clickable"
+          @click="openTestDataFile"
+          data-test="test-data-file-chip"
+        >
+          <v-icon start size="small">mdi-database-import</v-icon>
+          {{ testDataFileName }}
+        </v-chip>
       </div>
     </BaseCard>
   </div>
@@ -315,7 +318,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { apiService } from '@/utils/api'
 import BaseCard from './BaseCard.vue'
@@ -369,6 +372,27 @@ const enumeratorsFileName = computed(() => {
     return `enumerations.${versionParts[3]}.yaml`
   }
   return 'enumerations.0.yaml'
+})
+
+const testDataFileName = computed(() => {
+  if (!props.configuration?.file_name || !props.version.version) return ''
+  
+  // Extract collection name from file_name (remove .yaml extension)
+  const collectionName = props.configuration.file_name.replace('.yaml', '')
+  
+  // Extract version parts and create 4-digit version
+  const versionParts = props.version.version.split('.')
+  if (versionParts.length >= 4) {
+    // Format: major.minor.patch.enumerator -> major.minor.patch.enumerator
+    const major = versionParts[0] || '0'
+    const minor = versionParts[1] || '0'
+    const patch = versionParts[2] || '0'
+    const enumerator = versionParts[3] || '0'
+    
+    return `${collectionName}.${major}${minor}${patch}${enumerator}.json`
+  }
+  
+  return `${collectionName}.0000.json`
 })
 
 // Load test data files
@@ -584,6 +608,12 @@ const openDictionaryFile = () => {
 const openEnumeratorsFile = () => {
   if (enumeratorsFileName.value) {
     router.push({ name: 'EnumeratorsDetail', params: { fileName: enumeratorsFileName.value } })
+  }
+}
+
+const openTestDataFile = () => {
+  if (testDataFileName.value) {
+    router.push({ name: 'TestDataDetail', params: { fileName: testDataFileName.value } })
   }
 }
 
