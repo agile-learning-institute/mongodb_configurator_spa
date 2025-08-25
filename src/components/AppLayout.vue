@@ -4,16 +4,19 @@
     <v-app-bar color="primary" theme="dark" class="app-header">
       <v-app-bar-nav-icon @click="toggleDrawer" data-test="nav-toggle" />
       <v-toolbar-title class="text-h5 font-weight-medium" data-test="app-title">
-        <router-link to="/" class="text-decoration-none text-primary">MongoDB Configurator</router-link>
+        <router-link to="/" class="text-decoration-none text-white">MongoDB Configurator</router-link>
       </v-toolbar-title>
       <v-spacer></v-spacer>
       
       <!-- Configure Database Button -->
       <v-btn
-        color="primary"
+        color="white"
+        variant="elevated"
+        size="large"
         @click="processAllConfigurations"
         :loading="processing"
-        class="mr-3"
+        :disabled="processing"
+        class="mr-3 process-btn"
         data-test="process-all-btn"
       >
         <v-icon start data-test="process-all-icon">mdi-cog</v-icon>
