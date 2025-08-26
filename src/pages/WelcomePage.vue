@@ -91,7 +91,6 @@
             </div>
           </v-card-text>
         </v-card>
-      </v-container>
     
     <!-- Help Dialog -->
     <HelpDialog
@@ -182,7 +181,7 @@ const helpSlides = [
       </ol>
       
       <h2>Schema Versioning</h2>
-      <p>Collection Configuration versions use a 3-part semantic Schema version number plus an Enumerators version. When configuring a collection, only newer versions are applied. Creating a new version automatically locks the currently active version. See <a href="#" @click="navigateToSlide(8)">configuration locking</a> for more information about configuration locking.</p>
+      <p>Collection Configuration versions use a 3-part semantic Schema version number plus an Enumerators version. When configuring a collection, only newer versions are applied. Creating a new version automatically locks the currently active version. See the <strong>Locking</strong> panel for more information about configuration locking.</p>
     `
   },
   {
@@ -241,7 +240,7 @@ const helpSlides = [
       </ul>
       
       <div class="mt-6 pa-4 bg-warning-lighten-5 border-warning border rounded">
-        <p class="text-body-2 mb-0"><strong>Note:</strong> Custom types are not versioned. Once locked, they should be considered immutable assets used by your data dictionaries. If you should need to change a custom type that has already been deployed to meaningful environments, you will need to create a new custom type with a slightly different name. See <a href="#" @click="navigateToSlide(8)">configuration locking</a> for more information about what it means to <em>lock</em> a configuration.</p>
+        <p class="text-body-2 mb-0"><strong>Note:</strong> Custom types are not versioned. Once locked, they should be considered immutable assets used by your data dictionaries. If you should need to change a custom type that has already been deployed to meaningful environments, you will need to create a new custom type with a slightly different name. See the <strong>Locking</strong> panel for more information about what it means to <em>lock</em> a configuration.</p>
       </div>
     `
   },
@@ -251,7 +250,7 @@ const helpSlides = [
     description: 'Create sets of allowed values for Enum or Enum Array properties.',
     detailedContent: `
       <h2>Enum and Enum Array Type Support</h2>
-      <p>To support Dictionary <em>enum</em> and <em>enum_array</em> types simple schema leverages a list of valid enumerators, and the individual enumeration values with descriptions. Enumerators are loaded to a specified collection during configuration, making it easy to provide the information needed by a Javascript Web application to support choosers or drop downs. Enumerator versions are managed automatically, and only the latest enumerators should be unlocked. See <a href="#" @click="navigateToSlide(8)">configuration locking</a> for more information about what it means to <em>lock</em> a configuration.</p>
+      <p>To support Dictionary <em>enum</em> and <em>enum_array</em> types simple schema leverages a list of valid enumerators, and the individual enumeration values with descriptions. Enumerators are loaded to a specified collection during configuration, making it easy to provide the information needed by a Javascript Web application to support choosers or drop downs. Enumerator versions are managed automatically, and only the latest enumerators should be unlocked. See the <strong>Locking</strong> panel for more information about what it means to <em>lock</em> a configuration.</p>
       
       <div class="mt-6 pa-4 bg-info-lighten-5 border-info border rounded">
         <p class="text-body-2 mb-0"><strong>Note:</strong> These enumerators are for use when the list of valid enumerations are relatively stable. The configurator makes it easy to add new values to a list, but the deployment of that change does require a new version of the database configuration be deployed. Dynamic enumerator lists that allow real-time updates should be implemented as normal string primitives, with a custom data store for the valid values.</p>
@@ -382,10 +381,6 @@ const nextSlide = () => {
   } else {
     currentSlide.value++
   }
-}
-
-const navigateToSlide = (index: number) => {
-  currentSlide.value = index
 }
 </script>
 
