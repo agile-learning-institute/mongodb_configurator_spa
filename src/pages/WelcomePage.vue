@@ -27,22 +27,22 @@
                   :value="index"
                   :data-test="`carousel-slide-${index}`"
                 >
-                  <div class="d-flex flex-column justify-start align-start h-100 pa-8" style="height: calc(100vh - 120px); width: 100%;">
+                  <div class="slide-content">
                     
                     <!-- Overview slide with detailed content -->
                     <div v-if="slide.detailedContent" class="overview-content" :data-test="`slide-content-${index}`">
-                      <p class="text-h5 text-medium-emphasis mb-6" :data-test="`slide-description-${index}`" v-html="slide.description"></p>
+                      <p class="slide-description" :data-test="`slide-description-${index}`" v-html="slide.description"></p>
                       <div class="detailed-content" v-html="slide.detailedContent" :data-test="`slide-detailed-content-${index}`"></div>
                       
                       <!-- Quick start section for Welcome slide -->
-                      <div v-if="slide.title === 'Welcome'" class="mt-6">
+                      <div v-if="slide.title === 'Welcome'" class="quick-start-section">
                         <p>For a quick start you can create a <v-btn variant="outlined" size="small" color="primary" @click="createNewCollection">New Collection</v-btn> and review help screens from there.</p>
                       </div>
                     </div>
                     
                     <!-- Other slides with simple description -->
                     <div v-else :data-test="`slide-content-${index}`">
-                      <p class="text-h5 text-medium-emphasis mb-8" :data-test="`slide-description-${index}`" v-html="slide.description"></p>
+                      <p class="slide-description" :data-test="`slide-description-${index}`" v-html="slide.description"></p>
                     </div>
                     
                   </div>
@@ -61,7 +61,7 @@
             </div>
             
             <!-- Navigation dots -->
-            <div class="d-flex justify-center pa-2" data-test="carousel-dots">
+            <div class="carousel-dots" data-test="carousel-dots">
               <v-btn
                 v-for="(_, index) in helpSlides"
                 :key="index"
@@ -374,11 +374,17 @@ const nextSlide = () => {
 .help-carousel {
   height: 100vh;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .carousel-container {
   position: relative;
-  height: 100%;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  min-height: 400px;
+  max-height: calc(100vh - 200px);
 }
 
 .carousel-nav-btn {
@@ -386,7 +392,16 @@ const nextSlide = () => {
   top: 50%;
   transform: translateY(-50%);
   z-index: 10;
-  background-color: rgba(255, 255, 255, 0.9);
+  background-color: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.carousel-nav-btn:hover {
+  background-color: rgba(255, 255, 255, 1);
+  transform: translateY(-50%) scale(1.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .prev-btn {
@@ -398,14 +413,127 @@ const nextSlide = () => {
 }
 
 .help-window {
+  flex: 1;
+  width: 100%;
+  padding: 0 80px;
+}
+
+.slide-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  width: 100%;
   height: 100%;
+  padding: 40px 20px;
+  min-height: 300px;
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.slide-description {
+  font-size: 1.25rem;
+  font-weight: 400;
+  color: rgba(0, 0, 0, 0.87);
+  line-height: 1.6;
+  margin-bottom: 2rem;
+  max-width: 800px;
 }
 
 .overview-content {
   max-width: 800px;
+  width: 100%;
+}
+
+.detailed-content {
+  line-height: 1.6;
+  color: rgba(0, 0, 0, 0.87);
 }
 
 .detailed-content h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
   color: #1976d2;
+  margin: 1.5rem 0 0.75rem 0;
+  line-height: 1.3;
+}
+
+.detailed-content h3 {
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: #424242;
+  margin: 1.25rem 0 0.5rem 0;
+  line-height: 1.3;
+}
+
+.detailed-content p {
+  margin-bottom: 0.75rem;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.detailed-content ul, .detailed-content ol {
+  margin-bottom: 0.75rem;
+  padding-left: 1.5rem;
+  font-size: 1rem;
+}
+
+.detailed-content li {
+  margin-bottom: 0.25rem;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.detailed-content strong {
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.87);
+}
+
+.quick-start-section {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background-color: rgba(25, 118, 210, 0.05);
+  border-radius: 8px;
+  border: 1px solid rgba(25, 118, 210, 0.2);
+}
+
+.quick-start-section p {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: rgba(0, 0, 0, 0.87);
+}
+
+.carousel-dots {
+  display: flex;
+  justify-content: center;
+  padding: 1rem 0;
+  background-color: rgba(255, 255, 255, 0.9);
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.carousel-dots .v-btn {
+  margin: 0 0.25rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .help-window {
+    padding: 0 60px;
+  }
+  
+  .slide-content {
+    padding: 20px 10px;
+    min-height: 250px;
+    max-height: 500px;
+  }
+  
+  .carousel-nav-btn {
+    left: 10px;
+  }
+  
+  .next-btn {
+    right: 10px;
+  }
 }
 </style>
