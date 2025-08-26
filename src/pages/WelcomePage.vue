@@ -62,7 +62,7 @@
                       </ol>
                       
                       <h2>Schema Versioning</h2>
-                      <p>Collection Configuration versions use a 3-part semantic Schema version number plus an Enumerators version. When configuring a collection, only newer versions are applied. Creating a new version automatically locks the currently active version. See <span class="text-link clickable" @click="navigateToSlide(8)">configuration locking</span> for more information about configuration locking.</p>
+                      <p>Collection Configuration versions use a 3-part semantic Schema version number plus an Enumerators version. When configuring a collection, only newer versions are applied. Creating a new version automatically locks the currently active version. See <span class="text-link clickable" @click="navigateToSlide(9)">configuration locking</span> for more information about configuration locking.</p>
                     </div>
                     
                     <!-- Other slides with detailed content using v-html -->
@@ -200,7 +200,7 @@ const helpSlides = [
       </ol>
       
       <h2>Schema Versioning</h2>
-      <p>Collection Configuration versions use a 3-part semantic Schema version number plus an Enumerators version. When configuring a collection, only newer versions are applied. Creating a new version automatically locks the currently active version. See <span class="text-link clickable" @click="navigateToSlide(8)">configuration locking</span> for more information about configuration locking.</p>
+      <p>Collection Configuration versions use a 3-part semantic Schema version number plus an Enumerators version. When configuring a collection, only newer versions are applied. Creating a new version automatically locks the currently active version. See <span class="text-link clickable" @click="navigateToSlide(9)">configuration locking</span> for more information about configuration locking.</p>
     `
   },
   {
