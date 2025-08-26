@@ -25,6 +25,7 @@
             variant="elevated"
             @click="showDeleteDialog = true"
             class="font-weight-bold"
+            data-test="delete-file-btn"
           >
             <v-icon start>mdi-delete</v-icon>
             Delete
@@ -57,7 +58,7 @@
         <v-card-actions>
           <v-spacer />
           <v-btn @click="showDeleteDialog = false">Cancel</v-btn>
-          <v-btn color="error" @click="confirmDelete">Delete</v-btn>
+          <v-btn color="error" @click="confirmDelete" data-test="confirm-delete-btn">Delete</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>

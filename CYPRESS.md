@@ -66,11 +66,11 @@ Commit after each utility addition.
 ✅ **COMPLETED** - Migrations spec is green and covers full CRUD flow with persistence verification.
 
 ## Phase 4 — Page-Level E2E: Test Data (Commit Checkpoints)
-Specs: `cypress/e2e/test_data.cy.ts`
-- Mirror migrations flow for `/test_data`
-- Create `test-data`, add two JSON docs, delete one, verify persistence and final deletion
+- [x] Specs: `cypress/e2e/test_data.cy.ts`
+- [x] Mirror migrations flow for `/test_data`
+- [x] Create `test-data`, add two JSON docs, delete one, verify persistence and final deletion
 
-Commit when spec passes.
+✅ **COMPLETED** - Test Data spec is green and mirrors the successful migrations flow with minimal adaptation.
 
 ## Phase 5 — Page-Level E2E: Enumerators (Review Gate after core CRUD/versioning tests)
 Specs: `cypress/e2e/enumerators.cy.ts`
