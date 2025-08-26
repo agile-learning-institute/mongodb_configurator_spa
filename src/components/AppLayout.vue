@@ -206,7 +206,16 @@ const toggleHelp = () => {
     
     // Check if we're on the Event Viewer page and link to Events help panel
     if (route.path === '/event-viewer') {
-      router.push('/?slide=8') // Events panel is at index 8 (slide 9)
+      // Store the current event viewer state before navigating to help
+      const { getEventViewerState, hasEventData } = useEventState()
+      if (hasEventData()) {
+        // If we have event data, store it temporarily and navigate to help
+        // The event state will be preserved in the composable
+        router.push('/?slide=8') // Events panel is at index 8 (slide 9)
+      } else {
+        // No event data, just go to help
+        router.push('/?slide=8')
+      }
     } else {
       router.push(helpRoute.value)
     }

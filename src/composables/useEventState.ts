@@ -7,14 +7,17 @@ interface EventViewerState {
   subtitle: string
 }
 
-// Global state that persists across navigation
+// Global state that persists across navigation - use module-level variables
 const eventViewerState = reactive<EventViewerState>({
   eventData: null,
   title: '',
   subtitle: ''
 })
 
-export function useEventState() {
+// Singleton instance to ensure state persistence
+let instance: ReturnType<typeof createEventState> | null = null
+
+function createEventState() {
   // Set event data for the event viewer
   const setEventViewerState = (event: ConfiguratorEvent, title: string, subtitle: string) => {
     eventViewerState.eventData = event
@@ -50,4 +53,11 @@ export function useEventState() {
     hasEventData,
     eventViewerState
   }
+}
+
+export function useEventState() {
+  if (!instance) {
+    instance = createEventState()
+  }
+  return instance
 }
