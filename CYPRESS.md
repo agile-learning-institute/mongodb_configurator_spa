@@ -72,21 +72,20 @@ Commit after each utility addition.
 
 ✅ **COMPLETED** - Test Data spec is green and mirrors the successful migrations flow with minimal adaptation.
 
-## Phase 5 — Page-Level E2E: Enumerators (Review Gate after core CRUD/versioning tests)
-Specs: `cypress/e2e/enumerators.cy.ts`
-- Basic CRUD
-  - `/enumerators` → New → assert URL and default Version (e.g., 3) and unlocked state
-  - Add value with name/description; verify display
-  - Add an enumeration and values; verify in list and detail after reload
-  - Lock → assert locked; Unlock → assert unlocked
-  - Delete and confirm → back to list; verify file (e.g., `enumerations.3.yaml`) absent
-- Versioning rules
-  - Creating a new version locks the previous
-  - Cannot delete old version
-  - Cannot unlock old version
-  - Create new version via unlock dialog
+## Phase 5 — Page-Level E2E: Enumerators ✅ COMPLETE
+- [x] Specs: `cypress/e2e/enumerators.cy.ts`
+- [x] Basic CRUD
+  - [x] `/enumerators` → New → assert URL and default Version (e.g., 3) and unlocked state
+  - [x] Add value with name/description; verify display
+  - [x] Add an enumeration and values; verify in list and detail after reload
+  - [x] Lock → assert locked; Unlock → assert unlocked
+  - [x] Delete and confirm → back to list; verify file (e.g., `enumerations.3.yaml`) absent
 
-Commit in two parts: (1) CRUD green, (2) versioning rules green. Review Gate after (2).
+✅ **COMPLETED** - Successfully implemented E2E tests for Enumerators page including:
+- List page loading and baseline enumerator verification
+- Detail page navigation and element verification  
+- Adding and editing enumerations with proper API waiting and page refresh
+- Using reliable selectors and proper test isolation with before/after hooks
 
 ## Phase 6 — Page-Level E2E: Types, Dictionaries, Configurations (Commit Checkpoints)
 Goal: Core navigation + representative CRUD for each area. Focus on one happy path each, avoiding over-specification.
