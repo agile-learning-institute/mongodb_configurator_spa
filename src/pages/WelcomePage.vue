@@ -1,24 +1,5 @@
 <template>
   <v-container>
-    <!-- Page Header -->
-    <div class="d-flex justify-space-between align-center mb-6">
-      <div class="d-flex align-center">
-        <v-icon icon="mdi-help-circle" size="large" color="primary" class="mr-3" />
-        <h1 class="text-h3 font-weight-bold text-primary">MongoDB Configurator Help</h1>
-      </div>
-      <div class="d-flex align-center gap-2">
-        <v-btn
-          color="primary"
-          variant="elevated"
-          prepend-icon="mdi-plus"
-          @click="createNewCollection"
-          data-test="new-collection-btn"
-        >
-          New Collection
-        </v-btn>
-      </div>
-    </div>
-
     <!-- Help Carousel -->
     <v-card class="help-carousel" variant="outlined" elevation="0" data-test="help-carousel">
           <v-card-title class="d-flex align-center pa-6" data-test="carousel-title">
