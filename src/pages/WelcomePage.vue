@@ -46,8 +46,27 @@
                 >
                   <div class="slide-content">
                     
-                    <!-- Overview slide with detailed content -->
-                    <div v-if="slide.detailedContent" class="overview-content" :data-test="`slide-content-${index}`">
+                    <!-- Collection Configuration slide with clickable locking link -->
+                    <div v-if="slide.title === 'Collection Configuration'" class="overview-content" :data-test="`slide-content-${index}`">
+                      <p class="slide-description" :data-test="`slide-description-${index}`" v-html="slide.description"></p>
+                      
+                      <h2>Configuration Processing</h2>
+                      <p>Collection configuration it's done using a six step process:</p>
+                      <ol>
+                        <li>Drop any existing Schema Validation</li>
+                        <li>Drop any indexes that should be removed</li>
+                        <li>Run any migrations that are needed to transform data</li>
+                        <li>Create any new indexes that are needed</li>
+                        <li>Apply the Validation Schema</li>
+                        <li>Load Test Data (when enabled)</li>
+                      </ol>
+                      
+                      <h2>Schema Versioning</h2>
+                      <p>Collection Configuration versions use a 3-part semantic Schema version number plus an Enumerators version. When configuring a collection, only newer versions are applied. Creating a new version automatically locks the currently active version. See <span class="text-link clickable" @click="navigateToSlide(8)">configuration locking</span> for more information about configuration locking.</p>
+                    </div>
+                    
+                    <!-- Other slides with detailed content using v-html -->
+                    <div v-else-if="slide.detailedContent" class="overview-content" :data-test="`slide-content-${index}`">
                       <p class="slide-description" :data-test="`slide-description-${index}`" v-html="slide.description"></p>
                       <div class="detailed-content" v-html="slide.detailedContent" :data-test="`slide-detailed-content-${index}`"></div>
                       
@@ -181,7 +200,7 @@ const helpSlides = [
       </ol>
       
       <h2>Schema Versioning</h2>
-      <p>Collection Configuration versions use a 3-part semantic Schema version number plus an Enumerators version. When configuring a collection, only newer versions are applied. Creating a new version automatically locks the currently active version. See the <strong>Locking</strong> panel for more information about configuration locking.</p>
+      <p>Collection Configuration versions use a 3-part semantic Schema version number plus an Enumerators version. When configuring a collection, only newer versions are applied. Creating a new version automatically locks the currently active version. See <span class="text-link clickable" @click="navigateToSlide(8)">configuration locking</span> for more information about configuration locking.</p>
     `
   },
   {
@@ -381,6 +400,10 @@ const nextSlide = () => {
   } else {
     currentSlide.value++
   }
+}
+
+const navigateToSlide = (index: number) => {
+  currentSlide.value = index
 }
 </script>
 
@@ -613,6 +636,22 @@ const nextSlide = () => {
 
 .slide-content::-webkit-scrollbar-thumb:hover {
   background: linear-gradient(135deg, #1565c0 0%, #1976d2 100%);
+}
+
+/* Clickable text link styling */
+.text-link.clickable {
+  color: #1976d2;
+  cursor: pointer;
+  text-decoration: underline;
+  transition: all 0.2s ease;
+}
+
+.text-link.clickable:hover {
+  color: #1565c0;
+  text-decoration: none;
+  background-color: rgba(25, 118, 210, 0.1);
+  padding: 2px 4px;
+  border-radius: 4px;
 }
 
 /* Responsive adjustments */
