@@ -179,12 +179,6 @@
             mdi-close
           </v-icon>
         </v-chip>
-        
-        <!-- Empty state message -->
-        <div v-if="!version.add_indexes || version.add_indexes.length === 0" class="text-center pa-4 w-100">
-          <v-icon size="32" color="grey">mdi-database-plus</v-icon>
-          <div class="text-body-2 text-medium-emphasis mt-2">No indexes defined</div>
-        </div>
       </div>
     </BaseCard>
 
