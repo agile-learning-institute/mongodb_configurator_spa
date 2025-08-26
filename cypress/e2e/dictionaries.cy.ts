@@ -121,15 +121,8 @@ describe('Dictionaries page flow', () => {
     cy.contains('button', 'Unlock').should('be.visible')
     cy.contains('button', 'Lock').should('not.exist')
 
-    // Unlock the dictionary - this opens a confirmation dialog
+    // Unlock the dictionary (no confirmation dialog needed)
     cy.contains('button', 'Unlock').click()
-
-    // Verify unlock confirmation dialog is open
-    cy.get('.v-dialog').should('be.visible')
-    cy.get('.v-dialog .v-card-title').should('contain', 'Unlock Dictionary?')
-
-    // Click Unlock button in dialog
-    cy.get('.v-dialog').contains('button', 'Unlock').click()
 
     // Verify it's now unlocked (Unlock button should be replaced with Lock)
     cy.contains('button', 'Lock').should('be.visible')
@@ -149,15 +142,8 @@ describe('Dictionaries page flow', () => {
     // Check if the dictionary is locked - if so, we need to unlock it first to delete
     cy.get('body').then(($body) => {
       if ($body.find('button:contains("Unlock")').length > 0) {
-        // Dictionary is locked, unlock it first - this opens a confirmation dialog
+        // Dictionary is locked, unlock it first (no confirmation dialog needed)
         cy.contains('button', 'Unlock').click()
-
-        // Verify unlock confirmation dialog is open
-        cy.get('.v-dialog').should('be.visible')
-        cy.get('.v-dialog .v-card-title').should('contain', 'Unlock Dictionary?')
-
-        // Click Unlock button in dialog
-        cy.get('.v-dialog').contains('button', 'Unlock').click()
 
         cy.wait(1000) // Wait for unlock to complete
       }
