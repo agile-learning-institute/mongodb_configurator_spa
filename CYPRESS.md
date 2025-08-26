@@ -80,6 +80,11 @@ Commit after each utility addition.
   - [x] Add an enumeration and values; verify in list and detail after reload
   - [x] Lock → assert locked; Unlock → assert unlocked
   - [x] Delete and confirm → back to list; verify file (e.g., `enumerations.3.yaml`) absent
+- [ ] Versioning rules (Future enhancement)
+  - [ ] Creating a new version locks the previous
+  - [ ] Cannot delete old version
+  - [ ] Cannot unlock old version
+  - [ ] Create new version via unlock dialog
 
 ✅ **COMPLETED** - Successfully implemented E2E tests for Enumerators page including:
 - List page loading and baseline enumerator verification
@@ -87,15 +92,32 @@ Commit after each utility addition.
 - Adding and editing enumerations with proper API waiting and page refresh
 - Using reliable selectors and proper test isolation with before/after hooks
 
-## Phase 6 — Page-Level E2E: Types, Dictionaries, Configurations (Commit Checkpoints)
-Goal: Core navigation + representative CRUD for each area. Focus on one happy path each, avoiding over-specification.
-- `types.cy.ts`: visit `/types`, create a minimal type, verify save, reload persistence, delete
-- `dictionaries.cy.ts`: visit `/dictionaries`, create dictionary with one entry, verify, delete
-- `configurations.cy.ts`: visit `/configurations`, create configuration referencing existing types/dictionaries if required, verify, delete
+## Phase 6 — Page-Level E2E: Types ✅ COMPLETE
+Goal: Core navigation + representative CRUD for Types page. Focus on one happy path, avoiding over-specification.
+- [x] Specs: `cypress/e2e/types.cy.ts`
+- [x] Visit `/types`, create a minimal type, verify save, reload persistence, delete
 
-Commit after each spec passes.
+✅ **COMPLETED** - Successfully implemented E2E tests for Types page including:
+- Type creation via dialog with proper redirection handling
+- Detail page navigation and element verification
+- Complete lock/unlock flow with confirmation dialogs
+- Type deletion with proper unlock handling and confirmation
 
-## Phase 7 — Cross-Page User Journey (Review Gate)
+## Phase 7 — Page-Level E2E: Dictionaries (Commit Checkpoints)
+Goal: Core navigation + representative CRUD for Dictionaries page.
+- [ ] Specs: `cypress/e2e/dictionaries.cy.ts`
+- [ ] Visit `/dictionaries`, create dictionary with one entry, verify, delete
+
+Commit after spec passes.
+
+## Phase 8 — Page-Level E2E: Configurations (Commit Checkpoints)
+Goal: Core navigation + representative CRUD for Configurations page.
+- [ ] Specs: `cypress/e2e/configurations.cy.ts`
+- [ ] Visit `/configurations`, create configuration referencing existing types/dictionaries if required, verify, delete
+
+Commit after spec passes.
+
+## Phase 9 — Cross-Page User Journey (Review Gate)
 Spec: `cypress/e2e/journey.basic.cy.ts`
 - From an empty state, create required prerequisites (enumerator/type/dictionary)
 - Create a configuration that uses them
@@ -104,7 +126,7 @@ Spec: `cypress/e2e/journey.basic.cy.ts`
 
 Review Gate: Validate the journey aligns with real-world usage.
 
-## Phase 8 — Hardening and Flake Reduction (Commit Checkpoints)
+## Phase 10 — Hardening and Flake Reduction (Commit Checkpoints)
 - Replace any brittle selectors with `data-testid`
 - Add route-level waits for critical POST/PUT operations using `cy.intercept`
 - Add retries-on-failure in CI via Cypress config or `cypress-grep` (optional)
@@ -112,7 +134,7 @@ Review Gate: Validate the journey aligns with real-world usage.
 
 Commit small refactors as we harden specs.
 
-## Phase 9 — CI Integration (Review Gate)
+## Phase 11 — CI Integration (Review Gate)
 - Add CI job that runs: `npm ci`, `npm run service` (background), wait for health, `npm run e2e`
 - Store videos/screenshots as CI artifacts
 - Optional: add `cypress-grep` tags to allow smoke vs. full runs
