@@ -48,6 +48,15 @@
               Configure Collection
             </v-btn>
             
+            <v-btn
+              color="error"
+              variant="outlined"
+              @click="showDeleteCollectionDialog = true"
+            >
+              <v-icon start>mdi-delete</v-icon>
+              Delete Collection
+            </v-btn>
+            
             <div class="d-flex gap-2">
               <v-btn
                 color="primary"
@@ -331,6 +340,26 @@
       </v-card-actions>
     </v-card>
   </v-dialog>
+  
+  <!-- Delete Collection Confirmation Dialog -->
+  <v-dialog v-model="showDeleteCollectionDialog" max-width="500">
+    <v-card>
+      <v-card-title class="text-h5">
+        Delete Collection?
+      </v-card-title>
+      <v-card-text>
+        <p>Are you sure you want to delete the collection "{{ configuration?.title || configuration?.file_name }}"?</p>
+        <p class="text-caption text-medium-emphasis">
+          This will permanently delete the configuration and all its versions. This action cannot be undone.
+        </p>
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer />
+        <v-btn @click="showDeleteCollectionDialog = false">Cancel</v-btn>
+        <v-btn color="error" @click="confirmDeleteCollection">Delete</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script setup lang="ts">
@@ -371,6 +400,7 @@ const descriptionInput = ref<HTMLElement | null>(null)
 const editingTitle = ref(false)
 const titleInput = ref<HTMLElement | null>(null)
 const showNewVersionDialog = ref(false)
+const showDeleteCollectionDialog = ref(false)
 const newVersion = ref({
   major: 0,
   minor: 0,
@@ -788,6 +818,24 @@ const deleteVersion = async () => {
   } catch (err: any) {
     error.value = err.message || 'Failed to delete version'
     console.error('Failed to delete version:', err)
+  }
+}
+
+const confirmDeleteCollection = async () => {
+  if (!configuration.value) return
+  
+  try {
+    // Call the DELETE endpoint to remove the configuration
+    await apiService.deleteConfiguration(configuration.value.file_name)
+    
+    // Close the dialog
+    showDeleteCollectionDialog.value = false
+    
+    // Navigate back to configurations list
+    router.push('/configurations')
+  } catch (err: any) {
+    error.value = err.message || 'Failed to delete collection'
+    console.error('Failed to delete collection:', err)
   }
 }
 
