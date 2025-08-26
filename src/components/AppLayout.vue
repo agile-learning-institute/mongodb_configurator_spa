@@ -202,7 +202,7 @@ const toggleHelp = () => {
     
     // Check if we're on the Event Viewer page and link to Events help panel
     if (route.path === '/event-viewer') {
-      router.push('/?slide=6') // Events panel is at index 6 (slide 7)
+      router.push('/?slide=8') // Events panel is at index 8 (slide 9)
     } else {
       router.push(helpRoute.value)
     }
