@@ -363,13 +363,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { apiService } from '@/utils/api'
+import { useHelp } from '@/composables/useHelp'
 import { useEvents } from '@/composables/useEvents'
+import { useEventState } from '@/composables/useEventState'
+import { apiService } from '@/utils/api'
 import BaseCard from '@/components/BaseCard.vue'
-
 import VersionInformationCards from '@/components/VersionInformationCards.vue'
+import HelpDialog from '@/components/HelpDialog.vue'
 
 interface ConfigurationVersion {
   version: string
@@ -538,27 +540,17 @@ const processAllVersions = async () => {
   try {
     const result = await apiService.processConfiguration(configuration.value.file_name)
     
-    // Handle array of events or single event - navigate to Event Viewer
+    // Handle array of events or single event - set in global state and navigate to Event Viewer
     if (Array.isArray(result) && result.length > 0) {
       // API returned an array of events
-      router.push({
-        name: 'EventViewer',
-        query: {
-          eventData: JSON.stringify(result[0]),
-          title: 'Configuration Processed',
-          subtitle: 'Configuration processing completed'
-        }
-      })
+      const { setEventViewerState } = useEventState()
+      setEventViewerState(result[0], 'Configuration Processed', 'Configuration processing completed')
+      router.push('/event-viewer')
     } else if (result && result.id && result.type && result.status) {
       // API returned a single event
-      router.push({
-        name: 'EventViewer',
-        query: {
-          eventData: JSON.stringify(result),
-          title: 'Configuration Processed',
-          subtitle: 'Configuration processing completed'
-        }
-      })
+      const { setEventViewerState } = useEventState()
+      setEventViewerState(result, 'Configuration Processed', 'Configuration processing completed')
+      router.push('/event-viewer')
     } else {
       // No event data, show simple success message
       const { showError } = useEvents()

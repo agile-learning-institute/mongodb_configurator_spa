@@ -145,10 +145,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { apiService } from '@/utils/api'
+import { useHelp } from '@/composables/useHelp'
 import { useEvents } from '@/composables/useEvents'
+import { useEventState } from '@/composables/useEventState'
+import { apiService } from '@/utils/api'
+import EventNotifications from '@/components/EventNotifications.vue'
+import HelpDialog from '@/components/HelpDialog.vue'
 
 // Initialize drawer state from localStorage or default to true
 const drawer = ref(true)
@@ -237,15 +241,10 @@ const processAllConfigurations = async () => {
     
     // Check if the response contains event data
     if (result && result.id && result.type && result.status) {
-      // Navigate to event viewer page with event data in state
-      router.push({
-        path: '/event-viewer',
-        state: {
-          eventData: result,
-          title: 'Processing Complete',
-          subtitle: 'All configurations processed successfully'
-        }
-      })
+      // Set event data in global state and navigate to event viewer page
+      const { setEventViewerState } = useEventState()
+      setEventViewerState(result, 'Processing Complete', 'All configurations processed successfully')
+      router.push('/event-viewer')
     }
     
   } catch (err: any) {
@@ -254,15 +253,10 @@ const processAllConfigurations = async () => {
     // Handle API errors with event data
     if (err.type === 'API_ERROR' && err.data) {
       if (err.data.id && err.data.type && err.data.status) {
-        // Navigate to event viewer page with error event data in state
-        router.push({
-          path: '/event-viewer',
-          state: {
-            eventData: err.data,
-            title: 'Processing Error',
-            subtitle: 'Failed to process all configurations'
-          }
-        })
+        // Set error event data in global state and navigate to event viewer page
+        const { setEventViewerState } = useEventState()
+        setEventViewerState(err.data, 'Processing Error', 'Failed to process all configurations')
+        router.push('/event-viewer')
       } else {
         const { showError } = useEvents()
         showError(err.message || 'Failed to process all configurations', 'Processing Error', 'Failed to process all configurations')

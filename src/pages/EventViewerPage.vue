@@ -53,8 +53,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useEventState } from '@/composables/useEventState'
 import type { ConfiguratorEvent } from '@/types/events'
 import EventCard from '@/components/EventCard.vue'
 
@@ -66,66 +67,84 @@ const error = ref<string | null>(null)
 const event = ref<ConfiguratorEvent | null>(null)
 const title = ref('Event Details')
 const subtitle = ref('Processing or error information')
+const previousPage = ref<string | null>(null)
 
 const loadEvent = () => {
   loading.value = true
   error.value = null
   
   try {
-    // Get event data from route state first, then fall back to query parameters
-    const state = route.meta?.state || history.state
-    let eventData = null
+    // Get event data from global state
+    const { getEventViewerState, hasEventData } = useEventState()
+    
+    let eventData: ConfiguratorEvent | null = null
     let eventTitle = 'Event Details'
     let eventSubtitle = 'Processing or error information'
     
-    if (state && state.eventData) {
-      // Data from router state
+    if (hasEventData()) {
+      const state = getEventViewerState()
       eventData = state.eventData
-      eventTitle = state.title || eventTitle
-      eventSubtitle = state.subtitle || eventSubtitle
+      eventTitle = state.title
+      eventSubtitle = state.subtitle
+      // Set previous page to configurations as default
+      previousPage.value = '/configurations'
     } else {
-      // Fallback to query parameters (for backward compatibility)
-      const queryEventData = route.params.eventData || route.query.eventData
-      
-      if (!queryEventData) {
-        error.value = 'No event data provided'
-        loading.value = false
-        return
+      // Fallback to route state for backward compatibility
+      const routeState = route.meta?.state || history.state
+      if (routeState && routeState.eventData) {
+        eventData = routeState.eventData
+        eventTitle = routeState.title || 'Event Details'
+        eventSubtitle = routeState.subtitle || 'Processing or error information'
+      } else {
+        // Fallback to query parameters (for backward compatibility)
+        const queryEventData = route.params.eventData || route.query.eventData
+        
+        if (!queryEventData) {
+          error.value = 'No event data provided'
+          loading.value = false
+          return
+        }
+        
+        // Parse event data from query parameters
+        eventData = typeof queryEventData === 'string' ? JSON.parse(queryEventData) : queryEventData
+        eventTitle = (route.params.title as string) || (route.query.title as string) || 'Event Details'
+        eventSubtitle = (route.params.subtitle as string) || (route.query.subtitle as string) || 'Processing or error information'
       }
-      
-      // Parse event data from query parameters
-      eventData = typeof queryEventData === 'string' ? JSON.parse(queryEventData) : queryEventData
-      eventTitle = (route.params.title as string) || (route.query.title as string) || eventTitle
-      eventSubtitle = (route.params.subtitle as string) || (route.query.subtitle as string) || eventSubtitle
     }
     
-    // Validate event structure
-    if (!eventData.id || !eventData.type || !eventData.status) {
-      error.value = 'Invalid event data format'
-      loading.value = false
-      return
+    if (eventData) {
+      event.value = eventData
+      title.value = eventTitle
+      subtitle.value = eventSubtitle
+    } else {
+      error.value = 'Invalid event data'
     }
-    
-    event.value = eventData
-    title.value = eventTitle
-    subtitle.value = eventSubtitle
-    
   } catch (err: any) {
+    console.error('Failed to load event:', err)
     error.value = err.message || 'Failed to load event data'
-    console.error('Failed to load event data:', err)
   } finally {
     loading.value = false
   }
 }
 
+// Go back function
 const goBack = () => {
-  // Try to go back, or to home if no history
-  if (window.history.length > 1) {
-    window.history.back()
+  // Clear event state when leaving
+  const { clearEventViewerState } = useEventState()
+  clearEventViewerState()
+  
+  if (previousPage.value) {
+    router.push(previousPage.value)
   } else {
-    router.push('/')
+    router.push('/configurations')
   }
 }
+
+// Cleanup when component unmounts
+onUnmounted(() => {
+  const { clearEventViewerState } = useEventState()
+  clearEventViewerState()
+})
 
 // Load event on mount
 onMounted(() => {
