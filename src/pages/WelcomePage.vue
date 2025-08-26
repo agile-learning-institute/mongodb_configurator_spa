@@ -437,7 +437,7 @@ const nextSlide = () => {
   width: 100%;
   height: 100%;
   padding: 50px 30px;
-  min-height: 300px;
+  min-height: 500px;
   max-height: 600px;
   overflow-y: auto;
   background: rgba(255, 255, 255, 0.95);
@@ -574,10 +574,12 @@ const nextSlide = () => {
 .carousel-dots .v-btn {
   margin: 0 0.375rem;
   transition: all 0.3s ease;
+  color: #1976d2;
 }
 
 .carousel-dots .v-btn:hover {
   transform: scale(1.2);
+  color: #1565c0;
 }
 
 /* Custom scrollbar for slide content */
@@ -607,7 +609,7 @@ const nextSlide = () => {
   
   .slide-content {
     padding: 30px 20px;
-    min-height: 250px;
+    min-height: 400px;
     max-height: 500px;
     margin: 15px;
   }
