@@ -250,8 +250,9 @@ const processAllConfigurations = async () => {
     
     // Check if the response contains event data
     if (result && result.id && result.type && result.status) {
-      // Set event data in global state and navigate to event viewer page
-      const { setEventViewerState } = useEventState()
+      // Clear any existing event state and set new event data in global state
+      const { clearEventViewerState, setEventViewerState } = useEventState()
+      clearEventViewerState() // Clear old state before setting new
       setEventViewerState(result, 'Processing Complete', 'All configurations processed successfully')
       router.push('/event-viewer')
     }
@@ -262,8 +263,9 @@ const processAllConfigurations = async () => {
     // Handle API errors with event data
     if (err.type === 'API_ERROR' && err.data) {
       if (err.data.id && err.data.type && err.data.status) {
-        // Set error event data in global state and navigate to event viewer page
-        const { setEventViewerState } = useEventState()
+        // Clear any existing event state and set error event data in global state
+        const { clearEventViewerState, setEventViewerState } = useEventState()
+        clearEventViewerState() // Clear old state before setting new
         setEventViewerState(err.data, 'Processing Error', 'Failed to process all configurations')
         router.push('/event-viewer')
       } else {

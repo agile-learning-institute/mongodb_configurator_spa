@@ -540,15 +540,17 @@ const processAllVersions = async () => {
   try {
     const result = await apiService.processConfiguration(configuration.value.file_name)
     
-    // Handle array of events or single event - set in global state and navigate to Event Viewer
+    // Handle array of events or single event - clear old state and set new state
     if (Array.isArray(result) && result.length > 0) {
       // API returned an array of events
-      const { setEventViewerState } = useEventState()
+      const { clearEventViewerState, setEventViewerState } = useEventState()
+      clearEventViewerState() // Clear old state before setting new
       setEventViewerState(result[0], 'Configuration Processed', 'Configuration processing completed')
       router.push('/event-viewer')
     } else if (result && result.id && result.type && result.status) {
       // API returned a single event
-      const { setEventViewerState } = useEventState()
+      const { clearEventViewerState, setEventViewerState } = useEventState()
+      clearEventViewerState() // Clear old state before setting new
       setEventViewerState(result, 'Configuration Processed', 'Configuration processing completed')
       router.push('/event-viewer')
     } else {

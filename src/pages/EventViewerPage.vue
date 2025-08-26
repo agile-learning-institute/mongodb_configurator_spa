@@ -129,10 +129,7 @@ const loadEvent = () => {
 
 // Go back function
 const goBack = () => {
-  // Clear event state when leaving
-  const { clearEventViewerState } = useEventState()
-  clearEventViewerState()
-  
+  // Don't clear event state when leaving - let it persist for next visit
   if (previousPage.value) {
     router.push(previousPage.value)
   } else {
@@ -140,11 +137,11 @@ const goBack = () => {
   }
 }
 
-// Cleanup when component unmounts
-onUnmounted(() => {
-  const { clearEventViewerState } = useEventState()
-  clearEventViewerState()
-})
+// Don't clear event state on unmount - let it persist for navigation
+// onUnmounted(() => {
+//   const { clearEventViewerState } = useEventState()
+//   clearEventViewerState()
+// })
 
 // Load event on mount
 onMounted(() => {

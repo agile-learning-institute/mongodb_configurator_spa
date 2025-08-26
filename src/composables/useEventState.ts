@@ -20,6 +20,7 @@ let instance: ReturnType<typeof createEventState> | null = null
 function createEventState() {
   // Set event data for the event viewer
   const setEventViewerState = (event: ConfiguratorEvent, title: string, subtitle: string) => {
+    console.log('Setting event viewer state:', { event, title, subtitle })
     eventViewerState.eventData = event
     eventViewerState.title = title
     eventViewerState.subtitle = subtitle
@@ -27,6 +28,7 @@ function createEventState() {
 
   // Get current event viewer state
   const getEventViewerState = () => {
+    console.log('Getting event viewer state:', eventViewerState)
     return {
       eventData: eventViewerState.eventData,
       title: eventViewerState.title,
@@ -34,8 +36,9 @@ function createEventState() {
     }
   }
 
-  // Clear event viewer state
+  // Clear event viewer state - only call this when new configuration actions occur
   const clearEventViewerState = () => {
+    console.log('Clearing event viewer state')
     eventViewerState.eventData = null
     eventViewerState.title = ''
     eventViewerState.subtitle = ''
@@ -43,7 +46,9 @@ function createEventState() {
 
   // Check if there's event data available
   const hasEventData = () => {
-    return eventViewerState.eventData !== null
+    const hasData = eventViewerState.eventData !== null
+    console.log('Checking if event data exists:', hasData, eventViewerState)
+    return hasData
   }
 
   return {
