@@ -199,7 +199,13 @@ const toggleHelp = () => {
   } else {
     // Currently on another page, go to help page
     previousPage.value = route.path
-    router.push(helpRoute.value)
+    
+    // Check if we're on the Event Viewer page and link to Events help panel
+    if (route.path === '/event-viewer') {
+      router.push('/?slide=6') // Events panel is at index 6 (slide 7)
+    } else {
+      router.push(helpRoute.value)
+    }
   }
 }
 
