@@ -390,7 +390,7 @@ const createCollection = async () => {
     // Save all files using PUT endpoints
     await apiService.saveConfiguration(configFileName, configuration)
     await apiService.saveDictionary(`${name}.${newVersion.value.major}.${newVersion.value.minor}.${newVersion.value.patch}.yaml`, dictionary)
-    await apiService.saveTestDataFile(`${name}.${newVersion.value.major}.${newVersion.value.minor}.${newVersion.value.patch}.yaml`, testData)
+    await apiService.saveTestDataFile(`${name}.${newVersion.value.major}.${newVersion.value.minor}.${newVersion.value.patch}.${newestEnumeratorVersion}.json`, testData)
     
     // Close dialog and reset
     showNewCollectionDialog.value = false
