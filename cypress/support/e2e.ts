@@ -5,7 +5,7 @@ before(() => {
 })
 
 beforeEach(() => {
-  // Hook for per-test setup if needed later
+  cy.resetApp()
 })
 
 

@@ -42,11 +42,11 @@ Review Gate: Confirm conventions and agree on the minimal `data-test` additions 
 Commit after each step (1–6) with focused messages.
 
 ## Phase 2 — Utilities and Stability (Commit Checkpoints)
-- [ ] Add a custom command `cy.resetApp()` that runs before each spec to ensure a clean state. Given `npm run service` is reliable, we may call it once before the run and ensure specs are independent; `cy.resetApp()` can be a no-op hook or perform lightweight checks.
-- [ ] Add helpers:
+- [x] Add a custom command `cy.resetApp()` that runs before each spec to ensure a clean state. Given `npm run service` is reliable, we may call it once before the run and ensure specs are independent; `cy.resetApp()` can be a no-op hook or perform lightweight checks.
+- [x] Add helpers:
    - `cy.getByTest(id)` convenience selector for `data-test`
    - Route alias helpers for common API calls if needed (e.g., `@getList`, `@saveItem`)
-- [ ] Document selector strategy inside `cypress/support/README.md`.
+- [x] Document selector strategy inside `cypress/support/README.md`.
 
 Commit after each utility addition.
 
