@@ -1,9 +1,26 @@
 <template>
-  <v-container fluid class="pa-0">
-    <v-row justify="center" align="center" style="min-height: 100vh;">
-      <v-col cols="12" class="pa-0">
-        <!-- Help Carousel -->
-        <v-card class="help-carousel" variant="outlined" elevation="0" data-test="help-carousel">
+  <v-container>
+    <!-- Page Header -->
+    <div class="d-flex justify-space-between align-center mb-6">
+      <div class="d-flex align-center">
+        <v-icon icon="mdi-help-circle" size="large" color="primary" class="mr-3" />
+        <h1 class="text-h3 font-weight-bold text-primary">MongoDB Configurator Help</h1>
+      </div>
+      <div class="d-flex align-center gap-2">
+        <v-btn
+          color="primary"
+          variant="elevated"
+          prepend-icon="mdi-plus"
+          @click="createNewCollection"
+          data-test="new-collection-btn"
+        >
+          New Collection
+        </v-btn>
+      </div>
+    </div>
+
+    <!-- Help Carousel -->
+    <v-card class="help-carousel" variant="outlined" elevation="0" data-test="help-carousel">
           <v-card-title class="d-flex align-center pa-6" data-test="carousel-title">
             <v-icon :icon="helpSlides[currentSlide].icon" class="mr-2" :data-test="`carousel-icon-${currentSlide}`" />
             <span class="text-h4" data-test="carousel-title-text">{{ helpSlides[currentSlide].title }}</span>
@@ -74,8 +91,7 @@
             </div>
           </v-card-text>
         </v-card>
-      </v-col>
-    </v-row>
+      </v-container>
     
     <!-- Help Dialog -->
     <HelpDialog
@@ -375,7 +391,7 @@ const navigateToSlide = (index: number) => {
 
 <style scoped>
 .help-carousel {
-  height: 100vh;
+  height: calc(100vh - 200px);
   overflow: hidden;
   display: flex;
   flex-direction: column;
