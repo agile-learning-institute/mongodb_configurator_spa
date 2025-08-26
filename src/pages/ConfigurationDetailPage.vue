@@ -365,13 +365,11 @@
 <script setup lang="ts">
 import { ref, onMounted, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useHelp } from '@/composables/useHelp'
 import { useEvents } from '@/composables/useEvents'
 import { useEventState } from '@/composables/useEventState'
 import { apiService } from '@/utils/api'
 import BaseCard from '@/components/BaseCard.vue'
 import VersionInformationCards from '@/components/VersionInformationCards.vue'
-import HelpDialog from '@/components/HelpDialog.vue'
 
 interface ConfigurationVersion {
   version: string
@@ -438,24 +436,22 @@ const newVersionString = computed(() => {
   return `${newVersion.value.major}.${newVersion.value.minor}.${newVersion.value.patch}.${newVersion.value.enumerators}`
 })
 
-const dictionaryFileName = computed(() => {
-  if (!configuration.value || !activeVersion.value) return ''
-  const baseName = configuration.value.file_name.replace('.yaml', '')
-  const versionParts = activeVersion.value.split('.')
-  if (versionParts.length >= 3) {
-    return `${baseName}.${versionParts[0]}.${versionParts[1]}.${versionParts[2]}.yaml`
-  }
-  return `${baseName}.0.0.0.yaml`
-})
+// Remove unused computed properties
+// const dictionaryFileName = computed(() => {
+//   if (!configuration.value || !configuration.value.versions || configuration.value.versions.length === 0) {
+//     return null
+//   }
+//   const currentVersion = configuration.value.versions[configuration.value.versions.length - 1]
+//   return currentVersion.dictionary
+// })
 
-const enumerationsFileName = computed(() => {
-  if (!configuration.value || !activeVersion.value) return ''
-  const versionParts = activeVersion.value.split('.')
-  if (versionParts.length >= 4) {
-    return `enumerations.${versionParts[3]}.yaml`
-  }
-  return 'enumerations.0.yaml'
-})
+// const enumerationsFileName = computed(() => {
+//   if (!configuration.value || !configuration.value.versions || configuration.value.versions.length === 0) {
+//     return null
+//   }
+//   const currentVersion = configuration.value.versions[configuration.value.versions.length - 1]
+//   return currentVersion.enumerators
+// })
 
 
 
@@ -877,26 +873,6 @@ const navigateToNextVersion = () => {
   } else {
     console.log('No next version available')
   }
-}
-
-const openDictionary = () => {
-  if (!dictionaryFileName.value) return
-  
-  // Navigate to the dictionary detail page
-  router.push({
-    name: 'DictionaryDetail',
-    params: { fileName: dictionaryFileName.value }
-  })
-}
-
-const openEnumerations = () => {
-  if (!enumerationsFileName.value) return
-  
-  // Navigate to the enumerations detail page
-  router.push({
-    name: 'EnumeratorDetail',
-    params: { fileName: enumerationsFileName.value }
-  })
 }
 
 // Load configuration on mount

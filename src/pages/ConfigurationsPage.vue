@@ -54,9 +54,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { apiService } from '@/utils/api'
 import FileList from '@/components/FileList.vue'
 import NewCollectionDialog from '@/components/NewCollectionDialog.vue'
 

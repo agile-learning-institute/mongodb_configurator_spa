@@ -145,14 +145,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useHelp } from '@/composables/useHelp'
 import { useEvents } from '@/composables/useEvents'
 import { useEventState } from '@/composables/useEventState'
 import { apiService } from '@/utils/api'
-import EventNotifications from '@/components/EventNotifications.vue'
-import HelpDialog from '@/components/HelpDialog.vue'
 
 // Initialize drawer state from localStorage or default to true
 const drawer = ref(true)
@@ -207,7 +204,7 @@ const toggleHelp = () => {
     // Check if we're on the Event Viewer page and link to Events help panel
     if (route.path === '/event-viewer') {
       // Store the current event viewer state before navigating to help
-      const { getEventViewerState, hasEventData } = useEventState()
+      const { hasEventData } = useEventState()
       if (hasEventData()) {
         // If we have event data, store it temporarily and navigate to help
         // The event state will be preserved in the composable

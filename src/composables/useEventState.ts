@@ -1,4 +1,4 @@
-import { ref, reactive } from 'vue'
+import { reactive } from 'vue'
 import type { ConfiguratorEvent } from '@/types/events'
 
 interface EventViewerState {

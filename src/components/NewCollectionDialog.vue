@@ -179,7 +179,6 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-import { useRouter } from 'vue-router'
 import { apiService } from '@/utils/api'
 
 interface Props {
@@ -193,8 +192,6 @@ interface Emits {
 
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
-
-const router = useRouter()
 
 // New collection dialog state
 const newCollectionName = ref('')

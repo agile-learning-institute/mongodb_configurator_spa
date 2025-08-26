@@ -163,7 +163,7 @@
           color="primary"
           variant="outlined"
           class="standard-chip clickable"
-          @click="openIndexEditor(index, indexData)"
+          @click="openIndexEditor(indexData)"
           data-test="index-chip"
         >
           <v-icon start size="small">mdi-database-plus</v-icon>
@@ -436,11 +436,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { apiService } from '@/utils/api'
 import BaseCard from './BaseCard.vue'
-import JsonDocumentEditor from './JsonDocumentEditor.vue'
 
 interface VersionConfig {
   version: string
@@ -469,8 +468,12 @@ const newDropIndexName = ref('')
 const previouslyCreatedIndexes = ref<string[]>([])
 
 // Migration Dialog state
-const showNewMigrationDialog = ref(false)
 const newMigrationName = ref('')
+// const showMigrationJsonEditorDialog = ref(false)
+// const editingMigrationData = ref<any>({})
+// const editingMigrationTitle = ref('')
+// const migrationJsonText = ref('')
+// const migrationJsonError = ref('')
 
 // Index Editor Dialog state
 const showIndexEditorDialog = ref(false)
@@ -693,12 +696,10 @@ const addNewIndex = () => {
   showIndexEditorDialog.value = true
 }
 
-const openIndexEditor = (index: number, indexData: any) => {
-  editingIndexTitle.value = `Edit Index: ${indexData.name}`
+const openIndexEditor = (indexData: any) => {
   editingIndexData.value = { ...indexData }
-  jsonText.value = JSON.stringify(indexData, null, 2)
-  jsonError.value = ''
-  showIndexJsonEditorDialog.value = true // Show JSON editor for existing indexes
+  editingIndexTitle.value = 'Edit Index'
+  showIndexEditorDialog.value = true
 }
 
 const handleJsonChange = (value: string) => {
@@ -796,17 +797,6 @@ const deleteIndex = (index: number) => {
     props.version.add_indexes.splice(index, 1)
     props.onUpdate()
   }
-}
-
-const autoSave = () => {
-  props.onUpdate()
-}
-
-const getIndexName = (indexData: any, index: number) => {
-  if (indexData && typeof indexData === 'object' && indexData.name) {
-    return indexData.name
-  }
-  return `Index ${index + 1}`
 }
 
 const openMigrationFile = (migrationName: string) => {
@@ -922,4 +912,4 @@ onMounted(() => {
   font-size: 14px;
   color: rgba(0, 0, 0, 0.6);
 }
-</style> 
+</style>
