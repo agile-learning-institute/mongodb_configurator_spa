@@ -51,28 +51,14 @@
                 <span class="text-caption text-medium-emphasis d-block">Breaking changes</span>
               </div>
               <div class="version-controls">
-                <v-text-field
-                  v-model.number="newVersion.major"
-                  type="number"
-                  variant="outlined"
-                  density="compact"
-                  hide-details
-                  class="version-input"
-                  min="0"
-                />
+                <div class="version-display-value" data-test="version-major-display">{{ newVersion.major }}</div>
                 <v-btn
                   icon="mdi-plus"
                   variant="text"
                   size="small"
-                  @click="newVersion.major++"
+                  @click="incrementMajorVersion"
                   :disabled="creating"
-                />
-                <v-btn
-                  icon="mdi-minus"
-                  variant="text"
-                  size="small"
-                  @click="newVersion.major = Math.max(0, newVersion.major - 1)"
-                  :disabled="creating"
+                  data-test="version-major-plus-btn"
                 />
               </div>
             </div>
@@ -84,28 +70,14 @@
                 <span class="text-caption text-medium-emphasis d-block">New features</span>
               </div>
               <div class="version-controls">
-                <v-text-field
-                  v-model.number="newVersion.minor"
-                  type="number"
-                  variant="outlined"
-                  density="compact"
-                  hide-details
-                  class="version-input"
-                  min="0"
-                />
+                <div class="version-display-value" data-test="version-minor-display">{{ newVersion.minor }}</div>
                 <v-btn
                   icon="mdi-plus"
                   variant="text"
                   size="small"
-                  @click="newVersion.minor++"
+                  @click="incrementMinorVersion"
                   :disabled="creating"
-                />
-                <v-btn
-                  icon="mdi-minus"
-                  variant="text"
-                  size="small"
-                  @click="newVersion.minor = Math.max(0, newVersion.minor - 1)"
-                  :disabled="creating"
+                  data-test="version-minor-plus-btn"
                 />
               </div>
             </div>
@@ -117,38 +89,27 @@
                 <span class="text-caption text-medium-emphasis d-block">Bug fixes</span>
               </div>
               <div class="version-controls">
-                <v-text-field
-                  v-model.number="newVersion.patch"
-                  type="number"
-                  variant="outlined"
-                  density="compact"
-                  hide-details
-                  class="version-input"
-                  min="0"
-                />
+                <div class="version-display-value" data-test="version-patch-display">{{ newVersion.patch }}</div>
                 <v-btn
                   icon="mdi-plus"
                   variant="text"
                   size="small"
-                  @click="newVersion.patch++"
+                  @click="incrementPatchVersion"
                   :disabled="creating"
-                />
-                <v-btn
-                  icon="mdi-minus"
-                  variant="text"
-                  size="small"
-                  @click="newVersion.patch = Math.max(0, newVersion.patch - 1)"
-                  :disabled="creating"
+                  data-test="version-patch-plus-btn"
                 />
               </div>
             </div>
 
             <!-- Version Preview -->
-            <div class="version-preview">
+            <div class="version-preview" data-test="version-preview">
               <div class="text-caption text-medium-emphasis mb-2">Final Version:</div>
-              <div class="version-display">
+              <div class="version-display" data-test="version-display">
                 <span class="text-h6 font-weight-bold">{{ newVersionString }}</span>
                 <span class="text-caption text-medium-emphasis d-block">+ enumerator version</span>
+              </div>
+              <div v-if="!isVersionValid" class="text-caption text-error mt-2" data-test="version-warning">
+                ⚠️ Version must be greater than 0.0.0
               </div>
             </div>
           </div>
@@ -167,7 +128,7 @@
           color="primary"
           @click="createCollection"
           :loading="creating"
-          :disabled="!newCollectionName.trim()"
+          :disabled="!newCollectionName.trim() || !isVersionValid"
           data-test="new-collection-create-btn"
         >
           Create
@@ -178,7 +139,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, nextTick } from 'vue'
 import { apiService } from '@/utils/api'
 
 interface Props {
@@ -210,6 +171,11 @@ const newVersionString = computed(() => {
   return `${newVersion.value.major}.${newVersion.value.minor}.${newVersion.value.patch}`
 })
 
+// Check if version is valid (not 0.0.0)
+const isVersionValid = computed(() => {
+  return !(newVersion.value.major === 0 && newVersion.value.minor === 0 && newVersion.value.patch === 0)
+})
+
 // Computed property for dialog visibility
 const showDialog = computed({
   get: () => props.modelValue,
@@ -222,6 +188,22 @@ watch(() => props.modelValue, (newValue) => {
     resetForm()
   }
 })
+
+// Version increment functions with patch logic
+const incrementMajorVersion = () => {
+  newVersion.value.major++
+  newVersion.value.minor = 0
+  newVersion.value.patch = 0
+}
+
+const incrementMinorVersion = () => {
+  newVersion.value.minor++
+  newVersion.value.patch = 0
+}
+
+const incrementPatchVersion = () => {
+  newVersion.value.patch++
+}
 
 // Reset form to initial state
 const resetForm = () => {
@@ -323,6 +305,7 @@ const createCollection = async () => {
     
     // Close dialog and reset
     closeDialog()
+    resetForm()
     
     // Emit created event with the file name
     emit('created', configFileName)
@@ -358,8 +341,18 @@ const createCollection = async () => {
   align-items: center;
 }
 
-.version-input {
+.version-display-value {
   width: 80px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f5f5f5;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #333;
 }
 
 .version-preview {
