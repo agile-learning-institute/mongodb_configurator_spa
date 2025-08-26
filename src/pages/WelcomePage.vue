@@ -86,25 +86,162 @@
     />
 
     <!-- New Collection Dialog -->
-    <v-dialog v-model="showNewCollectionDialog" max-width="500px" data-test="new-collection-dialog">
+    <v-dialog v-model="showNewCollectionDialog" max-width="600px" data-test="new-collection-dialog">
       <v-card>
-        <v-card-title data-test="new-collection-dialog-title">Create New Collection</v-card-title>
-        <v-card-text>
-          <v-text-field
-            v-model="newCollectionName"
-            label="Collection Name"
-            :error="!!nameError"
-            :error-messages="nameError || undefined"
-            placeholder="my_collection"
-            :disabled="creating"
-            @keyup.enter="createCollection"
-            data-test="new-collection-name-input"
-          />
-          <p class="text-caption text-medium-emphasis mt-2" data-test="new-collection-help-text">
-            Collection names must start with a letter and contain only letters, numbers, and underscores.
-          </p>
+        <v-card-title class="text-h5 pa-6 pb-4" data-test="new-collection-dialog-title">
+          <v-icon start color="primary" class="mr-2">mdi-plus-circle</v-icon>
+          Create New Collection
+        </v-card-title>
+        <v-card-text class="pa-6 pt-0">
+          <div class="d-flex flex-column gap-6">
+            <!-- Collection Name -->
+            <div>
+              <h4 class="text-subtitle-1 font-weight-medium mb-4 text-medium-emphasis">Collection Details</h4>
+              <v-text-field
+                v-model="newCollectionName"
+                label="Collection Name"
+                :error="!!nameError"
+                :error-messages="nameError || undefined"
+                placeholder="my_collection"
+                :disabled="creating"
+                @keyup.enter="createCollection"
+                variant="outlined"
+                density="compact"
+                data-test="new-collection-name-input"
+              />
+              <p class="text-caption text-medium-emphasis mt-2" data-test="new-collection-help-text">
+                Collection names must start with a letter and contain only letters, numbers, and underscores.
+              </p>
+            </div>
+
+            <!-- Collection Description -->
+            <div>
+              <v-text-field
+                v-model="newCollectionDescription"
+                label="Collection Description"
+                placeholder="Describe the purpose of this collection"
+                :disabled="creating"
+                variant="outlined"
+                density="compact"
+                data-test="new-collection-description-input"
+              />
+            </div>
+
+            <!-- Version Components -->
+            <div class="version-components">
+              <h4 class="text-subtitle-1 font-weight-medium mb-4 text-medium-emphasis">Version Components</h4>
+              
+              <!-- Major Version -->
+              <div class="version-row mb-4">
+                <div class="version-label">
+                  <span class="text-body-1 font-weight-medium">Major</span>
+                  <span class="text-caption text-medium-emphasis d-block">Breaking changes</span>
+                </div>
+                <div class="version-controls">
+                  <v-text-field
+                    v-model.number="newVersion.major"
+                    type="number"
+                    variant="outlined"
+                    density="compact"
+                    hide-details
+                    class="version-input"
+                    min="0"
+                  />
+                  <v-btn
+                    icon="mdi-plus"
+                    variant="text"
+                    size="small"
+                    @click="newVersion.major++"
+                    :disabled="creating"
+                  />
+                  <v-btn
+                    icon="mdi-minus"
+                    variant="text"
+                    size="small"
+                    @click="newVersion.major = Math.max(0, newVersion.major - 1)"
+                    :disabled="creating"
+                  />
+                </div>
+              </div>
+
+              <!-- Minor Version -->
+              <div class="version-row mb-4">
+                <div class="version-label">
+                  <span class="text-body-1 font-weight-medium">Minor</span>
+                  <span class="text-caption text-medium-emphasis d-block">New features</span>
+                </div>
+                <div class="version-controls">
+                  <v-text-field
+                    v-model.number="newVersion.minor"
+                    type="number"
+                    variant="outlined"
+                    density="compact"
+                    hide-details
+                    class="version-input"
+                    min="0"
+                  />
+                  <v-btn
+                    icon="mdi-plus"
+                    variant="text"
+                    size="small"
+                    @click="newVersion.minor++"
+                    :disabled="creating"
+                  />
+                  <v-btn
+                    icon="mdi-minus"
+                    variant="text"
+                    size="small"
+                    @click="newVersion.minor = Math.max(0, newVersion.minor - 1)"
+                    :disabled="creating"
+                  />
+                </div>
+              </div>
+
+              <!-- Patch Version -->
+              <div class="version-row mb-4">
+                <div class="version-label">
+                  <span class="text-body-1 font-weight-medium">Patch</span>
+                  <span class="text-caption text-medium-emphasis d-block">Bug fixes</span>
+                </div>
+                <div class="version-controls">
+                  <v-text-field
+                    v-model.number="newVersion.patch"
+                    type="number"
+                    variant="outlined"
+                    density="compact"
+                    hide-details
+                    class="version-input"
+                    min="0"
+                  />
+                  <v-btn
+                    icon="mdi-plus"
+                    variant="text"
+                    size="small"
+                    @click="newVersion.patch++"
+                    :disabled="creating"
+                  />
+                  <v-btn
+                    icon="mdi-minus"
+                    variant="text"
+                    size="small"
+                    @click="newVersion.patch = Math.max(0, newVersion.patch - 1)"
+                    :disabled="creating"
+                  />
+                </div>
+              </div>
+
+              <!-- Version Preview -->
+              <div class="version-preview">
+                <div class="text-caption text-medium-emphasis mb-2">Final Version:</div>
+                <div class="version-display">
+                  <span class="text-h6 font-weight-bold">{{ newVersionString }}</span>
+                  <span class="text-caption text-medium-emphasis d-block">+ enumerator version</span>
+                </div>
+              </div>
+            </div>
+          </div>
         </v-card-text>
-        <v-card-actions>
+        <v-card-actions class="pa-6 pt-0">
           <v-spacer />
           <v-btn
             @click="showNewCollectionDialog = false"
@@ -129,7 +266,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useHelp } from '@/composables/useHelp'
 import { apiService } from '@/utils/api'
@@ -144,8 +281,20 @@ const route = useRoute()
 // New collection dialog state
 const showNewCollectionDialog = ref(false)
 const newCollectionName = ref('')
+const newCollectionDescription = ref('')
 const nameError = ref<string | null>(null)
 const creating = ref(false)
+
+// Version state for new collection
+const newVersion = ref({
+  major: 0,
+  minor: 0,
+  patch: 0,
+})
+
+const newVersionString = computed(() => {
+  return `${newVersion.value.major}.${newVersion.value.minor}.${newVersion.value.patch}`
+})
 
 // Initialize slide based on URL parameter
 onMounted(() => {
@@ -169,7 +318,7 @@ const validateCollectionName = (name: string): boolean => {
   return true
 }
 
-// Create new collection
+// Create new collection using PUT endpoints
 const createCollection = async () => {
   const name = newCollectionName.value.trim()
   
@@ -184,15 +333,74 @@ const createCollection = async () => {
 
   creating.value = true
   try {
-    await apiService.createNewCollection(name)
+    // Get the newest enumerator version
+    const enumeratorFiles = await apiService.getEnumerators()
+    let newestEnumeratorVersion = 0
+    
+    if (enumeratorFiles && enumeratorFiles.length > 0) {
+      // Filter out any files that don't have the expected structure
+      const validFiles = enumeratorFiles.filter((f: any) => f && f.file_name && typeof f.file_name === 'string')
+      
+      if (validFiles.length > 0) {
+        const versions = validFiles
+          .map((f: any) => {
+            const match = f.file_name.match(/enumerations\.(\d+)\.yaml/)
+            return match ? parseInt(match[1], 10) : 0
+          })
+          .filter((version: number) => !isNaN(version))
+        
+        newestEnumeratorVersion = versions.length > 0 ? Math.max(...versions) : 0
+      }
+    }
+    
+    const version = `${newVersion.value.major}.${newVersion.value.minor}.${newVersion.value.patch}.${newestEnumeratorVersion}`
+    const configFileName = `${name}.yaml`
+    
+    // Create configuration file
+    const configuration = {
+      file_name: configFileName,
+      title: name,
+      description: newCollectionDescription.value || `Configuration for ${name} collection`,
+      versions: [{
+        version: version,
+        dictionary: `${name}.${newVersion.value.major}.${newVersion.value.minor}.${newVersion.value.patch}.yaml`,
+        enumerators: `enumerations.${newestEnumeratorVersion}.yaml`,
+        indexes: [],
+        migrations: []
+      }]
+    }
+    
+    // Create dictionary file
+    const dictionary = {
+      root: {
+        name: "root",
+        type: "object",
+        description: newCollectionDescription.value || `Dictionary for ${name} collection`,
+        properties: [
+          {"name": "_id", "type": "identifier"},
+          {"name": "name", "type": "word"},
+          {"name": "last_saved", "type": "breadcrumb"}
+        ]
+      }
+    }
+    
+    // Create test data file
+    const testData: any[] = []
+    
+    // Save all files using PUT endpoints
+    await apiService.saveConfiguration(configFileName, configuration)
+    await apiService.saveDictionary(`${name}.${newVersion.value.major}.${newVersion.value.minor}.${newVersion.value.patch}.yaml`, dictionary)
+    await apiService.saveTestDataFile(`${name}.${newVersion.value.major}.${newVersion.value.minor}.${newVersion.value.patch}.yaml`, testData)
     
     // Close dialog and reset
     showNewCollectionDialog.value = false
     newCollectionName.value = ''
+    newCollectionDescription.value = ''
     nameError.value = null
+    newVersion.value = { major: 0, minor: 0, patch: 0 }
     
-    // Navigate to the new collection's detail page with .yaml extension
-    router.push(`/configurations/${name}.yaml`)
+    // Navigate to the new collection's detail page
+    router.push(`/configurations/${configFileName}`)
     
   } catch (err: any) {
     nameError.value = err.message || 'Failed to create collection'
@@ -547,5 +755,41 @@ const nextSlide = () => {
 .detailed-content :deep(strong) {
   font-weight: 600;
   color: #1976d2;
+}
+
+.version-components {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 16px;
+  background-color: #fafafa;
+}
+
+.version-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.version-label {
+  flex: 1;
+}
+
+.version-controls {
+  display: flex;
+  align-items: center;
+}
+
+.version-input {
+  width: 80px;
+}
+
+.version-preview {
+  text-align: center;
+}
+
+.version-display {
+  padding: 16px;
+  background-color: #f5f5f5;
+  border-radius: 8px;
 }
 </style>
