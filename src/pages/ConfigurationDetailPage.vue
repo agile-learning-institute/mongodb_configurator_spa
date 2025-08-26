@@ -704,6 +704,26 @@ const createNewVersion = async () => {
       }
     }
     
+    // Create new test data file for the new version
+    try {
+      const baseName = configuration.value.file_name.replace('.yaml', '')
+      const versionParts = versionString.split('.')
+      
+      if (versionParts.length >= 4) {
+        const testDataFileName = `${baseName}.${versionParts[0]}.${versionParts[1]}.${versionParts[2]}.${versionParts[3]}.json`
+        
+        // Create empty test data array
+        const newTestData: any[] = []
+        
+        // Save the new test data file
+        await apiService.saveTestDataFile(testDataFileName, newTestData)
+        
+        console.log(`Test data file created: ${testDataFileName}`)
+      }
+    } catch (err: any) {
+      console.log(`Failed to create test data file for new version: ${err.message}`)
+    }
+    
     // Set as active version
     activeVersion.value = versionString
     
