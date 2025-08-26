@@ -49,7 +49,7 @@
             </v-btn>
             
             <v-btn
-              color="error"
+              color="red"
               variant="outlined"
               @click="showDeleteCollectionDialog = true"
             >
@@ -795,9 +795,9 @@ const deleteVersion = async () => {
     return
   }
   
-  // Don't allow deletion if it's the only version
+  // If this is the only version, show delete collection confirmation instead
   if (configuration.value.versions.length <= 1) {
-    error.value = 'Cannot delete the only version'
+    showDeleteCollectionDialog.value = true
     return
   }
   
