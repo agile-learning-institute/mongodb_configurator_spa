@@ -140,17 +140,14 @@ describe('Types page flow', () => {
   })
 
   it('can delete a type with confirmation', () => {
-    // Visit types page
+    // First create a type to ensure we have one to delete
     cy.visit('/types')
-    
-    // Wait for any existing types to load
-    cy.get('[data-test^="file-card-"]').should('exist')
-    
-    // Click on the first type card to open detail page
-    cy.get('[data-test^="file-card-"]').first().click()
-    
-    // Verify we're on the detail page
-    cy.url().should('include', '/types/')
+    cy.contains('button', 'New').click()
+    const typeName = `TypeToDelete-${Date.now()}`
+    cy.get('.v-dialog input').type(typeName)
+    cy.get('.v-dialog').contains('button', 'Create').click()
+    cy.url().should('include', `/types/${typeName}.yaml`)
+    createdTypeName = typeName // Ensure this is set for cleanup
     
     // Check if the type is locked - if so, we need to unlock it first to delete
     cy.get('body').then(($body) => {
