@@ -135,5 +135,11 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
+# Cypress
+cypress/screenshots/
+cypress/videos/
+cypress/downloads/
+cypress/fixtures/example.json
+
 # macOS
 .DS_Store
