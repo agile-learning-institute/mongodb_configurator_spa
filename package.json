@@ -16,7 +16,10 @@
     "api": "npm run down && docker compose --profile configurator-api up -d",
     "service": "npm run down && docker compose --profile configurator up -d",
     "pull": "docker compose --profile configurator pull",
-    "down": "docker compose down configurator_spa configurator_api mongodb"
+    "down": "docker compose down configurator_spa configurator_api mongodb",
+    "cy:open": "cypress open",
+    "cy:run": "cypress run",
+    "e2e": "npm run service && cypress run --browser chrome"
   },
   "repository": {
     "type": "git",
@@ -48,6 +51,7 @@
     "@vitejs/plugin-vue": "^6.0.0",
     "@vue/test-utils": "^2.4.6",
     "@vue/vue3-jest": "^29.2.6",
+    "cypress": "^14.5.4",
     "eslint": "^9.29.0",
     "jest": "^29.7.0",
     "jsdom": "^26.1.0",
