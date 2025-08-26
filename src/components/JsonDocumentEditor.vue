@@ -1,19 +1,20 @@
 <template>
-  <div class="json-document-editor">
+  <div class="json-document-editor" data-test="json-document-editor">
     <!-- Header -->
-    <div class="d-flex align-center mb-3">
+    <div class="d-flex align-center mb-3" data-test="editor-header">
       <v-btn
         icon
         size="small"
         variant="text"
         @click="toggleCollapsed"
         class="mr-2"
+        data-test="collapse-toggle-btn"
       >
-        <v-icon size="small">
+        <v-icon size="small" data-test="collapse-toggle-icon">
           {{ collapsed ? 'mdi-chevron-right' : 'mdi-chevron-down' }}
         </v-icon>
       </v-btn>
-      <div class="text-h6 font-weight-bold mr-3">{{ title }}</div>
+      <div class="text-h6 font-weight-bold mr-3" data-test="editor-title">{{ title }}</div>
       <v-spacer />
       <div class="d-flex gap-2">
         <v-btn
@@ -23,8 +24,9 @@
           size="small"
           @click="onDelete"
           :disabled="disabled"
+          data-test="delete-btn"
         >
-          <v-icon start size="small">mdi-delete</v-icon>
+          <v-icon start size="small" data-test="delete-icon">mdi-delete</v-icon>
           Delete
         </v-btn>
       </div>
@@ -32,7 +34,7 @@
 
     <!-- Editor Content (Collapsible) -->
     <v-expand-transition>
-      <div v-show="!collapsed">
+      <div v-show="!collapsed" data-test="editor-content">
         <!-- Editor -->
         <v-textarea
           v-model="jsonText"
@@ -46,6 +48,7 @@
           auto-grow
           @update:model-value="handleJsonChange"
           @blur="validateJson"
+          data-test="json-textarea"
         />
 
         <!-- Error Display -->
@@ -54,6 +57,7 @@
           type="error"
           variant="tonal"
           class="mt-3"
+          data-test="json-error-alert"
         >
           {{ jsonError }}
         </v-alert>
@@ -64,6 +68,7 @@
           type="info"
           variant="tonal"
           class="mt-3"
+          data-test="json-info-alert"
         >
           {{ infoMessage }}
         </v-alert>

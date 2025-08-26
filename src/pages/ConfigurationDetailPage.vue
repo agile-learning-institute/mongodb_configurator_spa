@@ -38,16 +38,45 @@
             />
           </div>
           
-          <div class="d-flex gap-2">
+          <div class="d-flex flex-column gap-2">
             <v-btn
               color="secondary"
               @click="processAllVersions"
               :loading="processing"
-
             >
               <v-icon start>mdi-cog</v-icon>
-              Process Configuration
+              Configure Collection
             </v-btn>
+            
+            <v-btn
+              color="red"
+              variant="outlined"
+              @click="showDeleteCollectionDialog = true"
+            >
+              <v-icon start>mdi-delete</v-icon>
+              Delete Collection
+            </v-btn>
+            
+            <div class="d-flex gap-2">
+              <v-btn
+                color="primary"
+                variant="outlined"
+                size="small"
+                @click="downloadJsonSchema(activeVersion)"
+              >
+                <v-icon start size="small">mdi-code-json</v-icon>
+                JSON Schema
+              </v-btn>
+              <v-btn
+                color="primary"
+                variant="outlined"
+                size="small"
+                @click="downloadBsonSchema(activeVersion)"
+              >
+                <v-icon start size="small">mdi-database</v-icon>
+                BSON Schema
+              </v-btn>
+            </div>
           </div>
         </div>
         
@@ -80,76 +109,46 @@
           <template #title>
             <div class="d-flex align-center gap-2">
               <h3 class="text-h5 mb-0 mr-2">Version:</h3>
-              <v-select
-                v-model="activeVersion"
-                :items="sortedVersions"
-                variant="outlined"
-                density="compact"
-                hide-details
-                class="version-select"
-                style="max-width: 200px;"
-              />
-              <!-- Dictionary and Enumerations links -->
-              <div v-if="activeVersion" class="d-flex flex-column gap-1 ml-4">
+              <div class="d-flex align-center">
                 <v-btn
+                  icon="mdi-chevron-left"
                   variant="text"
                   size="small"
-                  color="default"
-                  @click="openDictionary"
-                  class="justify-start px-0 text-black"
+                  :disabled="!hasPreviousVersion"
+                  @click="navigateToPreviousVersion"
+                  class="mr-1"
+                  data-test="previous-version-btn"
+                />
+                <span class="text-h6 font-weight-medium">{{ activeVersion }}</span>
+                <v-btn
+                  v-if="!hasNextVersion"
+                  prepend-icon="mdi-plus"
+                  variant="elevated"
+                  size="small"
+                  color="primary"
+                  class="ml-1 new-version-btn"
+                  title="Create new version"
+                  @click="showNewVersionDialog = true"
                 >
-                  <v-icon start size="small">mdi-book-open-variant</v-icon>
-                  Dictionary: {{ dictionaryFileName }}
+                  New Version
                 </v-btn>
                 <v-btn
+                  v-else
+                  icon="mdi-chevron-right"
                   variant="text"
                   size="small"
-                  color="default"
-                  @click="openEnumerations"
-                  class="justify-start px-0 text-black"
-                >
-                  <v-icon start size="small">mdi-format-list-numbered</v-icon>
-                  Enumerations: {{ enumerationsFileName }}
-                </v-btn>
+                  :disabled="!hasNextVersion"
+                  @click="navigateToNextVersion"
+                  class="ml-1"
+                />
               </div>
             </div>
           </template>
           
           <template #header-actions>
-            <div v-if="activeVersion" class="d-flex flex-column gap-2">
-              <!-- Schema download buttons -->
-              <div class="d-flex gap-2">
-                <v-btn
-                  color="primary"
-                  variant="elevated"
-                  size="small"
-                  @click="downloadJsonSchema(activeVersion)"
-                >
-                  <v-icon start size="small">mdi-code-json</v-icon>
-                  JSON Schema
-                </v-btn>
-                <v-btn
-                  color="primary"
-                  variant="elevated"
-                  size="small"
-                  @click="downloadBsonSchema(activeVersion)"
-                >
-                  <v-icon start size="small">mdi-database</v-icon>
-                  BSON Schema
-                </v-btn>
-              </div>
-              
+            <div v-if="activeVersion && activeVersionData" class="d-flex flex-column gap-2">
               <!-- Version action buttons -->
               <div class="d-flex gap-2">
-                <v-btn
-                  color="secondary"
-                  variant="elevated"
-                  size="small"
-                  @click="showNewVersionDialog = true"
-                >
-                  <v-icon start size="small">mdi-plus</v-icon>
-                  New Version
-                </v-btn>
                 <v-btn
                   :color="activeVersionData?._locked ? 'warning' : 'success'"
                   variant="elevated"
@@ -179,6 +178,7 @@
                 :version="activeVersionData"
                 :on-update="autoSave"
                 :disabled="activeVersionData._locked"
+                :configuration="configuration"
               />
             </div>
         </BaseCard>
@@ -340,15 +340,35 @@
       </v-card-actions>
     </v-card>
   </v-dialog>
+  
+  <!-- Delete Collection Confirmation Dialog -->
+  <v-dialog v-model="showDeleteCollectionDialog" max-width="500">
+    <v-card>
+      <v-card-title class="text-h5">
+        Delete Collection?
+      </v-card-title>
+      <v-card-text>
+        <p>Are you sure you want to delete the collection "{{ configuration?.title || configuration?.file_name }}"?</p>
+        <p class="text-caption text-medium-emphasis">
+          This will permanently delete the configuration and all its versions. This action cannot be undone.
+        </p>
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer />
+        <v-btn @click="showDeleteCollectionDialog = false">Cancel</v-btn>
+        <v-btn color="error" @click="confirmDeleteCollection">Delete</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { apiService } from '@/utils/api'
 import { useEvents } from '@/composables/useEvents'
+import { useEventState } from '@/composables/useEventState'
+import { apiService } from '@/utils/api'
 import BaseCard from '@/components/BaseCard.vue'
-
 import VersionInformationCards from '@/components/VersionInformationCards.vue'
 
 interface ConfigurationVersion {
@@ -380,6 +400,7 @@ const descriptionInput = ref<HTMLElement | null>(null)
 const editingTitle = ref(false)
 const titleInput = ref<HTMLElement | null>(null)
 const showNewVersionDialog = ref(false)
+const showDeleteCollectionDialog = ref(false)
 const newVersion = ref({
   major: 0,
   minor: 0,
@@ -390,7 +411,7 @@ const newVersion = ref({
 // Computed properties
 const sortedVersions = computed(() => {
   if (!configuration.value?.versions) return []
-  return [...configuration.value.versions].reverse().map(v => v.version) // Just return version strings
+  return configuration.value.versions.map(v => v.version) // Use natural order from API
 })
 
 const activeVersionData = computed(() => {
@@ -398,30 +419,39 @@ const activeVersionData = computed(() => {
   return configuration.value.versions.find(v => v.version === activeVersion.value)
 })
 
+const hasPreviousVersion = computed(() => {
+  if (!configuration.value || !activeVersion.value) return false
+  const currentIndex = sortedVersions.value.findIndex(v => v === activeVersion.value)
+  return currentIndex > 0
+})
+
+const hasNextVersion = computed(() => {
+  if (!configuration.value || !activeVersion.value) return false
+  const currentIndex = sortedVersions.value.findIndex(v => v === activeVersion.value)
+  return currentIndex < sortedVersions.value.length - 1
+})
 
 
 const newVersionString = computed(() => {
   return `${newVersion.value.major}.${newVersion.value.minor}.${newVersion.value.patch}.${newVersion.value.enumerators}`
 })
 
-const dictionaryFileName = computed(() => {
-  if (!configuration.value || !activeVersion.value) return ''
-  const baseName = configuration.value.file_name.replace('.yaml', '')
-  const versionParts = activeVersion.value.split('.')
-  if (versionParts.length >= 3) {
-    return `${baseName}.${versionParts[0]}.${versionParts[1]}.${versionParts[2]}.yaml`
-  }
-  return `${baseName}.0.0.0.yaml`
-})
+// Remove unused computed properties
+// const dictionaryFileName = computed(() => {
+//   if (!configuration.value || !configuration.value.versions || configuration.value.versions.length === 0) {
+//     return null
+//   }
+//   const currentVersion = configuration.value.versions[configuration.value.versions.length - 1]
+//   return currentVersion.dictionary
+// })
 
-const enumerationsFileName = computed(() => {
-  if (!configuration.value || !activeVersion.value) return ''
-  const versionParts = activeVersion.value.split('.')
-  if (versionParts.length >= 4) {
-    return `enumerations.${versionParts[3]}.yaml`
-  }
-  return 'enumerations.0.yaml'
-})
+// const enumerationsFileName = computed(() => {
+//   if (!configuration.value || !configuration.value.versions || configuration.value.versions.length === 0) {
+//     return null
+//   }
+//   const currentVersion = configuration.value.versions[configuration.value.versions.length - 1]
+//   return currentVersion.enumerators
+// })
 
 
 
@@ -506,27 +536,19 @@ const processAllVersions = async () => {
   try {
     const result = await apiService.processConfiguration(configuration.value.file_name)
     
-    // Handle array of events or single event - navigate to Event Viewer
+    // Handle array of events or single event - clear old state and set new state
     if (Array.isArray(result) && result.length > 0) {
       // API returned an array of events
-      router.push({
-        name: 'EventViewer',
-        query: {
-          eventData: JSON.stringify(result[0]),
-          title: 'Configuration Processed',
-          subtitle: 'Configuration processing completed'
-        }
-      })
+      const { clearEventViewerState, setEventViewerState } = useEventState()
+      clearEventViewerState() // Clear old state before setting new
+      setEventViewerState(result[0], 'Configuration Processed', 'Configuration processing completed')
+      router.push('/event-viewer')
     } else if (result && result.id && result.type && result.status) {
       // API returned a single event
-      router.push({
-        name: 'EventViewer',
-        query: {
-          eventData: JSON.stringify(result),
-          title: 'Configuration Processed',
-          subtitle: 'Configuration processing completed'
-        }
-      })
+      const { clearEventViewerState, setEventViewerState } = useEventState()
+      clearEventViewerState() // Clear old state before setting new
+      setEventViewerState(result, 'Configuration Processed', 'Configuration processing completed')
+      router.push('/event-viewer')
     } else {
       // No event data, show simple success message
       const { showError } = useEvents()
@@ -702,6 +724,26 @@ const createNewVersion = async () => {
       }
     }
     
+    // Create new test data file for the new version
+    try {
+      const baseName = configuration.value.file_name.replace('.yaml', '')
+      const versionParts = versionString.split('.')
+      
+      if (versionParts.length >= 4) {
+        const testDataFileName = `${baseName}.${versionParts[0]}.${versionParts[1]}.${versionParts[2]}.${versionParts[3]}.json`
+        
+        // Create empty test data array
+        const newTestData: any[] = []
+        
+        // Save the new test data file
+        await apiService.saveTestDataFile(testDataFileName, newTestData)
+        
+        console.log(`Test data file created: ${testDataFileName}`)
+      }
+    } catch (err: any) {
+      console.log(`Failed to create test data file for new version: ${err.message}`)
+    }
+    
     // Set as active version
     activeVersion.value = versionString
     
@@ -743,9 +785,9 @@ const deleteVersion = async () => {
     return
   }
   
-  // Don't allow deletion if it's the only version
+  // If this is the only version, show delete collection confirmation instead
   if (configuration.value.versions.length <= 1) {
-    error.value = 'Cannot delete the only version'
+    showDeleteCollectionDialog.value = true
     return
   }
   
@@ -769,24 +811,68 @@ const deleteVersion = async () => {
   }
 }
 
-const openDictionary = () => {
-  if (!dictionaryFileName.value) return
+const confirmDeleteCollection = async () => {
+  if (!configuration.value) return
   
-  // Navigate to the dictionary detail page
-  router.push({
-    name: 'DictionaryDetail',
-    params: { fileName: dictionaryFileName.value }
-  })
+  try {
+    // Call the DELETE endpoint to remove the configuration
+    await apiService.deleteConfiguration(configuration.value.file_name)
+    
+    // Close the dialog
+    showDeleteCollectionDialog.value = false
+    
+    // Navigate back to configurations list
+    router.push('/configurations')
+  } catch (err: any) {
+    error.value = err.message || 'Failed to delete collection'
+    console.error('Failed to delete collection:', err)
+  }
 }
 
-const openEnumerations = () => {
-  if (!enumerationsFileName.value) return
+const navigateToPreviousVersion = () => {
+  console.log('navigateToPreviousVersion called')
+  console.log('configuration.value:', configuration.value)
+  console.log('activeVersion.value:', activeVersion.value)
+  console.log('sortedVersions.value:', sortedVersions.value)
   
-  // Navigate to the enumerations detail page
-  router.push({
-    name: 'EnumeratorDetail',
-    params: { fileName: enumerationsFileName.value }
-  })
+  if (!configuration.value || !activeVersion.value) {
+    console.log('Early return - missing configuration or activeVersion')
+    return
+  }
+  
+  const currentIndex = sortedVersions.value.findIndex(v => v === activeVersion.value)
+  console.log('currentIndex:', currentIndex)
+  
+  if (currentIndex > 0) {
+    const previousVersion = sortedVersions.value[currentIndex - 1]
+    console.log('Setting activeVersion to previous version:', previousVersion)
+    activeVersion.value = previousVersion
+  } else {
+    console.log('No previous version available')
+  }
+}
+
+const navigateToNextVersion = () => {
+  console.log('navigateToNextVersion called')
+  console.log('configuration.value:', configuration.value)
+  console.log('activeVersion.value:', activeVersion.value)
+  console.log('sortedVersions.value:', sortedVersions.value)
+  
+  if (!configuration.value || !activeVersion.value) {
+    console.log('Early return - missing configuration or activeVersion')
+    return
+  }
+  
+  const currentIndex = sortedVersions.value.findIndex(v => v === activeVersion.value)
+  console.log('currentIndex:', currentIndex)
+  
+  if (currentIndex < sortedVersions.value.length - 1) {
+    const nextVersion = sortedVersions.value[currentIndex + 1]
+    console.log('Setting activeVersion to next version:', nextVersion)
+    activeVersion.value = nextVersion
+  } else {
+    console.log('No next version available')
+  }
 }
 
 // Load configuration on mount
@@ -911,5 +997,21 @@ watch(showNewVersionDialog, (newValue) => {
 
 .cursor-pointer {
   cursor: pointer;
+}
+
+/* New Version Button Styling */
+.new-version-btn {
+  background-color: var(--v-theme-primary) !important;
+  color: white !important;
+  font-weight: 600 !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+  border: 2px solid var(--v-theme-primary) !important;
+}
+
+.new-version-btn:hover {
+  background-color: var(--v-theme-primary-darken-1) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+  transition: all 0.2s ease !important;
 }
 </style> 

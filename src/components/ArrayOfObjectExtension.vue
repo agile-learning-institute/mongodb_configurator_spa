@@ -1,5 +1,5 @@
 <template>
-  <div class="array-of-object-extension">
+  <div class="array-of-object-extension" data-test="array-of-object-extension">
     <!-- Extend the base array extension (items type picker) -->
     <ArrayPropertyExtension
       :property="property"
@@ -7,12 +7,13 @@
       :is-type="isType"
       :disabled="disabled"
       @change="handleArrayChange"
+      data-test="array-property-extension"
     />
     
     <!-- Object-specific actions -->
-    <div class="object-actions">
+    <div class="object-actions" data-test="object-actions">
       <!-- Add Property button -->
-      <div v-if="!disabled" class="action-section">
+      <div v-if="!disabled" class="action-section" data-test="add-property-action-section">
         <v-tooltip text="Add Property" location="top">
           <template v-slot:activator="{ props }">
             <v-btn
@@ -22,13 +23,14 @@
               color="primary"
               v-bind="props"
               @click="handleAddProperty"
+              data-test="add-property-btn"
             />
           </template>
         </v-tooltip>
       </div>
       
       <!-- Allow Additional Properties toggle -->
-      <div v-if="!disabled" class="action-section">
+      <div v-if="!disabled" class="action-section" data-test="additional-props-action-section">
         <v-tooltip :text="additionalPropsTooltip" location="top">
           <template v-slot:activator="{ props }">
             <v-btn
@@ -38,13 +40,14 @@
               color="primary"
               v-bind="props"
               @click="toggleAdditionalProperties"
+              data-test="additional-props-toggle-btn"
             />
           </template>
         </v-tooltip>
       </div>
       
       <!-- Show/Hide Properties chevron -->
-      <div v-if="!disabled" class="action-section">
+      <div v-if="!disabled" class="action-section" data-test="collapse-action-section">
         <v-tooltip :text="collapsed ? 'Show Properties' : 'Hide Properties'" location="top">
           <template v-slot:activator="{ props }">
             <v-btn
@@ -54,6 +57,7 @@
               color="primary"
               v-bind="props"
               @click="toggleCollapsed"
+              data-test="collapse-toggle-btn"
             />
           </template>
         </v-tooltip>

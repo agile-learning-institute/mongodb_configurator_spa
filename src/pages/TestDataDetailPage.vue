@@ -19,20 +19,49 @@
         :title="fileName"
         icon="mdi-file-document"
       >
-
+        <template #header-actions>
+          <v-btn
+            color="error"
+            variant="elevated"
+            @click="showDeleteDialog = true"
+            class="font-weight-bold"
+            data-test="delete-file-btn"
+          >
+            <v-icon start>mdi-delete</v-icon>
+            Delete
+          </v-btn>
+        </template>
 
         <JsonArrayEditor
           v-model="testData"
           title="Test Data"
           item-label="Document"
           :auto-save="autoSave"
-          :allow-multiple="false"
+          :allow-multiple="true"
           size-mode="fit-content"
         />
       </BaseCard>
     </div>
     
-
+    <!-- Delete Confirmation Dialog -->
+    <v-dialog v-model="showDeleteDialog" max-width="500">
+      <v-card>
+        <v-card-title class="text-h5">
+          Delete Test Data File?
+        </v-card-title>
+        <v-card-text>
+          <p>Are you sure you want to delete "{{ fileName }}"?</p>
+          <p class="text-caption text-medium-emphasis">
+            This action cannot be undone.
+          </p>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer />
+          <v-btn @click="showDeleteDialog = false">Cancel</v-btn>
+          <v-btn color="error" @click="confirmDelete" data-test="confirm-delete-btn">Delete</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
@@ -48,6 +77,7 @@ const loading = ref(false)
 const saving = ref(false)
 const error = ref<string | null>(null)
 const testData = ref<any[] | null>(null)
+const showDeleteDialog = ref(false)
 
 const fileName = computed(() => route.params.fileName as string)
 
@@ -83,6 +113,19 @@ const autoSave = async () => {
   }
 }
 
+// Delete functionality
+const confirmDelete = async () => {
+  try {
+    await apiService.deleteTestDataFile(fileName.value)
+    // Navigate back to test data list
+    window.location.href = '/test_data'
+  } catch (err: any) {
+    error.value = err.message || 'Failed to delete test data file'
+    console.error('Failed to delete test data file:', err)
+  } finally {
+    showDeleteDialog.value = false
+  }
+}
 
 
 // Load test data on mount

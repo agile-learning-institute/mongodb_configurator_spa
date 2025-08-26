@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div data-test="enum-picker">
     <!-- Display chip that opens the picker -->
     <v-chip
       color="purple"
@@ -7,18 +7,19 @@
       class="cursor-pointer"
       :disabled="disabled"
       @click="showPicker = true"
+      data-test="enum-picker-chip"
     >
-      <v-icon start size="small">mdi-format-list-checks</v-icon>
-      {{ modelValue || 'Pick an enum' }}
+      <v-icon start size="small" data-test="enum-picker-icon">mdi-format-list-checks</v-icon>
+      <span data-test="enum-picker-value">{{ modelValue || 'Pick an enum' }}</span>
     </v-chip>
 
     <!-- Enum Picker Dialog -->
-    <v-dialog v-model="showPicker" max-width="800">
+    <v-dialog v-model="showPicker" max-width="800" data-test="enum-picker-dialog">
       <v-card>
-        <v-card-title class="d-flex justify-space-between align-center pa-4">
-          <span>Pick an Enumerator</span>
-          <v-btn icon size="small" @click="showPicker = false">
-            <v-icon>mdi-close</v-icon>
+        <v-card-title class="d-flex justify-space-between align-center pa-4" data-test="enum-picker-dialog-title">
+          <span data-test="enum-picker-dialog-title-text">Pick an Enumerator</span>
+          <v-btn icon size="small" @click="showPicker = false" data-test="enum-picker-close-btn">
+            <v-icon data-test="enum-picker-close-icon">mdi-close</v-icon>
           </v-btn>
         </v-card-title>
         
@@ -31,22 +32,24 @@
             density="compact"
             hide-details
             class="mb-3"
+            data-test="enum-picker-search-input"
           />
           
           <!-- Enumerator Files Tabs -->
-          <v-tabs v-model="selectedEnumeratorFile" class="mb-4">
+          <v-tabs v-model="selectedEnumeratorFile" class="mb-4" data-test="enum-picker-tabs">
             <v-tab
               v-for="enumeratorFile in filteredEnumeratorFiles"
               :key="enumeratorFile.file_name"
               :value="enumeratorFile.file_name"
+              :data-test="`enum-picker-tab-${enumeratorFile.file_name}`"
             >
               {{ enumeratorFile.name || enumeratorFile.file_name.replace('.yaml', '') }}
             </v-tab>
           </v-tabs>
 
           <!-- Enum Values for Selected Version -->
-          <div v-if="selectedEnumeratorData && selectedEnumeratorData.enumerators" class="mb-4">
-            <h4 class="mb-3">Select Enumerator:</h4>
+          <div v-if="selectedEnumeratorData && selectedEnumeratorData.enumerators" class="mb-4" data-test="enum-picker-values">
+            <h4 class="mb-3" data-test="enum-picker-values-title">Select Enumerator:</h4>
             <div class="d-flex flex-wrap gap-2">
               <v-chip
                 v-for="(_, enumeratorName) in selectedEnumeratorData.enumerators"
@@ -56,17 +59,18 @@
                 size="default"
                 class="cursor-pointer pa-2"
                 @click="selectEnum(String(enumeratorName))"
+                :data-test="`enum-value-chip-${enumeratorName}`"
               >
-                <v-icon start size="18">mdi-format-list-checks</v-icon>
-                {{ enumeratorName }}
+                <v-icon start size="18" :data-test="`enum-value-icon-${enumeratorName}`">mdi-format-list-checks</v-icon>
+                <span :data-test="`enum-value-name-${enumeratorName}`">{{ enumeratorName }}</span>
               </v-chip>
             </div>
           </div>
 
           <!-- No enumerators message -->
-          <div v-else-if="filteredEnumeratorFiles.length === 0" class="text-center pa-4">
-            <v-icon size="48" color="grey">mdi-format-list-checks</v-icon>
-            <p class="text-grey mt-2">No enumerators found</p>
+          <div v-else-if="filteredEnumeratorFiles.length === 0" class="text-center pa-4" data-test="enum-picker-no-enumerators">
+            <v-icon size="48" color="grey" data-test="enum-picker-no-enumerators-icon">mdi-format-list-checks</v-icon>
+            <p class="text-grey mt-2" data-test="enum-picker-no-enumerators-message">No enumerators found</p>
           </div>
         </v-card-text>
       </v-card>

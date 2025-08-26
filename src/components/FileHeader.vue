@@ -1,5 +1,5 @@
 <template>
-  <div class="file-header d-flex justify-space-between align-center mb-6">
+  <div class="file-header d-flex justify-space-between align-center mb-6" data-test="file-header">
     <div class="flex-grow-1">
       <!-- Editable Title -->
       <div class="mb-2">
@@ -8,6 +8,7 @@
           v-if="!editingTitle" 
           class="text-h4 clickable-title"
           @click="startEditTitle"
+          data-test="file-title-display"
         >
           {{ displayTitle }}
         </h1>
@@ -26,16 +27,18 @@
           ref="titleField"
           hide-details
           autofocus
+          data-test="file-title-input"
         />
       </div>
     </div>
     
-    <div class="d-flex align-center">
+    <div class="d-flex align-center" data-test="file-header-actions">
       <!-- Status Chip -->
       <v-chip
         v-if="locked"
         color="warning"
         class="mr-2"
+        data-test="locked-chip"
       >
         Locked
       </v-chip>
@@ -47,8 +50,9 @@
         variant="elevated"
         @click="$emit('unlock')"
         class="mr-2 font-weight-bold"
+        data-test="unlock-btn"
       >
-        <v-icon start>mdi-lock-open</v-icon>
+        <v-icon start data-test="unlock-icon">mdi-lock-open</v-icon>
         Unlock
       </v-btn>
       <v-btn
@@ -57,8 +61,9 @@
         variant="elevated"
         @click="$emit('lock')"
         class="mr-2 font-weight-bold"
+        data-test="lock-btn"
       >
-        <v-icon start>mdi-lock</v-icon>
+        <v-icon start data-test="lock-icon">mdi-lock</v-icon>
         Lock
       </v-btn>
       
@@ -68,8 +73,9 @@
         variant="elevated"
         @click="$emit('delete')"
         class="mr-2 font-weight-bold"
+        data-test="delete-btn"
       >
-        <v-icon start>mdi-delete</v-icon>
+        <v-icon start data-test="delete-icon">mdi-delete</v-icon>
         Delete
       </v-btn>
       

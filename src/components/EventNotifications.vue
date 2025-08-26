@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div data-test="event-notifications">
     <!-- Global notifications -->
     <v-snackbar
       v-for="event in events"
@@ -9,14 +9,15 @@
       :timeout="event.autoDismiss || -1"
       @input="removeEvent(event.id)"
       :class="{ 'dismissible': event.dismissible }"
+      :data-test="`event-snackbar-${event.id}`"
     >
       <div class="d-flex align-center">
-        <v-icon class="mr-2">{{ eventIcon(event.type) }}</v-icon>
+        <v-icon class="mr-2" :data-test="`event-icon-${event.id}`">{{ eventIcon(event.type) }}</v-icon>
         <div>
-          <div class="font-weight-bold">{{ event.title }}</div>
-          <div>{{ event.message }}</div>
+          <div class="font-weight-bold" :data-test="`event-title-${event.id}`">{{ event.title }}</div>
+          <div :data-test="`event-message-${event.id}`">{{ event.message }}</div>
           <div v-if="event.details" class="text-caption mt-1">
-            <v-btn text small @click="showDetails(event)">
+            <v-btn text small @click="showDetails(event)" :data-test="`view-details-btn-${event.id}`">
               View Details
             </v-btn>
           </div>
@@ -28,6 +29,7 @@
           v-if="event.dismissible"
           text
           @click="removeEvent(event.id)"
+          :data-test="`close-event-btn-${event.id}`"
         >
           Close
         </v-btn>
@@ -41,18 +43,19 @@
       right
       temporary
       width="400"
+      data-test="processing-events-panel"
     >
-      <v-card-title class="d-flex justify-space-between align-center">
+      <v-card-title class="d-flex justify-space-between align-center" data-test="processing-events-title">
         Processing Events
-        <v-btn icon small @click="showProcessingPanel = false">
-          <v-icon>mdi-close</v-icon>
+        <v-btn icon small @click="showProcessingPanel = false" data-test="close-processing-panel-btn">
+          <v-icon data-test="close-processing-panel-icon">mdi-close</v-icon>
         </v-btn>
       </v-card-title>
       
       <v-card-text>
-        <div v-if="processingEvents.length === 0" class="text-center pa-4">
-          <v-icon size="48" color="grey">mdi-check-circle</v-icon>
-          <p class="mt-2">No processing events</p>
+        <div v-if="processingEvents.length === 0" class="text-center pa-4" data-test="no-processing-events">
+          <v-icon size="48" color="grey" data-test="no-processing-events-icon">mdi-check-circle</v-icon>
+          <p class="mt-2" data-test="no-processing-events-message">No processing events</p>
         </div>
         
         <StatusCard
@@ -66,20 +69,21 @@
           @retry="retryProcessing(event.id)"
           @view="viewResults(event.id)"
           @dismiss="removeProcessingEvent(event.id)"
+          :data-test="`processing-status-card-${event.id}`"
         />
       </v-card-text>
     </v-navigation-drawer>
     
     <!-- Details dialog -->
-    <v-dialog v-model="detailsDialog.show" max-width="600">
+    <v-dialog v-model="detailsDialog.show" max-width="600" data-test="event-details-dialog">
       <v-card>
-        <v-card-title>{{ detailsDialog.title }}</v-card-title>
+        <v-card-title data-test="event-details-title">{{ detailsDialog.title }}</v-card-title>
         <v-card-text>
-          <pre class="text-caption">{{ detailsDialog.details }}</pre>
+          <pre class="text-caption" data-test="event-details-content">{{ detailsDialog.details }}</pre>
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn text @click="detailsDialog.show = false">
+          <v-btn text @click="detailsDialog.show = false" data-test="close-details-dialog-btn">
             Close
           </v-btn>
         </v-card-actions>

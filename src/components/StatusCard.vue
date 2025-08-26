@@ -3,48 +3,52 @@
     :title="title"
     :icon="statusIcon"
     class="mb-4"
+    :data-test="`status-card-${status}`"
   >
     <template #header-actions>
       <v-chip
         :color="statusColor"
         small
+        data-test="status-chip"
       >
         {{ status }}
       </v-chip>
     </template>
 
-    <div v-if="message" class="mb-3">
-      <p>{{ message }}</p>
+    <div v-if="message" class="mb-3" data-test="status-message">
+      <p data-test="status-message-text">{{ message }}</p>
     </div>
     
-    <div v-if="progress !== null" class="mb-3">
+    <div v-if="progress !== null" class="mb-3" data-test="status-progress">
       <v-progress-linear
         :value="progress"
         :color="progressColor"
         height="8"
         rounded
+        data-test="progress-bar"
       />
-      <p class="text-caption mt-1">{{ progress }}% complete</p>
+      <p class="text-caption mt-1" data-test="progress-text">{{ progress }}% complete</p>
     </div>
     
-    <div v-if="details" class="mt-3">
-      <v-expansion-panels>
-        <v-expansion-panel>
-          <v-expansion-panel-title>
+    <div v-if="details" class="mt-3" data-test="status-details">
+      <v-expansion-panels data-test="details-expansion-panels">
+        <v-expansion-panel data-test="details-expansion-panel">
+          <v-expansion-panel-title data-test="details-expansion-panel-title">
             Details
           </v-expansion-panel-title>
-          <v-expansion-panel-text>
-            <pre class="text-caption">{{ details }}</pre>
+          <v-expansion-panel-text data-test="details-expansion-panel-text">
+            <pre class="text-caption" data-test="details-content">{{ details }}</pre>
           </v-expansion-panel-text>
         </v-expansion-panel>
       </v-expansion-panels>
     </div>
     
-    <v-card-actions v-if="showActions" class="status-actions">
+    <v-card-actions v-if="showActions" class="status-actions" data-test="status-actions">
       <v-btn
         v-if="status === 'error'"
         color="primary"
         @click="$emit('retry')"
+        data-test="retry-btn"
       >
         Retry
       </v-btn>
@@ -52,6 +56,7 @@
         v-if="status === 'completed'"
         color="secondary"
         @click="$emit('view')"
+        data-test="view-results-btn"
       >
         View Results
       </v-btn>
@@ -59,6 +64,7 @@
       <v-btn
         text
         @click="$emit('dismiss')"
+        data-test="dismiss-btn"
       >
         Dismiss
       </v-btn>

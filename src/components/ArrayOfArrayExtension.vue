@@ -1,5 +1,5 @@
 <template>
-  <div class="array-of-array-extension">
+  <div class="array-of-array-extension" data-test="array-of-array-extension">
     <!-- Extend the base array extension (items type picker) -->
     <ArrayPropertyExtension
       :property="props.property"
@@ -7,12 +7,13 @@
       :is-type="props.isType"
       :disabled="props.disabled"
       @change="handleArrayChange"
+      data-test="array-property-extension"
     />
     
     <!-- Array-specific actions -->
-    <div class="array-actions">
+    <div class="array-actions" data-test="array-actions">
       <!-- Show/Hide Items chevron -->
-      <div v-if="!props.disabled" class="action-section">
+      <div v-if="!props.disabled" class="action-section" data-test="collapse-action-section">
         <v-tooltip :text="collapsed ? 'Show Items' : 'Hide Items'" location="top">
           <template v-slot:activator="{ props }">
             <v-btn
@@ -22,6 +23,7 @@
               color="primary"
               v-bind="props"
               @click="toggleCollapsed"
+              data-test="collapse-toggle-btn"
             />
           </template>
         </v-tooltip>

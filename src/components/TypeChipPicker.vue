@@ -1,9 +1,10 @@
 <template>
-  <div class="type-chip-picker">
+  <div class="type-chip-picker" data-test="type-chip-picker">
     <v-menu
       v-model="menuOpen"
       :close-on-content-click="false"
       location="bottom"
+      data-test="type-picker-menu"
     >
       <template v-slot:activator="{ props }">
         <v-chip
@@ -12,23 +13,24 @@
           size="small"
           v-bind="disabled ? {} : props"
           @click="!disabled && (menuOpen = true)"
+          data-test="type-chip"
         >
-          <v-icon start size="small">{{ getTypeIcon() }}</v-icon>
-          {{ getDisplayName() }}
-          <v-icon end size="small" v-if="!disabled">mdi-chevron-down</v-icon>
+          <v-icon start size="small" data-test="type-icon">{{ getTypeIcon() }}</v-icon>
+          <span data-test="type-display-name">{{ getDisplayName() }}</span>
+          <v-icon end size="small" v-if="!disabled" data-test="dropdown-icon">mdi-chevron-down</v-icon>
         </v-chip>
       </template>
       
-      <v-card min-width="300" class="type-picker-menu">
-        <v-card-title class="text-subtitle-2 pa-4 pb-2">
+      <v-card min-width="300" class="type-picker-menu" data-test="type-picker-card">
+        <v-card-title class="text-subtitle-2 pa-4 pb-2" data-test="type-picker-title">
           Select Property Type
         </v-card-title>
         
         <v-card-text class="pa-4 pt-0">
           <div class="type-categories">
             <!-- Built-in Types -->
-            <div class="type-category mb-4">
-              <div class="text-caption text-medium-emphasis mb-2">Built-in Types</div>
+            <div class="type-category mb-4" data-test="built-in-types-category">
+              <div class="text-caption text-medium-emphasis mb-2" data-test="built-in-types-label">Built-in Types</div>
               <div class="d-flex flex-wrap gap-2">
                 <v-chip
                   v-for="type in availableBuiltInTypes"
@@ -37,16 +39,17 @@
                   variant="outlined"
                   size="small"
                   @click="selectType(type.value)"
+                  :data-test="`built-in-type-${type.value}`"
                 >
-                  <v-icon start size="small">{{ type.icon }}</v-icon>
-                  {{ type.title }}
+                  <v-icon start size="small" :data-test="`built-in-type-icon-${type.value}`">{{ type.icon }}</v-icon>
+                  <span :data-test="`built-in-type-title-${type.value}`">{{ type.title }}</span>
                 </v-chip>
               </div>
             </div>
             
             <!-- Custom Types (only for non-root properties) -->
-            <div v-if="!isRoot && customTypes.length > 0" class="type-category">
-              <div class="text-caption text-medium-emphasis mb-2">Custom Types</div>
+            <div v-if="!isRoot && customTypes.length > 0" class="type-category" data-test="custom-types-category">
+              <div class="text-caption text-medium-emphasis mb-2" data-test="custom-types-label">Custom Types</div>
               <div class="d-flex flex-wrap gap-2">
                 <v-chip
                   v-for="type in customTypes"
@@ -55,9 +58,10 @@
                   variant="outlined"
                   size="small"
                   @click="selectCustomType(type)"
+                  :data-test="`custom-type-${type.file_name}`"
                 >
-                  <v-icon start size="small">mdi-file-document</v-icon>
-                  {{ type.name }}
+                  <v-icon start size="small" data-test="custom-type-icon">mdi-file-document</v-icon>
+                  <span :data-test="`custom-type-name-${type.file_name}`">{{ type.name }}</span>
                 </v-chip>
               </div>
             </div>

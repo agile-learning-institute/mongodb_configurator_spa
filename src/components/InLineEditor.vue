@@ -1,5 +1,5 @@
 <template>
-  <span>
+  <span data-test="inline-editor">
     <v-text-field
       v-if="editing"
       v-model="internalValue"
@@ -13,12 +13,14 @@
       :placeholder="placeholder"
       style="min-width: 60px; max-width: 200px; display: inline-block;"
       autofocus
+      data-test="inline-editor-input"
     />
     <span
       v-else
       class="inline-editor-text"
       @click="startEdit"
       :style="{ cursor: 'pointer', minWidth: '60px', display: 'inline-block' }"
+      data-test="inline-editor-text"
     >
       {{ modelValue || placeholder }}
     </span>

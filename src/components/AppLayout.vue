@@ -2,22 +2,25 @@
   <v-app>
     <!-- App Bar -->
     <v-app-bar color="primary" theme="dark" class="app-header">
-      <v-app-bar-nav-icon @click="toggleDrawer" />
-      <v-toolbar-title class="text-h5 font-weight-medium">MongoDB Configurator</v-toolbar-title>
+      <v-app-bar-nav-icon @click="toggleDrawer" data-test="nav-toggle" />
+      <v-toolbar-title class="text-h5 font-weight-medium" data-test="app-title">
+        <router-link to="/" class="text-decoration-none text-white">MongoDB Configurator</router-link>
+      </v-toolbar-title>
       <v-spacer></v-spacer>
       
-      <!-- Process All Button -->
+      <!-- Configure Database Button -->
       <v-btn
         color="white"
         variant="elevated"
         size="large"
-        class="mr-3 process-btn"
         @click="processAllConfigurations"
         :loading="processing"
         :disabled="processing"
+        class="mr-3 process-btn"
+        data-test="process-all-btn"
       >
-        <v-icon start>mdi-cog</v-icon>
-        Process All
+        <v-icon start data-test="process-all-icon">mdi-cog</v-icon>
+        Configure Database
       </v-btn>
       
       <!-- Drop Database Button -->
@@ -29,14 +32,15 @@
         @click="showDropDatabaseDialog = true"
         :loading="dropping"
         :disabled="dropping"
+        data-test="drop-database-btn"
       >
-        <v-icon start>mdi-delete</v-icon>
+        <v-icon start data-test="drop-database-icon">mdi-delete</v-icon>
         Drop Database
       </v-btn>
       
       <!-- Admin Button -->
-      <v-btn icon to="/admin" title="Admin" class="admin-btn">
-        <v-icon>mdi-cog</v-icon>
+      <v-btn icon to="/admin" title="Admin" class="admin-btn" data-test="admin-btn">
+        <v-icon data-test="admin-icon">mdi-cog</v-icon>
       </v-btn>
       
       <!-- Help Button -->
@@ -45,10 +49,11 @@
         @click="toggleHelp" 
         title="Help" 
         class="help-btn"
-        :color="isOnHelpPage ? 'white' : undefined"
+        :color="isOnHelpPage ? 'primary' : undefined"
         :variant="isOnHelpPage ? 'elevated' : 'text'"
+        data-test="help-btn"
       >
-        <v-icon>mdi-help-circle</v-icon>
+        <v-icon data-test="help-icon">mdi-help-circle</v-icon>
       </v-btn>
     </v-app-bar>
 
@@ -60,24 +65,25 @@
       :permanent="$vuetify.display.mdAndUp"
       :temporary="$vuetify.display.smAndDown"
       :rail="!drawer && $vuetify.display.mdAndUp"
+      data-test="navigation-drawer"
     >
       <v-list density="comfortable" nav class="navigation-list">
         <!-- Navigation Items -->
-        <v-list-item v-for="item in navItems" :key="item.title" :to="item.to" link>
+        <v-list-item v-for="item in navItems" :key="item.title" :to="item.to" link :data-test="`nav-item-${item.title.toLowerCase().replace(/\s+/g, '-')}`">
           <template v-slot:prepend>
-            <v-icon size="large">{{ item.icon }}</v-icon>
+            <v-icon size="large" :data-test="`nav-icon-${item.title.toLowerCase().replace(/\s+/g, '-')}`">{{ item.icon }}</v-icon>
           </template>
-          <v-list-item-title class="text-body-1 font-weight-medium">{{ item.title }}</v-list-item-title>
+          <v-list-item-title class="text-body-1 font-weight-medium" :data-test="`nav-title-${item.title.toLowerCase().replace(/\s+/g, '-')}`">{{ item.title }}</v-list-item-title>
         </v-list-item>
       </v-list>
       
       <!-- Help Link at Bottom -->
       <div class="help-link-container">
-        <v-list-item to="/" link class="help-link">
+        <v-list-item to="/" link class="help-link" data-test="help-nav-item">
           <template v-slot:prepend>
-            <v-icon size="large">mdi-help-circle</v-icon>
+            <v-icon size="large" data-test="help-nav-icon">mdi-help-circle</v-icon>
           </template>
-          <v-list-item-title class="text-body-1 font-weight-medium">Help</v-list-item-title>
+          <v-list-item-title class="text-body-1 font-weight-medium" data-test="help-nav-title">Help</v-list-item-title>
         </v-list-item>
       </div>
     </v-navigation-drawer>
@@ -90,25 +96,26 @@
     </v-main>
 
     <!-- Drop Database Confirmation Dialog -->
-    <v-dialog v-model="showDropDatabaseDialog" max-width="500px">
+    <v-dialog v-model="showDropDatabaseDialog" max-width="500px" data-test="drop-database-dialog">
       <v-card>
-        <v-card-title class="text-error">
-          <v-icon color="error" class="mr-2">mdi-alert</v-icon>
+        <v-card-title class="text-error" data-test="drop-database-dialog-title">
+          <v-icon color="error" class="mr-2" data-test="drop-database-dialog-icon">mdi-alert</v-icon>
           Drop Database
         </v-card-title>
         <v-card-text>
-          <p class="text-body-1 mb-3">
+          <p class="text-body-1 mb-3" data-test="drop-database-warning">
             This action will permanently delete all data in the database. This action cannot be undone.
           </p>
-          <p class="text-body-2 text-medium-emphasis mb-3">
+          <p class="text-body-2 text-medium-emphasis mb-3" data-test="drop-database-instruction">
             To confirm, please type <strong>DROP</strong> in the field below:
           </p>
           <v-text-field
             v-model="dropConfirmation"
-            label="Type DROP to confirm"
+            placeholder="Type DROP to confirm"
             :error="dropConfirmation !== '' && dropConfirmation !== 'DROP'"
             :error-messages="dropConfirmation !== '' && dropConfirmation !== 'DROP' ? 'Please type DROP exactly' : undefined"
             :disabled="dropping"
+            data-test="drop-confirmation-input"
           />
         </v-card-text>
         <v-card-actions>
@@ -116,6 +123,7 @@
           <v-btn
             @click="showDropDatabaseDialog = false"
             :disabled="dropping"
+            data-test="drop-database-cancel-btn"
           >
             Cancel
           </v-btn>
@@ -124,8 +132,9 @@
             @click="dropDatabase"
             :loading="dropping"
             :disabled="dropConfirmation !== 'DROP' || dropping"
+            data-test="drop-database-confirm-btn"
           >
-            <v-icon start>mdi-delete</v-icon>
+            <v-icon start data-test="drop-database-confirm-icon">mdi-delete</v-icon>
             Drop Database
           </v-btn>
         </v-card-actions>
@@ -136,10 +145,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { apiService } from '@/utils/api'
 import { useEvents } from '@/composables/useEvents'
+import { useEventState } from '@/composables/useEventState'
+import { apiService } from '@/utils/api'
 
 // Initialize drawer state from localStorage or default to true
 const drawer = ref(true)
@@ -190,7 +200,22 @@ const toggleHelp = () => {
   } else {
     // Currently on another page, go to help page
     previousPage.value = route.path
-    router.push(helpRoute.value)
+    
+    // Check if we're on the Event Viewer page and link to Events help panel
+    if (route.path === '/event-viewer') {
+      // Store the current event viewer state before navigating to help
+      const { hasEventData } = useEventState()
+      if (hasEventData()) {
+        // If we have event data, store it temporarily and navigate to help
+        // The event state will be preserved in the composable
+        router.push('/?slide=8') // Events panel is at index 8 (slide 9)
+      } else {
+        // No event data, just go to help
+        router.push('/?slide=8')
+      }
+    } else {
+      router.push(helpRoute.value)
+    }
   }
 }
 
@@ -222,15 +247,11 @@ const processAllConfigurations = async () => {
     
     // Check if the response contains event data
     if (result && result.id && result.type && result.status) {
-      // Navigate to event viewer page with event data in state
-      router.push({
-        path: '/event-viewer',
-        state: {
-          eventData: result,
-          title: 'Processing Complete',
-          subtitle: 'All configurations processed successfully'
-        }
-      })
+      // Clear any existing event state and set new event data in global state
+      const { clearEventViewerState, setEventViewerState } = useEventState()
+      clearEventViewerState() // Clear old state before setting new
+      setEventViewerState(result, 'Processing Complete', 'All configurations processed successfully')
+      router.push('/event-viewer')
     }
     
   } catch (err: any) {
@@ -239,15 +260,11 @@ const processAllConfigurations = async () => {
     // Handle API errors with event data
     if (err.type === 'API_ERROR' && err.data) {
       if (err.data.id && err.data.type && err.data.status) {
-        // Navigate to event viewer page with error event data in state
-        router.push({
-          path: '/event-viewer',
-          state: {
-            eventData: err.data,
-            title: 'Processing Error',
-            subtitle: 'Failed to process all configurations'
-          }
-        })
+        // Clear any existing event state and set error event data in global state
+        const { clearEventViewerState, setEventViewerState } = useEventState()
+        clearEventViewerState() // Clear old state before setting new
+        setEventViewerState(err.data, 'Processing Error', 'Failed to process all configurations')
+        router.push('/event-viewer')
       } else {
         const { showError } = useEvents()
         showError(err.message || 'Failed to process all configurations', 'Processing Error', 'Failed to process all configurations')

@@ -9,12 +9,14 @@
     }"
     :elevation="elevated ? 4 : undefined"
     :variant="outlined ? 'outlined' : undefined"
+    :data-test="`base-card-${title || 'default'}`"
   >
     <!-- Header section with customizable content -->
     <div 
       v-if="showHeader"
       class="header-section pa-2 d-flex justify-space-between align-center"
       :class="{ 'compact-header': compact }"
+      data-test="card-header"
     >
       <div class="d-flex align-center">
         <v-icon 
@@ -22,23 +24,24 @@
           class="mr-3" 
           :size="iconSize" 
           :color="iconColor"
+          data-test="card-icon"
         >
           {{ icon }}
         </v-icon>
         <!-- Custom title template or default title -->
         <slot name="title" :title="title">
-          <div :class="titleClass">{{ title }}</div>
+          <div :class="titleClass" data-test="card-title">{{ title }}</div>
         </slot>
       </div>
       
       <!-- Action buttons on header background -->
-      <div class="d-flex align-center">
+      <div class="d-flex align-center" data-test="card-header-actions">
         <slot name="header-actions" />
       </div>
     </div>
 
     <!-- Content section -->
-    <div v-if="$slots.default" class="content-section pa-4" :class="{ 'compact-content': compact }">
+    <div v-if="$slots.default" class="content-section pa-4" :class="{ 'compact-content': compact }" data-test="card-content">
       <slot />
     </div>
   </v-card>

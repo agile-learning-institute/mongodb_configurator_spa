@@ -97,6 +97,46 @@ The application has undergone a comprehensive refactor to improve maintainabilit
 - **API**: Live local API with playground data
 - **Proxy**: /api/* requests to API host/port (runtime configurable)
 
+### Cypress E2E Testing
+The application is fully prepared for Cypress end-to-end testing with comprehensive `data-test` attributes:
+
+- **Complete Coverage**: All interactive elements (buttons, inputs, forms, dialogs) have unique `data-test` attributes
+- **Consistent Naming**: Follows a predictable pattern: `component-name-element-type` (e.g., `new-collection-btn`, `file-title-input`)
+- **Dynamic Attributes**: Dynamic elements use indexed attributes (e.g., `file-card-${fileName}`, `property-${index}`)
+- **Navigation Elements**: All navigation items, breadcrumbs, and page titles are testable
+- **Form Controls**: Input fields, selects, checkboxes, and textareas all have test attributes
+- **Dialog Elements**: Modal dialogs, confirmations, and forms include test attributes
+- **Status Indicators**: Loading states, error messages, and success notifications are testable
+- **File Operations**: Create, edit, delete, and lock operations all have test attributes
+
+#### Data-Test Attribute Examples
+```html
+<!-- Navigation -->
+<v-btn data-test="new-collection-btn">New Collection</v-btn>
+
+<!-- Form Inputs -->
+<v-text-field data-test="collection-name-input" />
+
+<!-- Dynamic Elements -->
+<v-chip :data-test="`file-card-${file.name}`" />
+
+<!-- Status Elements -->
+<div data-test="loading-spinner" />
+<v-alert data-test="error-message" />
+```
+
+#### Running Cypress Tests
+```bash
+# Install Cypress
+npm install cypress --save-dev
+
+# Open Cypress Test Runner
+npx cypress open
+
+# Run tests in headless mode
+npx cypress run
+```
+
 ## Component Architecture
 
 ### Unified Property Editor System
@@ -193,135 +233,4 @@ Comprehensive TypeScript type guards ensure type safety:
 ### Configuration Management
 - `GET /api/config/` - App startup configuration (BUILT_AT check)
 - `GET /api/configurations/` - List configurations
-- `POST /api/configurations/` - Process all configurations
-- `GET /api/configurations/{file_name}.yaml/` - Get specific configuration (with .yaml extension)
-- `POST /api/configurations/collection/{name}` - Create new collection
-
-### Schema Rendering
-- `GET /api/configurations/json_schema/{file_name}/{version}/` - Download JSON schema
-- `GET /api/configurations/bson_schema/{file_name}/{version}/` - Download BSON schema
-
-### File Management
-- All resource types: `GET`, `PUT`, `DELETE` operations with auto-save
-- Lock/unlock operations via `PUT` endpoints
-- File listing via `GET` endpoints
-- "Lock All" functionality for supported file types
-
-### Database Operations
-- `DELETE /api/database/` - Drop database (with GitHub-style confirmation)
-- Processing operations via `POST` endpoints
-
-### Error Handling
-- All endpoints return 200 or 500 with Event objects
-- 500 responses and processing events displayed in popup dialogs
-- Event data passed via router state for complex information
-
-## Help System
-
-### Help Content
-The application includes comprehensive help content for all major features:
-
-- **Welcome**: Getting started guide and feature overview
-- **Configurations**: Collection configuration management
-- **Dictionaries**: Data dictionary creation and editing
-- **Types**: Custom type definitions
-- **Enumerators**: Enum value management
-- **Test Data**: Sample data generation
-- **Migrations**: Data transformation scripts
-- **Admin**: Database and system management
-
-### Help Access
-- Help carousel on the landing page with navigation controls
-- Contextual help button in app bar (?) that opens appropriate carousel slide
-- Dynamic help content based on current page context
-- Comprehensive overview with detailed feature explanations
-
-## Recent UI/UX Improvements
-
-### Type Editor System Overhaul (Latest)
-- **Unified Property Editor**: Single `PropertyEditor` component handles all property types with polymorphic rendering
-- **Base Property Editor**: `BasePropertyEditor` provides common header elements (name, description, type, required, delete)
-- **Type-Specific Extensions**: Specialized extension components for different property types:
-  - `ArrayPropertyExtension`: Items type picker for arrays
-  - `ObjectPropertyExtension`: Add property, additional properties toggle, show/hide chevron
-  - `ArrayOfObjectExtension`: Combines array and object functionality for array of object
-  - `ArrayOfArrayExtension`: Handles nested arrays with natural recursion
-- **Smart Body Rendering**: Conditional body display based on property type and items type
-- **Array of Object Support**: Full object property management within array items
-- **Array of Array Support**: Recursive nested array editing with type selector hidden
-- **Locking Behavior**: Read-only inputs (not dimmed) with hidden action icons when locked
-- **Tooltip System**: Comprehensive tooltips for all action icons with proper color contrast
-
-### Property Editor Features
-- **Type Chip Picker**: Replaced dropdown with chip-based type selection
-- **Custom Types Integration**: Fetches and displays custom types from API (`GET /api/types/`)
-- **Type Restrictions**: Root properties (Array, Object, Simple, Complex), non-root (Array, Object, Custom)
-- **Required Field**: Material Design checkbox icon with tooltip
-- **Action Icons**: Plus (add property), toggle (additional properties), chevron (show/hide)
-- **Collapsible Properties**: Show/hide functionality for object properties (UI state only)
-- **No Properties Message**: Helpful message with plus icon for empty object properties
-
-### File List Enhancements
-- **Compact File Cards**: Reduced vertical space, single-line layout
-- **Right-Aligned Statistics**: Created/Updated/Size info aligned to the right
-- **Improved Typography**: Page titles (H3), file names (H4)
-- **Better Sorting**: Always sorted by file name
-- **Lock All Integration**: Positioned on same row as page title
-
-### Event System Improvements
-- **Enhanced Event Cards**: Removed duplicate type display, increased ID prominence
-- **Better Expand/Collapse**: More pronounced buttons with text and icons
-- **Cleaner UI**: Removed unnecessary remove buttons from top-level events
-- **Simplified Dialogs**: Streamlined EventDialog for delete/error operations
-- **Auto-Navigation**: Process All button opens event details page
-
-### Workflow Enhancements
-- **Auto-Navigation**: New collections automatically navigate to detail page
-- **Seamless Experience**: Immediate access to new collection configuration
-- **State Management**: Improved router state handling for complex data
-- **Error Handling**: Streamlined notifications and user feedback
-
-## Performance Optimizations
-
-### Lazy Loading
-- Property type editors use `defineAsyncComponent` for lazy loading
-- Complex property types are loaded only when needed
-- Improved initial page load times
-
-### Component Reusability
-- Unified PropertyEditor reduces code duplication
-- Shared composables for common functionality (`usePropertyTypeEditor`, `useFiles`, `useEvents`)
-- Type-safe interfaces prevent runtime errors
-
-### Responsive Design
-- Mobile-friendly grid layouts
-- Collapsible sections for complex properties
-- Touch-friendly interface elements
-- Comfortable density settings for better usability
-
-## Development Workflow
-
-### Component Development
-1. **Property Types**: Add new property type editors in `src/components/property-types/`
-2. **Type Safety**: Update type definitions in `src/types/types.ts` with proper type guards
-3. **Help Content**: Add help content in `src/composables/useHelp.ts`
-4. **Testing**: Write unit tests for new components
-
-### API Integration
-1. **Endpoints**: Add new API endpoints in `src/utils/api.ts` with proper error handling
-2. **Types**: Update type definitions to match API schema exactly
-3. **Error Handling**: Implement proper error handling for new endpoints
-4. **File Extensions**: Ensure proper file extensions (.yaml) for configuration endpoints
-
-### Styling
-1. **Material Design**: Follow Vuetify 3 design patterns
-2. **Responsive**: Ensure mobile compatibility
-3. **Theming**: Use the established color scheme and comfortable density
-
-### Key Files to Understand
-- `src/types/types.ts`: Complete type system with type guards
-- `src/components/PropertyEditor.vue`: Main property editing component
-- `src/composables/usePropertyTypeEditor.ts`: Shared property editing logic
-- `src/utils/api.ts`: All API endpoints and error handling
-- `src/pages/WelcomePage.vue`: Help carousel implementation
-- `src/components/AppLayout.vue`: Main layout with navigation and help system
+- `POST /api/configurations/`

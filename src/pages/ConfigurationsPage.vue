@@ -1,8 +1,17 @@
 <template>
   <v-container>
     <div class="d-flex justify-space-between align-center mb-6">
-      <h3>Configurations</h3>
-      <div class="d-flex align-center">
+      <h3 data-test="page-title">Collection Configurations</h3>
+      <div class="d-flex align-center gap-2">
+        <v-btn
+          color="primary"
+          variant="elevated"
+          prepend-icon="mdi-plus"
+          @click="showNewCollectionDialog = true"
+          data-test="new-collection-btn"
+        >
+          New
+        </v-btn>
         <v-btn
           v-if="canLockAll"
           color="info"
@@ -10,16 +19,9 @@
           prepend-icon="mdi-lock"
           @click="handleLockAll"
           :loading="locking"
-          class="mr-3"
+          data-test="lock-all-btn"
         >
           Lock All
-        </v-btn>
-        <v-btn
-          color="primary"
-          @click="showNewCollectionDialog = true"
-        >
-          <v-icon start>mdi-plus</v-icon>
-          New Collection
         </v-btn>
       </div>
     </div>
@@ -29,51 +31,22 @@
       file-type="configurations"
       @edit="handleEdit"
       @open="handleOpen"
+      data-test="configurations-file-list"
     />
 
     <!-- New Collection Dialog -->
-    <v-dialog v-model="showNewCollectionDialog" max-width="500px">
-      <v-card>
-        <v-card-title>Create New Collection</v-card-title>
-        <v-card-text>
-          <v-text-field
-            v-model="newCollectionName"
-            label="Collection Name"
-            :error="!!nameError"
-            :error-messages="nameError || undefined"
-            placeholder="my_collection"
-            :disabled="creating"
-            @keyup.enter="createCollection"
-          />
-          <p class="text-caption text-medium-emphasis mt-2">
-            Collection names must start with a letter and contain only letters, numbers, and underscores.
-          </p>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer />
-          <v-btn
-            @click="showNewCollectionDialog = false"
-            :disabled="creating"
-          >
-            Cancel
-          </v-btn>
-          <v-btn
-            color="primary"
-            @click="createCollection"
-            :loading="creating"
-            :disabled="!newCollectionName.trim()"
-          >
-            Create
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <NewCollectionDialog
+      v-model="showNewCollectionDialog"
+      @created="handleCollectionCreated"
+      data-test="new-collection-dialog"
+    />
 
     <!-- Error Snackbar -->
     <v-snackbar
       v-model="showErrorSnackbar"
       color="error"
       timeout="5000"
+      data-test="error-snackbar"
     >
       {{ errorMessage }}
     </v-snackbar>
@@ -83,17 +56,14 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { apiService } from '@/utils/api'
 import FileList from '@/components/FileList.vue'
+import NewCollectionDialog from '@/components/NewCollectionDialog.vue'
 
 const router = useRouter()
 const fileListRef = ref()
 
 // New collection dialog state
 const showNewCollectionDialog = ref(false)
-const newCollectionName = ref('')
-const nameError = ref<string | null>(null)
-const creating = ref(false)
 
 // Snackbar states
 const showErrorSnackbar = ref(false)
@@ -132,47 +102,17 @@ onMounted(() => {
   }, 100)
 })
 
-// Validate collection name
-const validateCollectionName = (name: string): boolean => {
-  const pattern = /^[a-zA-Z][a-zA-Z0-9_]*$/
-  if (!pattern.test(name)) {
-    nameError.value = 'Collection name must start with a letter and contain only letters, numbers, and underscores'
-    return false
-  }
-  nameError.value = null
-  return true
-}
-
-// Create new collection
-const createCollection = async () => {
-  const name = newCollectionName.value.trim()
-  
-  if (!name) {
-    nameError.value = 'Collection name is required'
-    return
-  }
-
-  if (!validateCollectionName(name)) {
-    return
-  }
-
-  creating.value = true
+// Handle collection creation from NewCollectionDialog
+const handleCollectionCreated = async (fileName: string) => {
   try {
-    await apiService.createNewCollection(name)
-    
-    // Close dialog and reset
-    showNewCollectionDialog.value = false
-    newCollectionName.value = ''
-    nameError.value = null
-    
-    // Navigate to the new collection's detail page with .yaml extension
-    router.push(`/configurations/${name}.yaml`)
-    
+    // Navigate to the new collection's detail page
+    router.push(`/configurations/${fileName}`)
   } catch (err: any) {
-    errorMessage.value = err.message || 'Failed to create collection'
+    errorMessage.value = err.message || 'Failed to navigate to collection'
     showErrorSnackbar.value = true
-  } finally {
-    creating.value = false
   }
 }
-</script> 
+</script>
+
+<style scoped>
+</style> 
