@@ -51,19 +51,19 @@ Commit after each step (1–6) with focused messages.
 Commit after each utility addition.
 
 ## Phase 3 — Page-Level E2E: Migrations (Review Gate after spec is green)
-Specs: `cypress/e2e/migrations.cy.ts`
-- Precondition: `cy.resetApp()` to ensure starting state
-- Navigate to `/migrations`
-- Verify starting list state
-- Create: click New → enter name `test-migration`
-- Assert URL `/migrations/test-migration.json`
-- Verify empty list
-- Add migration entries: add `{"foo":"bar"}`, then `{"far":"boo"}`; verify both appear
-- Delete first entry; verify only `{"far":"boo"}` remains
-- Reload; verify persistence
-- Delete the document; assert redirect to `/migrations` and absence of `test-migration.json`
+- [x] Specs: `cypress/e2e/migrations.cy.ts`
+- [x] Precondition: `cy.resetApp()` to ensure starting state
+- [x] Navigate to `/migrations`
+- [x] Verify starting list state
+- [x] Create: click New → enter name `test-migration`
+- [x] Assert URL `/migrations/test-migration.json`
+- [x] Verify empty list
+- [x] Add migration entries: add `{"foo":"bar"}`, then `{"far":"boo"}`; verify both appear
+- [x] Delete first entry; verify only `{"far":"boo"}` remains
+- [x] Reload; verify persistence
+- [x] Delete the document; assert redirect to `/migrations` and absence of `test-migration.json`
 
-Commit when spec passes. Review Gate: Confirm coverage and selector quality.
+✅ **COMPLETED** - Migrations spec is green and covers full CRUD flow with persistence verification.
 
 ## Phase 4 — Page-Level E2E: Test Data (Commit Checkpoints)
 Specs: `cypress/e2e/test_data.cy.ts`

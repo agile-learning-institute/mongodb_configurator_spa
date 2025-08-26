@@ -3,27 +3,27 @@
 declare global {
   namespace Cypress {
     interface Chainable {
-      getByTest(testId: string): Chainable<JQuery<HTMLElement>>
+      getByTest(selector: string, ...args: any[]): Chainable<JQuery<HTMLElement>>
       resetApp(): Chainable<void>
-      alias(method: string | RegExp, urlPattern: string | RegExp, alias: string): Chainable<void>
+      interceptAlias(method: string, url: string, alias: string): Chainable<void>
     }
   }
 }
 
-Cypress.Commands.add('getByTest', (testId: string) => {
-  return cy.get(`[data-test="${testId}"]`)
+Cypress.Commands.add('getByTest', (selector, ...args) => {
+  return cy.get(`[data-test="${selector}"]`, ...args)
 })
 
-// Lightweight reset hook. We rely on `npm run e2e` to perform a full reset in CI/CLI.
-// In interactive mode, this ensures the app root is reachable.
 Cypress.Commands.add('resetApp', () => {
+  cy.log('Resetting backend via npm run api...')
+  cy.exec('npm run api', { failOnNonZeroExit: false, timeout: 120000 })
+    .its('stdout')
+    .should('include', 'mongodb_configurator_spa-configurator_api-1  Started')
   cy.visit('/')
-  cy.get('[data-test="help-carousel"]').should('be.visible')
 })
 
-// Convenience helper for common route aliasing
-Cypress.Commands.add('alias', (method: string | RegExp, urlPattern: string | RegExp, alias: string) => {
-  cy.intercept(method as any, urlPattern as any).as(alias)
+Cypress.Commands.add('interceptAlias', (method, url, alias) => {
+  cy.intercept(method, url).as(alias)
 })
 
 export {}
