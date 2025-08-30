@@ -209,7 +209,7 @@
               auto-grow
               @update:model-value="handleJsonChange"
               @blur="validateJson"
-              data-test="index-json-textarea"
+              data-test="step5-index-json-textarea"
             />
             
             <!-- Error Display -->

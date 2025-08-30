@@ -727,20 +727,20 @@ describe('Configurations page flow', () => {
       cy.get('[data-test="add-index-btn"]').click()
       
       // Verify dialog is open and shows default JSON structure
-      cy.get('[data-test="index-json-textarea"]').should('contain', '"name": ""')
-      cy.get('[data-test="index-json-textarea"]').should('contain', '"key": {}')
-      cy.get('[data-test="index-json-textarea"]').should('contain', '"options": {}')
+      cy.get('[data-test="step5-index-json-textarea"]').should('contain', '"name": ""')
+      cy.get('[data-test="step5-index-json-textarea"]').should('contain', '"key": {}')
+      cy.get('[data-test="step5-index-json-textarea"]').should('contain', '"options": {}')
       
       // Test validation - try to save without a name
-      cy.get('[data-test="index-json-textarea"]').clear().type('{"key": {}, "options": {}}')
+      cy.get('[data-test="step5-index-json-textarea"]').clear().type('{"key": {}, "options": {}}')
       cy.get('[data-test="save-index-btn"]').should('be.disabled')
       
       // Test validation - try to save with invalid JSON
-      cy.get('[data-test="index-json-textarea"]').clear().type('invalid json')
+      cy.get('[data-test="step5-index-json-textarea"]').clear().type('invalid json')
       cy.get('[data-test="save-index-btn"]').should('be.disabled')
       
       // Edit the JSON to set the name
-      cy.get('[data-test="index-json-textarea"]').clear().type('{"name": "name1", "key": {}, "options": {}}')
+      cy.get('[data-test="step5-index-json-textarea"]').clear().type('{"name": "name1", "key": {}, "options": {}}')
       cy.get('[data-test="save-index-btn"]').should('be.enabled')
       cy.get('[data-test="save-index-btn"]').click()
 
@@ -753,10 +753,10 @@ describe('Configurations page flow', () => {
       cy.get('[data-test="index-chip"]').first().click()
       
       // Verify dialog shows current JSON
-      cy.get('[data-test="index-json-textarea"]').should('contain', '"name": "name1"')
+      cy.get('[data-test="step5-index-json-textarea"]').should('contain', '"name": "name1"')
       
       // Edit the JSON to change the name
-      cy.get('[data-test="index-json-textarea"]').clear().type('{"name": "edited_name", "key": {}, "options": {}}')
+      cy.get('[data-test="step5-index-json-textarea"]').clear().type('{"name": "edited_name", "key": {}, "options": {}}')
       cy.get('[data-test="save-index-btn"]').click()
 
       // Verify index was edited - chip should show new name
