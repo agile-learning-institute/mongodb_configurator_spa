@@ -727,41 +727,48 @@ describe('Configurations page flow', () => {
       cy.get('[data-test="add-index-btn"]').click()
       
       // Verify dialog is open and shows default JSON structure
-      cy.get('[data-test="index-name-display"]').should('contain', 'New Index')
       cy.get('[data-test="index-json-textarea"]').should('contain', '"name": ""')
       cy.get('[data-test="index-json-textarea"]').should('contain', '"key": {}')
       cy.get('[data-test="index-json-textarea"]').should('contain', '"options": {}')
       
+      // Test validation - try to save without a name
+      cy.get('[data-test="index-json-textarea"]').clear().type('{"key": {}, "options": {}}')
+      cy.get('[data-test="save-index-btn"]').should('be.disabled')
+      
+      // Test validation - try to save with invalid JSON
+      cy.get('[data-test="index-json-textarea"]').clear().type('invalid json')
+      cy.get('[data-test="save-index-btn"]').should('be.disabled')
+      
       // Edit the JSON to set the name
-      cy.get('[data-test="index-json-textarea"]').clear().type('{"name": "step5_index", "key": {}, "options": {}}')
+      cy.get('[data-test="index-json-textarea"]').clear().type('{"name": "name1", "key": {}, "options": {}}')
+      cy.get('[data-test="save-index-btn"]').should('be.enabled')
       cy.get('[data-test="save-index-btn"]').click()
 
       // Verify index was added - wait for the content to appear within the card
       cy.get('[data-test="step-5-card"]').within(() => {
-        cy.get('[data-test="step5-indexes-content"]').should('contain', 'step5_index')
+        cy.get('[data-test="step5-indexes-content"]').should('contain', 'name1')
       })
 
       // Test editing index
       cy.get('[data-test="index-chip"]').first().click()
       
-      // Verify dialog shows current index name and JSON
-      cy.get('[data-test="index-name-display"]').should('contain', 'step5_index')
-      cy.get('[data-test="index-json-textarea"]').should('contain', '"name": "step5_index"')
+      // Verify dialog shows current JSON
+      cy.get('[data-test="index-json-textarea"]').should('contain', '"name": "name1"')
       
       // Edit the JSON to change the name
-      cy.get('[data-test="index-json-textarea"]').clear().type('{"name": "edited_step5_index", "key": {}, "options": {}}')
+      cy.get('[data-test="index-json-textarea"]').clear().type('{"name": "edited_name", "key": {}, "options": {}}')
       cy.get('[data-test="save-index-btn"]').click()
 
-      // Verify index was edited
+      // Verify index was edited - chip should show new name
       cy.get('[data-test="step-5-card"]').within(() => {
-        cy.get('[data-test="step5-indexes-content"]').should('contain', 'edited_step5_index')
+        cy.get('[data-test="step5-indexes-content"]').should('contain', 'edited_name')
       })
 
-      // Test removing index
+      // Test removing index with x button
       cy.get('[data-test="delete-index-btn"]').first().click()
 
       // Verify index was removed
-      cy.get('[data-test="step5-indexes-content"]').should('not.contain', 'edited_step5_index')
+      cy.get('[data-test="step5-indexes-content"]').should('not.contain', 'edited_name')
     })
   })
 

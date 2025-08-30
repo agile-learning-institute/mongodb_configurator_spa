@@ -194,14 +194,6 @@
         </v-card-title>
         
         <v-card-text>
-          <!-- Index Name Display (non-editable) -->
-          <div class="mb-4">
-            <label class="text-body-2 font-weight-medium mb-2 d-block">Index Name</label>
-            <div class="index-name-display" data-test="index-name-display">
-              {{ editingIndexData.name || 'New Index' }}
-            </div>
-          </div>
-          
           <!-- JSON Editor -->
           <div>
             <label class="text-body-2 font-weight-medium mb-2 d-block">Index JSON</label>
@@ -245,7 +237,7 @@
           <v-btn
             color="primary"
             @click="saveIndex"
-            :disabled="props.disabled || !jsonText.trim() || !!jsonError"
+            :disabled="isSaveDisabled"
             data-test="save-index-btn"
           >
             {{ editingIndexTitle === 'New Index' ? 'Create' : 'Save' }}
@@ -749,19 +741,34 @@ const openIndexEditor = (indexData: any) => {
 
 const handleJsonChange = (value: string) => {
   jsonText.value = value
-  jsonError.value = ''
+  // Trigger validation on every change
+  validateJson()
 }
 
 const validateJson = () => {
   try {
     if (jsonText.value.trim()) {
-      JSON.parse(jsonText.value)
+      const parsed = JSON.parse(jsonText.value)
       jsonError.value = ''
+      
+      // Check if it has required fields
+      if (!parsed.name || typeof parsed.name !== 'string') {
+        jsonError.value = 'Index must have a valid name field'
+      } else if (!parsed.key || typeof parsed.key !== 'object') {
+        jsonError.value = 'Index must have a valid key field'
+      } else if (!parsed.options || typeof parsed.options !== 'object') {
+        jsonError.value = 'Index must have a valid options field'
+      }
     }
   } catch (error) {
     jsonError.value = 'Invalid JSON format'
   }
 }
+
+// Computed property to determine if save button should be disabled
+const isSaveDisabled = computed(() => {
+  return props.disabled || !jsonText.value.trim() || !!jsonError.value
+})
 
 const saveIndex = async () => {
   try {
