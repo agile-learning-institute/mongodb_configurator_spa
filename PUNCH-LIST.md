@@ -21,6 +21,9 @@ Your plan should:
 - [x] Add necessary `data-test` attributes for reliable testing
 - [x] Test basic version navigation functionality (previous/next/new version buttons)
 - [x] Verify icon changes render correctly
+- [x] Fix icon testing assertions (use `.should('have.class')` instead of `.should('contain')`)
+- [x] Improve enumerators test structure and make version assertions dynamic
+- [x] Add comprehensive versioning business rules testing
 - [x] Update PUNCH-LIST.md with completion status
 - [x] Commit and push changes
 
@@ -141,6 +144,14 @@ Your plan should:
 - Tests that enter values should reload the page and confirm state was preserved
 - Use existing test patterns from current 22 passing tests as foundation
 - Focus on real user workflows and interactions
+
+### Enumerator Versioning Rules
+- **New Version Creation**: Can only create the next sequential version (V2 → V3, V3 → V4)
+- **Version Deletion**: Can only delete the newest version (if V3 exists, can't delete V2)
+- **Version Locking**: Only the newest version can be unlocked/modified
+- **Test Structure**: Use V3 baseline setup to test strict versioning rules properly
+- **Dynamic Assertions**: Extract version numbers dynamically instead of hardcoding
+- **Business Logic Testing**: Verify that version navigation respects these rules
 
 ---
 
