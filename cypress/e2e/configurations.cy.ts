@@ -506,7 +506,7 @@ describe('Configurations page flow', () => {
   })
 
   describe('Index Management', () => {
-    it.only('can add Step 2 index with new name', () => {
+    it('can add and delete Step 2 index with new name', () => {
       // First create a configuration to work with
       cy.visit('/configurations')
       cy.get('[data-test="new-collection-btn"]').click()
@@ -531,25 +531,32 @@ describe('Configurations page flow', () => {
       cy.get('[data-test="drop-index-name-input"]').type('custom_index_name')
       cy.get('[data-test="drop-index-create-btn"]').click()
 
-      // Verify index was added
-      cy.get('[data-test="drop-indexes-content"]').should('contain', 'custom_index_name')
+      // Verify index was added - wait for the content to appear within the card
+      cy.get('[data-test="drop-indexes-card"]').within(() => {
+        cy.get('[data-test="drop-indexes-content"]').should('be.visible')
+        cy.get('[data-test="drop-indexes-content"]').should('contain', 'custom_index_name')
+      })
+
+      // Test deleting index
+      cy.get('[data-test="remove-drop-index-btn"]').first().click()
+
+      // Verify index was deleted
+      cy.get('[data-test="drop-indexes-card"]').within(() => {
+        cy.get('[data-test="drop-indexes-content"]').should('not.contain', 'custom_index_name')
+      })
     })
 
     it('can add Step 2 index from existing indexes', () => {
       // First create a configuration to work with
       cy.visit('/configurations')
       cy.get('[data-test="new-collection-btn"]').click()
-
       const configurationName = `TestConfig_${Date.now()}`
       cy.get('[data-test="new-collection-name-input"]').type(configurationName)
-      cy.get('[data-test="new-collection-description-input"]').type('Test configuration for existing index testing')
-      
-      // Simply bump minor version to 1 to enable Create button
+      cy.get('[data-test="new-collection-description-input"]').type('Test configuration for index testing')
       cy.get('[data-test="version-minor-plus-btn"]').click()
       cy.get('[data-test="version-display"]').should('contain', '0.1.0')
-      
       cy.get('[data-test="new-collection-create-btn"]').click()
-
+      
       // After creation, we should be on the detail page
       cy.url().should('include', `/configurations/${configurationName}.yaml`)
       createdConfigurationName = configurationName
@@ -559,17 +566,27 @@ describe('Configurations page flow', () => {
       // Wait for the page to fully load
       cy.wait(1000)
 
-      // Navigate to Step 2 (Index Management)
-      cy.contains('h2', 'Step 2: Index Management').should('be.visible')
+      // Add the existing_index_name index to the current version
 
-      // Test adding existing index
-      cy.get('[data-test="add-existing-index-btn"]').click()
-      cy.get('[data-test="existing-index-selector"]').click()
-      cy.get('[data-test="existing-index-option"]').first().click()
-      cy.get('[data-test="add-existing-index-confirm-btn"]').click()
+      // Create a new version
 
-      // Verify existing index was added
-      cy.get('[data-test="index-list"]').should('contain', 'existing_index')
+      // Test adding new drop index with previously created index
+      cy.get('[data-test="add-drop-index-btn"]').click()
+      cy.get('[data-test="previously-created-chip"]').first().contains('custom_index_name').click()
+
+      // Verify index was added - wait for the content to appear within the card
+      cy.get('[data-test="drop-indexes-card"]').within(() => {
+        cy.get('[data-test="drop-indexes-content"]').should('be.visible')
+        cy.get('[data-test="drop-indexes-content"]').should('contain', 'custom_index_name')
+      })
+
+      // Test deleting index
+      cy.get('[data-test="remove-drop-index-btn"]').first().click()
+
+      // Verify index was deleted
+      cy.get('[data-test="drop-indexes-card"]').within(() => {
+        cy.get('[data-test="drop-indexes-content"]').should('not.contain', 'custom_index_name')
+      })
     })
   })
 
