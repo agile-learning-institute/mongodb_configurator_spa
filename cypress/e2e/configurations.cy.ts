@@ -190,54 +190,6 @@ describe('Configurations page flow', () => {
       cy.contains('button', 'BSON Schema').should('be.visible')
     })
 
-    it('can lock and unlock a newly created configuration version', () => {
-      // First create a configuration
-      cy.visit('/configurations')
-      cy.get('[data-test="new-collection-btn"]').click()
-
-      const configurationName = `TestConfig_${Date.now()}`
-      cy.get('[data-test="new-collection-name-input"]').type(configurationName)
-      cy.get('[data-test="new-collection-description-input"]').type('Test configuration for E2E testing')
-      
-      // Simply bump minor version to 1 to enable Create button
-      cy.get('[data-test="version-minor-plus-btn"]').click()
-      cy.get('[data-test="version-display"]').should('contain', '0.1.0')
-      
-      cy.get('[data-test="new-collection-create-btn"]').click()
-
-      // After creation, we should be on the detail page
-      cy.url().should('include', `/configurations/${configurationName}.yaml`)
-
-      // Store the configuration name for cleanup
-      createdConfigurationName = configurationName
-
-      // Wait for the page to fully load
-      cy.wait(1000)
-
-      // Check if the configuration version is locked - if so, we need to unlock it first to delete
-      cy.get('body').then(($body) => {
-        if ($body.find('button:contains("Unlock")').length > 0) {
-          // Configuration version is locked, unlock it first
-          cy.contains('button', 'Unlock').click()
-          cy.wait(1000) // Wait for unlock to complete
-        }
-
-        // Now click Delete Collection button
-        cy.contains('button', 'Delete Collection').click()
-
-        // Verify delete confirmation dialog is open
-        cy.get('.v-dialog').should('be.visible')
-        cy.get('.v-dialog .v-card-title').should('contain', 'Delete Collection')
-
-        // Click Delete button in dialog
-        cy.get('.v-dialog').contains('button', 'Delete').click()
-
-        // Verify dialog is closed and we're redirected to configurations list
-        cy.get('.v-dialog').should('not.exist')
-        cy.url().should('match', /\/configurations\/?$/)
-      })
-    })
-
     it('displays correct version navigator icons', () => {
       // Visit configurations page
       cy.visit('/configurations')
@@ -330,6 +282,368 @@ describe('Configurations page flow', () => {
         cy.get('.v-dialog').should('not.exist')
         cy.url().should('match', /\/configurations\/?$/)
       })
+    })
+  })
+
+  describe('New Version Creation and Management', () => {
+    it('can create new version with patch logic (+1 down, then up)', () => {
+      // First create a configuration to work with
+      cy.visit('/configurations')
+      cy.get('[data-test="new-collection-btn"]').click()
+
+      const configurationName = `TestConfig_${Date.now()}`
+      cy.get('[data-test="new-collection-name-input"]').type(configurationName)
+      cy.get('[data-test="new-collection-description-input"]').type('Test configuration for version testing')
+      
+      // Simply bump minor version to 1 to enable Create button
+      cy.get('[data-test="version-minor-plus-btn"]').click()
+      cy.get('[data-test="version-display"]').should('contain', '0.1.0')
+      
+      cy.get('[data-test="new-collection-create-btn"]').click()
+
+      // After creation, we should be on the detail page
+      cy.url().should('include', `/configurations/${configurationName}.yaml`)
+      createdConfigurationName = configurationName
+
+      // Wait for the page to fully load
+      cy.wait(1000)
+
+      // Test new version creation
+      cy.contains('button', 'New Version').click()
+
+      // Verify new version dialog is open
+      cy.get('.v-dialog').should('be.visible')
+      cy.get('.v-dialog .v-card-title').should('contain', 'Create New Version')
+
+      // Test patch logic: +1 down, then up
+      // The dialog should show incremented version numbers
+      cy.get('[data-test="new-version-major"]').should('contain', '0')
+      cy.get('[data-test="new-version-minor"]').should('contain', '2') // +1 from 0.1.0
+      cy.get('[data-test="new-version-patch"]').should('contain', '0')
+      cy.get('[data-test="new-version-enumerators"]').should('contain', '0')
+
+      // Close dialog without creating
+      cy.get('[data-test="new-version-cancel-btn"]').click()
+      cy.get('.v-dialog').should('not.exist')
+    })
+
+    it('tests enumerators +1 creates new enumerators if needed', () => {
+      // First create a configuration to work with
+      cy.visit('/configurations')
+      cy.get('[data-test="new-collection-btn"]').click()
+
+      const configurationName = `TestConfig_${Date.now()}`
+      cy.get('[data-test="new-collection-name-input"]').type(configurationName)
+      cy.get('[data-test="new-collection-description-input"]').type('Test configuration for enumerator testing')
+      
+      // Simply bump minor version to 1 to enable Create button
+      cy.get('[data-test="version-minor-plus-btn"]').click()
+      cy.get('[data-test="version-display"]').should('contain', '0.1.0')
+      
+      cy.get('[data-test="new-collection-create-btn"]').click()
+
+      // After creation, we should be on the detail page
+      cy.url().should('include', `/configurations/${configurationName}.yaml`)
+      createdConfigurationName = configurationName
+
+      // Wait for the page to fully load
+      cy.wait(1000)
+
+      // Test new version creation with enumerators increment
+      cy.contains('button', 'New Version').click()
+
+      // Verify new version dialog is open
+      cy.get('.v-dialog').should('be.visible')
+
+      // Test enumerators increment
+      cy.get('[data-test="new-version-enumerators-plus-btn"]').click()
+      cy.get('[data-test="new-version-enumerators"]').should('contain', '1')
+
+      // Verify that this would create a new enumerators file
+      // The enumerators version should be incremented
+      cy.get('[data-test="new-version-enumerators-file"]').should('contain', 'enumerations.1.yaml')
+
+      // Close dialog without creating
+      cy.get('[data-test="new-version-cancel-btn"]').click()
+      cy.get('.v-dialog').should('not.exist')
+    })
+  })
+
+  describe('Index Management', () => {
+    it('can add Step 2 index with new name', () => {
+      // First create a configuration to work with
+      cy.visit('/configurations')
+      cy.get('[data-test="new-collection-btn"]').click()
+
+      const configurationName = `TestConfig_${Date.now()}`
+      cy.get('[data-test="new-collection-name-input"]').type(configurationName)
+      cy.get('[data-test="new-collection-description-input"]').type('Test configuration for index testing')
+      
+      // Simply bump minor version to 1 to enable Create button
+      cy.get('[data-test="version-minor-plus-btn"]').click()
+      cy.get('[data-test="version-display"]').should('contain', '0.1.0')
+      
+      cy.get('[data-test="new-collection-create-btn"]').click()
+
+      // After creation, we should be on the detail page
+      cy.url().should('include', `/configurations/${configurationName}.yaml`)
+      createdConfigurationName = configurationName
+
+      // Wait for the page to fully load
+      cy.wait(1000)
+
+      // Navigate to Step 2 (Index Management)
+      cy.contains('button', 'Configure Collection').click()
+      cy.contains('h2', 'Step 2: Index Management').should('be.visible')
+
+      // Test adding new index with custom name
+      cy.get('[data-test="add-index-btn"]').click()
+      cy.get('[data-test="new-index-name-input"]').type('custom_index_name')
+      cy.get('[data-test="new-index-create-btn"]').click()
+
+      // Verify index was added
+      cy.get('[data-test="index-list"]').should('contain', 'custom_index_name')
+    })
+
+    it('can add Step 2 index from existing indexes', () => {
+      // First create a configuration to work with
+      cy.visit('/configurations')
+      cy.get('[data-test="new-collection-btn"]').click()
+
+      const configurationName = `TestConfig_${Date.now()}`
+      cy.get('[data-test="new-collection-name-input"]').type(configurationName)
+      cy.get('[data-test="new-collection-description-input"]').type('Test configuration for existing index testing')
+      
+      // Simply bump minor version to 1 to enable Create button
+      cy.get('[data-test="version-minor-plus-btn"]').click()
+      cy.get('[data-test="version-display"]').should('contain', '0.1.0')
+      
+      cy.get('[data-test="new-collection-create-btn"]').click()
+
+      // After creation, we should be on the detail page
+      cy.url().should('include', `/configurations/${configurationName}.yaml`)
+      createdConfigurationName = configurationName
+
+      // Wait for the page to fully load
+      cy.wait(1000)
+
+      // Navigate to Step 2 (Index Management)
+      cy.contains('button', 'Configure Collection').click()
+      cy.contains('h2', 'Step 2: Index Management').should('be.visible')
+
+      // Test adding existing index
+      cy.get('[data-test="add-existing-index-btn"]').click()
+      cy.get('[data-test="existing-index-selector"]').click()
+      cy.get('[data-test="existing-index-option"]').first().click()
+      cy.get('[data-test="add-existing-index-confirm-btn"]').click()
+
+      // Verify existing index was added
+      cy.get('[data-test="index-list"]').should('contain', 'existing_index')
+    })
+  })
+
+  describe('Migration Management', () => {
+    it('can add new migration', () => {
+      // First create a configuration to work with
+      cy.visit('/configurations')
+      cy.get('[data-test="new-collection-btn"]').click()
+
+      const configurationName = `TestConfig_${Date.now()}`
+      cy.get('[data-test="new-collection-name-input"]').type(configurationName)
+      cy.get('[data-test="new-collection-description-input"]').type('Test configuration for migration testing')
+      
+      // Simply bump minor version to 1 to enable Create button
+      cy.get('[data-test="version-minor-plus-btn"]').click()
+      cy.get('[data-test="version-display"]').should('contain', '0.1.0')
+      
+      cy.get('[data-test="new-collection-create-btn"]').click()
+
+      // After creation, we should be on the detail page
+      cy.url().should('include', `/configurations/${configurationName}.yaml`)
+      createdConfigurationName = configurationName
+
+      // Wait for the page to fully load
+      cy.wait(1000)
+
+      // Navigate to migration management
+      cy.contains('button', 'Configure Collection').click()
+      cy.contains('h2', 'Migration Management').should('be.visible')
+
+      // Test adding new migration
+      cy.get('[data-test="add-migration-btn"]').click()
+      cy.get('[data-test="new-migration-name-input"]').type('test_migration')
+      cy.get('[data-test="new-migration-create-btn"]').click()
+
+      // Verify migration was added
+      cy.get('[data-test="migration-list"]').should('contain', 'test_migration')
+    })
+
+    it('can add existing migration and verify links', () => {
+      // First create a configuration to work with
+      cy.visit('/configurations')
+      cy.get('[data-test="new-collection-btn"]').click()
+
+      const configurationName = `TestConfig_${Date.now()}`
+      cy.get('[data-test="new-collection-name-input"]').type(configurationName)
+      cy.get('[data-test="new-collection-description-input"]').type('Test configuration for existing migration testing')
+      
+      // Simply bump minor version to 1 to enable Create button
+      cy.get('[data-test="version-minor-plus-btn"]').click()
+      cy.get('[data-test="version-display"]').should('contain', '0.1.0')
+      
+      cy.get('[data-test="new-collection-create-btn"]').click()
+
+      // After creation, we should be on the detail page
+      cy.url().should('include', `/configurations/${configurationName}.yaml`)
+      createdConfigurationName = configurationName
+
+      // Wait for the page to fully load
+      cy.wait(1000)
+
+      // Navigate to migration management
+      cy.contains('button', 'Configure Collection').click()
+      cy.contains('h2', 'Migration Management').should('be.visible')
+
+      // Test adding existing migration
+      cy.get('[data-test="add-existing-migration-btn"]').click()
+      cy.get('[data-test="existing-migration-selector"]').click()
+      cy.get('[data-test="existing-migration-option"]').first().click()
+      cy.get('[data-test="add-existing-migration-confirm-btn"]').click()
+
+      // Verify existing migration was added
+      cy.get('[data-test="migration-list"]').should('contain', 'existing_migration')
+
+      // Verify migration link is correct
+      cy.get('[data-test="migration-link"]').should('have.attr', 'href').and('include', '/migrations/')
+    })
+  })
+
+  describe('File Linking and Verification', () => {
+    it('verifies dictionary and enumerator linking to correct files', () => {
+      // First create a configuration to work with
+      cy.visit('/configurations')
+      cy.get('[data-test="new-collection-btn"]').click()
+
+      const configurationName = `TestConfig_${Date.now()}`
+      cy.get('[data-test="new-collection-name-input"]').type(configurationName)
+      cy.get('[data-test="new-collection-description-input"]').type('Test configuration for file linking testing')
+      
+      // Simply bump minor version to 1 to enable Create button
+      cy.get('[data-test="version-minor-plus-btn"]').click()
+      cy.get('[data-test="version-display"]').should('contain', '0.1.0')
+      
+      cy.get('[data-test="new-collection-create-btn"]').click()
+
+      // After creation, we should be on the detail page
+      cy.url().should('include', `/configurations/${configurationName}.yaml`)
+      createdConfigurationName = configurationName
+
+      // Wait for the page to fully load
+      cy.wait(1000)
+
+      // Navigate to configuration details
+      cy.contains('button', 'Configure Collection').click()
+
+      // Verify dictionary file link is correct
+      cy.get('[data-test="dictionary-file-link"]').should('contain', `${configurationName}.0.1.0.yaml`)
+
+      // Verify enumerators file link is correct
+      cy.get('[data-test="enumerators-file-link"]').should('contain', 'enumerations.0.yaml')
+
+      // Verify test data file link is correct
+      cy.get('[data-test="test-data-file-link"]').should('contain', `${configurationName}.0.1.0.0.json`)
+    })
+  })
+
+  describe('Step 5 Index Management', () => {
+    it('can add, edit, and remove Step 5 indexes', () => {
+      // First create a configuration to work with
+      cy.visit('/configurations')
+      cy.get('[data-test="new-collection-btn"]').click()
+
+      const configurationName = `TestConfig_${Date.now()}`
+      cy.get('[data-test="new-collection-name-input"]').type(configurationName)
+      cy.get('[data-test="new-collection-description-input"]').type('Test configuration for Step 5 index testing')
+      
+      // Simply bump minor version to 1 to enable Create button
+      cy.get('[data-test="version-minor-plus-btn"]').click()
+      cy.get('[data-test="version-display"]').should('contain', '0.1.0')
+      
+      cy.get('[data-test="new-collection-create-btn"]').click()
+
+      // After creation, we should be on the detail page
+      cy.url().should('include', `/configurations/${configurationName}.yaml`)
+      createdConfigurationName = configurationName
+
+      // Wait for the page to fully load
+      cy.wait(1000)
+
+      // Navigate to Step 5 (Index Management)
+      cy.contains('button', 'Configure Collection').click()
+      cy.contains('h2', 'Step 5: Index Management').should('be.visible')
+
+      // Test adding new index
+      cy.get('[data-test="add-step5-index-btn"]').click()
+      cy.get('[data-test="step5-index-name-input"]').type('step5_index')
+      cy.get('[data-test="step5-index-create-btn"]').click()
+
+      // Verify index was added
+      cy.get('[data-test="step5-index-list"]').should('contain', 'step5_index')
+
+      // Test editing index
+      cy.get('[data-test="edit-step5-index-btn"]').first().click()
+      cy.get('[data-test="step5-index-name-edit-input"]').clear().type('edited_step5_index')
+      cy.get('[data-test="step5-index-save-btn"]').click()
+
+      // Verify index was edited
+      cy.get('[data-test="step5-index-list"]').should('contain', 'edited_step5_index')
+
+      // Test removing index
+      cy.get('[data-test="remove-step5-index-btn"]').first().click()
+      cy.get('[data-test="confirm-remove-index-btn"]').click()
+
+      // Verify index was removed
+      cy.get('[data-test="step5-index-list"]').should('not.contain', 'edited_step5_index')
+    })
+  })
+
+  describe('Test Data Linking', () => {
+    it('verifies test data linking and management', () => {
+      // First create a configuration to work with
+      cy.visit('/configurations')
+      cy.get('[data-test="new-collection-btn"]').click()
+
+      const configurationName = `TestConfig_${Date.now()}`
+      cy.get('[data-test="new-collection-name-input"]').type(configurationName)
+      cy.get('[data-test="new-collection-description-input"]').type('Test configuration for test data testing')
+      
+      // Simply bump minor version to 1 to enable Create button
+      cy.get('[data-test="version-minor-plus-btn"]').click()
+      cy.get('[data-test="version-display"]').should('contain', '0.1.0')
+      
+      cy.get('[data-test="new-collection-create-btn"]').click()
+
+      // After creation, we should be on the detail page
+      cy.url().should('include', `/configurations/${configurationName}.yaml`)
+      createdConfigurationName = configurationName
+
+      // Wait for the page to fully load
+      cy.wait(1000)
+
+      // Navigate to test data management
+      cy.contains('button', 'Configure Collection').click()
+      cy.contains('h2', 'Test Data Management').should('be.visible')
+
+      // Verify test data file is linked correctly
+      cy.get('[data-test="test-data-file-link"]').should('contain', `${configurationName}.0.1.0.0.json`)
+
+      // Test adding test data
+      cy.get('[data-test="add-test-data-btn"]').click()
+      cy.get('[data-test="test-data-json-input"]').type('{"test": "data"}')
+      cy.get('[data-test="add-test-data-confirm-btn"]').click()
+
+      // Verify test data was added
+      cy.get('[data-test="test-data-list"]').should('contain', '{"test": "data"}')
     })
   })
 })
