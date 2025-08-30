@@ -301,46 +301,151 @@ describe('Configurations page flow', () => {
   })
 
   describe('New Version Creation and Management', () => {
-    it('can create new version with patch logic (+1 down, then up)', () => {
-      // First create a configuration to work with
+    it('can create new version with patch logic', () => {
+      // Arrange - very minimal assertions
       cy.visit('/configurations')
       cy.get('[data-test="new-collection-btn"]').click()
-
+      
+      // Assert we are in Create New Collection dialog
+      cy.get('[data-test="new-collection-dialog"]').should('be.visible')
+      cy.get('[data-test="new-collection-dialog-title"]').should('contain', 'Create New Collection')
+      
+      // Type name/description, click minor + button, click create
       const configurationName = `TestConfig_${Date.now()}`
       cy.get('[data-test="new-collection-name-input"]').type(configurationName)
       cy.get('[data-test="new-collection-description-input"]').type('Test configuration for version testing')
-      
-      // Simply bump minor version to 1 to enable Create button
       cy.get('[data-test="version-minor-plus-btn"]').click()
-      cy.get('[data-test="version-display"]').should('contain', '0.1.0')
-      
       cy.get('[data-test="new-collection-create-btn"]').click()
-
-      // After creation, we should be on the detail page
+      
+      // Assert path /configurations/{filename}.yaml
       cy.url().should('include', `/configurations/${configurationName}.yaml`)
+      
+      // Store for cleanup
       createdConfigurationName = configurationName
       createdConfigurationVersion = '0.1.0'
+      createdEnumeratorsVersion = '2'
 
-      // Wait for the page to fully load
-      cy.wait(1000)
-
-      // Test new version creation
+      // Act & Assert
+      // click New Version
       cy.contains('button', 'New Version').click()
-
-      // Verify new version dialog is open
+      
+      // assert we are in new version dialog
       cy.get('.v-dialog').should('be.visible')
       cy.get('.v-dialog .v-card-title').should('contain', 'Create New Version')
-
-      // Test patch logic: +1 down, then up
-      // The dialog should show incremented version numbers
+      
+      // assert major=0, minor=1, patch=0, enumerators=2
       cy.get('[data-test="new-version-major"]').should('contain', '0')
-      cy.get('[data-test="new-version-minor"]').should('contain', '2') // +1 from 0.1.0
+      cy.get('[data-test="new-version-minor"]').should('contain', '1')
       cy.get('[data-test="new-version-patch"]').should('contain', '0')
-      cy.get('[data-test="new-version-enumerators"]').should('contain', '0')
+      cy.get('[data-test="new-version-enumerators"]').should('contain', '2')
+
+      // click increment buttons major, minor, patch
+      cy.get('[data-test="new-version-major-plus-btn"]').click()
+      cy.get('[data-test="new-version-minor-plus-btn"]').click()
+      cy.get('[data-test="new-version-patch-plus-btn"]').click()
+      
+      // assert major=1, minor=1, patch=1
+      cy.get('[data-test="new-version-major"]').should('contain', '1')
+      cy.get('[data-test="new-version-minor"]').should('contain', '1')
+      cy.get('[data-test="new-version-patch"]').should('contain', '1')
+
+      // click on increment enumerators
+      cy.get('[data-test="new-version-enumerators-plus-btn"]').click()
+      
+      // assert enumerators = 3
+      cy.get('[data-test="new-version-enumerators"]').should('contain', '3')
+      
+      // assert increment enumerators is no longer visible
+      cy.get('[data-test="new-version-enumerators-plus-btn"]').should('not.exist')
+      
+      // assert GET /api/enumerators/enumerations.3.yaml gets 200 response
+      cy.request({
+        method: 'GET',
+        url: `/api/enumerators/enumerations.3.yaml/`,
+        failOnStatusCode: false
+      }).then((response) => {
+        expect(response.status).to.equal(200)
+      })
+
+      // click increment patch, minor, major
+      cy.get('[data-test="new-version-patch-plus-btn"]').click()
+      cy.get('[data-test="new-version-minor-plus-btn"]').click()
+      cy.get('[data-test="new-version-major-plus-btn"]').click()
+      
+      // assert major=2, minor=0, patch=0
+      cy.get('[data-test="new-version-major"]').should('contain', '2')
+      cy.get('[data-test="new-version-minor"]').should('contain', '0')
+      cy.get('[data-test="new-version-patch"]').should('contain', '0')
 
       // Close dialog without creating
       cy.get('[data-test="new-version-cancel-btn"]').click()
       cy.get('.v-dialog').should('not.exist')
+
+      // Housekeeping - API calls to these endpoints, with 200 response
+      // DEL /api/configurations/{filename}.yaml/
+      cy.request({
+        method: 'DELETE',
+        url: `/api/configurations/${configurationName}.yaml/`,
+        failOnStatusCode: false
+      }).then((response) => {
+        expect(response.status).to.equal(200)
+        cy.log(`Successfully deleted configuration ${configurationName}`)
+      })
+
+      // DEL /api/enumerators/enumerations.3.yaml/
+      cy.request({
+        method: 'DELETE',
+        url: `/api/enumerators/enumerations.3.yaml/`,
+        failOnStatusCode: false
+      }).then((response) => {
+        expect(response.status).to.equal(200)
+        cy.log(`Successfully deleted enumerators enumerations.3.yaml`)
+      })
+
+      // DEL /api/dictionaries/{filename}.0.1.0.yaml/
+      cy.request({
+        method: 'DELETE',
+        url: `/api/dictionaries/${configurationName}.0.1.0.yaml/`,
+        failOnStatusCode: false
+      }).then((response) => {
+        expect(response.status).to.equal(200)
+        cy.log(`Successfully deleted dictionary ${configurationName}.0.1.0.yaml`)
+      })
+
+      // DEL /api/test_data/{filename}.0.1.0.2.json/
+      cy.request({
+        method: 'DELETE',
+        url: `/api/test-data/${configurationName}.0.1.0.2.json/`,
+        failOnStatusCode: false
+      }).then((response) => {
+        expect(response.status).to.equal(200)
+        cy.log(`Successfully deleted test data ${configurationName}.0.1.0.2.json`)
+      })
+
+      // DEL /api/dictionaries/{filename}.2.0.0.yaml/
+      cy.request({
+        method: 'DELETE',
+        url: `/api/dictionaries/${configurationName}.2.0.0.yaml/`,
+        failOnStatusCode: false
+      }).then((response) => {
+        expect(response.status).to.equal(200)
+        cy.log(`Successfully deleted dictionary ${configurationName}.2.0.0.yaml`)
+      })
+
+      // DEL /api/test_data/{filename}.2.0.0.3.json/
+      cy.request({
+        method: 'DELETE',
+        url: `/api/test-data/${configurationName}.2.0.0.3.json/`,
+        failOnStatusCode: false
+      }).then((response) => {
+        expect(response.status).to.equal(200)
+        cy.log(`Successfully deleted test data ${configurationName}.2.0.0.3.json`)
+      })
+
+      // Clear cleanup variables since we've already cleaned up
+      createdConfigurationName = ''
+      createdConfigurationVersion = ''
+      createdEnumeratorsVersion = ''
     })
 
     it('tests enumerators +1 creates new enumerators if needed', () => {
