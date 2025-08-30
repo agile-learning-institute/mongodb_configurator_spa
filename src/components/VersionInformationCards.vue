@@ -246,65 +246,7 @@
       </v-card>
     </v-dialog>
 
-    <!-- Index JSON Editor Dialog -->
-    <v-dialog
-      v-model="showIndexJsonEditorDialog"
-      max-width="800px"
-    >
-      <v-card>
-        <v-card-title class="d-flex align-center gap-2">
-          <v-icon>mdi-code-json</v-icon>
-          {{ editingIndexData.name }}
-        </v-card-title>
-        
-        <v-card-text>
-          <v-textarea
-            v-model="jsonText"
-            placeholder="Enter JSON content..."
-            variant="outlined"
-            density="compact"
-            :disabled="props.disabled"
-            :error="!!jsonError"
-            :error-messages="jsonError"
-            :rows="8"
-            auto-grow
-            @update:model-value="handleJsonChange"
-            @blur="validateJson"
-            data-test="index-json-textarea"
-          />
-          
-          <!-- Error Display -->
-          <v-alert
-            v-if="jsonError"
-            type="error"
-            variant="tonal"
-            class="mt-3"
-            data-test="json-error-alert"
-          >
-            {{ jsonError }}
-          </v-alert>
-        </v-card-text>
-        
-        <v-card-actions>
-          <v-spacer />
-          <v-btn
-            variant="text"
-            @click="showIndexJsonEditorDialog = false"
-            data-test="cancel-json-edit-btn"
-          >
-            Cancel
-          </v-btn>
-          <v-btn
-            color="primary"
-            @click="saveIndexJson"
-            :disabled="props.disabled"
-            data-test="save-json-btn"
-          >
-            Save Changes
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+
 
     <!-- Step 6: Load Test Data Card -->
     <BaseCard 
@@ -506,7 +448,6 @@ const newMigrationName = ref('')
 
 // Index Editor Dialog state
 const showIndexEditorDialog = ref(false)
-const showIndexJsonEditorDialog = ref(false) // New state for JSON editor
 const editingIndexTitle = ref('')
 const editingIndexData = ref<any>({})
 const jsonText = ref('')
@@ -833,38 +774,7 @@ const saveIndex = async () => {
   }
 }
 
-const saveIndexJson = async () => {
-  try {
-    // Validate JSON before saving
-    if (jsonText.value.trim()) {
-      const parsedData = JSON.parse(jsonText.value)
-      editingIndexData.value = parsedData
-    }
-    
-    if (editingIndexData.value.name?.trim()) {
-      // Ensure add_indexes array exists
-      if (!props.version.add_indexes) {
-        props.version.add_indexes = []
-      }
-      
-      // Find and update the existing index
-      const indexToUpdate = props.version.add_indexes.find((idx: any) => 
-        idx.name === editingIndexData.value.name
-      )
-      
-      if (indexToUpdate) {
-        // Update existing index
-        Object.assign(indexToUpdate, editingIndexData.value)
-        // Call the update function to save changes
-        props.onUpdate()
-        showIndexJsonEditorDialog.value = false
-      }
-    }
-  } catch (err) {
-    console.error('Failed to save index JSON:', err)
-    jsonError.value = 'Invalid JSON format'
-  }
-}
+
 
 const deleteIndex = (index: number) => {
   if (props.version.add_indexes && props.version.add_indexes[index]) {
