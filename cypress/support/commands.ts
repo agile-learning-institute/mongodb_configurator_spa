@@ -6,7 +6,6 @@ declare global {
       getByTest(selector: string, ...args: any[]): Chainable<JQuery<HTMLElement>>
       resetApp(): Chainable<void>
       interceptAlias(method: string, url: string, alias: string): Chainable<void>
-      runAllSpecs(): Chainable<void>
     }
   }
 }
@@ -25,30 +24,6 @@ Cypress.Commands.add('resetApp', () => {
 
 Cypress.Commands.add('interceptAlias', (method, url, alias) => {
   cy.intercept(method, url).as(alias)
-})
-
-Cypress.Commands.add('runAllSpecs', () => {
-  cy.log('Running all Cypress specs...')
-  
-  // List of all spec files to run
-  const specs = [
-    'app.smoke.cy.ts',
-    'configurations.cy.ts', 
-    'dictionaries.cy.ts',
-    'enumerators.cy.ts',
-    'event-viewer.cy.ts',
-    'migrations.cy.ts',
-    'test_data.cy.ts',
-    'types.cy.ts'
-  ]
-  
-  cy.log(`Found ${specs.length} spec files to run`)
-  
-  // This command can be used in the GUI to see all available specs
-  // or can be called programmatically to run specific specs
-  specs.forEach((spec, index) => {
-    cy.log(`${index + 1}. ${spec}`)
-  })
 })
 
 export {}

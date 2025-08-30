@@ -1,60 +1,27 @@
 /**
- * Run All Specs - Cypress GUI Test Runner
+ * Run All Specs - Cypress Test Runner
  * 
- * This file allows you to run all Cypress specs from the GUI.
- * Simply open this file in Cypress and run it to execute all tests.
+ * This file runs all available Cypress specs by importing and executing them.
+ * Simply run this file to execute your entire test suite.
  */
 
-describe('🚀 Run All Cypress Specs', () => {
-  it('should run all available test specs', () => {
-    // This test will show you all available specs in the GUI
-    cy.log('Available Cypress Test Specs:')
+// Import all spec files to run them
+import './app.smoke.cy.ts'
+import './configurations.cy.ts'
+import './dictionaries.cy.ts'
+import './enumerators.cy.ts'
+import './event-viewer.cy.ts'
+import './migrations.cy.ts'
+import './test_data.cy.ts'
+import './types.cy.ts'
+
+describe('🚀 Complete Test Suite Runner', () => {
+  it('should run all test specs', () => {
+    // This test will execute all imported specs
+    cy.log('🎯 Running complete test suite...')
+    cy.log('📋 All specs have been imported and will run')
     
-    const specs = [
-      { name: 'App Smoke Tests', file: 'app.smoke.cy.ts', description: 'Basic app functionality and navigation' },
-      { name: 'Configurations', file: 'configurations.cy.ts', description: 'Configuration management and versioning' },
-      { name: 'Dictionaries', file: 'dictionaries.cy.ts', description: 'Dictionary CRUD operations' },
-      { name: 'Enumerators', file: 'enumerators.cy.ts', description: 'Enumerator management with versioning rules' },
-      { name: 'Event Viewer', file: 'event-viewer.cy.ts', description: 'Event processing and display' },
-      { name: 'Migrations', file: 'migrations.cy.ts', description: 'Migration management' },
-      { name: 'Test Data', file: 'test_data.cy.ts', description: 'Test data management' },
-      { name: 'Types', file: 'types.cy.ts', description: 'Type definition management' }
-    ]
-    
-    // Display all specs in the test runner
-    specs.forEach((spec, index) => {
-      cy.log(`📋 ${index + 1}. ${spec.name}`)
-      cy.log(`   File: ${spec.file}`)
-      cy.log(`   Description: ${spec.description}`)
-      cy.log('   ---')
-    })
-    
-    cy.log(`🎯 Total: ${specs.length} spec files available`)
-    cy.log('💡 To run individual specs, open them directly in Cypress')
-    cy.log('💡 To run all specs from command line: npm run cy:run')
-    
-    // This test always passes - it's just for information
-    expect(specs.length).to.be.greaterThan(0)
-  })
-  
-  it('should verify all spec files exist', () => {
-    // Verify that all spec files are present in the e2e directory
-    const specFiles = [
-      'app.smoke.cy.ts',
-      'configurations.cy.ts',
-      'dictionaries.cy.ts', 
-      'enumerators.cy.ts',
-      'event-viewer.cy.ts',
-      'migrations.cy.ts',
-      'test_data.cy.ts',
-      'types.cy.ts'
-    ]
-    
-    specFiles.forEach(specFile => {
-      // This will fail if any spec file is missing
-      expect(specFile).to.exist
-    })
-    
-    cy.log('✅ All spec files verified as present')
+    // Simple assertion to ensure the test runs
+    expect(true).to.be.true
   })
 })
