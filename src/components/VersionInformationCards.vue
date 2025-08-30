@@ -195,7 +195,7 @@
         
         <v-card-text>
           <!-- JSON Editor -->
-          <div>
+          <div data-test="step5-json-editor-container">
             <label class="text-body-2 font-weight-medium mb-2 d-block">Index JSON</label>
             <v-textarea
               v-model="jsonText"
