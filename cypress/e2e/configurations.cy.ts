@@ -735,7 +735,7 @@ describe('Configurations page flow', () => {
       cy.get('[data-test="step5-index-json-textarea"] textarea:not(.v-textarea__sizer)').invoke('val').should('contain', '"options": {}')
       
       // Test validation - try to save without a name
-      cy.get('[data-test="step5-index-json-textarea"] textarea:not(.v-textarea__sizer)').clear().type('{"key": {}, "options": {}}')
+      cy.get('[data-test="step5-index-json-textarea"] textarea:not(.v-textarea__sizer)').clear().type('{"key": {}, "options": {}}', { parseSpecialCharSequences: false })
       cy.get('[data-test="save-index-btn"]').should('be.disabled')
       
       // Test validation - try to save with invalid JSON
@@ -743,7 +743,7 @@ describe('Configurations page flow', () => {
       cy.get('[data-test="save-index-btn"]').should('be.disabled')
       
       // Edit the JSON to set the name
-      cy.get('[data-test="step5-index-json-textarea"] textarea:not(.v-textarea__sizer)').clear().type('{"name": "name1", "key": {}, "options": {}}')
+      cy.get('[data-test="step5-index-json-textarea"] textarea:not(.v-textarea__sizer)').clear().type('{"name": "name1", "key": {}, "options": {}}', { parseSpecialCharSequences: false })
       cy.get('[data-test="save-index-btn"]').should('be.enabled')
       cy.get('[data-test="save-index-btn"]').click()
 
@@ -759,7 +759,7 @@ describe('Configurations page flow', () => {
       cy.get('[data-test="step5-index-json-textarea"] textarea:not(.v-textarea__sizer)').invoke('val').should('contain', '"name": "name1"')
       
       // Edit the JSON to change the name
-      cy.get('[data-test="step5-index-json-textarea"] textarea:not(.v-textarea__sizer)').clear().type('{"name": "edited_name", "key": {}, "options": {}}')
+      cy.get('[data-test="step5-index-json-textarea"] textarea:not(.v-textarea__sizer)').clear().type('{"name": "edited_name", "key": {}, "options": {}}', { parseSpecialCharSequences: false })
       cy.get('[data-test="save-index-btn"]').click()
 
       // Verify index was edited - chip should show new name
