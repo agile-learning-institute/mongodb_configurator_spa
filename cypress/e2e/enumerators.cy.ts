@@ -152,7 +152,7 @@ describe('Enumerators page flow', () => {
     
     // Verify the add version button exists and has correct data-test attribute
     cy.get('[data-test="add-version-btn"]').should('exist')
-    cy.get('[data-test="add-version-btn"] .v-icon').should('contain', 'mdi-plus')
+    cy.get('[data-test="add-version-btn"] .v-icon').should('have.class', 'mdi-plus')
     
     // Verify lock/unlock and delete buttons have correct data-test attributes
     cy.get('body').then(($body) => {

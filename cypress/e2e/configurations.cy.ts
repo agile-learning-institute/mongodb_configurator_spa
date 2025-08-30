@@ -288,13 +288,13 @@ describe('Configurations page flow', () => {
     // Verify the version navigator uses the correct icons
     // Previous version button should use mdi-skip-previous with default size
     cy.get('[data-test="previous-version-btn"]').should('exist')
-    cy.get('[data-test="previous-version-btn"] .v-icon').should('contain', 'mdi-skip-previous')
+    cy.get('[data-test="previous-version-btn"] .v-icon').should('have.class', 'mdi-skip-previous')
     cy.get('[data-test="previous-version-btn"]').should('not.have.class', 'v-btn--size-small')
     
     // Next version button should use mdi-skip-next with default size (if it exists)
     cy.get('body').then(($body) => {
       if ($body.find('[data-test="next-version-btn"]').length > 0) {
-        cy.get('[data-test="next-version-btn"] .v-icon').should('contain', 'mdi-skip-next')
+        cy.get('[data-test="next-version-btn"] .v-icon').should('have.class', 'mdi-skip-next')
         cy.get('[data-test="next-version-btn"]').should('not.have.class', 'v-btn--size-small')
       }
     })
@@ -304,7 +304,7 @@ describe('Configurations page flow', () => {
     
     // Verify the new version button exists and has correct icon
     cy.get('[data-test="new-version-btn"]').should('exist')
-    cy.get('[data-test="new-version-btn"] .v-icon').should('contain', 'mdi-plus')
+    cy.get('[data-test="new-version-btn"] .v-icon').should('have.class', 'mdi-plus')
     
     // Verify lock/unlock and delete buttons have correct data-test attributes
     cy.get('[data-test="toggle-lock-btn"]').should('exist')
