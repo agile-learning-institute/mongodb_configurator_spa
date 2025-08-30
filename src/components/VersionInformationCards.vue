@@ -363,6 +363,16 @@
         >
           Cancel
         </v-btn>
+        <v-btn
+          color="primary"
+          variant="elevated"
+          @click="addSelectedDropIndex"
+          :disabled="!newDropIndexName.trim()"
+          data-test="drop-index-create-btn"
+        >
+          <v-icon start size="small">mdi-plus</v-icon>
+          Add Index
+        </v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>

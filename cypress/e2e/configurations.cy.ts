@@ -301,7 +301,7 @@ describe('Configurations page flow', () => {
   })
 
   describe('New Version Creation and Management', () => {
-    it.only('can create new version with patch logic', () => {
+    it('can create new version with patch logic', () => {
       // Arrange - very minimal assertions
       cy.visit('/configurations')
       cy.get('[data-test="new-collection-btn"]').click()
@@ -369,28 +369,6 @@ describe('Configurations page flow', () => {
       cy.get('[data-test="new-version-minor"]').should('contain', '0')
       cy.get('[data-test="new-version-patch"]').should('contain', '0')
 
-      // click on increment enumerators
-      cy.get('[data-test="new-version-enumerators-plus-btn"]').click()
-      
-      // assert enumerators = 3
-      cy.get('[data-test="new-version-enumerators"]').should('contain', '3')
-      
-      // assert increment enumerators is no longer visible
-      cy.get('[data-test="new-version-enumerators-plus-btn"]').should('not.exist')
-      
-      // Wait a moment for the file creation to complete
-      cy.wait(500)
-      
-      // assert GET /api/enumerators/enumerations.3.yaml gets 200 response
-      // This should now pass since we fixed the bug where the dialog wasn't creating the file
-      cy.request({
-        method: 'GET',
-        url: `/api/enumerators/enumerations.3.yaml/`,
-        failOnStatusCode: false
-      }).then((response) => {
-        expect(response.status).to.equal(200)
-      })
-
       // Create the new version to test housekeeping of actual files
       cy.get('[data-test="new-version-create-btn"]').click()
       
@@ -411,16 +389,6 @@ describe('Configurations page flow', () => {
         cy.log(`Successfully deleted configuration ${configurationName}`)
       })
 
-      // DEL /api/enumerators/enumerations.3.yaml/
-      cy.request({
-        method: 'DELETE',
-        url: `/api/enumerators/enumerations.3.yaml/`,
-        failOnStatusCode: false
-      }).then((response) => {
-        expect(response.status).to.equal(200)
-        cy.log(`Successfully deleted enumerators enumerations.3.yaml`)
-      })
-
       // DEL /api/dictionaries/{filename}.0.1.0.yaml/
       cy.request({
         method: 'DELETE',
@@ -434,7 +402,7 @@ describe('Configurations page flow', () => {
       // DEL /api/test_data/{filename}.0.1.0.2.json/
       cy.request({
         method: 'DELETE',
-        url: `/api/test-data/${configurationName}.0.1.0.2.json/`,
+        url: `/api/test_data/${configurationName}.0.1.0.2.json/`,
         failOnStatusCode: false
       }).then((response) => {
         expect(response.status).to.equal(200)
@@ -454,11 +422,11 @@ describe('Configurations page flow', () => {
       // DEL /api/test_data/{filename}.2.0.0.3.json/
       cy.request({
         method: 'DELETE',
-        url: `/api/test-data/${configurationName}.2.0.0.3.json/`,
+        url: `/api/test_data/${configurationName}.2.0.0.2.json/`,
         failOnStatusCode: false
       }).then((response) => {
         expect(response.status).to.equal(200)
-        cy.log(`Successfully deleted test data ${configurationName}.2.0.0.3.json`)
+        cy.log(`Successfully deleted test data ${configurationName}.2.0.0.2.json`)
       })
 
       // Clear cleanup variables since we've already cleaned up
@@ -491,19 +459,21 @@ describe('Configurations page flow', () => {
       // Wait for the page to fully load
       cy.wait(1000)
 
-      // Test new version creation with enumerators increment
+      // Create new version
       cy.contains('button', 'New Version').click()
 
       // Verify new version dialog is open
       cy.get('.v-dialog').should('be.visible')
 
-      // Test enumerators increment
+      // click on increment enumerators
       cy.get('[data-test="new-version-enumerators-plus-btn"]').click()
+      
+      // assert enumerators = 3
       cy.get('[data-test="new-version-enumerators"]').should('contain', '3')
-
-      // Verify that incrementing enumerators from 2 to 3 would create enumerations.3.yaml
-      // (This is tested via the API call below)
-
+      
+      // assert increment enumerators is no longer visible
+      cy.get('[data-test="new-version-enumerators-plus-btn"]').should('not.exist')
+      
       // Create the new version to test housekeeping of actual files
       cy.get('[data-test="new-version-create-btn"]').click()
       
@@ -512,23 +482,39 @@ describe('Configurations page flow', () => {
       
       // Verify dialog is closed
       cy.get('[data-test="new-version-dialog"]').should('not.exist')
+
+      // Verify enumerations.3.yaml was created
+      cy.request({
+        method: 'GET',
+        url: `/api/enumerators/enumerations.3.yaml/`,
+        failOnStatusCode: false
+      }).then((response) => {
+        expect(response.status).to.equal(200)
+      })
+
+      // Housekeeping - DEL /api/enumerators/enumerations.3.yaml/
+      cy.request({
+        method: 'DELETE',
+        url: `/api/enumerators/enumerations.3.yaml/`,
+        failOnStatusCode: false
+      }).then((response) => {
+        expect(response.status).to.equal(200)
+        cy.log(`Successfully deleted enumerators enumerations.3.yaml`)
+      })
+
     })
   })
 
   describe('Index Management', () => {
-    it('can add Step 2 index with new name', () => {
+    it.only('can add Step 2 index with new name', () => {
       // First create a configuration to work with
       cy.visit('/configurations')
       cy.get('[data-test="new-collection-btn"]').click()
-
       const configurationName = `TestConfig_${Date.now()}`
       cy.get('[data-test="new-collection-name-input"]').type(configurationName)
       cy.get('[data-test="new-collection-description-input"]').type('Test configuration for index testing')
-      
-      // Simply bump minor version to 1 to enable Create button
       cy.get('[data-test="version-minor-plus-btn"]').click()
       cy.get('[data-test="version-display"]').should('contain', '0.1.0')
-      
       cy.get('[data-test="new-collection-create-btn"]').click()
 
       // After creation, we should be on the detail page
@@ -540,17 +526,13 @@ describe('Configurations page flow', () => {
       // Wait for the page to fully load
       cy.wait(1000)
 
-      // Navigate to Step 2 (Index Management)
-      cy.contains('button', 'Configure Collection').click()
-      cy.contains('h2', 'Step 2: Index Management').should('be.visible')
-
       // Test adding new index with custom name
-      cy.get('[data-test="add-index-btn"]').click()
-      cy.get('[data-test="new-index-name-input"]').type('custom_index_name')
-      cy.get('[data-test="new-index-create-btn"]').click()
+      cy.get('[data-test="add-drop-index-btn"]').click()
+      cy.get('[data-test="drop-index-name-input"]').type('custom_index_name')
+      cy.get('[data-test="drop-index-create-btn"]').click()
 
       // Verify index was added
-      cy.get('[data-test="index-list"]').should('contain', 'custom_index_name')
+      cy.get('[data-test="drop-indexes-content"]').should('contain', 'custom_index_name')
     })
 
     it('can add Step 2 index from existing indexes', () => {
@@ -578,7 +560,6 @@ describe('Configurations page flow', () => {
       cy.wait(1000)
 
       // Navigate to Step 2 (Index Management)
-      cy.contains('button', 'Configure Collection').click()
       cy.contains('h2', 'Step 2: Index Management').should('be.visible')
 
       // Test adding existing index
@@ -617,7 +598,6 @@ describe('Configurations page flow', () => {
       cy.wait(1000)
 
       // Navigate to migration management
-      cy.contains('button', 'Configure Collection').click()
       cy.contains('h2', 'Migration Management').should('be.visible')
 
       // Test adding new migration
@@ -654,7 +634,6 @@ describe('Configurations page flow', () => {
       cy.wait(1000)
 
       // Navigate to migration management
-      cy.contains('button', 'Configure Collection').click()
       cy.contains('h2', 'Migration Management').should('be.visible')
 
       // Test adding existing migration
@@ -697,7 +676,6 @@ describe('Configurations page flow', () => {
       cy.wait(1000)
 
       // Navigate to configuration details
-      cy.contains('button', 'Configure Collection').click()
 
       // Verify dictionary file link is correct
       cy.get('[data-test="dictionary-file-link"]').should('contain', `${configurationName}.0.1.0.yaml`)
@@ -736,7 +714,6 @@ describe('Configurations page flow', () => {
       cy.wait(1000)
 
       // Navigate to Step 5 (Index Management)
-      cy.contains('button', 'Configure Collection').click()
       cy.contains('h2', 'Step 5: Index Management').should('be.visible')
 
       // Test adding new index
@@ -790,7 +767,6 @@ describe('Configurations page flow', () => {
       cy.wait(1000)
 
       // Navigate to test data management
-      cy.contains('button', 'Configure Collection').click()
       cy.contains('h2', 'Test Data Management').should('be.visible')
 
       // Verify test data file is linked correctly
