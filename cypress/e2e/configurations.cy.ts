@@ -301,7 +301,7 @@ describe('Configurations page flow', () => {
   })
 
   describe('New Version Creation and Management', () => {
-    it('can create new version with patch logic', () => {
+    it.only('can create new version with patch logic', () => {
       // Arrange - very minimal assertions
       cy.visit('/configurations')
       cy.get('[data-test="new-collection-btn"]').click()

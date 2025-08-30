@@ -723,6 +723,29 @@ const createNewVersion = async () => {
     } catch (err: any) {
       console.log(`Failed to create test data file for new version: ${err.message}`)
     }
+
+    // Create new enumerators file if enumerators version changed
+    try {
+      const versionParts = versionString.split('.')
+      
+      if (versionParts.length >= 4) {
+        const enumeratorsVersion = versionParts[3] // enumerators version is the 4th part
+        const enumeratorsFileName = `enumerations.${enumeratorsVersion}.yaml`
+        
+        // Create empty enumerators structure
+        const newEnumerators = {
+          version: parseInt(enumeratorsVersion),
+          enumerators: []
+        }
+        
+        // Save the new enumerators file
+        await apiService.saveEnumerator(enumeratorsFileName, newEnumerators)
+        
+        console.log(`Enumerators file created: ${enumeratorsFileName}`)
+      }
+    } catch (err: any) {
+      console.log(`Failed to create enumerators file for new version: ${err.message}`)
+    }
     
     // Set as active version
     activeVersion.value = versionString
