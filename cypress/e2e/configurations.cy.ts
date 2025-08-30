@@ -1,5 +1,6 @@
 describe('Configurations page flow', () => {
   let createdConfigurationName: string
+  let createdConfigurationVersion: string
 
   // Clean up any configurations created during tests
   afterEach(() => {
@@ -20,28 +21,33 @@ describe('Configurations page flow', () => {
       })
 
       // Also try to delete the associated dictionary file
+      // Use the actual version that was created (usually 0.1.0 from our tests)
+      const dictionaryVersion = createdConfigurationVersion || '0.1.0'
       cy.request({
         method: 'DELETE',
-        url: `/api/dictionaries/${createdConfigurationName}.0.0.0.yaml/`,
+        url: `/api/dictionaries/${createdConfigurationName}.${dictionaryVersion}.yaml/`,
         failOnStatusCode: false
       }).then((response) => {
         if (response.status === 200) {
-          cy.log(`Successfully deleted dictionary ${createdConfigurationName}.0.0.0.yaml`)
+          cy.log(`Successfully deleted dictionary ${createdConfigurationName}.${dictionaryVersion}.yaml`)
         }
       })
 
       // And the test data file
+      // Test data files use the format: {name}.{version}.{enumerators}.json
+      const testDataVersion = createdConfigurationVersion || '0.1.0'
       cy.request({
         method: 'DELETE',
-        url: `/api/test-data/${createdConfigurationName}.0.0.0.0.json/`,
+        url: `/api/test-data/${createdConfigurationName}.${testDataVersion}.0.json/`,
         failOnStatusCode: false
       }).then((response) => {
         if (response.status === 200) {
-          cy.log(`Successfully deleted test data ${createdConfigurationName}.0.0.0.0.json`)
+          cy.log(`Successfully deleted test data ${createdConfigurationName}.${testDataVersion}.0.json`)
         }
       })
 
       createdConfigurationName = ''
+      createdConfigurationVersion = ''
     }
   })
 
@@ -92,8 +98,9 @@ describe('Configurations page flow', () => {
       // Verify dialog is closed
       cy.get('[data-test="new-collection-dialog"]').should('not.exist')
 
-      // Store the configuration name for cleanup
+      // Store the configuration name and version for cleanup
       createdConfigurationName = configurationName
+      createdConfigurationVersion = '0.1.0'
 
       // Wait a moment for the API calls to complete
       cy.wait(2000)
@@ -176,8 +183,9 @@ describe('Configurations page flow', () => {
       // After creation, we should be on the detail page
       cy.url().should('include', `/configurations/${configurationName}.yaml`)
 
-      // Store the configuration name for cleanup
+      // Store the configuration name and version for cleanup
       createdConfigurationName = configurationName
+      createdConfigurationVersion = '0.1.0'
 
       // Verify basic page elements exist
       cy.get('h3.text-h5').should('be.visible')
@@ -256,6 +264,7 @@ describe('Configurations page flow', () => {
       cy.get('[data-test="new-collection-create-btn"]').click()
       cy.url().should('include', `/configurations/${configurationName}.yaml`)
       createdConfigurationName = configurationName // Ensure this is set for cleanup
+      createdConfigurationVersion = '0.1.0'
 
       // Wait for the page to fully load
       cy.wait(1000)
@@ -304,6 +313,7 @@ describe('Configurations page flow', () => {
       // After creation, we should be on the detail page
       cy.url().should('include', `/configurations/${configurationName}.yaml`)
       createdConfigurationName = configurationName
+      createdConfigurationVersion = '0.1.0'
 
       // Wait for the page to fully load
       cy.wait(1000)
@@ -345,6 +355,7 @@ describe('Configurations page flow', () => {
       // After creation, we should be on the detail page
       cy.url().should('include', `/configurations/${configurationName}.yaml`)
       createdConfigurationName = configurationName
+      createdConfigurationVersion = '0.1.0'
 
       // Wait for the page to fully load
       cy.wait(1000)
@@ -388,6 +399,7 @@ describe('Configurations page flow', () => {
       // After creation, we should be on the detail page
       cy.url().should('include', `/configurations/${configurationName}.yaml`)
       createdConfigurationName = configurationName
+      createdConfigurationVersion = '0.1.0'
 
       // Wait for the page to fully load
       cy.wait(1000)
@@ -423,6 +435,7 @@ describe('Configurations page flow', () => {
       // After creation, we should be on the detail page
       cy.url().should('include', `/configurations/${configurationName}.yaml`)
       createdConfigurationName = configurationName
+      createdConfigurationVersion = '0.1.0'
 
       // Wait for the page to fully load
       cy.wait(1000)
@@ -461,6 +474,7 @@ describe('Configurations page flow', () => {
       // After creation, we should be on the detail page
       cy.url().should('include', `/configurations/${configurationName}.yaml`)
       createdConfigurationName = configurationName
+      createdConfigurationVersion = '0.1.0'
 
       // Wait for the page to fully load
       cy.wait(1000)
@@ -496,6 +510,7 @@ describe('Configurations page flow', () => {
       // After creation, we should be on the detail page
       cy.url().should('include', `/configurations/${configurationName}.yaml`)
       createdConfigurationName = configurationName
+      createdConfigurationVersion = '0.1.0'
 
       // Wait for the page to fully load
       cy.wait(1000)
@@ -537,6 +552,7 @@ describe('Configurations page flow', () => {
       // After creation, we should be on the detail page
       cy.url().should('include', `/configurations/${configurationName}.yaml`)
       createdConfigurationName = configurationName
+      createdConfigurationVersion = '0.1.0'
 
       // Wait for the page to fully load
       cy.wait(1000)
@@ -574,6 +590,7 @@ describe('Configurations page flow', () => {
       // After creation, we should be on the detail page
       cy.url().should('include', `/configurations/${configurationName}.yaml`)
       createdConfigurationName = configurationName
+      createdConfigurationVersion = '0.1.0'
 
       // Wait for the page to fully load
       cy.wait(1000)
@@ -626,6 +643,7 @@ describe('Configurations page flow', () => {
       // After creation, we should be on the detail page
       cy.url().should('include', `/configurations/${configurationName}.yaml`)
       createdConfigurationName = configurationName
+      createdConfigurationVersion = '0.1.0'
 
       // Wait for the page to fully load
       cy.wait(1000)
