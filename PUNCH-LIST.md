@@ -31,9 +31,11 @@ Your plan should:
 
 ## Phase 2: Configuration Detail Page Comprehensive Testing
 **Goal**: Complete testing of all configuration management features
-**Status**: Pending Phase 1 approval
+**Status**: IN PROGRESS - Test structure improved
 
 **Steps**:
+- [x] Improve test structure with logical describe blocks for better organization
+- [x] Organize tests into: Basic Page Functionality, Configuration Creation and Dialog, Configuration Detail Page, Configuration Management
 - [ ] Test new version creation dialog and patch logic (+1 down, then up)
 - [ ] Test enumerators +1 creates new enumerators if needed
 - [ ] Test Step 2 index management (add new name, add from existing indexes)
@@ -144,6 +146,13 @@ Your plan should:
 - Tests that enter values should reload the page and confirm state was preserved
 - Use existing test patterns from current 22 passing tests as foundation
 - Focus on real user workflows and interactions
+
+### Test Structure Improvements
+- **Logical Grouping**: Use `describe()` blocks to organize related test functionality
+- **Single Responsibility**: Each test should focus on one specific feature or workflow
+- **Maintainable**: Break long test files into logical sections for easier maintenance
+- **Readable**: Clear test names and organization make debugging easier
+- **Scalable**: Easy to add new test groups as functionality grows
 
 ### Enumerator Versioning Rules
 - **New Version Creation**: Can only create the next sequential version (V2 → V3, V3 → V4)
