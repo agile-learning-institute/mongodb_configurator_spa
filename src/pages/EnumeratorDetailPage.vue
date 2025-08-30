@@ -22,7 +22,7 @@
               <v-btn
                 icon="mdi-skip-previous"
                 variant="text"
-                size="small"
+                size="default"
                 :disabled="!hasPreviousVersion"
                 @click="navigateToPreviousVersion"
                 class="mr-1"
@@ -31,7 +31,7 @@
               <v-btn
                 icon="mdi-skip-next"
                 variant="text"
-                size="small"
+                size="default"
                 :disabled="!hasNextVersion"
                 @click="navigateToNextVersion"
                 class="ml-1"

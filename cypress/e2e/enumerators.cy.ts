@@ -131,17 +131,19 @@ describe('Enumerators page flow', () => {
     cy.visit(`/enumerators/${baselineFileName}`)
     
     // Verify the version navigator uses the correct icons
-    // Previous version button should use mdi-skip-previous
+    // Previous version button should use mdi-skip-previous with default size
     cy.get('body').then(($body) => {
       if ($body.find('button[icon="mdi-skip-previous"]').length > 0) {
         cy.get('button[icon="mdi-skip-previous"]').should('exist')
+        cy.get('button[icon="mdi-skip-previous"]').should('not.have.class', 'v-btn--size-small')
       }
     })
     
-    // Next version button should use mdi-skip-next (if it exists)
+    // Next version button should use mdi-skip-next with default size (if it exists)
     cy.get('body').then(($body) => {
       if ($body.find('button[icon="mdi-skip-next"]').length > 0) {
         cy.get('button[icon="mdi-skip-next"]').should('exist')
+        cy.get('button[icon="mdi-skip-next"]').should('not.have.class', 'v-btn--size-small')
       }
     })
     

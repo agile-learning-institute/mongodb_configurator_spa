@@ -286,14 +286,16 @@ describe('Configurations page flow', () => {
     cy.url().should('include', '/configurations/')
     
     // Verify the version navigator uses the correct icons
-    // Previous version button should use mdi-skip-previous
+    // Previous version button should use mdi-skip-previous with default size
     cy.get('[data-test="previous-version-btn"]').should('exist')
     cy.get('[data-test="previous-version-btn"] .v-icon').should('contain', 'mdi-skip-previous')
+    cy.get('[data-test="previous-version-btn"]').should('not.have.class', 'v-btn--size-small')
     
-    // Next version button should use mdi-skip-next (if it exists)
+    // Next version button should use mdi-skip-next with default size (if it exists)
     cy.get('body').then(($body) => {
       if ($body.find('[data-test="next-version-btn"]').length > 0) {
         cy.get('[data-test="next-version-btn"] .v-icon').should('contain', 'mdi-skip-next')
+        cy.get('[data-test="next-version-btn"]').should('not.have.class', 'v-btn--size-small')
       }
     })
     
