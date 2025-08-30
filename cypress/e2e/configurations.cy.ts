@@ -656,7 +656,7 @@ describe('Configurations page flow', () => {
       cy.get('[data-test="new-migration-create-btn"]').click()
 
       // Verify migration was added
-      cy.get('[data-test="migration-list"]').should('contain', 'test_migration')
+      cy.get('[data-test="migrations-content"]').should('contain', 'test_migration')
     })
 
     it('can add existing migration and verify links', () => {
@@ -693,7 +693,7 @@ describe('Configurations page flow', () => {
       cy.get('[data-test="add-existing-migration-confirm-btn"]').click()
 
       // Verify existing migration was added
-      cy.get('[data-test="migration-list"]').should('contain', 'existing_migration')
+      cy.get('[data-test="migrations-content"]').should('contain', 'existing_migration')
 
       // Verify migration link is correct
       cy.get('[data-test="migration-link"]').should('have.attr', 'href').and('include', '/migrations/')
