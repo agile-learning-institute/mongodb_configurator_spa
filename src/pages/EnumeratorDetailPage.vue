@@ -107,6 +107,7 @@
             size="small"
             @click="addEnumeration"
             :loading="saving"
+            data-test="add-enumeration-btn"
           >
             <span class="text-primary">Add Enumeration</span>
           </v-btn>
@@ -126,6 +127,7 @@
                 v-model="editableEnumNames[enumIdx]"
                 :readonly="enumerator._locked"
                 class="mr-3 enumerator-name-input"
+                :data-test="`enumerator-name-input-${enumIdx}`"
                 style="width: 20%; max-width: 150px; font-size: 1.5rem; font-weight: 500; line-height: 1.2; border: none; outline: none;"
                 :ref="(el) => { if (el) enumNameInputRefs[enumIdx] = el as HTMLInputElement }"
                 @blur="finishEnumNameEdit(enumIdx)"

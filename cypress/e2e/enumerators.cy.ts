@@ -95,30 +95,30 @@ describe('Enumerators page flow', () => {
       cy.get('[data-test="enumerator-version"]').should('be.visible')
       
       // Log initial state for debugging
-      cy.get('.enumerator-name-input').then(($inputs) => {
+      cy.get('[data-test^="enumerator-name-input-"]').then(($inputs) => {
         cy.log(`Initial enumerations count: ${$inputs.length}`)
       })
       
       // Add one enumeration
-      cy.contains('button', 'Add Enumeration').click()
+      cy.get('[data-test="add-enumeration-btn"]').click()
       
       // Wait for the new enumeration to appear
-      cy.get('.enumerator-name-input').should('be.visible')
+      cy.get('[data-test^="enumerator-name-input-"]').should('be.visible')
       
       // Type the name
-      cy.get('.enumerator-name-input').first().clear().type('TestEnum1')
-      cy.get('.enumerator-name-input').first().blur()
+      cy.get('[data-test^="enumerator-name-input-"]').first().clear().type('TestEnum1')
+      cy.get('[data-test^="enumerator-name-input-"]').first().blur()
 
       // Wait for the PUT request to complete (indicating the edit was saved)
       cy.intercept('PUT', '/api/enumerators/*').as('updateEnumerator')
       cy.wait('@updateEnumerator')
 
       // Verify the enumeration was added - should now have 2 total (1 original + 1 new)
-      cy.get('.enumerator-name-input').should('have.length', 2)
-      cy.get('.enumerator-name-input').first().should('have.value', 'TestEnum1')
+      cy.get('[data-test^="enumerator-name-input-"]').should('have.length', 2)
+      cy.get('[data-test^="enumerator-name-input-"]').first().should('have.value', 'TestEnum1')
       
       // Log final state for debugging
-      cy.get('.enumerator-name-input').then(($inputs) => {
+      cy.get('[data-test^="enumerator-name-input-"]').then(($inputs) => {
         cy.log(`Final enumerations count: ${$inputs.length}`)
         $inputs.each((index, input) => {
           cy.log(`Enumeration ${index}: ${input.value}`)
@@ -126,14 +126,14 @@ describe('Enumerators page flow', () => {
       })
 
       // Edit the enumeration
-      cy.get('.enumerator-name-input').first().clear().type('UpdatedEnum1')
-      cy.get('.enumerator-name-input').first().blur()
+      cy.get('[data-test^="enumerator-name-input-"]').first().clear().type('UpdatedEnum1')
+      cy.get('[data-test^="enumerator-name-input-"]').first().blur()
 
       // Wait for the PUT request to complete
       cy.wait('@updateEnumerator')
 
       // Verify the edit was saved
-      cy.get('.enumerator-name-input').first().should('have.value', 'UpdatedEnum1')
+      cy.get('[data-test^="enumerator-name-input-"]').first().should('have.value', 'UpdatedEnum1')
     })
   })
 
