@@ -2,15 +2,11 @@
 
 describe('Enumerators page flow', () => {
   let baselineFileName: string
+  let baselineVersion: number
 
   // Setup: Create baseline enumerator once before all tests
+  // This creates V3 (or next available version) to test strict versioning rules
   before(() => {
-    // Reset database to ensure clean state
-    // cy.exec('npm run api')
-    
-    // Wait for the API to be ready - give database more time to start
-    // cy.wait(2000)
-    
     cy.visit('/enumerators')
     cy.contains('button', 'New').click()
     
@@ -55,127 +51,169 @@ describe('Enumerators page flow', () => {
     }
   })
 
-  it('loads enumerators page and shows baseline enumerator', () => {
-    // List page
-    cy.visit('/enumerators')
-    
-    // Verify starting state
-    cy.get('h3').should('contain', 'Enumerators')
-    cy.contains('button', 'New').should('be.visible')
+  describe('Basic Page Functionality', () => {
+    it('loads enumerators page and shows baseline enumerator', () => {
+      // List page
+      cy.visit('/enumerators')
+      
+      // Verify starting state
+      cy.get('h3').should('contain', 'Enumerators')
+      cy.contains('button', 'New').should('be.visible')
 
-    // Verify our baseline enumerator exists in the list
-    cy.get('.v-card').should('contain', baselineFileName)
-  })
-
-  it('can open and view baseline enumerator detail page', () => {
-    // Visit the baseline enumerator detail page
-    cy.visit(`/enumerators/${baselineFileName}`)
-    
-    // Verify basic page elements exist - look for version heading
-    cy.get('.text-h4').first().should('contain', 'Version: 3')
-    cy.contains('button', 'Lock').should('be.visible')
-    cy.contains('button', 'Delete').should('be.visible')
-    
-    // Verify the enumerators section exists
-    cy.get('[data-test="card-title"]').should('contain', 'Enumerators')
-    cy.contains('button', 'Add Enumeration').should('be.visible')
-  })
-
-  it('can add and edit enumerations in baseline enumerator', () => {
-    // Visit the baseline enumerator detail page
-    cy.visit(`/enumerators/${baselineFileName}`)
-    
-    // Add first enumeration
-    cy.contains('button', 'Add Enumeration').click()
-    
-                    // Wait for the new enumeration to appear
-                cy.get('.enumerator-name-input').should('be.visible')
-                
-                // Type the name
-                cy.get('.enumerator-name-input').first().clear().type('TestEnum1')
-                cy.get('.enumerator-name-input').first().blur()
-
-                // Wait for the PUT request to complete (indicating the edit was saved)
-                cy.intercept('PUT', '/api/enumerators/*').as('updateEnumerator')
-                cy.wait('@updateEnumerator')
-
-                // Verify the enumeration was added
-                cy.get('.enumerator-name-input').first().should('have.value', 'TestEnum1')
-
-                // Add a second enumeration
-                cy.contains('button', 'Add Enumeration').click()
-                cy.get('.enumerator-name-input').last().clear().type('TestEnum2')
-                cy.get('.enumerator-name-input').last().blur()
-
-                // Wait for the PUT request to complete
-                cy.wait('@updateEnumerator')
-
-                // Verify both enumerations exist
-                cy.get('.enumerator-name-input').should('have.length', 2)
-                cy.get('.enumerator-name-input').first().should('have.value', 'TestEnum1')
-                cy.get('.enumerator-name-input').last().should('have.value', 'TestEnum2')
-
-                // Edit the first enumeration
-                cy.get('.enumerator-name-input').first().clear().type('UpdatedEnum1')
-                cy.get('.enumerator-name-input').first().blur()
-
-                // Wait for the PUT request to complete
-                cy.wait('@updateEnumerator')
-
-                // Verify the edit was saved
-                cy.get('.enumerator-name-input').first().should('have.value', 'UpdatedEnum1')
-  })
-
-  it('displays correct version navigator icons', () => {
-    // Visit the baseline enumerator detail page
-    cy.visit(`/enumerators/${baselineFileName}`)
-    
-    // Verify the version navigator uses the correct icons
-    // Previous version button should use mdi-skip-previous with default size
-    cy.get('body').then(($body) => {
-      if ($body.find('[data-test="previous-version-btn"]').length > 0) {
-        cy.get('[data-test="previous-version-btn"]').should('exist')
-        cy.get('[data-test="previous-version-btn"] .v-icon').should('have.class', 'mdi-skip-previous')
-        cy.get('[data-test="previous-version-btn"]').should('not.have.class', 'v-btn--size-small')
-      }
+      // Verify our baseline enumerator exists in the list
+      cy.get('.v-card').should('contain', baselineFileName)
     })
-    
-    // Next version button should use mdi-skip-next with default size (if it exists)
-    cy.get('body').then(($body) => {
-      if ($body.find('[data-test="next-version-btn"]').length > 0) {
-        cy.get('[data-test="next-version-btn"]').should('exist')
-        cy.get('[data-test="next-version-btn"] .v-icon').should('have.class', 'mdi-skip-next')
-        cy.get('[data-test="next-version-btn"]').should('not.have.class', 'v-btn--size-small')
-      }
-    })
-    
-    // Verify the version text is displayed
-    cy.get('[data-test="enumerator-version"]').should('be.visible')
-    
-    // Verify the add version button exists and has correct data-test attribute
-    cy.get('[data-test="add-version-btn"]').should('exist')
-    cy.get('[data-test="add-version-btn"] .v-icon').should('have.class', 'mdi-plus')
-    
-    // Verify lock/unlock and delete buttons have correct data-test attributes
-    cy.get('body').then(($body) => {
-      if ($body.find('[data-test="unlock-btn"]').length > 0) {
-        cy.get('[data-test="unlock-btn"]').should('exist')
-        cy.get('[data-test="unlock-icon"]').should('exist')
-        cy.get('[data-test="unlock-btn-text"]').should('exist')
-      } else if ($body.find('[data-test="lock-btn"]').length > 0) {
-        cy.get('[data-test="lock-btn"]').should('exist')
-        cy.get('[data-test="lock-icon"]').should('exist')
-        cy.get('[data-test="lock-btn-text"]').should('exist')
-      }
-    })
-    
-    // Check if delete button exists (only for unlocked versions)
-    cy.get('body').then(($body) => {
-      if ($body.find('[data-test="delete-enumerator-btn"]').length > 0) {
+
+    it('can open and view baseline enumerator detail page', () => {
+      // Visit the baseline enumerator detail page
+      cy.visit(`/enumerators/${baselineFileName}`)
+      
+      // Verify basic page elements exist - look for version heading dynamically
+      cy.get('[data-test="enumerator-version"]').should('contain', 'Version:')
+      cy.get('[data-test="enumerator-version"]').invoke('text').then((versionText) => {
+        const versionMatch = versionText.match(/Version: (\d+)/)
+        expect(versionMatch).to.not.be.null
+        baselineVersion = parseInt(versionMatch![1])
+        cy.log(`Baseline enumerator version: ${baselineVersion}`)
+        
+        // Verify this is the newest version (should be deletable)
         cy.get('[data-test="delete-enumerator-btn"]').should('exist')
-        cy.get('[data-test="delete-enumerator-icon"]').should('exist')
-        cy.get('[data-test="delete-enumerator-btn-text"]').should('exist')
-      }
+      })
+      
+      // Verify the enumerators section exists
+      cy.get('[data-test="card-title"]').should('contain', 'Enumerators')
+      cy.contains('button', 'Add Enumeration').should('be.visible')
+    })
+  })
+
+  describe('Enumerator Content Management', () => {
+    it('can add and edit enumerations in baseline enumerator', () => {
+      // Visit the baseline enumerator detail page
+      cy.visit(`/enumerators/${baselineFileName}`)
+      
+      // Add first enumeration
+      cy.contains('button', 'Add Enumeration').click()
+      
+      // Wait for the new enumeration to appear
+      cy.get('.enumerator-name-input').should('be.visible')
+      
+      // Type the name
+      cy.get('.enumerator-name-input').first().clear().type('TestEnum1')
+      cy.get('.enumerator-name-input').first().blur()
+
+      // Wait for the PUT request to complete (indicating the edit was saved)
+      cy.intercept('PUT', '/api/enumerators/*').as('updateEnumerator')
+      cy.wait('@updateEnumerator')
+
+      // Verify the enumeration was added
+      cy.get('.enumerator-name-input').first().should('have.value', 'TestEnum1')
+
+      // Add a second enumeration
+      cy.contains('button', 'Add Enumeration').click()
+      cy.get('.enumerator-name-input').last().clear().type('TestEnum2')
+      cy.get('.enumerator-name-input').last().blur()
+
+      // Wait for the PUT request to complete
+      cy.wait('@updateEnumerator')
+
+      // Verify both enumerations exist
+      cy.get('.enumerator-name-input').should('have.length', 2)
+      cy.get('.enumerator-name-input').first().should('have.value', 'TestEnum1')
+      cy.get('.enumerator-name-input').last().should('have.value', 'TestEnum2')
+
+      // Edit the first enumeration
+      cy.get('.enumerator-name-input').first().clear().type('UpdatedEnum1')
+      cy.get('.enumerator-name-input').first().blur()
+
+      // Wait for the PUT request to complete
+      cy.wait('@updateEnumerator')
+
+      // Verify the edit was saved
+      cy.get('.enumerator-name-input').first().should('have.value', 'UpdatedEnum1')
+    })
+  })
+
+  describe('Version Management and Navigation', () => {
+    it('displays correct version navigator icons and respects versioning rules', () => {
+      // Visit the baseline enumerator detail page
+      cy.visit(`/enumerators/${baselineFileName}`)
+      
+      // Get current version number for dynamic testing
+      cy.get('[data-test="enumerator-version"]').invoke('text').then((versionText) => {
+        const currentVersion = parseInt(versionText.match(/Version: (\d+)/)?.[1] || '0')
+        cy.log(`Testing version: ${currentVersion}`)
+        
+        // Verify the version navigator uses the correct icons
+        // Previous version button should use mdi-skip-previous with default size (if it exists)
+        cy.get('body').then(($body) => {
+          if ($body.find('[data-test="previous-version-btn"]').length > 0) {
+            cy.get('[data-test="previous-version-btn"]').should('exist')
+            cy.get('[data-test="previous-version-btn"] .v-icon').should('have.class', 'mdi-skip-previous')
+            cy.get('[data-test="previous-version-btn"]').should('not.have.class', 'v-btn--size-small')
+          }
+        })
+        
+        // Next version button should use mdi-skip-next with default size (if it exists)
+        cy.get('body').then(($body) => {
+          if ($body.find('[data-test="next-version-btn"]').length > 0) {
+            cy.get('[data-test="next-version-btn"]').should('exist')
+            cy.get('[data-test="next-version-btn"] .v-icon').should('have.class', 'mdi-skip-next')
+            cy.get('[data-test="next-version-btn"]').should('not.have.class', 'v-btn--size-small')
+          }
+        })
+        
+        // Verify the version text is displayed
+        cy.get('[data-test="enumerator-version"]').should('be.visible')
+        
+        // Verify the add version button exists and has correct data-test attribute
+        cy.get('[data-test="add-version-btn"]').should('exist')
+        cy.get('[data-test="add-version-btn"] .v-icon').should('have.class', 'mdi-plus')
+        
+        // Test versioning business rules
+        if (currentVersion > 1) {
+          // If there are previous versions, test navigation and versioning rules
+          cy.get('[data-test="previous-version-btn"]').should('not.be.disabled')
+          
+          // Navigate to previous version
+          cy.get('[data-test="previous-version-btn"]').click()
+          
+          // Previous version should NOT be deletable (only newest version can be deleted)
+          cy.get('[data-test="delete-enumerator-btn"]').should('not.exist')
+          
+          // Navigate back to newest version
+          cy.get('[data-test="next-version-btn"]').click()
+        }
+        
+        // Newest version should be deletable
+        cy.get('[data-test="delete-enumerator-btn"]').should('exist')
+      })
+    })
+
+    it('verifies lock/unlock button states and data-test attributes', () => {
+      // Visit the baseline enumerator detail page
+      cy.visit(`/enumerators/${baselineFileName}`)
+      
+      // Verify lock/unlock and delete buttons have correct data-test attributes
+      cy.get('body').then(($body) => {
+        if ($body.find('[data-test="unlock-btn"]').length > 0) {
+          cy.get('[data-test="unlock-btn"]').should('exist')
+          cy.get('[data-test="unlock-icon"]').should('exist')
+          cy.get('[data-test="unlock-btn-text"]').should('exist')
+        } else if ($body.find('[data-test="lock-btn"]').length > 0) {
+          cy.get('[data-test="lock-btn"]').should('exist')
+          cy.get('[data-test="lock-icon"]').should('exist')
+          cy.get('[data-test="lock-btn-text"]').should('exist')
+        }
+      })
+      
+      // Check if delete button exists (only for unlocked versions)
+      cy.get('body').then(($body) => {
+        if ($body.find('[data-test="delete-enumerator-btn"]').length > 0) {
+          cy.get('[data-test="delete-enumerator-btn"]').should('exist')
+          cy.get('[data-test="delete-enumerator-icon"]').should('exist')
+          cy.get('[data-test="delete-enumerator-btn-text"]').should('exist')
+        }
+      })
     })
   })
 })
