@@ -41,7 +41,7 @@ describe('Configurations page flow', () => {
       const enumeratorsVersion = createdEnumeratorsVersion || '2'
       cy.request({
         method: 'DELETE',
-        url: `/api/test-data/${createdConfigurationName}.${testDataVersion}.${enumeratorsVersion}.json/`,
+        url: `/api/test_data/${createdConfigurationName}.${testDataVersion}.${enumeratorsVersion}.json/`,
         failOnStatusCode: false
       }).then((response) => {
         if (response.status === 200) {
@@ -540,10 +540,9 @@ describe('Configurations page flow', () => {
       // Test deleting index
       cy.get('[data-test="remove-drop-index-btn"]').first().click()
 
-      // Verify index was deleted
-      cy.get('[data-test="drop-indexes-card"]').within(() => {
-        cy.get('[data-test="drop-indexes-content"]').should('not.contain', 'custom_index_name')
-      })
+      // Verify index was deleted - the content div should not exist when no indexes remain
+      cy.get('[data-test="drop-indexes-content"]').should('not.exist')
+
     })
 
     it('can add Step 2 index from existing indexes', () => {
@@ -583,10 +582,8 @@ describe('Configurations page flow', () => {
       // Test deleting index
       cy.get('[data-test="remove-drop-index-btn"]').first().click()
 
-      // Verify index was deleted
-      cy.get('[data-test="drop-indexes-card"]').within(() => {
-        cy.get('[data-test="drop-indexes-content"]').should('not.contain', 'custom_index_name')
-      })
+      // Verify index was deleted - the content div should not exist when no indexes remain
+      cy.get('[data-test="drop-indexes-content"]').should('not.exist')
     })
   })
 
