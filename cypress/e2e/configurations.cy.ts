@@ -378,8 +378,11 @@ describe('Configurations page flow', () => {
       // assert increment enumerators is no longer visible
       cy.get('[data-test="new-version-enumerators-plus-btn"]').should('not.exist')
       
+      // Wait a moment for the file creation to complete
+      cy.wait(500)
+      
       // assert GET /api/enumerators/enumerations.3.yaml gets 200 response
-      // This should fail until we fix the bug where the dialog doesn't create the file
+      // This should now pass since we fixed the bug where the dialog wasn't creating the file
       cy.request({
         method: 'GET',
         url: `/api/enumerators/enumerations.3.yaml/`,
