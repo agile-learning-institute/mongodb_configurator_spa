@@ -26,6 +26,7 @@
                 :disabled="!hasPreviousVersion"
                 @click="navigateToPreviousVersion"
                 class="mr-1"
+                data-test="previous-version-btn"
               />
               <span data-test="enumerator-version">Version: {{ enumerator.version }}</span>
               <v-btn
@@ -35,6 +36,7 @@
                 :disabled="!hasNextVersion"
                 @click="navigateToNextVersion"
                 class="ml-1"
+                data-test="next-version-btn"
               />
               <v-btn
                 v-if="!hasNextVersion"
