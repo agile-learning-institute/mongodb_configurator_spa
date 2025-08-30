@@ -630,7 +630,7 @@ describe('Configurations page flow', () => {
   })
 
   describe('Migration Management', () => {
-    it.only('can add new migration', () => {
+    it('can add new migration', () => {
       // First create a configuration to work with
       cy.visit('/configurations')
       cy.get('[data-test="new-collection-btn"]').click()
@@ -657,9 +657,13 @@ describe('Configurations page flow', () => {
 
       // Verify migration was added
       cy.get('[data-test="migrations-content"]').should('contain', 'test_migration')
+
+      // Verify chip links to migration detail page
+      cy.get('[data-test="migration-chip"]').first().click()
+      cy.url().should('include', `/migrations/test_migration.json`)
     })
 
-    it('can add existing migration and verify links', () => {
+    it.only('can add existing migration and verify links', () => {
       // First create a configuration to work with
       cy.visit('/configurations')
       cy.get('[data-test="new-collection-btn"]').click()
@@ -695,8 +699,15 @@ describe('Configurations page flow', () => {
       // Verify existing migration was added
       cy.get('[data-test="migrations-content"]').should('contain', 'existing_migration')
 
-      // Verify migration link is correct
-      cy.get('[data-test="migration-link"]').should('have.attr', 'href').and('include', '/migrations/')
+      // Verify chip links to migration detail page
+      cy.get('[data-test="migration-chip"]').first().click()
+      cy.url().should('include', '/migrations/')
+      
+      // Navigate back to configuration
+      cy.go('back')
+      
+      // Verify we're back on the configuration page
+      cy.url().should('include', `/configurations/${configurationName}.yaml`)
     })
   })
 
