@@ -1,6 +1,7 @@
 describe('Configurations page flow', () => {
   let createdConfigurationName: string
   let createdConfigurationVersion: string
+  let createdEnumeratorsVersion: string
 
   // Clean up any configurations created during tests
   afterEach(() => {
@@ -35,19 +36,22 @@ describe('Configurations page flow', () => {
 
       // And the test data file
       // Test data files use the format: {name}.{version}.{enumerators}.json
+      // Most tests create enumerators version 2, except the +1 test which creates version 3
       const testDataVersion = createdConfigurationVersion || '0.1.0'
+      const enumeratorsVersion = createdEnumeratorsVersion || '2'
       cy.request({
         method: 'DELETE',
-        url: `/api/test-data/${createdConfigurationName}.${testDataVersion}.0.json/`,
+        url: `/api/test-data/${createdConfigurationName}.${testDataVersion}.${enumeratorsVersion}.json/`,
         failOnStatusCode: false
       }).then((response) => {
         if (response.status === 200) {
-          cy.log(`Successfully deleted test data ${createdConfigurationName}.${testDataVersion}.0.json`)
+          cy.log(`Successfully deleted test data ${createdConfigurationName}.${testDataVersion}.${enumeratorsVersion}.json`)
         }
       })
 
       createdConfigurationName = ''
       createdConfigurationVersion = ''
+      createdEnumeratorsVersion = ''
     }
   })
 
@@ -101,6 +105,7 @@ describe('Configurations page flow', () => {
       // Store the configuration name and version for cleanup
       createdConfigurationName = configurationName
       createdConfigurationVersion = '0.1.0'
+      createdEnumeratorsVersion = '2' // Default enumerators version for most tests
 
       // Wait a moment for the API calls to complete
       cy.wait(2000)
@@ -186,6 +191,7 @@ describe('Configurations page flow', () => {
       // Store the configuration name and version for cleanup
       createdConfigurationName = configurationName
       createdConfigurationVersion = '0.1.0'
+      createdEnumeratorsVersion = '2' // Default enumerators version for most tests
 
       // Verify basic page elements exist
       cy.get('h3.text-h5').should('be.visible')
@@ -356,6 +362,7 @@ describe('Configurations page flow', () => {
       cy.url().should('include', `/configurations/${configurationName}.yaml`)
       createdConfigurationName = configurationName
       createdConfigurationVersion = '0.1.0'
+      createdEnumeratorsVersion = '3' // This test creates enumerators version 3
 
       // Wait for the page to fully load
       cy.wait(1000)
@@ -400,6 +407,7 @@ describe('Configurations page flow', () => {
       cy.url().should('include', `/configurations/${configurationName}.yaml`)
       createdConfigurationName = configurationName
       createdConfigurationVersion = '0.1.0'
+      createdEnumeratorsVersion = '2' // Default enumerators version for most tests
 
       // Wait for the page to fully load
       cy.wait(1000)
@@ -436,6 +444,7 @@ describe('Configurations page flow', () => {
       cy.url().should('include', `/configurations/${configurationName}.yaml`)
       createdConfigurationName = configurationName
       createdConfigurationVersion = '0.1.0'
+      createdEnumeratorsVersion = '2' // Default enumerators version for most tests
 
       // Wait for the page to fully load
       cy.wait(1000)
@@ -511,6 +520,7 @@ describe('Configurations page flow', () => {
       cy.url().should('include', `/configurations/${configurationName}.yaml`)
       createdConfigurationName = configurationName
       createdConfigurationVersion = '0.1.0'
+      createdEnumeratorsVersion = '2' // Default enumerators version for most tests
 
       // Wait for the page to fully load
       cy.wait(1000)
@@ -553,6 +563,7 @@ describe('Configurations page flow', () => {
       cy.url().should('include', `/configurations/${configurationName}.yaml`)
       createdConfigurationName = configurationName
       createdConfigurationVersion = '0.1.0'
+      createdEnumeratorsVersion = '2' // Default enumerators version for most tests
 
       // Wait for the page to fully load
       cy.wait(1000)
@@ -567,7 +578,7 @@ describe('Configurations page flow', () => {
       cy.get('[data-test="enumerators-file-link"]').should('contain', 'enumerations.0.yaml')
 
       // Verify test data file link is correct
-      cy.get('[data-test="test-data-file-link"]').should('contain', `${configurationName}.0.1.0.0.json`)
+      cy.get('[data-test="test-data-file-link"]').should('contain', `${configurationName}.0.1.0.2.json`)
     })
   })
 
@@ -591,6 +602,7 @@ describe('Configurations page flow', () => {
       cy.url().should('include', `/configurations/${configurationName}.yaml`)
       createdConfigurationName = configurationName
       createdConfigurationVersion = '0.1.0'
+      createdEnumeratorsVersion = '2' // Default enumerators version for most tests
 
       // Wait for the page to fully load
       cy.wait(1000)
@@ -644,6 +656,7 @@ describe('Configurations page flow', () => {
       cy.url().should('include', `/configurations/${configurationName}.yaml`)
       createdConfigurationName = configurationName
       createdConfigurationVersion = '0.1.0'
+      createdEnumeratorsVersion = '2' // Default enumerators version for most tests
 
       // Wait for the page to fully load
       cy.wait(1000)
