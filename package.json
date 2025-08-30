@@ -19,7 +19,10 @@
     "down": "docker compose down configurator_spa configurator_api mongodb",
     "cy:open": "cypress open",
     "cy:run": "cypress run",
-    "e2e": "npm run service && cypress run --browser chrome"
+    "e2e": "npm run service && cypress run --browser chrome",
+    "test:all": "npm run api && sleep 5 && cypress run",
+    "test:all:open": "npm run api && sleep 5 && cypress open",
+    "test:all:chrome": "npm run api && sleep 5 && cypress run --browser chrome"
   },
   "repository": {
     "type": "git",
