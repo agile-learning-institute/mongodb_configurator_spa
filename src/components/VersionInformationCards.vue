@@ -395,7 +395,7 @@
           variant="elevated"
           @click="createNewMigration"
           :disabled="!newMigrationName.trim()"
-          data-test="create-migration-btn"
+          data-test="new-migration-create-btn"
         >
           <v-icon start size="small">mdi-plus</v-icon>
           Create

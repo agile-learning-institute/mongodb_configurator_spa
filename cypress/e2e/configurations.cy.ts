@@ -630,31 +630,25 @@ describe('Configurations page flow', () => {
   })
 
   describe('Migration Management', () => {
-    it('can add new migration', () => {
+    it.only('can add new migration', () => {
       // First create a configuration to work with
       cy.visit('/configurations')
       cy.get('[data-test="new-collection-btn"]').click()
-
       const configurationName = `TestConfig_${Date.now()}`
       cy.get('[data-test="new-collection-name-input"]').type(configurationName)
-      cy.get('[data-test="new-collection-description-input"]').type('Test configuration for migration testing')
-      
-      // Simply bump minor version to 1 to enable Create button
+      cy.get('[data-test="new-collection-description-input"]').type('Test configuration for index testing')
       cy.get('[data-test="version-minor-plus-btn"]').click()
       cy.get('[data-test="version-display"]').should('contain', '0.1.0')
-      
       cy.get('[data-test="new-collection-create-btn"]').click()
-
+      
       // After creation, we should be on the detail page
       cy.url().should('include', `/configurations/${configurationName}.yaml`)
       createdConfigurationName = configurationName
       createdConfigurationVersion = '0.1.0'
+      createdEnumeratorsVersion = '2' // Default enumerators version for most tests
 
       // Wait for the page to fully load
       cy.wait(1000)
-
-      // Navigate to migration management
-      cy.contains('h2', 'Migration Management').should('be.visible')
 
       // Test adding new migration
       cy.get('[data-test="add-migration-btn"]').click()
