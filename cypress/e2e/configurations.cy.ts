@@ -565,21 +565,63 @@ describe('Configurations page flow', () => {
       // Wait for the page to fully load
       cy.wait(1000)
 
-      // Add the existing_index_name index to the current version
+      // Step 1: Add a Step 5 index to the current version (so it exists as "previously created")
+      cy.get('[data-test="add-index-btn"]').click()
+      
+      // Verify dialog is open
+      cy.get('[data-test="step5-json-editor-container"]').should('be.visible')
+      
+      // Create an index with a specific name
+      cy.get('[data-test="step5-index-json-textarea"] textarea:not(.v-textarea__sizer)').clear().type('{"name": "test_index_name", "key": {"field": 1}, "options": {}}', { parseSpecialCharSequences: false })
+      cy.get('[data-test="save-index-btn"]').should('be.enabled')
+      cy.get('[data-test="save-index-btn"]').click()
 
-      // Create a new version
-
-      // Test adding new drop index with previously created index
-      cy.get('[data-test="add-drop-index-btn"]').click()
-      cy.get('[data-test="previously-created-chip"]').first().contains('custom_index_name').click()
-
-      // Verify index was added - wait for the content to appear within the card
-      cy.get('[data-test="drop-indexes-card"]').within(() => {
-        cy.get('[data-test="drop-indexes-content"]').should('be.visible')
-        cy.get('[data-test="drop-indexes-content"]').should('contain', 'custom_index_name')
+      // Verify index was added
+      cy.get('[data-test="step-5-card"]').within(() => {
+        cy.get('[data-test="step5-indexes-content"]').should('contain', 'test_index_name')
       })
 
-      // Test deleting index
+      // Step 2: Create a new version
+      cy.get('[data-test="new-version-btn"]').click()
+      
+      // Verify we are in new version dialog
+      cy.get('[data-test="new-version-dialog"]').should('be.visible')
+      cy.get('[data-test="new-version-dialog-title"]').should('contain', 'Create New Version')
+      
+      // Increment minor version to create 0.2.0
+      cy.get('[data-test="new-version-minor-plus-btn"]').click()
+      cy.get('[data-test="new-version-minor"]').should('contain', '2')
+      cy.get('[data-test="new-version-patch"]').should('contain', '0')
+      
+      // Create the new version
+      cy.get('[data-test="new-version-create-btn"]').click()
+      
+      // Wait for the new version to load
+      cy.wait(1000)
+      
+      // Verify we're now on the new version
+      cy.get('[data-test="active-version"]').should('contain', '0.2.0')
+      createdConfigurationVersion = '0.2.0'
+
+      // Step 3: Test adding drop index by selecting previously created index
+      cy.get('[data-test="add-drop-index-btn"]').click()
+      
+      // Verify drop index dialog is open
+      cy.get('[data-test="drop-index-name-input"]').should('be.visible')
+      
+      // Look for the previously created index in the list
+      cy.get('[data-test="step5-json-editor-container"]').should('not.exist') // Make sure we're in the right dialog
+      
+      // The previously created index should be available as a clickable chip
+      cy.contains('.v-chip', 'test_index_name').should('be.visible').click()
+
+      // Verify index was added to drop list - wait for the content to appear within the card
+      cy.get('[data-test="drop-indexes-card"]').within(() => {
+        cy.get('[data-test="drop-indexes-content"]').should('be.visible')
+        cy.get('[data-test="drop-indexes-content"]').should('contain', 'test_index_name')
+      })
+
+      // Test deleting the drop index
       cy.get('[data-test="remove-drop-index-btn"]').first().click()
 
       // Verify index was deleted - the content div should not exist when no indexes remain
@@ -703,7 +745,7 @@ describe('Configurations page flow', () => {
   })
 
   describe('Step 5 Index Management', () => {
-    it.only('can add, edit, and remove Step 5 indexes', () => {
+    it('can add, edit, and remove Step 5 indexes', () => {
       // First create a configuration to work with
       cy.visit('/configurations')
       cy.get('[data-test="new-collection-btn"]').click()
