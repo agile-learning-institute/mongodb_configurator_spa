@@ -663,7 +663,7 @@ describe('Configurations page flow', () => {
       cy.url().should('include', `/migrations/test_migration.json`)
     })
 
-    it.only('can add existing migration and verify links', () => {
+    it('can add existing migration and verify links', () => {
       // First create a configuration to work with
       cy.visit('/configurations')
       cy.get('[data-test="new-collection-btn"]').click()
@@ -697,21 +697,17 @@ describe('Configurations page flow', () => {
   })
 
   describe('File Linking and Verification', () => {
-    it('verifies dictionary and enumerator linking to correct files', () => {
+    it.only('verifies dictionary and enumerator linking to correct files', () => {
       // First create a configuration to work with
       cy.visit('/configurations')
       cy.get('[data-test="new-collection-btn"]').click()
-
       const configurationName = `TestConfig_${Date.now()}`
       cy.get('[data-test="new-collection-name-input"]').type(configurationName)
-      cy.get('[data-test="new-collection-description-input"]').type('Test configuration for file linking testing')
-      
-      // Simply bump minor version to 1 to enable Create button
+      cy.get('[data-test="new-collection-description-input"]').type('Test configuration for index testing')
       cy.get('[data-test="version-minor-plus-btn"]').click()
       cy.get('[data-test="version-display"]').should('contain', '0.1.0')
-      
       cy.get('[data-test="new-collection-create-btn"]').click()
-
+      
       // After creation, we should be on the detail page
       cy.url().should('include', `/configurations/${configurationName}.yaml`)
       createdConfigurationName = configurationName
@@ -721,16 +717,14 @@ describe('Configurations page flow', () => {
       // Wait for the page to fully load
       cy.wait(1000)
 
-      // Navigate to configuration details
-
       // Verify dictionary file link is correct
-      cy.get('[data-test="dictionary-file-link"]').should('contain', `${configurationName}.0.1.0.yaml`)
+      cy.get('[data-test="dictionary-file-chip"]').should('contain', `${configurationName}.0.1.0.yaml`)
 
       // Verify enumerators file link is correct
-      cy.get('[data-test="enumerators-file-link"]').should('contain', 'enumerations.0.yaml')
+      cy.get('[data-test="enumerators-file-chip"]').should('contain', 'enumerations.2.yaml')
 
       // Verify test data file link is correct
-      cy.get('[data-test="test-data-file-link"]').should('contain', `${configurationName}.0.1.0.2.json`)
+      cy.get('[data-test="test-data-file-chip"]').should('contain', `${configurationName}.0.1.0.2.json`)
     })
   })
 
