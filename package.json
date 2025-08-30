@@ -19,6 +19,9 @@
     "down": "docker compose down configurator_spa configurator_api mongodb",
     "cy:open": "cypress open",
     "cy:run": "cypress run",
+    "cy:run:headed": "cypress run --headed",
+    "cy:run:chrome": "cypress run --browser chrome",
+    "cy:run:firefox": "cypress run --browser firefox",
     "e2e": "npm run service && cypress run --browser chrome"
   },
   "repository": {
