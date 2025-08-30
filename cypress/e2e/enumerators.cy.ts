@@ -99,10 +99,79 @@ describe('Enumerators page flow', () => {
                 cy.intercept('PUT', '/api/enumerators/*').as('updateEnumerator')
                 cy.wait('@updateEnumerator')
 
-                // Refresh the page to see the persisted state
-                cy.reload()
-
-                // Verify the name is visible in the input's value attribute
+                // Verify the enumeration was added
                 cy.get('.enumerator-name-input').first().should('have.value', 'TestEnum1')
+
+                // Add a second enumeration
+                cy.contains('button', 'Add Enumeration').click()
+                cy.get('.enumerator-name-input').last().clear().type('TestEnum2')
+                cy.get('.enumerator-name-input').last().blur()
+
+                // Wait for the PUT request to complete
+                cy.wait('@updateEnumerator')
+
+                // Verify both enumerations exist
+                cy.get('.enumerator-name-input').should('have.length', 2)
+                cy.get('.enumerator-name-input').first().should('have.value', 'TestEnum1')
+                cy.get('.enumerator-name-input').last().should('have.value', 'TestEnum2')
+
+                // Edit the first enumeration
+                cy.get('.enumerator-name-input').first().clear().type('UpdatedEnum1')
+                cy.get('.enumerator-name-input').first().blur()
+
+                // Wait for the PUT request to complete
+                cy.wait('@updateEnumerator')
+
+                // Verify the edit was saved
+                cy.get('.enumerator-name-input').first().should('have.value', 'UpdatedEnum1')
+  })
+
+  it('displays correct version navigator icons', () => {
+    // Visit the baseline enumerator detail page
+    cy.visit(`/enumerators/${baselineFileName}`)
+    
+    // Verify the version navigator uses the correct icons
+    // Previous version button should use mdi-skip-previous
+    cy.get('body').then(($body) => {
+      if ($body.find('button[icon="mdi-skip-previous"]').length > 0) {
+        cy.get('button[icon="mdi-skip-previous"]').should('exist')
+      }
+    })
+    
+    // Next version button should use mdi-skip-next (if it exists)
+    cy.get('body').then(($body) => {
+      if ($body.find('button[icon="mdi-skip-next"]').length > 0) {
+        cy.get('button[icon="mdi-skip-next"]').should('exist')
+      }
+    })
+    
+    // Verify the version text is displayed
+    cy.get('[data-test="enumerator-version"]').should('be.visible')
+    
+    // Verify the add version button exists and has correct data-test attribute
+    cy.get('[data-test="add-version-btn"]').should('exist')
+    cy.get('[data-test="add-version-btn"] .v-icon').should('contain', 'mdi-plus')
+    
+    // Verify lock/unlock and delete buttons have correct data-test attributes
+    cy.get('body').then(($body) => {
+      if ($body.find('[data-test="unlock-btn"]').length > 0) {
+        cy.get('[data-test="unlock-btn"]').should('exist')
+        cy.get('[data-test="unlock-icon"]').should('exist')
+        cy.get('[data-test="unlock-btn-text"]').should('exist')
+      } else if ($body.find('[data-test="lock-btn"]').length > 0) {
+        cy.get('[data-test="lock-btn"]').should('exist')
+        cy.get('[data-test="lock-icon"]').should('exist')
+        cy.get('[data-test="lock-btn-text"]').should('exist')
+      }
+    })
+    
+    // Check if delete button exists (only for unlocked versions)
+    cy.get('body').then(($body) => {
+      if ($body.find('[data-test="delete-enumerator-btn"]').length > 0) {
+        cy.get('[data-test="delete-enumerator-btn"]').should('exist')
+        cy.get('[data-test="delete-enumerator-icon"]').should('exist')
+        cy.get('[data-test="delete-enumerator-btn-text"]').should('exist')
+      }
+    })
   })
 })

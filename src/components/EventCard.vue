@@ -6,22 +6,30 @@
     :class="getStatusClass()"
     :data-test="`event-card-${event.id}`"
   >
+    <template #title>
+      <div class="d-flex align-center">
+        <!-- Show/Hide Button (only for events with sub-events) -->
+        <v-btn
+          v-if="event.sub_events && event.sub_events.length > 0"
+          size="small"
+          variant="text"
+          color="white"
+          @click="subEventsExpanded = !subEventsExpanded"
+          class="mr-3"
+          data-test="expand-collapse-btn"
+        >
+          <v-icon size="24" data-test="expand-collapse-icon">
+            {{ subEventsExpanded ? 'mdi-eye-off' : 'mdi-eye' }}
+          </v-icon>
+        </v-btn>
+        
+        <!-- Event Type Title -->
+        <span class="text-h6 font-weight-medium text-white" data-test="event-type-title">
+          {{ event.type }}
+        </span>
+      </div>
+    </template>
     <template #header-actions>
-      <!-- Expand/Collapse Button (only for events with sub-events) -->
-      <v-btn
-        v-if="event.sub_events && event.sub_events.length > 0"
-        size="small"
-        variant="text"
-        color="white"
-        @click="subEventsExpanded = !subEventsExpanded"
-        class="mr-3"
-        data-test="expand-collapse-btn"
-      >
-        <v-icon size="24" data-test="expand-collapse-icon">
-          {{ subEventsExpanded ? 'mdi-chevron-up' : 'mdi-chevron-down' }}
-        </v-icon>
-      </v-btn>
-      
       <div class="d-flex align-center flex-grow-1">
         <div class="flex-grow-1">
           <div class="text-h6 font-weight-medium text-white" data-test="event-id">

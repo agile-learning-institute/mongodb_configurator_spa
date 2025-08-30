@@ -1,12 +1,150 @@
-# Cypress Improvements
+# Cypress Improvements - Comprehensive Testing Plan
 
-Instructions for cursor: We have just completed implementing our foundational Cypress E2E tests, and now I want to move on to more complete testing. You should review existing e2e tests for context. I'd like to take a test driven approach, I already know of a number of defects that we're going to find, and we will fix those defects as we come across them. As we are creating tests, if there is not an easy to use data-test property we can add them to the code. I've Listed a few purely stylistic items, these are changes I want to make to the code that we don't necessarily have to address in testing. Please consider my use of assert and it statements to be just very rough ideas of how to structure the testing, and probably not very good ideas at that. We have some updates that are not triggering API calls to persist state, so tests that enter values should re-load the page and confirm state was preserved. I'd like you to create a plan that includes the items identified below. Your plan should:
+Instructions for cursor: We have just completed implementing our foundational Cypress E2E tests, and now I want to move on to more complete testing. You should review existing e2e tests for context. I already know of a number of defects that we're going to find, and we will fix those defects as we come across them. As we are creating tests, if there is not an easy to use data-test attribute we can use to target automation, we can add them to the code to make the page more testable. I've listed a few purely stylistic items, these are changes I want to make to the code that we don't necessarily have to address in testing. Please consider my use of "assert" and "it" to be just very rough ideas of how to structure the testing, and probably not very good ideas at that. We have some updates that are not triggering API calls to persist state with the back end, so tests that enter values should re-load the page and confirm state was preserved. I'd like you to create a plan that includes the items identified below. 
+
+Your plan should:
 - Be organized into phases with phase gates that require my approval
 - Before a phase starts, you should ask questions to clarify any ambiguous requirements in the phase and update the PUNCH-LIST accordingly.
 - Phases should be broken down to steps that you can complete without review or approval
 - As you complete a step you should update the PUNCH-LIST, commit changes, and push those changes up to GitHub.
 - When a phase is complete you will ask me to review the work before proceeding. 
 - After phase gate approval you should commit and push any remaining changes, and summarize chat history before moving to the next phase.
+
+## Phase 1: Icon Updates and Basic Navigation Testing ✅
+**Goal**: Update version navigator icons and test basic navigation functionality
+**Status**: COMPLETED
+
+**Steps**:
+- [x] Update version navigator icons from `mdi-chevron-left/right` to `mdiSkipPrevious/mdiSkipNext` in ConfigurationDetailPage
+- [x] Update version navigator icons from `mdi-chevron-left/right` to `mdiSkipPrevious/mdiSkipNext` in EnumeratorDetailPage  
+- [x] Update Event Viewer show/hide icons to `mdiEye/mdiEyeOff` and reposition horizontally as 2nd item from left edge
+- [x] Add necessary `data-test` attributes for reliable testing
+- [x] Test basic version navigation functionality (previous/next/new version buttons)
+- [x] Verify icon changes render correctly
+- [x] Update PUNCH-LIST.md with completion status
+- [x] Commit and push changes
+
+**Phase Gate**: Your approval required before proceeding to Phase 2
+
+## Phase 2: Configuration Detail Page Comprehensive Testing
+**Goal**: Complete testing of all configuration management features
+**Status**: Pending Phase 1 approval
+
+**Steps**:
+- [ ] Test new version creation dialog and patch logic (+1 down, then up)
+- [ ] Test enumerators +1 creates new enumerators if needed
+- [ ] Test Step 2 index management (add new name, add from existing indexes)
+- [ ] Test migration management (add new, add existing, verify links)
+- [ ] Test dictionary and enumerator linking (verify correct files)
+- [ ] Test Step 5 index management (add/edit/remove)
+- [ ] Test test data linking
+- [ ] Add necessary `data-test` attributes for reliable testing
+- [ ] Update PUNCH-LIST.md with completion status
+- [ ] Commit and push changes
+
+**Phase Gate**: Your approval required before proceeding to Phase 3
+
+## Phase 3: Enumerator Detail Page Testing Updates
+**Goal**: Update enumerator tests to match new simplified flow
+**Status**: Pending Phase 2 approval
+
+**Steps**:
+- [ ] Remove secondary unlock confirmation tests
+- [ ] Remove secondary delete confirmation tests  
+- [ ] Test new version creation from unlock warning dialog
+- [ ] Test version locking/unlocking rules (only newest version can be unlocked)
+- [ ] Test version deletion rules (only unlocked versions can be deleted)
+- [ ] Test version copying and locking (newest version copied and locked)
+- [ ] Add necessary `data-test` attributes for reliable testing
+- [ ] Update PUNCH-LIST.md with completion status
+- [ ] Commit and push changes
+
+**Phase Gate**: Your approval required before proceeding to Phase 4
+
+## Phase 4: Types Detail Page Testing
+**Goal**: Comprehensive testing of type property editing system
+**Status**: Pending Phase 3 approval
+
+**Steps**:
+- [ ] Test root property type changes and editor switching (simple, complex, object, array)
+- [ ] Test object property editor functionality (add/edit/drag/remove properties)
+- [ ] Test array property editor with item type picker (object, array, custom only)
+- [ ] Test array of object/array property editors
+- [ ] Test property type restrictions for different contexts
+- [ ] Test custom type integration
+- [ ] Update page title to include "Type" before filename
+- [ ] Update root property editor to use standard Card layout
+- [ ] Update non-root property editors to match Enumerators page styling
+- [ ] Add necessary `data-test` attributes for reliable testing
+- [ ] Update PUNCH-LIST.md with completion status
+- [ ] Commit and push changes
+
+**Phase Gate**: Your approval required before proceeding to Phase 5
+
+## Phase 5: Dictionary Detail Page Testing
+**Goal**: Test dictionary-specific property editing with type restrictions
+**Status**: Pending Phase 4 approval
+
+**Steps**:
+- [ ] Test dictionary property type restrictions (root: object/array only, non-root: object, array, constant, enum, enum_array, one_of, ref, custom)
+- [ ] Test object and array property editors in dictionary context
+- [ ] Test constant property editor (editable value input)
+- [ ] Test enum and enum_array property editors (enumerators picker)
+- [ ] Test ref property editor (dictionary picker)
+- [ ] Test one_of property editor (property list like object)
+- [ ] Test array of different property types (one_of, ref, custom)
+- [ ] Update page title to include "Dictionary" before filename
+- [ ] Update root property editor to use standard Card layout
+- [ ] Add necessary `data-test` attributes for reliable testing
+- [ ] Update PUNCH-LIST.md with completion status
+- [ ] Commit and push changes
+
+**Phase Gate**: Your approval required before proceeding to Phase 6
+
+## Phase 6: User Journey Testing
+**Goal**: End-to-end testing of complete user workflows
+**Status**: Pending Phase 5 approval
+
+**Steps**:
+- [ ] Replicate sample collection journey
+- [ ] Test configuration version evolution (initial → full_name replacement)
+- [ ] Test schema migration scenarios
+- [ ] Test data loading and skipping logic
+- [ ] Verify complete workflow integrity
+- [ ] Add necessary `data-test` attributes for reliable testing
+- [ ] Update PUNCH-LIST.md with completion status
+- [ ] Commit and push changes
+
+**Phase Gate**: Final approval and project completion
+
+---
+
+## Implementation Notes
+
+### Icon Updates
+- **Version Navigation**: Update ConfigurationDetailPage and EnumeratorDetailPage to use `mdiSkipPrevious/mdiSkipNext`
+- **Event Viewer**: Move show/hide icon to be 2nd item from left edge (horizontal positioning)
+- **Future Enhancement**: Test Data and Dictionaries will need version navigation implemented later
+
+### Data-Test Attributes
+- Add `data-test` attributes to all interactive elements for reliable testing
+- Use consistent naming conventions (e.g., `data-test="add-property-btn"`, `data-test="type-picker"`)
+- Focus on elements that need to be targeted in automated tests
+
+### API and Dev Server Management
+- Request API/dev server reset when code changes require relaunch
+- Request backend reset when configurations need to be reset to clean state
+- Work with current running instances when possible
+
+### Testing Approach
+- Each test should create its own data and clean up after itself
+- Tests that enter values should reload the page and confirm state was preserved
+- Use existing test patterns from current 22 passing tests as foundation
+- Focus on real user workflows and interactions
+
+---
+
+## Original Requirements (For Reference)
 
 # Configurations Detail Page 
     - [ ] Use [mdiSkipPrevious] and [mdiSkipNext] for version navigator 

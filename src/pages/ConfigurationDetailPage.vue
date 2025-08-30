@@ -111,7 +111,7 @@
               <h3 class="text-h5 mb-0 mr-2">Version:</h3>
               <div class="d-flex align-center">
                 <v-btn
-                  icon="mdi-chevron-left"
+                  icon="mdi-skip-previous"
                   variant="text"
                   size="small"
                   :disabled="!hasPreviousVersion"
@@ -119,22 +119,23 @@
                   class="mr-1"
                   data-test="previous-version-btn"
                 />
-                <span class="text-h6 font-weight-medium">{{ activeVersion }}</span>
-                <v-btn
-                  v-if="!hasNextVersion"
-                  prepend-icon="mdi-plus"
-                  variant="elevated"
-                  size="small"
-                  color="primary"
-                  class="ml-1 new-version-btn"
-                  title="Create new version"
-                  @click="showNewVersionDialog = true"
-                >
-                  New Version
-                </v-btn>
+                <span class="text-h6 font-weight-medium" data-test="active-version">{{ activeVersion }}</span>
+                                  <v-btn
+                    v-if="!hasNextVersion"
+                    prepend-icon="mdi-plus"
+                    variant="elevated"
+                    size="small"
+                    color="primary"
+                    class="ml-1 new-version-btn"
+                    title="Create new version"
+                    @click="showNewVersionDialog = true"
+                    data-test="new-version-btn"
+                  >
+                    New Version
+                  </v-btn>
                 <v-btn
                   v-else
-                  icon="mdi-chevron-right"
+                  icon="mdi-skip-next"
                   variant="text"
                   size="small"
                   :disabled="!hasNextVersion"
@@ -154,9 +155,10 @@
                   variant="elevated"
                   size="small"
                   @click="toggleVersionLock"
+                  data-test="toggle-lock-btn"
                 >
-                  <v-icon start size="small">{{ activeVersionData?._locked ? 'mdi-lock' : 'mdi-lock-open' }}</v-icon>
-                  {{ activeVersionData?._locked ? 'Unlock' : 'Lock' }}
+                  <v-icon start size="small" data-test="lock-icon">{{ activeVersionData?._locked ? 'mdi-lock' : 'mdi-lock-open' }}</v-icon>
+                  <span data-test="lock-btn-text">{{ activeVersionData?._locked ? 'Unlock' : 'Lock' }}</span>
                 </v-btn>
                 <v-btn
                   v-if="!activeVersionData?._locked"
@@ -164,9 +166,10 @@
                   variant="elevated"
                   size="small"
                   @click="deleteVersion"
+                  data-test="delete-version-btn"
                 >
-                  <v-icon start size="small">mdi-delete</v-icon>
-                  Delete
+                  <v-icon start size="small" data-test="delete-icon">mdi-delete</v-icon>
+                  <span data-test="delete-btn-text">Delete</span>
                 </v-btn>
               </div>
             </div>

@@ -20,16 +20,16 @@
             <span v-if="enumerator.title" class="text-h6 text-medium-emphasis mr-4">{{ enumerator.title }}</span>
             <h1 class="text-h4 d-flex align-center">
               <v-btn
-                icon="mdi-chevron-left"
+                icon="mdi-skip-previous"
                 variant="text"
                 size="small"
                 :disabled="!hasPreviousVersion"
                 @click="navigateToPreviousVersion"
                 class="mr-1"
               />
-              Version: {{ enumerator.version }}
+              <span data-test="enumerator-version">Version: {{ enumerator.version }}</span>
               <v-btn
-                icon="mdi-chevron-right"
+                icon="mdi-skip-next"
                 variant="text"
                 size="small"
                 :disabled="!hasNextVersion"
@@ -45,6 +45,7 @@
                 @click="createNewVersion"
                 class="ml-2"
                 title="Create new version"
+                data-test="add-version-btn"
               >
                 Add Version
               </v-btn>
@@ -61,9 +62,10 @@
               @click="showUnlockDialog = true"
               :loading="saving"
               class="font-weight-bold"
+              data-test="unlock-btn"
             >
-              <v-icon start>mdi-lock-open</v-icon>
-              Unlock
+              <v-icon start data-test="unlock-icon">mdi-lock-open</v-icon>
+              <span data-test="unlock-btn-text">Unlock</span>
             </v-btn>
             <v-btn
               v-else
@@ -72,9 +74,10 @@
               @click="lockEnumerator"
               :loading="saving"
               class="font-weight-bold"
+              data-test="lock-btn"
             >
-              <v-icon start>mdi-lock</v-icon>
-              Lock
+              <v-icon start data-test="lock-icon">mdi-lock</v-icon>
+              <span data-test="lock-btn-text">Lock</span>
             </v-btn>
             <v-btn
               v-if="!enumerator._locked"
@@ -82,9 +85,10 @@
               variant="elevated"
               @click="handleDelete"
               class="font-weight-bold"
+              data-test="delete-enumerator-btn"
             >
-              <v-icon start>mdi-delete</v-icon>
-              Delete
+              <v-icon start data-test="delete-enumerator-icon">mdi-delete</v-icon>
+              <span data-test="delete-enumerator-btn-text">Delete</span>
             </v-btn>
           </div>
         </div>

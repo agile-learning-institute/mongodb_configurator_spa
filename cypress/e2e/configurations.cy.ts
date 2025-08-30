@@ -271,4 +271,51 @@ describe('Configurations page flow', () => {
       cy.url().should('match', /\/configurations\/?$/)
     })
   })
+
+  it('displays correct version navigator icons', () => {
+    // Visit configurations page
+    cy.visit('/configurations')
+    
+    // Wait for any existing configurations to load
+    cy.get('[data-test^="file-card-"]').should('exist')
+    
+    // Click on the first configuration to go to detail page
+    cy.get('[data-test^="file-card-"]').first().click()
+    
+    // Wait for the detail page to load
+    cy.url().should('include', '/configurations/')
+    
+    // Verify the version navigator uses the correct icons
+    // Previous version button should use mdi-skip-previous
+    cy.get('[data-test="previous-version-btn"]').should('exist')
+    cy.get('[data-test="previous-version-btn"] .v-icon').should('contain', 'mdi-skip-previous')
+    
+    // Next version button should use mdi-skip-next (if it exists)
+    cy.get('body').then(($body) => {
+      if ($body.find('[data-test="next-version-btn"]').length > 0) {
+        cy.get('[data-test="next-version-btn"] .v-icon').should('contain', 'mdi-skip-next')
+      }
+    })
+    
+    // Verify the active version is displayed
+    cy.get('[data-test="active-version"]').should('be.visible')
+    
+    // Verify the new version button exists and has correct icon
+    cy.get('[data-test="new-version-btn"]').should('exist')
+    cy.get('[data-test="new-version-btn"] .v-icon').should('contain', 'mdi-plus')
+    
+    // Verify lock/unlock and delete buttons have correct data-test attributes
+    cy.get('[data-test="toggle-lock-btn"]').should('exist')
+    cy.get('[data-test="lock-icon"]').should('exist')
+    cy.get('[data-test="lock-btn-text"]').should('exist')
+    
+    // Check if delete button exists (only for unlocked versions)
+    cy.get('body').then(($body) => {
+      if ($body.find('[data-test="delete-version-btn"]').length > 0) {
+        cy.get('[data-test="delete-version-btn"]').should('exist')
+        cy.get('[data-test="delete-icon"]').should('exist')
+        cy.get('[data-test="delete-btn-text"]').should('exist')
+      }
+    })
+  })
 })
