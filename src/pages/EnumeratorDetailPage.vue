@@ -223,12 +223,12 @@
   </v-container>
 
   <!-- Delete Warning Dialog -->
-  <v-dialog v-model="showDeleteDialog" max-width="600">
+  <v-dialog v-model="showDeleteDialog" max-width="600" data-test="delete-warning-dialog">
     <v-card>
-      <v-card-title class="text-h5">
+      <v-card-title class="text-h5" data-test="delete-warning-title">
         ⚠️ Warning: Delete Enumerator
       </v-card-title>
-      <v-card-text>
+      <v-card-text data-test="delete-warning-content">
         <p class="mb-3">
           <strong>Deleting enumerators that have already been deployed can have severe impacts on configuration validity.</strong>
         </p>
@@ -239,25 +239,26 @@
           type="error"
           variant="tonal"
           class="mb-4"
+          data-test="delete-warning-alert"
         >
           <strong>Warning:</strong> This is a destructive action that will permanently delete the file.
         </v-alert>
       </v-card-text>
       <v-card-actions>
         <v-spacer />
-        <v-btn @click="cancelDelete">Cancel</v-btn>
-        <v-btn color="error" @click="showDeleteConfirmation">Delete Enumerator</v-btn>
+        <v-btn @click="cancelDelete" data-test="delete-dialog-cancel-btn">Cancel</v-btn>
+        <v-btn color="error" @click="showDeleteConfirmation" data-test="delete-dialog-delete-btn">Delete Enumerator</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
 
   <!-- Delete Confirmation Dialog -->
-  <v-dialog v-model="showDeleteConfirmationDialog" max-width="400">
+  <v-dialog v-model="showDeleteConfirmationDialog" max-width="400" data-test="delete-confirmation-dialog">
     <v-card>
-      <v-card-title class="text-h5">
+      <v-card-title class="text-h5" data-test="delete-confirmation-title">
         Final Confirmation
       </v-card-title>
-      <v-card-text>
+      <v-card-text data-test="delete-confirmation-content">
         <p class="mb-3">
           <strong>Are you absolutely sure you want to delete "{{ enumerator?.file_name }}"?</strong>
         </p>
@@ -270,15 +271,17 @@
           variant="outlined"
           density="compact"
           hide-details
+          data-test="delete-confirmation-input"
         />
       </v-card-text>
       <v-card-actions>
         <v-spacer />
-        <v-btn @click="cancelDeleteConfirmation">Cancel</v-btn>
+        <v-btn @click="cancelDeleteConfirmation" data-test="delete-confirmation-cancel-btn">Cancel</v-btn>
         <v-btn 
           color="error" 
           @click="confirmDelete"
           :disabled="deleteConfirmationText !== 'DELETE'"
+          data-test="delete-confirmation-confirm-btn"
         >
           Delete
         </v-btn>
@@ -286,13 +289,13 @@
     </v-card>
   </v-dialog>
 
-  <!-- Unlock Confirmation Dialog -->
-  <v-dialog v-model="showUnlockDialog" max-width="600">
+  <!-- Unlock Warning Dialog -->
+  <v-dialog v-model="showUnlockDialog" max-width="600" data-test="unlock-warning-dialog">
     <v-card>
-      <v-card-title class="text-h5">
+      <v-card-title class="text-h5" data-test="unlock-warning-title">
         ⚠️ Warning: Editing Deployed Enumerator
       </v-card-title>
-      <v-card-text>
+      <v-card-text data-test="unlock-warning-content">
         <p class="mb-3">
           <strong>Editing enumerators that have already been deployed can have severe impacts on configuration validity.</strong>
         </p>
@@ -303,18 +306,20 @@
           type="warning"
           variant="tonal"
           class="mb-4"
+          data-test="unlock-warning-alert"
         >
           <strong>Recommended:</strong> Create a new version instead of editing the current one.
         </v-alert>
       </v-card-text>
       <v-card-actions>
         <v-spacer />
-        <v-btn @click="cancelUnlock">Cancel</v-btn>
-        <v-btn color="primary" @click="createNewVersion">Create New Version</v-btn>
+        <v-btn @click="cancelUnlock" data-test="unlock-dialog-cancel-btn">Cancel</v-btn>
+        <v-btn color="primary" @click="createNewVersion" data-test="unlock-dialog-create-version-btn">Create New Version</v-btn>
         <v-btn 
           v-if="showUnlockOption"
           color="warning" 
-          @click="showUnlockConfirmation"
+          @click="unlockEnumerator"
+          data-test="unlock-dialog-unlock-btn"
         >
           Unlock Current Version
         </v-btn>
@@ -322,40 +327,7 @@
     </v-card>
   </v-dialog>
 
-  <!-- Unlock Confirmation Dialog -->
-  <v-dialog v-model="showUnlockConfirmationDialog" max-width="400">
-    <v-card>
-      <v-card-title class="text-h5">
-        Final Confirmation
-      </v-card-title>
-      <v-card-text>
-        <p class="mb-3">
-          <strong>Are you absolutely sure you want to unlock this enumerator?</strong>
-        </p>
-        <p class="mb-4">
-          Type "UNLOCK" below to confirm:
-        </p>
-        <v-text-field
-          v-model="unlockConfirmationText"
-          placeholder="Type UNLOCK to confirm"
-          variant="outlined"
-          density="compact"
-          hide-details
-        />
-      </v-card-text>
-      <v-card-actions>
-        <v-spacer />
-        <v-btn @click="cancelUnlockConfirmation">Cancel</v-btn>
-        <v-btn 
-          color="warning" 
-          @click="confirmUnlock"
-          :disabled="unlockConfirmationText !== 'UNLOCK'"
-        >
-          Unlock
-        </v-btn>
-      </v-card-actions>
-    </v-card>
-  </v-dialog>
+
 </template>
 
 <script setup lang="ts">
@@ -369,8 +341,6 @@ const showDeleteDialog = ref(false)
 const showDeleteConfirmationDialog = ref(false)
 const deleteConfirmationText = ref('')
 const showUnlockDialog = ref(false)
-const showUnlockConfirmationDialog = ref(false)
-const unlockConfirmationText = ref('')
 const enumeratorFiles = ref<any[]>([])
 const loadingFiles = ref(false)
 const collapsedEnumerators = ref<Set<number>>(new Set())
@@ -558,12 +528,6 @@ const unlockEnumerator = async () => {
   await autoSaveLocal()
 }
 
-const confirmUnlock = () => {
-  unlockEnumerator()
-  showUnlockConfirmationDialog.value = false
-  unlockConfirmationText.value = ''
-}
-
 const createNewVersion = async () => {
   if (!enumerator.value) return
   
@@ -602,19 +566,8 @@ const showUnlockOption = computed(() => {
   return !hasNextVersion.value
 })
 
-const showUnlockConfirmation = () => {
-  showUnlockDialog.value = false
-  showUnlockConfirmationDialog.value = true
-  unlockConfirmationText.value = ''
-}
-
 const cancelUnlock = () => {
   showUnlockDialog.value = false
-}
-
-const cancelUnlockConfirmation = () => {
-  showUnlockConfirmationDialog.value = false
-  unlockConfirmationText.value = ''
 }
 
 const confirmDelete = async () => {
