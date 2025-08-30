@@ -359,6 +359,16 @@ describe('Configurations page flow', () => {
       cy.get('[data-test="new-version-minor"]').should('contain', '1')
       cy.get('[data-test="new-version-patch"]').should('contain', '1')
 
+      // click increment patch, minor, major
+      cy.get('[data-test="new-version-patch-plus-btn"]').click()
+      cy.get('[data-test="new-version-minor-plus-btn"]').click()
+      cy.get('[data-test="new-version-major-plus-btn"]').click()
+      
+      // assert major=2, minor=0, patch=0
+      cy.get('[data-test="new-version-major"]').should('contain', '2')
+      cy.get('[data-test="new-version-minor"]').should('contain', '0')
+      cy.get('[data-test="new-version-patch"]').should('contain', '0')
+
       // click on increment enumerators
       cy.get('[data-test="new-version-enumerators-plus-btn"]').click()
       
@@ -377,19 +387,14 @@ describe('Configurations page flow', () => {
         expect(response.status).to.equal(200)
       })
 
-      // click increment patch, minor, major
-      cy.get('[data-test="new-version-patch-plus-btn"]').click()
-      cy.get('[data-test="new-version-minor-plus-btn"]').click()
-      cy.get('[data-test="new-version-major-plus-btn"]').click()
+      // Create the new version to test housekeeping of actual files
+      cy.get('[data-test="new-version-create-btn"]').click()
       
-      // assert major=2, minor=0, patch=0
-      cy.get('[data-test="new-version-major"]').should('contain', '2')
-      cy.get('[data-test="new-version-minor"]').should('contain', '0')
-      cy.get('[data-test="new-version-patch"]').should('contain', '0')
-
-      // Close dialog without creating
-      cy.get('[data-test="new-version-cancel-btn"]').click()
-      cy.get('.v-dialog').should('not.exist')
+      // Wait for the version creation to complete
+      cy.wait(2000)
+      
+      // Verify dialog is closed
+      cy.get('[data-test="new-version-dialog"]').should('not.exist')
 
       // Housekeeping - API calls to these endpoints, with 200 response
       // DEL /api/configurations/{filename}.yaml/
@@ -495,9 +500,14 @@ describe('Configurations page flow', () => {
       // Verify that incrementing enumerators from 2 to 3 would create enumerations.3.yaml
       // (This is tested via the API call below)
 
-      // Close dialog without creating
-      cy.get('[data-test="new-version-cancel-btn"]').click()
-      cy.get('.v-dialog').should('not.exist')
+      // Create the new version to test housekeeping of actual files
+      cy.get('[data-test="new-version-create-btn"]').click()
+      
+      // Wait for the version creation to complete
+      cy.wait(2000)
+      
+      // Verify dialog is closed
+      cy.get('[data-test="new-version-dialog"]').should('not.exist')
     })
   })
 
