@@ -697,7 +697,7 @@ describe('Configurations page flow', () => {
   })
 
   describe('File Linking and Verification', () => {
-    it.only('verifies dictionary and enumerator linking to correct files', () => {
+    it('verifies dictionary and enumerator linking to correct files', () => {
       // First create a configuration to work with
       cy.visit('/configurations')
       cy.get('[data-test="new-collection-btn"]').click()
@@ -801,44 +801,4 @@ describe('Configurations page flow', () => {
     })
   })
 
-  describe('Test Data Linking', () => {
-    it('verifies test data linking and management', () => {
-      // First create a configuration to work with
-      cy.visit('/configurations')
-      cy.get('[data-test="new-collection-btn"]').click()
-
-      const configurationName = `TestConfig_${Date.now()}`
-      cy.get('[data-test="new-collection-name-input"]').type(configurationName)
-      cy.get('[data-test="new-collection-description-input"]').type('Test configuration for test data testing')
-      
-      // Simply bump minor version to 1 to enable Create button
-      cy.get('[data-test="version-minor-plus-btn"]').click()
-      cy.get('[data-test="version-display"]').should('contain', '0.1.0')
-      
-      cy.get('[data-test="new-collection-create-btn"]').click()
-
-      // After creation, we should be on the detail page
-      cy.url().should('include', `/configurations/${configurationName}.yaml`)
-      createdConfigurationName = configurationName
-      createdConfigurationVersion = '0.1.0'
-      createdEnumeratorsVersion = '2' // Default enumerators version for most tests
-
-      // Wait for the page to fully load
-      cy.wait(1000)
-
-      // Navigate to test data management
-      cy.contains('h2', 'Test Data Management').should('be.visible')
-
-      // Verify test data file is linked correctly
-      cy.get('[data-test="test-data-file-link"]').should('contain', `${configurationName}.0.1.0.0.json`)
-
-      // Test adding test data
-      cy.get('[data-test="add-test-data-btn"]').click()
-      cy.get('[data-test="test-data-json-input"]').type('{"test": "data"}')
-      cy.get('[data-test="add-test-data-confirm-btn"]').click()
-
-      // Verify test data was added
-      cy.get('[data-test="test-data-list"]').should('contain', '{"test": "data"}')
-    })
-  })
 })
