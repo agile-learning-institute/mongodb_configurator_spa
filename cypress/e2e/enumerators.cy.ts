@@ -94,16 +94,15 @@ describe('Enumerators page flow', () => {
       // Wait for page to fully load
       cy.get('[data-test="enumerator-version"]').should('be.visible')
       
-      // Log initial state for debugging
-      cy.get('[data-test^="enumerator-name-input-"]').then(($inputs) => {
-        cy.log(`Initial enumerations count: ${$inputs.length}`)
-      })
+      // Check initial state - baseline enumerator starts with no enumerations
+      cy.get('[data-test^="enumerator-name-input-"]').should('have.length', 0)
       
       // Add one enumeration
       cy.get('[data-test="add-enumeration-btn"]').click()
       
       // Wait for the new enumeration to appear
       cy.get('[data-test^="enumerator-name-input-"]').should('be.visible')
+      cy.get('[data-test^="enumerator-name-input-"]').should('have.length', 1)
       
       // Type the name
       cy.get('[data-test^="enumerator-name-input-"]').first().clear().type('TestEnum1')
@@ -113,8 +112,8 @@ describe('Enumerators page flow', () => {
       cy.intercept('PUT', '/api/enumerators/*').as('updateEnumerator')
       cy.wait('@updateEnumerator')
 
-      // Verify the enumeration was added - should now have 2 total (1 original + 1 new)
-      cy.get('[data-test^="enumerator-name-input-"]').should('have.length', 2)
+      // Verify the enumeration was added - should now have 1 total
+      cy.get('[data-test^="enumerator-name-input-"]').should('have.length', 1)
       cy.get('[data-test^="enumerator-name-input-"]').first().should('have.value', 'TestEnum1')
       
       // Log final state for debugging
