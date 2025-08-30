@@ -190,9 +190,9 @@
   </v-container>
 
   <!-- New Version Dialog -->
-  <v-dialog v-model="showNewVersionDialog" max-width="600px">
+  <v-dialog v-model="showNewVersionDialog" max-width="600px" data-test="new-version-dialog">
     <v-card>
-      <v-card-title class="text-h5 pa-6 pb-4">
+      <v-card-title class="text-h5 pa-6 pb-4" data-test="new-version-dialog-title">
         <v-icon start color="primary" class="mr-2">mdi-plus-circle</v-icon>
         Create New Version
       </v-card-title>
@@ -209,15 +209,7 @@
                 <span class="text-caption text-medium-emphasis d-block">Breaking changes</span>
               </div>
               <div class="version-controls">
-                <v-text-field
-                  v-model.number="newVersion.major"
-                  type="number"
-                  variant="outlined"
-                  density="compact"
-                  hide-details
-                  class="version-input"
-                  min="0"
-                />
+                <div class="version-display-value" data-test="new-version-major">{{ newVersion.major }}</div>
                 <v-btn
                   icon="mdi-plus"
                   size="small"
@@ -225,6 +217,7 @@
                   color="primary"
                   @click="incrementVersion('major')"
                   class="ml-2"
+                  data-test="new-version-major-plus-btn"
                 />
               </div>
             </div>
@@ -236,15 +229,7 @@
                 <span class="text-caption text-medium-emphasis d-block">New features</span>
               </div>
               <div class="version-controls">
-                <v-text-field
-                  v-model.number="newVersion.minor"
-                  type="number"
-                  variant="outlined"
-                  density="compact"
-                  hide-details
-                  class="version-input"
-                  min="0"
-                />
+                <div class="version-display-value" data-test="new-version-minor">{{ newVersion.minor }}</div>
                 <v-btn
                   icon="mdi-plus"
                   size="small"
@@ -252,6 +237,7 @@
                   color="primary"
                   @click="incrementVersion('minor')"
                   class="ml-2"
+                  data-test="new-version-minor-plus-btn"
                 />
               </div>
             </div>
@@ -263,15 +249,7 @@
                 <span class="text-caption text-medium-emphasis d-block">Bug fixes</span>
               </div>
               <div class="version-controls">
-                <v-text-field
-                  v-model.number="newVersion.patch"
-                  type="number"
-                  variant="outlined"
-                  density="compact"
-                  hide-details
-                  class="version-input"
-                  min="0"
-                />
+                <div class="version-display-value" data-test="new-version-patch">{{ newVersion.patch }}</div>
                 <v-btn
                   icon="mdi-plus"
                   size="small"
@@ -279,6 +257,7 @@
                   color="primary"
                   @click="incrementVersion('patch')"
                   class="ml-2"
+                  data-test="new-version-patch-plus-btn"
                 />
               </div>
             </div>
@@ -290,22 +269,16 @@
                 <span class="text-caption text-medium-emphasis d-block">Enumeration version</span>
               </div>
               <div class="version-controls">
-                <v-text-field
-                  v-model.number="newVersion.enumerators"
-                  type="number"
-                  variant="outlined"
-                  density="compact"
-                  hide-details
-                  class="version-input"
-                  min="0"
-                />
+                <div class="version-display-value" data-test="new-version-enumerators">{{ newVersion.enumerators }}</div>
                 <v-btn
+                  v-if="newVersion.enumerators < 3"
                   icon="mdi-plus"
                   size="small"
                   variant="elevated"
                   color="primary"
-                  @click="newVersion.enumerators++"
+                  @click="incrementVersion('enumerators')"
                   class="ml-2"
+                  data-test="new-version-enumerators-plus-btn"
                 />
               </div>
             </div>
@@ -328,6 +301,7 @@
           color="secondary"
           variant="text"
           @click="showNewVersionDialog = false"
+          data-test="new-version-cancel-btn"
         >
           Cancel
         </v-btn>
@@ -336,6 +310,7 @@
           variant="elevated"
           @click="createNewVersion"
           :loading="saving"
+          data-test="new-version-create-btn"
         >
           <v-icon start>mdi-plus</v-icon>
           Create Version
@@ -642,7 +617,7 @@ const initializeNewVersion = () => {
   }
 }
 
-const incrementVersion = (type: 'major' | 'minor' | 'patch') => {
+const incrementVersion = (type: 'major' | 'minor' | 'patch' | 'enumerators') => {
   if (type === 'major') {
     newVersion.value.major++
     newVersion.value.minor = 0
@@ -652,6 +627,8 @@ const incrementVersion = (type: 'major' | 'minor' | 'patch') => {
     newVersion.value.patch = 0
   } else if (type === 'patch') {
     newVersion.value.patch++
+  } else if (type === 'enumerators') {
+    newVersion.value.enumerators++
   }
 }
 
@@ -954,8 +931,16 @@ watch(showNewVersionDialog, (newValue) => {
   gap: 8px;
 }
 
-.version-input {
-  max-width: 120px;
+.version-display-value {
+  min-width: 60px;
+  padding: 8px 12px;
+  background-color: rgba(var(--v-theme-surface), 0.8);
+  border: 1px solid rgba(var(--v-theme-outline), 0.2);
+  border-radius: 4px;
+  text-align: center;
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: rgba(var(--v-theme-on-surface), 0.87);
 }
 
 .version-preview {

@@ -330,14 +330,24 @@ describe('Configurations page flow', () => {
       cy.contains('button', 'New Version').click()
       
       // assert we are in new version dialog
-      cy.get('.v-dialog').should('be.visible')
-      cy.get('.v-dialog .v-card-title').should('contain', 'Create New Version')
+      cy.get('[data-test="new-version-dialog"]').should('be.visible')
+      cy.get('[data-test="new-version-dialog-title"]').should('contain', 'Create New Version')
       
       // assert major=0, minor=1, patch=0, enumerators=2
       cy.get('[data-test="new-version-major"]').should('contain', '0')
       cy.get('[data-test="new-version-minor"]').should('contain', '1')
       cy.get('[data-test="new-version-patch"]').should('contain', '0')
       cy.get('[data-test="new-version-enumerators"]').should('contain', '2')
+
+      // Verify version numbers are display-only spans, not inputs
+      cy.get('[data-test="new-version-major"]').should('not.have.attr', 'type', 'number')
+      cy.get('[data-test="new-version-major"]').should('not.have.class', 'v-text-field')
+      cy.get('[data-test="new-version-minor"]').should('not.have.attr', 'type', 'number')
+      cy.get('[data-test="new-version-minor"]').should('not.have.class', 'v-text-field')
+      cy.get('[data-test="new-version-patch"]').should('not.have.attr', 'type', 'number')
+      cy.get('[data-test="new-version-patch"]').should('not.have.class', 'v-text-field')
+      cy.get('[data-test="new-version-enumerators"]').should('not.have.attr', 'type', 'number')
+      cy.get('[data-test="new-version-enumerators"]').should('not.have.class', 'v-text-field')
 
       // click increment buttons major, minor, patch
       cy.get('[data-test="new-version-major-plus-btn"]').click()
