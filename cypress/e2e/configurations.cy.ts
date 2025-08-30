@@ -490,11 +490,10 @@ describe('Configurations page flow', () => {
 
       // Test enumerators increment
       cy.get('[data-test="new-version-enumerators-plus-btn"]').click()
-      cy.get('[data-test="new-version-enumerators"]').should('contain', '1')
+      cy.get('[data-test="new-version-enumerators"]').should('contain', '3')
 
-      // Verify that this would create a new enumerators file
-      // The enumerators version should be incremented
-      cy.get('[data-test="new-version-enumerators-file"]').should('contain', 'enumerations.1.yaml')
+      // Verify that incrementing enumerators from 2 to 3 would create enumerations.3.yaml
+      // (This is tested via the API call below)
 
       // Close dialog without creating
       cy.get('[data-test="new-version-cancel-btn"]').click()
