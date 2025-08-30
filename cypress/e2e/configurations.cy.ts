@@ -667,17 +667,13 @@ describe('Configurations page flow', () => {
       // First create a configuration to work with
       cy.visit('/configurations')
       cy.get('[data-test="new-collection-btn"]').click()
-
       const configurationName = `TestConfig_${Date.now()}`
       cy.get('[data-test="new-collection-name-input"]').type(configurationName)
-      cy.get('[data-test="new-collection-description-input"]').type('Test configuration for existing migration testing')
-      
-      // Simply bump minor version to 1 to enable Create button
+      cy.get('[data-test="new-collection-description-input"]').type('Test configuration for index testing')
       cy.get('[data-test="version-minor-plus-btn"]').click()
       cy.get('[data-test="version-display"]').should('contain', '0.1.0')
-      
       cy.get('[data-test="new-collection-create-btn"]').click()
-
+      
       // After creation, we should be on the detail page
       cy.url().should('include', `/configurations/${configurationName}.yaml`)
       createdConfigurationName = configurationName
@@ -687,27 +683,16 @@ describe('Configurations page flow', () => {
       // Wait for the page to fully load
       cy.wait(1000)
 
-      // Navigate to migration management
-      cy.contains('h2', 'Migration Management').should('be.visible')
+      cy.get('[data-test="add-migration-btn"]').click()
+      cy.get('[data-test="new-migration-existing-migrations"]').first()
+      .contains('first_last_to_full_name.json').click()
 
-      // Test adding existing migration
-      cy.get('[data-test="add-existing-migration-btn"]').click()
-      cy.get('[data-test="existing-migration-selector"]').click()
-      cy.get('[data-test="existing-migration-option"]').first().click()
-      cy.get('[data-test="add-existing-migration-confirm-btn"]').click()
-
-      // Verify existing migration was added
-      cy.get('[data-test="migrations-content"]').should('contain', 'existing_migration')
+      // Verify migration was added
+      cy.get('[data-test="migrations-content"]').should('contain', 'first_last_to_full_name.json')
 
       // Verify chip links to migration detail page
       cy.get('[data-test="migration-chip"]').first().click()
-      cy.url().should('include', '/migrations/')
-      
-      // Navigate back to configuration
-      cy.go('back')
-      
-      // Verify we're back on the configuration page
-      cy.url().should('include', `/configurations/${configurationName}.yaml`)
+      cy.url().should('include', `/migrations/first_last_to_full_name.json`)
     })
   })
 

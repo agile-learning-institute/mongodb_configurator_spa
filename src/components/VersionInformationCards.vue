@@ -359,7 +359,7 @@
           </div>
 
           <!-- Existing Migrations Section -->
-          <div v-if="migrationFiles.length > 0">
+          <div v-if="migrationFiles.length > 0" data-test="new-migration-existing-migrations">
             <h4 class="text-subtitle-1 font-weight-medium mb-2">Existing Migrations</h4>
             <div class="text-body-2 text-medium-emphasis mb-3">Click a migration to add it:</div>
             <div class="d-flex flex-wrap gap-2">
