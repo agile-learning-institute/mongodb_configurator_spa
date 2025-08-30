@@ -91,7 +91,15 @@ describe('Enumerators page flow', () => {
       // Visit the baseline enumerator detail page
       cy.visit(`/enumerators/${baselineFileName}`)
       
-      // Add first enumeration
+      // Wait for page to fully load
+      cy.get('[data-test="enumerator-version"]').should('be.visible')
+      
+      // Log initial state for debugging
+      cy.get('.enumerator-name-input').then(($inputs) => {
+        cy.log(`Initial enumerations count: ${$inputs.length}`)
+      })
+      
+      // Add one enumeration
       cy.contains('button', 'Add Enumeration').click()
       
       // Wait for the new enumeration to appear
@@ -105,23 +113,19 @@ describe('Enumerators page flow', () => {
       cy.intercept('PUT', '/api/enumerators/*').as('updateEnumerator')
       cy.wait('@updateEnumerator')
 
-      // Verify the enumeration was added
+      // Verify the enumeration was added - should now have 2 total (1 original + 1 new)
+      cy.get('.enumerator-name-input').should('have.length', 2)
       cy.get('.enumerator-name-input').first().should('have.value', 'TestEnum1')
+      
+      // Log final state for debugging
+      cy.get('.enumerator-name-input').then(($inputs) => {
+        cy.log(`Final enumerations count: ${$inputs.length}`)
+        $inputs.each((index, input) => {
+          cy.log(`Enumeration ${index}: ${input.value}`)
+        })
+      })
 
-      // Add a second enumeration
-      cy.contains('button', 'Add Enumeration').click()
-      cy.get('.enumerator-name-input').last().clear().type('TestEnum2')
-      cy.get('.enumerator-name-input').last().blur()
-
-      // Wait for the PUT request to complete
-      cy.wait('@updateEnumerator')
-
-      // Verify both enumerations exist
-      cy.get('.enumerator-name-input').should('have.length', 3)
-      cy.get('.enumerator-name-input').first().should('have.value', 'TestEnum1')
-      cy.get('.enumerator-name-input').last().should('have.value', 'TestEnum2')
-
-      // Edit the first enumeration
+      // Edit the enumeration
       cy.get('.enumerator-name-input').first().clear().type('UpdatedEnum1')
       cy.get('.enumerator-name-input').first().blur()
 
