@@ -707,15 +707,11 @@ describe('Configurations page flow', () => {
       // First create a configuration to work with
       cy.visit('/configurations')
       cy.get('[data-test="new-collection-btn"]').click()
-
       const configurationName = `TestConfig_${Date.now()}`
       cy.get('[data-test="new-collection-name-input"]').type(configurationName)
-      cy.get('[data-test="new-collection-description-input"]').type('Test configuration for Step 5 index testing')
-      
-      // Simply bump minor version to 1 to enable Create button
+      cy.get('[data-test="new-collection-description-input"]').type('Test configuration for index testing')
       cy.get('[data-test="version-minor-plus-btn"]').click()
       cy.get('[data-test="version-display"]').should('contain', '0.1.0')
-      
       cy.get('[data-test="new-collection-create-btn"]').click()
 
       // After creation, we should be on the detail page
@@ -727,31 +723,31 @@ describe('Configurations page flow', () => {
       // Wait for the page to fully load
       cy.wait(1000)
 
-      // Navigate to Step 5 (Index Management)
-      cy.contains('h2', 'Step 5: Index Management').should('be.visible')
-
       // Test adding new index
-      cy.get('[data-test="add-step5-index-btn"]').click()
-      cy.get('[data-test="step5-index-name-input"]').type('step5_index')
-      cy.get('[data-test="step5-index-create-btn"]').click()
+      cy.get('[data-test="add-index-btn"]').click()
+      cy.get('[data-test="index-name-input"]').type('step5_index')
+      cy.get('[data-test="save-index-btn"]').click()
 
-      // Verify index was added
-      cy.get('[data-test="step5-index-list"]').should('contain', 'step5_index')
+      // Verify index was added - wait for the content to appear within the card
+      cy.get('[data-test="step-5-card"]').within(() => {
+        cy.get('[data-test="step5-indexes-content"]').should('contain', 'step5_index')
+      })
 
       // Test editing index
-      cy.get('[data-test="edit-step5-index-btn"]').first().click()
-      cy.get('[data-test="step5-index-name-edit-input"]').clear().type('edited_step5_index')
-      cy.get('[data-test="step5-index-save-btn"]').click()
+      cy.get('[data-test="index-chip"]').first().click()
+      cy.get('[data-test="index-name-input"]').clear().type('edited_step5_index')
+      cy.get('[data-test="save-index-btn"]').click()
 
       // Verify index was edited
-      cy.get('[data-test="step5-index-list"]').should('contain', 'edited_step5_index')
+      cy.get('[data-test="step-5-card"]').within(() => {
+        cy.get('[data-test="step5-indexes-content"]').should('contain', 'edited_step5_index')
+      })
 
       // Test removing index
-      cy.get('[data-test="remove-step5-index-btn"]').first().click()
-      cy.get('[data-test="confirm-remove-index-btn"]').click()
+      cy.get('[data-test="delete-index-btn"]').first().click()
 
       // Verify index was removed
-      cy.get('[data-test="step5-index-list"]').should('not.contain', 'edited_step5_index')
+      cy.get('[data-test="step5-indexes-content"]').should('not.contain', 'edited_step5_index')
     })
   })
 

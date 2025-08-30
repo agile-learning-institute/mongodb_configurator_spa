@@ -155,7 +155,7 @@
         </v-btn>
       </template>
       
-      <div class="d-flex flex-wrap gap-2">
+      <div class="d-flex flex-wrap gap-2" data-test="step5-indexes-content">
         <!-- Index Chips -->
         <v-chip
           v-for="(indexData, index) in version.add_indexes"
