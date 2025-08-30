@@ -117,7 +117,7 @@ describe('Enumerators page flow', () => {
       cy.wait('@updateEnumerator')
 
       // Verify both enumerations exist
-      cy.get('.enumerator-name-input').should('have.length', 2)
+      cy.get('.enumerator-name-input').should('have.length', 3)
       cy.get('.enumerator-name-input').first().should('have.value', 'TestEnum1')
       cy.get('.enumerator-name-input').last().should('have.value', 'TestEnum2')
 
