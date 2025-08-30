@@ -347,27 +347,15 @@
           <!-- Add New Migration Section -->
           <div>
             <h4 class="text-subtitle-1 font-weight-medium mb-2">Create New Migration</h4>
-            <div class="d-flex gap-2">
-              <v-text-field
-                v-model="newMigrationName"
-                label="Migration name"
-                placeholder="Enter migration name (e.g., add_user_index)"
-                variant="outlined"
-                density="compact"
-                @keyup.enter="createNewMigration"
-                data-test="new-migration-name-input"
-              />
-              <v-btn
-                color="primary"
-                variant="elevated"
-                @click="createNewMigration"
-                :disabled="!newMigrationName.trim()"
-                data-test="create-migration-btn"
-              >
-                <v-icon start size="small">mdi-plus</v-icon>
-                Create
-              </v-btn>
-            </div>
+            <v-text-field
+              v-model="newMigrationName"
+              label="Migration name"
+              placeholder="Enter migration name (e.g., add_user_index)"
+              variant="outlined"
+              density="compact"
+              @keyup.enter="createNewMigration"
+              data-test="new-migration-name-input"
+            />
           </div>
 
           <!-- Existing Migrations Section -->
@@ -398,8 +386,19 @@
         <v-spacer />
         <v-btn
           @click="showMigrationDialog = false"
+          data-test="migration-cancel-btn"
         >
           Cancel
+        </v-btn>
+        <v-btn
+          color="primary"
+          variant="elevated"
+          @click="createNewMigration"
+          :disabled="!newMigrationName.trim()"
+          data-test="create-migration-btn"
+        >
+          <v-icon start size="small">mdi-plus</v-icon>
+          Create
         </v-btn>
       </v-card-actions>
     </v-card>
