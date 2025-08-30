@@ -185,7 +185,7 @@
     <!-- Index Editor Dialog -->
     <v-dialog
       v-model="showIndexEditorDialog"
-      max-width="600px"
+      max-width="800px"
     >
       <v-card>
         <v-card-title class="d-flex align-center gap-2">
@@ -194,16 +194,43 @@
         </v-card-title>
         
         <v-card-text>
-          <v-text-field
-            v-model="editingIndexData.name"
-            label="Index Name"
-            placeholder="Enter index name (e.g., user_email)"
-            variant="outlined"
-            density="compact"
-            :disabled="props.disabled"
-            @keyup.enter="saveIndex"
-            data-test="index-name-input"
-          />
+          <!-- Index Name Display (non-editable) -->
+          <div class="mb-4">
+            <label class="text-body-2 font-weight-medium mb-2 d-block">Index Name</label>
+            <div class="index-name-display" data-test="index-name-display">
+              {{ editingIndexData.name || 'New Index' }}
+            </div>
+          </div>
+          
+          <!-- JSON Editor -->
+          <div>
+            <label class="text-body-2 font-weight-medium mb-2 d-block">Index JSON</label>
+            <v-textarea
+              v-model="jsonText"
+              placeholder="Enter index JSON (e.g., {'name': 'index_name', 'key': {'field': 1}, 'options': {}})"
+              variant="outlined"
+              density="compact"
+              :disabled="props.disabled"
+              :error="!!jsonError"
+              :error-messages="jsonError"
+              :rows="8"
+              auto-grow
+              @update:model-value="handleJsonChange"
+              @blur="validateJson"
+              data-test="index-json-textarea"
+            />
+            
+            <!-- Error Display -->
+            <v-alert
+              v-if="jsonError"
+              type="error"
+              variant="tonal"
+              class="mt-3"
+              data-test="json-error-alert"
+            >
+              {{ jsonError }}
+            </v-alert>
+          </div>
         </v-card-text>
         
         <v-card-actions>
@@ -218,7 +245,7 @@
           <v-btn
             color="primary"
             @click="saveIndex"
-            :disabled="props.disabled || !editingIndexData.name?.trim()"
+            :disabled="props.disabled || !jsonText.trim() || !!jsonError"
             data-test="save-index-btn"
           >
             {{ editingIndexTitle === 'New Index' ? 'Create' : 'Save' }}
@@ -703,12 +730,20 @@ const addNewIndex = () => {
     key: {},
     options: {}
   }
+  // Initialize JSON text with default structure
+  jsonText.value = JSON.stringify({
+    name: '',
+    key: {},
+    options: {}
+  }, null, 2)
   showIndexEditorDialog.value = true
 }
 
 const openIndexEditor = (indexData: any) => {
   editingIndexData.value = { ...indexData }
   editingIndexTitle.value = 'Edit Index'
+  // Populate JSON text with current index data
+  jsonText.value = JSON.stringify(indexData, null, 2)
   showIndexEditorDialog.value = true
 }
 
@@ -730,41 +765,63 @@ const validateJson = () => {
 
 const saveIndex = async () => {
   try {
-    if (editingIndexData.value.name?.trim()) {
-      // Ensure add_indexes array exists
-      if (!props.version.add_indexes) {
-        props.version.add_indexes = []
-      }
-      
-      // If editing existing index, update it
+    if (!jsonText.value.trim()) {
+      return
+    }
+
+    // Parse and validate JSON
+    const parsedIndex = JSON.parse(jsonText.value)
+    
+    // Validate required fields
+    if (!parsedIndex.name || typeof parsedIndex.name !== 'string') {
+      jsonError.value = 'Index must have a valid name field'
+      return
+    }
+    
+    if (!parsedIndex.key || typeof parsedIndex.key !== 'object') {
+      jsonError.value = 'Index must have a valid key field'
+      return
+    }
+    
+    if (!parsedIndex.options || typeof parsedIndex.options !== 'object') {
+      jsonError.value = 'Index must have a valid options field'
+      return
+    }
+
+    // Ensure add_indexes array exists
+    if (!props.version.add_indexes) {
+      props.version.add_indexes = []
+    }
+    
+    if (editingIndexTitle.value === 'New Index') {
+      // Add new index
+      props.version.add_indexes.push(parsedIndex)
+    } else {
+      // Update existing index - find by original name
       const indexToUpdate = props.version.add_indexes.find((idx: any) => 
         idx.name === editingIndexData.value.name
       )
       
       if (indexToUpdate) {
         // Update existing index
-        Object.assign(indexToUpdate, editingIndexData.value)
-      } else {
-        // Add new index with default structure
-        const newIndex = {
-          name: editingIndexData.value.name.trim(),
-          key: { [editingIndexData.value.name.trim()]: 1 }, // Default key
-          options: {} // Default empty options
-        }
-        props.version.add_indexes.push(newIndex)
-      }
-      
-      // Call the update function to save changes
-      props.onUpdate()
-      showIndexEditorDialog.value = false
-      showIndexJsonEditorDialog.value = false // Close JSON editor
-      
-      // Reset form for new indexes
-      if (editingIndexTitle.value === 'New Index') {
-        editingIndexData.value = { name: '', key: {}, options: {} }
+        Object.assign(indexToUpdate, parsedIndex)
       }
     }
+    
+    // Call the update function to save changes
+    props.onUpdate()
+    showIndexEditorDialog.value = false
+    
+    // Reset form for new indexes
+    if (editingIndexTitle.value === 'New Index') {
+      editingIndexData.value = { name: '', key: {}, options: {} }
+      jsonText.value = ''
+    }
+    
+    // Clear any errors
+    jsonError.value = ''
   } catch (err) {
+    jsonError.value = 'Invalid JSON format'
     console.error('Failed to save index:', err)
   }
 }
@@ -921,5 +978,18 @@ onMounted(() => {
   font-family: monospace;
   font-size: 14px;
   color: rgba(0, 0, 0, 0.6);
+}
+
+.index-name-display {
+  min-width: 200px;
+  padding: 8px 12px;
+  background-color: rgba(var(--v-theme-surface), 0.8);
+  border: 1px solid rgba(var(--v-theme-outline), 0.2);
+  border-radius: 4px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 1rem;
+  color: rgba(var(--v-theme-on-surface), 0.87);
+  font-family: monospace;
 }
 </style>

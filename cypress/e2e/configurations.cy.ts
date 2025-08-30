@@ -703,7 +703,7 @@ describe('Configurations page flow', () => {
   })
 
   describe('Step 5 Index Management', () => {
-    it('can add, edit, and remove Step 5 indexes', () => {
+    it.only('can add, edit, and remove Step 5 indexes', () => {
       // First create a configuration to work with
       cy.visit('/configurations')
       cy.get('[data-test="new-collection-btn"]').click()
@@ -725,7 +725,15 @@ describe('Configurations page flow', () => {
 
       // Test adding new index
       cy.get('[data-test="add-index-btn"]').click()
-      cy.get('[data-test="index-name-input"]').type('step5_index')
+      
+      // Verify dialog is open and shows default JSON structure
+      cy.get('[data-test="index-name-display"]').should('contain', 'New Index')
+      cy.get('[data-test="index-json-textarea"]').should('contain', '"name": ""')
+      cy.get('[data-test="index-json-textarea"]').should('contain', '"key": {}')
+      cy.get('[data-test="index-json-textarea"]').should('contain', '"options": {}')
+      
+      // Edit the JSON to set the name
+      cy.get('[data-test="index-json-textarea"]').clear().type('{"name": "step5_index", "key": {}, "options": {}}')
       cy.get('[data-test="save-index-btn"]').click()
 
       // Verify index was added - wait for the content to appear within the card
@@ -735,7 +743,13 @@ describe('Configurations page flow', () => {
 
       // Test editing index
       cy.get('[data-test="index-chip"]').first().click()
-      cy.get('[data-test="index-name-input"]').clear().type('edited_step5_index')
+      
+      // Verify dialog shows current index name and JSON
+      cy.get('[data-test="index-name-display"]').should('contain', 'step5_index')
+      cy.get('[data-test="index-json-textarea"]').should('contain', '"name": "step5_index"')
+      
+      // Edit the JSON to change the name
+      cy.get('[data-test="index-json-textarea"]').clear().type('{"name": "edited_step5_index", "key": {}, "options": {}}')
       cy.get('[data-test="save-index-btn"]').click()
 
       // Verify index was edited
