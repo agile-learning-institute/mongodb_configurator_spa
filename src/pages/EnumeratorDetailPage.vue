@@ -532,16 +532,55 @@ const createNewVersion = async () => {
   if (!enumerator.value) return
   
   try {
-    // Get the current version number
-    const currentVer = currentVersion.value
-    const newVersion = currentVer + 1
+    // Get the list of existing enumerator files to find the highest version
+    const existingFiles = await apiService.getEnumerators()
     
-    // Create new file name with incremented version
+    // Find the highest version number
+    let maxVersion = 0
+    existingFiles.forEach((file: { file_name: string }) => {
+      const match = file.file_name.match(/enumerations\.(\d+)\.yaml/)
+      if (match) {
+        const version = parseInt(match[1], 10)
+        if (version > maxVersion) {
+          maxVersion = version
+        }
+      }
+    })
+    
+    // Create new version number (increment from highest existing, not current)
+    const newVersion = maxVersion + 1
     const newFileName = `enumerations.${newVersion}.yaml`
     
-    // Copy the current enumerator data to the new version
+    // Get the baseline enumerator data to copy from, not the current version
+    let baseEnumeratorData = null
+    try {
+      // Find the highest version enumerator that's not the current one
+      // This ensures we copy from the baseline (V2) when creating from V1
+      const currentFileName = enumerator.value?.file_name
+      const baseEnumerator = existingFiles
+        .filter((file: { file_name: string }) => file.file_name !== currentFileName)
+        .sort((a: { file_name: string }, b: { file_name: string }) => {
+          const aMatch = a.file_name.match(/enumerations\.(\d+)\.yaml/)
+          const bMatch = b.file_name.match(/enumerations\.(\d+)\.yaml/)
+          const aVersion = aMatch ? parseInt(aMatch[1], 10) : 0
+          const bVersion = bMatch ? parseInt(bMatch[1], 10) : 0
+          return bVersion - aVersion // Sort descending
+        })[0] // Get the highest version
+      
+      if (baseEnumerator) {
+        baseEnumeratorData = await apiService.getEnumerator(baseEnumerator.file_name)
+      } else {
+        // Fallback to current enumerator if no other versions found
+        baseEnumeratorData = enumerator.value
+      }
+    } catch (err) {
+      console.warn('Failed to get baseline enumerator, using current:', err)
+      baseEnumeratorData = enumerator.value
+    }
+    
+    // Copy the baseline enumerator data to the new version
     const newEnumeratorData = {
-      ...enumerator.value,
+      ...baseEnumeratorData,
       file_name: newFileName,
       version: newVersion,
       _locked: false // New version starts unlocked

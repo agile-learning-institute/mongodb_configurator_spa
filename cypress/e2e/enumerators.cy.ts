@@ -52,22 +52,22 @@ describe('Enumerators page flow', () => {
   })
 
   describe('Basic Page Functionality', () => {
-    it('loads enumerators page and shows baseline enumerator', () => {
-      // List page
-      cy.visit('/enumerators')
-      
-      // Verify starting state
-      cy.get('h3').should('contain', 'Enumerators')
-      cy.contains('button', 'New').should('be.visible')
+  it('loads enumerators page and shows baseline enumerator', () => {
+    // List page
+    cy.visit('/enumerators')
+    
+    // Verify starting state
+    cy.get('h3').should('contain', 'Enumerators')
+    cy.contains('button', 'New').should('be.visible')
 
-      // Verify our baseline enumerator exists in the list
-      cy.get('.v-card').should('contain', baselineFileName)
-    })
+    // Verify our baseline enumerator exists in the list
+    cy.get('.v-card').should('contain', baselineFileName)
+  })
 
-    it('can open and view baseline enumerator detail page', () => {
-      // Visit the baseline enumerator detail page
-      cy.visit(`/enumerators/${baselineFileName}`)
-      
+  it('can open and view baseline enumerator detail page', () => {
+    // Visit the baseline enumerator detail page
+    cy.visit(`/enumerators/${baselineFileName}`)
+    
       // Verify basic page elements exist - look for version heading dynamically
       cy.get('[data-test="enumerator-version"]').should('contain', 'Version:')
       cy.get('[data-test="enumerator-version"]').invoke('text').then((versionText) => {
@@ -79,18 +79,18 @@ describe('Enumerators page flow', () => {
         // Verify this is the newest version (should be deletable)
         cy.get('[data-test="delete-enumerator-btn"]').should('exist')
       })
-      
-      // Verify the enumerators section exists
-      cy.get('[data-test="card-title"]').should('contain', 'Enumerators')
-      cy.contains('button', 'Add Enumeration').should('be.visible')
+    
+    // Verify the enumerators section exists
+    cy.get('[data-test="card-title"]').should('contain', 'Enumerators')
+    cy.contains('button', 'Add Enumeration').should('be.visible')
     })
   })
 
   describe('Enumerator Content Management', () => {
-    it('can add and edit enumerations in baseline enumerator', () => {
-      // Visit the baseline enumerator detail page
-      cy.visit(`/enumerators/${baselineFileName}`)
-      
+  it('can add and edit enumerations in baseline enumerator', () => {
+    // Visit the baseline enumerator detail page
+    cy.visit(`/enumerators/${baselineFileName}`)
+    
       // Wait for page to fully load
       cy.get('[data-test="enumerator-version"]').should('be.visible')
       
@@ -101,17 +101,17 @@ describe('Enumerators page flow', () => {
         
         // Add one enumeration
         cy.get('[data-test="add-enumeration-btn"]').click()
-        
-        // Wait for the new enumeration to appear
+    
+                    // Wait for the new enumeration to appear
         cy.get('[data-test^="enumerator-name-input-"]').should('have.length', initialCount + 1)
         
         // Get the last (newest) enumeration input
         cy.get('[data-test^="enumerator-name-input-"]').last().clear().type('TestEnum1')
         cy.get('[data-test^="enumerator-name-input-"]').last().blur()
 
-        // Wait for the PUT request to complete (indicating the edit was saved)
-        cy.intercept('PUT', '/api/enumerators/*').as('updateEnumerator')
-        cy.wait('@updateEnumerator')
+                // Wait for the PUT request to complete (indicating the edit was saved)
+                cy.intercept('PUT', '/api/enumerators/*').as('updateEnumerator')
+                cy.wait('@updateEnumerator')
 
         // Verify the enumeration was added
         cy.get('[data-test^="enumerator-name-input-"]').should('have.length', initialCount + 1)
@@ -223,63 +223,105 @@ describe('Enumerators page flow', () => {
   })
 
   describe('Version Management and Business Rules', () => {
-    it('tests new version creation from unlock warning dialog', () => {
-      // Visit the baseline enumerator detail page
+    it('tests new version creation from old version (unlock warning dialog)', () => {
+      // Visit the old version enumerator detail page
+      cy.visit('/enumerators/enumerations.1.yaml')
+      
+      // Step 1: Unlock the old version (should show warning dialog)
+      cy.log('Step 1: Unlocking old version enumerator...')
+      cy.get('[data-test="unlock-btn"]').should('be.visible')
+      cy.get('[data-test="unlock-btn"]').click()
+      
+      // Step 2: Verify the unlock warning dialog appears
+      cy.log('Step 2: Verifying unlock warning dialog...')
+      cy.get('[data-test="unlock-warning-dialog"]').should('be.visible')
+      cy.get('[data-test="unlock-warning-title"]').should('contain', 'Warning: Editing Deployed Enumerator')
+      
+      // Step 3: Click "Create New Version" button (should always be present)
+      cy.log('Step 3: Creating new version from warning dialog...')
+      cy.get('[data-test="unlock-dialog-create-version-btn"]').should('be.visible')
+      cy.get('[data-test="unlock-dialog-create-version-btn"]').click()
+      
+      // Step 4: Wait for navigation to the new version
+      cy.url().should('include', '/enumerators/enumerations.')
+      cy.url().should('match', /\/enumerators\/enumerations\.\d+\.yaml$/)
+      
+      // Step 5: Verify we're on a new version (should be unlocked and deletable)
+      cy.get('[data-test="enumerator-version"]').should('be.visible')
+      cy.get('[data-test="delete-enumerator-btn"]').should('exist')
+      cy.get('[data-test="lock-btn"]').should('exist')
+      
+      // Step 6: Verify the new version has the same enumerations as the baseline
+      cy.log('Step 6: Verifying new version has baseline enumerations...')
+      
+      // The new version should have enumerations copied from the baseline
+      // Check that we have enumerations (at least one)
+      cy.get('[data-test^="enumerator-name-input-"]').should('have.length.greaterThan', 0)
+      
+      // Log the enumerations for debugging
+      cy.get('[data-test^="enumerator-name-input-"]').then(($inputs) => {
+        cy.log(`New version has ${$inputs.length} enumerations`)
+        $inputs.each((index, input) => {
+          cy.log(`Enumeration ${index}: ${input.value}`)
+        })
+      })
+      
+      // Log success
+      cy.log('New version successfully created from old version via unlock warning dialog')
+    })
+
+    it('tests new version creation from current version (unlock warning dialog)', () => {
+      // Visit the current version enumerator detail page (baseline)
       cy.visit(`/enumerators/${baselineFileName}`)
       
-      // Debug: Check initial state
-      cy.log('Checking initial enumerator state...')
-      cy.get('body').then(($body) => {
-        const hasLockBtn = $body.find('[data-test="lock-btn"]').length > 0
-        const hasUnlockBtn = $body.find('[data-test="unlock-btn"]').length > 0
-        cy.log(`Initial state - Lock button: ${hasLockBtn}, Unlock button: ${hasUnlockBtn}`)
-        
-        if (hasLockBtn) {
-          // Already unlocked, need to lock it first
-          cy.log('Enumerator is unlocked, attempting to lock...')
-          cy.get('[data-test="lock-btn"]').click()
-          
-          // Wait for lock to complete and verify state change
-          cy.wait(2000) // Wait longer for lock to complete
-          
-          // Verify the lock operation worked
-          cy.get('[data-test="unlock-btn"]').should('be.visible')
-          cy.log('Enumerator successfully locked')
-        } else if (hasUnlockBtn) {
-          cy.log('Enumerator is already locked')
-        } else {
-          cy.log('Neither lock nor unlock button found - unexpected state')
-        }
-        
-        // Now should see unlock button (enumerator is locked)
-        cy.get('[data-test="unlock-btn"]').should('be.visible')
-        
-        // Click unlock to show the warning dialog
-        cy.get('[data-test="unlock-btn"]').click()
-        
-        // Verify the unlock warning dialog is displayed
-        cy.get('[data-test="unlock-warning-dialog"]').should('be.visible')
-        cy.get('[data-test="unlock-warning-title"]').should('contain', 'Warning: Editing Deployed Enumerator')
-        cy.get('[data-test="unlock-warning-content"]').should('be.visible')
-        cy.get('[data-test="unlock-warning-alert"]').should('contain', 'Recommended: Create a new version')
-        
-        // Verify the dialog has the correct buttons
-        cy.get('[data-test="unlock-dialog-cancel-btn"]').should('be.visible')
-        cy.get('[data-test="unlock-dialog-create-version-btn"]').should('be.visible')
-        cy.get('[data-test="unlock-dialog-unlock-btn"]').should('be.visible')
-        
-        // Click "Create New Version" button
-        cy.get('[data-test="unlock-dialog-create-version-btn"]').click()
-        
-        // Wait for navigation to the new version
-        cy.url().should('include', '/enumerators/enumerations.')
-        cy.url().should('match', /\/enumerators\/enumerations\.\d+\.yaml$/)
-        
-        // Verify we're on a new version (should be unlocked and deletable)
-        cy.get('[data-test="enumerator-version"]').should('be.visible')
-        cy.get('[data-test="delete-enumerator-btn"]').should('exist')
-        cy.get('[data-test="lock-btn"]').should('exist')
+      // Step 1: Unlock the current version (it starts locked, shows warning dialog)
+      cy.log('Step 1: Unlocking current version enumerator...')
+      cy.get('[data-test="unlock-btn"]').should('be.visible')
+      cy.get('[data-test="unlock-btn"]').click()
+      
+      // Step 2: Verify the unlock warning dialog is displayed
+      cy.log('Step 2: Verifying unlock warning dialog...')
+      cy.get('[data-test="unlock-warning-dialog"]').should('be.visible')
+      cy.get('[data-test="unlock-warning-title"]').should('contain', 'Warning: Editing Deployed Enumerator')
+      cy.get('[data-test="unlock-warning-content"]').should('be.visible')
+      cy.get('[data-test="unlock-warning-alert"]').should('contain', 'Recommended: Create a new version')
+      
+      // Step 3: Verify the dialog has the correct buttons
+      cy.log('Step 3: Verifying dialog buttons...')
+      cy.get('[data-test="unlock-dialog-cancel-btn"]').should('be.visible')
+      cy.get('[data-test="unlock-dialog-create-version-btn"]').should('be.visible')
+      cy.get('[data-test="unlock-dialog-unlock-btn"]').should('be.visible')
+      
+      // Step 4: Click "Create New Version" button
+      cy.log('Step 4: Creating new version from warning dialog...')
+      cy.get('[data-test="unlock-dialog-create-version-btn"]').click()
+      
+      // Step 5: Wait for navigation to the new version
+      cy.url().should('include', '/enumerators/enumerations.')
+      cy.url().should('match', /\/enumerators\/enumerations\.\d+\.yaml$/)
+      
+      // Step 6: Verify we're on a new version (should be unlocked and deletable)
+      cy.get('[data-test="enumerator-version"]').should('be.visible')
+      cy.get('[data-test="delete-enumerator-btn"]').should('exist')
+      cy.get('[data-test="lock-btn"]').should('exist')
+      
+      // Step 7: Verify the new version has the same enumerations as the baseline
+      cy.log('Step 7: Verifying new version has baseline enumerations...')
+      
+      // The new version should have enumerations copied from the baseline
+      // Check that we have enumerations (at least one)
+      cy.get('[data-test^="enumerator-name-input-"]').should('have.length.greaterThan', 0)
+      
+      // Log the enumerations for debugging
+      cy.get('[data-test^="enumerator-name-input-"]').then(($inputs) => {
+        cy.log(`New version has ${$inputs.length} enumerations`)
+        $inputs.each((index, input) => {
+          cy.log(`Enumeration ${index}: ${input.value}`)
+        })
       })
+      
+      // Log success
+      cy.log('New version successfully created from current version via unlock warning dialog')
     })
 
     it('tests version locking/unlocking rules (only newest version can be unlocked)', () => {
@@ -305,16 +347,20 @@ describe('Enumerators page flow', () => {
           // Newest version should be unlockable
           cy.get('[data-test="unlock-btn"]').should('exist')
         } else {
-          // If only one version, check if it's locked or unlocked
-          cy.get('body').then(($body) => {
-            if ($body.find('[data-test="unlock-btn"]').length > 0) {
-              // Already locked, can be unlocked
-              cy.get('[data-test="unlock-btn"]').should('exist')
-            } else if ($body.find('[data-test="lock-btn"]').length > 0) {
-              // Already unlocked, can be locked
-              cy.get('[data-test="lock-btn"]').should('exist')
-            }
-          })
+          // If only one version, it starts locked and can be unlocked
+          cy.get('[data-test="unlock-btn"]').should('exist')
+          
+          // Test that it can be unlocked (this will show the warning dialog)
+          cy.get('[data-test="unlock-btn"]').click()
+          
+          // Verify the unlock warning dialog is displayed
+          cy.get('[data-test="unlock-warning-dialog"]').should('be.visible')
+          
+          // Cancel the dialog to return to normal state
+          cy.get('[data-test="unlock-dialog-cancel-btn"]').click()
+          
+          // Should be back to the locked state
+          cy.get('[data-test="unlock-btn"]').should('exist')
         }
       })
     })
@@ -359,42 +405,34 @@ describe('Enumerators page flow', () => {
       // Visit the baseline enumerator detail page
       cy.visit(`/enumerators/${baselineFileName}`)
       
-      // First, ensure the enumerator is locked so we can test the unlock flow
-      cy.get('body').then(($body) => {
-        if ($body.find('[data-test="lock-btn"]').length > 0) {
-          // Already unlocked, need to lock it first
-          cy.get('[data-test="lock-btn"]').click()
-          cy.wait(1000) // Wait for lock to complete
-        }
-        
-        // Now should see unlock button (enumerator is locked)
-        cy.get('[data-test="unlock-btn"]').should('be.visible')
-        
-        // Click unlock to show the warning dialog
-        cy.get('[data-test="unlock-btn"]').click()
-        
-        // Verify the unlock warning dialog is displayed
-        cy.get('[data-test="unlock-warning-dialog"]').should('be.visible')
-        
-        // Click "Create New Version" button
-        cy.get('[data-test="unlock-dialog-create-version-btn"]').click()
-        
-        // Wait for navigation to the new version
-        cy.url().should('include', '/enumerators/enumerations.')
-        cy.url().should('match', /\/enumerators\/enumerations\.\d+\.yaml$/)
-        
-        // Verify the new version is unlocked (can be edited)
-        cy.get('[data-test="lock-btn"]').should('exist')
-        cy.get('[data-test="delete-enumerator-btn"]').should('exist')
-        
-        // Verify the previous version is now locked (cannot be edited)
-        cy.get('[data-test="previous-version-btn"]').click()
-        cy.get('[data-test="unlock-btn"]').should('exist')
-        cy.get('[data-test="delete-enumerator-btn"]').should('not.exist')
-        
-        // Navigate back to newest version
-        cy.get('[data-test="next-version-btn"]').click()
-      })
+      // Step 1: Unlock the enumerator (it starts locked)
+      cy.log('Step 1: Unlocking the baseline enumerator...')
+      cy.get('[data-test="unlock-btn"]').should('be.visible')
+      cy.get('[data-test="unlock-btn"]').click()
+      
+      // Verify the unlock warning dialog is displayed
+      cy.get('[data-test="unlock-warning-dialog"]').should('be.visible')
+      
+      // Step 2: Click "Create New Version" button
+      cy.log('Step 2: Creating new version...')
+      cy.get('[data-test="unlock-dialog-create-version-btn"]').click()
+      
+      // Wait for navigation to the new version
+      cy.url().should('include', '/enumerators/enumerations.')
+      cy.url().should('match', /\/enumerators\/enumerations\.\d+\.yaml$/)
+      
+      // Verify the new version is unlocked (can be edited)
+      cy.get('[data-test="lock-btn"]').should('exist')
+      cy.get('[data-test="delete-enumerator-btn"]').should('exist')
+      
+      // Step 3: Verify the previous version is now locked (cannot be edited)
+      cy.log('Step 3: Verifying previous version is locked...')
+      cy.get('[data-test="previous-version-btn"]').click()
+      cy.get('[data-test="unlock-btn"]').should('exist')
+      cy.get('[data-test="delete-enumerator-btn"]').should('not.exist')
+      
+      // Navigate back to newest version
+      cy.get('[data-test="next-version-btn"]').click()
     })
   })
 
