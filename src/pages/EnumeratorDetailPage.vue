@@ -247,47 +247,12 @@
       <v-card-actions>
         <v-spacer />
         <v-btn @click="cancelDelete" data-test="delete-dialog-cancel-btn">Cancel</v-btn>
-        <v-btn color="error" @click="showDeleteConfirmation" data-test="delete-dialog-delete-btn">Delete Enumerator</v-btn>
+        <v-btn color="error" @click="confirmDelete" data-test="delete-dialog-delete-btn">Delete Enumerator</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
 
-  <!-- Delete Confirmation Dialog -->
-  <v-dialog v-model="showDeleteConfirmationDialog" max-width="400" data-test="delete-confirmation-dialog">
-    <v-card>
-      <v-card-title class="text-h5" data-test="delete-confirmation-title">
-        Final Confirmation
-      </v-card-title>
-      <v-card-text data-test="delete-confirmation-content">
-        <p class="mb-3">
-          <strong>Are you absolutely sure you want to delete "{{ enumerator?.file_name }}"?</strong>
-        </p>
-        <p class="mb-4">
-          Type "DELETE" below to confirm:
-        </p>
-        <v-text-field
-          v-model="deleteConfirmationText"
-          placeholder="Type DELETE to confirm"
-          variant="outlined"
-          density="compact"
-          hide-details
-          data-test="delete-confirmation-input"
-        />
-      </v-card-text>
-      <v-card-actions>
-        <v-spacer />
-        <v-btn @click="cancelDeleteConfirmation" data-test="delete-confirmation-cancel-btn">Cancel</v-btn>
-        <v-btn 
-          color="error" 
-          @click="confirmDelete"
-          :disabled="deleteConfirmationText !== 'DELETE'"
-          data-test="delete-confirmation-confirm-btn"
-        >
-          Delete
-        </v-btn>
-      </v-card-actions>
-    </v-card>
-  </v-dialog>
+
 
   <!-- Unlock Warning Dialog -->
   <v-dialog v-model="showUnlockDialog" max-width="600" data-test="unlock-warning-dialog">
@@ -338,8 +303,6 @@ import { apiService } from '@/utils/api'
 import type { Enumerator, EnumeratorValue } from '@/types/types'
 
 const showDeleteDialog = ref(false)
-const showDeleteConfirmationDialog = ref(false)
-const deleteConfirmationText = ref('')
 const showUnlockDialog = ref(false)
 const enumeratorFiles = ref<any[]>([])
 const loadingFiles = ref(false)
@@ -506,19 +469,8 @@ const handleDelete = () => {
   showDeleteDialog.value = true
 }
 
-const showDeleteConfirmation = () => {
-  showDeleteDialog.value = false
-  showDeleteConfirmationDialog.value = true
-  deleteConfirmationText.value = ''
-}
-
 const cancelDelete = () => {
   showDeleteDialog.value = false
-}
-
-const cancelDeleteConfirmation = () => {
-  showDeleteConfirmationDialog.value = false
-  deleteConfirmationText.value = ''
 }
 
 const unlockEnumerator = async () => {
@@ -615,8 +567,7 @@ const confirmDelete = async () => {
   try {
     await apiService.deleteEnumerator(enumerator.value.file_name)
     // Close the dialog
-    showDeleteConfirmationDialog.value = false
-    deleteConfirmationText.value = ''
+    showDeleteDialog.value = false
     // Navigate back to enumerators list
     window.location.href = '/enumerators'
   } catch (err: any) {

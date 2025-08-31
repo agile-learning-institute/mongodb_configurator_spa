@@ -437,7 +437,7 @@ describe('Enumerators page flow', () => {
   })
 
   describe('Delete Functionality', () => {
-    it('tests delete warning and confirmation flow', () => {
+    it('tests delete warning flow', () => {
       // Visit the baseline enumerator detail page
       cy.visit(`/enumerators/${baselineFileName}`)
       
@@ -469,24 +469,8 @@ describe('Enumerators page flow', () => {
       cy.get('[data-test="delete-dialog-cancel-btn"]').should('be.visible')
       cy.get('[data-test="delete-dialog-delete-btn"]').should('be.visible')
       
-      // Click "Delete Enumerator" button
+      // Click "Delete Enumerator" button - this will now directly delete
       cy.get('[data-test="delete-dialog-delete-btn"]').click()
-      
-      // Verify the delete confirmation dialog is displayed
-      cy.get('[data-test="delete-confirmation-dialog"]').should('be.visible')
-      cy.get('[data-test="delete-confirmation-title"]').should('contain', 'Final Confirmation')
-      cy.get('[data-test="delete-confirmation-content"]').should('be.visible')
-      cy.get('[data-test="delete-confirmation-input"]').should('be.visible')
-      
-      // Verify the dialog has the correct buttons
-      cy.get('[data-test="delete-confirmation-cancel-btn"]').should('be.visible')
-      cy.get('[data-test="delete-confirmation-confirm-btn"]').should('be.visible')
-      
-      // Type "DELETE" to confirm
-      cy.get('[data-test="delete-confirmation-input"]').type('DELETE')
-      
-      // Click "Delete" button
-      cy.get('[data-test="delete-confirmation-confirm-btn"]').click()
       
       // Verify we're redirected to the enumerators list page
       cy.url().should('match', /\/enumerators\/?$/)
