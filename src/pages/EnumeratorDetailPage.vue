@@ -130,11 +130,12 @@
                 :data-test="`enumerator-name-input-${enumIdx}`"
                 style="width: 20%; max-width: 150px; font-size: 1.5rem; font-weight: 500; line-height: 1.2; border: none; outline: none;"
                 :ref="(el) => { if (el) enumNameInputRefs[enumIdx] = el as HTMLInputElement }"
+                @input="handleEnumNameChange(enumIdx, editableEnumNames[enumIdx])"
                 @blur="finishEnumNameEdit(enumIdx)"
                 @keyup.enter="finishEnumNameEdit(enumIdx)"
               />
               <v-spacer />
-              <v-chip size="small" color="primary" class="mr-2">
+              <v-chip size="small" color="primary" class="mr-2" :data-test="`enum-value-count-${enumIdx}`">
                 {{ enumItem.values.length }} values
               </v-chip>
               <v-btn
@@ -145,6 +146,7 @@
                 color="white"
                 @click="addEnumValue(enumIdx)"
                 class="mr-2"
+                :data-test="`add-enum-value-btn-${enumIdx}`"
               >
                 <span class="text-primary">Add Value</span>
               </v-btn>
@@ -155,6 +157,7 @@
                 color="error"
                 @click.stop="deleteEnumeration(enumIdx)"
                 class="mr-2"
+                :data-test="`delete-enumeration-btn-${enumIdx}`"
               >
                 <v-icon size="16">mdi-delete</v-icon>
               </v-btn>
@@ -164,6 +167,7 @@
                 size="small"
                 @click="toggleEnumeratorCollapse(enumIdx)"
                 :class="{ 'rotate-icon': !isEnumeratorCollapsed(enumIdx) }"
+                :data-test="`toggle-enumerator-btn-${enumIdx}`"
               >
                 <v-icon size="16">mdi-chevron-down</v-icon>
               </v-btn>
@@ -187,7 +191,9 @@
                     :readonly="enumerator._locked"
                     class="mr-2"
                     style="max-width: 180px;"
+                    :data-test="`enum-value-input-${enumIdx}-${valIdx}`"
                     :ref="(el) => { if (el && '$el' in el) valueInputRefs[`${enumIdx}-${valIdx}`] = (el as any).$el.querySelector('input') }"
+                    @input="handleEnumValueChange(enumIdx, valIdx, editableEnumValues[enumIdx][valIdx])"
                     @blur="finishEnumValueEdit(enumIdx, valIdx)"
                     @keyup.enter="finishEnumValueEdit(enumIdx, valIdx)"
                   />
@@ -200,6 +206,8 @@
                     class="mr-2"
                     style="min-width: 200px;"
                     placeholder="Description"
+                    :data-test="`enum-description-input-${enumIdx}-${valIdx}`"
+                    @input="handleEnumDescriptionChange(enumIdx, valIdx, editableEnumDescriptions[enumIdx][valIdx])"
                     @blur="finishEnumDescriptionEdit(enumIdx, valIdx)"
                     @keyup.enter="finishEnumDescriptionEdit(enumIdx, valIdx)"
                   />
@@ -210,6 +218,7 @@
                     variant="text"
                     color="error"
                     @click="deleteEnumValue(enumIdx, valIdx)"
+                    :data-test="`delete-enum-value-btn-${enumIdx}-${valIdx}`"
                   >
                     <v-icon size="16">mdi-delete</v-icon>
                   </v-btn>
@@ -299,8 +308,18 @@
 import { ref, watch, computed, onMounted, nextTick } from 'vue'
 import BaseCard from '@/components/BaseCard.vue'
 import { useEnumeratorDetail } from '@/composables/useEnumeratorDetail'
+import { useNewVersion } from '@/composables/useNewVersion'
 import { apiService } from '@/utils/api'
 import type { Enumerator, EnumeratorValue } from '@/types/types'
+
+// Debounce utility function
+function debounce<T extends (...args: any[]) => any>(func: T, wait: number): T {
+  let timeout: ReturnType<typeof setTimeout> | null = null
+  return ((...args: any[]) => {
+    if (timeout) clearTimeout(timeout)
+    timeout = setTimeout(() => func(...args), wait)
+  }) as T
+}
 
 const showDeleteDialog = ref(false)
 const showUnlockDialog = ref(false)
@@ -338,6 +357,9 @@ const {
   saveEnumerator,
 } = useEnumeratorDetail()
 
+// New version functionality
+const { createNewVersionAndNavigate } = useNewVersion()
+
 watch(enumerator, (val) => {
   initEditableStateFromEnumerator(val)
 }, { immediate: true })
@@ -346,6 +368,9 @@ const autoSaveLocal = async () => {
   if (!enumerator.value) return
   await saveEnumerator()
 }
+
+// Create debounced save function (300ms delay)
+const debouncedSave = debounce(autoSaveLocal, 300)
 
 
 
@@ -393,7 +418,7 @@ const handleEnumNameChange = (idx: number, newName: string) => {
   if (!newName || newName.trim() === '' || enumerator.value.enumerators.some((e, i) => i !== idx && e.name === newName)) return
   enumerator.value.enumerators[idx].name = newName
   editableEnumNames.value[idx] = newName
-  autoSaveLocal()
+  debouncedSave()
 }
 
 const finishEnumNameEdit = (idx: number) => {
@@ -443,14 +468,14 @@ const handleEnumValueChange = (enumIdx: number, valIdx: number, newValue: string
   if (!newValue || newValue.trim() === '' || enumerator.value.enumerators[enumIdx].values.some((v, i) => i !== valIdx && v.value === newValue)) return
   enumerator.value.enumerators[enumIdx].values[valIdx].value = newValue
   editableEnumValues.value[enumIdx][valIdx] = newValue
-  autoSaveLocal()
+  debouncedSave()
 }
 
 const handleEnumDescriptionChange = (enumIdx: number, valIdx: number, newDesc: string) => {
   if (!enumerator.value?.enumerators?.[enumIdx]) return
   enumerator.value.enumerators[enumIdx].values[valIdx].description = newDesc
   editableEnumDescriptions.value[enumIdx][valIdx] = newDesc
-  autoSaveLocal()
+  debouncedSave()
 }
 
 const finishEnumValueEdit = (enumIdx: number, valIdx: number) => {
@@ -483,73 +508,11 @@ const unlockEnumerator = async () => {
 const createNewVersion = async () => {
   if (!enumerator.value) return
   
-  try {
-    // Get the list of existing enumerator files to find the highest version
-    const existingFiles = await apiService.getEnumerators()
-    
-    // Find the highest version number
-    let maxVersion = 0
-    existingFiles.forEach((file: { file_name: string }) => {
-      const match = file.file_name.match(/enumerations\.(\d+)\.yaml/)
-      if (match) {
-        const version = parseInt(match[1], 10)
-        if (version > maxVersion) {
-          maxVersion = version
-        }
-      }
-    })
-    
-    // Create new version number (increment from highest existing, not current)
-    const newVersion = maxVersion + 1
-    const newFileName = `enumerations.${newVersion}.yaml`
-    
-    // Get the baseline enumerator data to copy from, not the current version
-    let baseEnumeratorData = null
-    try {
-      // Find the highest version enumerator that's not the current one
-      // This ensures we copy from the baseline (V2) when creating from V1
-      const currentFileName = enumerator.value?.file_name
-      const baseEnumerator = existingFiles
-        .filter((file: { file_name: string }) => file.file_name !== currentFileName)
-        .sort((a: { file_name: string }, b: { file_name: string }) => {
-          const aMatch = a.file_name.match(/enumerations\.(\d+)\.yaml/)
-          const bMatch = b.file_name.match(/enumerations\.(\d+)\.yaml/)
-          const aVersion = aMatch ? parseInt(aMatch[1], 10) : 0
-          const bVersion = bMatch ? parseInt(bMatch[1], 10) : 0
-          return bVersion - aVersion // Sort descending
-        })[0] // Get the highest version
-      
-      if (baseEnumerator) {
-        baseEnumeratorData = await apiService.getEnumerator(baseEnumerator.file_name)
-      } else {
-        // Fallback to current enumerator if no other versions found
-        baseEnumeratorData = enumerator.value
-      }
-    } catch (err) {
-      console.warn('Failed to get baseline enumerator, using current:', err)
-      baseEnumeratorData = enumerator.value
-    }
-    
-    // Copy the baseline enumerator data to the new version
-    const newEnumeratorData = {
-      ...baseEnumeratorData,
-      file_name: newFileName,
-      version: newVersion,
-      _locked: false // New version starts unlocked
-    }
-    
-    // Save the new version
-    await apiService.saveEnumerator(newFileName, newEnumeratorData)
-    
-    // Close the dialog
-    showUnlockDialog.value = false
-    
-    // Navigate to the new version
-    window.location.href = `/enumerators/${newFileName}`
-  } catch (err: any) {
-    error.value = err.message || 'Failed to create new version'
-    console.error('Failed to create new version:', err)
-  }
+  // Close the dialog first
+  showUnlockDialog.value = false
+  
+  // Use the unified new version logic
+  await createNewVersionAndNavigate()
 }
 
 // Check if unlock option should be shown (only for newest version)
