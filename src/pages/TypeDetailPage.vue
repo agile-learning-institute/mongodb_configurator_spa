@@ -17,7 +17,7 @@
     <div v-else-if="typeData">
       <!-- Page Header -->
       <header class="d-flex align-center justify-space-between mb-6">
-        <h2 class="text-h3 mb-0">{{ typeData.file_name.replace('.yaml', '') }}</h2>
+        <h2 class="text-h3 mb-0">Type {{ typeData.file_name.replace('.yaml', '') }}</h2>
         <div class="d-flex gap-2" v-if="!typeData._locked">
           <v-btn
             color="warning"
@@ -51,15 +51,21 @@
         </div>
       </header>
       
-      <!-- New PropertyEditor for root property -->
-      <PropertyEditor
+      <!-- Root Property Editor with Card Layout -->
+      <BaseCard
         v-if="typeData.root"
-        :property="typeData.root"
-        :is-root="true"
-        :is-type="true"
-        :disabled="typeData._locked"
-        @change="handleRootPropertyChange"
-      />
+        :title="typeData.root.name || 'Root Property'"
+        icon="mdi-shape"
+        data-test="root-property-card"
+      >
+        <PropertyEditor
+          :property="typeData.root"
+          :is-root="true"
+          :is-type="true"
+          :disabled="typeData._locked"
+          @change="handleRootPropertyChange"
+        />
+      </BaseCard>
     </div>
   </v-container>
 
@@ -139,6 +145,7 @@ import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { apiService } from '@/utils/api'
 import PropertyEditor from '@/components/PropertyEditor.vue'
+import BaseCard from '@/components/BaseCard.vue'
 import type { TypeProperty, TypeData } from '@/types/types'
 
 const route = useRoute()

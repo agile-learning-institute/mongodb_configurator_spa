@@ -186,4 +186,477 @@ describe('Types page flow', () => {
       cy.url().should('match', /\/types\/?$/)
     })
   })
+
+  describe('Types Detail Page - Root Property Editor', () => {
+    beforeEach(() => {
+      // Create a type for testing
+      cy.visit('/types')
+      cy.contains('button', 'New').click()
+      
+      const typeName = `TestType-${Date.now()}`
+      cy.get('.v-dialog input').type(typeName)
+      cy.get('.v-dialog').contains('button', 'Create').click()
+      cy.url().should('include', `/types/${typeName}.yaml`)
+      
+      createdTypeName = typeName
+    })
+
+    it('shows page title with "Type" prefix', () => {
+      // Verify the page title includes "Type" before the filename
+      cy.get('h2.text-h3').should('contain', 'Type')
+      cy.get('h2.text-h3').should('contain', createdTypeName)
+    })
+
+    it('shows root property editor with card layout', () => {
+      // Verify the root property card is visible
+      cy.get('[data-test="root-property-card"]').should('be.visible')
+      
+      // Verify the card has the correct title
+      cy.get('[data-test="root-property-card"] [data-test="card-title"]').should('contain', 'Root Property')
+    })
+
+    it('can change root property type to Simple and verify controls', () => {
+      // Click on the type chip to open the type picker
+      cy.get('[data-test="type-chip"]').click()
+      
+      // Select Simple type
+      cy.get('[data-test="built-in-type-simple"]').click()
+      
+      // Verify the type has changed
+      cy.get('[data-test="type-display-name"]').should('contain', 'Simple')
+      
+      // Verify the schema configuration section is visible
+      cy.get('[data-test="simple-property-body"]').should('be.visible')
+      cy.get('[data-test="schema-configuration-title"]').should('contain', 'Schema Configuration')
+      cy.get('[data-test="simple-property-schema-input"]').should('be.visible')
+      
+      // Enter a schema value
+      cy.get('[data-test="simple-property-schema-input"]').clear().type('{"type": "string", "minLength": 1}')
+      
+      // Reload the page to verify persistence
+      cy.reload()
+      
+      // Verify the type and schema are preserved
+      cy.get('[data-test="type-display-name"]').should('contain', 'Simple')
+      cy.get('[data-test="simple-property-schema-input"]').should('have.value', '{"type": "string", "minLength": 1}')
+    })
+
+    it('can change root property type to Complex and verify controls', () => {
+      // Click on the type chip to open the type picker
+      cy.get('[data-test="type-chip"]').click()
+      
+      // Select Complex type
+      cy.get('[data-test="built-in-type-complex"]').click()
+      
+      // Verify the type has changed
+      cy.get('[data-test="type-display-name"]').should('contain', 'Complex')
+      
+      // Verify the type configuration section is visible
+      cy.get('[data-test="complex-property-body"]').should('be.visible')
+      cy.get('[data-test="type-configuration-title"]').should('contain', 'Type Configuration')
+      cy.get('[data-test="complex-property-json-input"]').should('be.visible')
+      cy.get('[data-test="complex-property-bson-input"]').should('be.visible')
+      
+      // Enter JSON and BSON type values
+      cy.get('[data-test="complex-property-json-input"]').clear().type('{"type": "object", "properties": {}}')
+      cy.get('[data-test="complex-property-bson-input"]').clear().type('{"bsonType": "object", "properties": {}}')
+      
+      // Reload the page to verify persistence
+      cy.reload()
+      
+      // Verify the type and values are preserved
+      cy.get('[data-test="type-display-name"]').should('contain', 'Complex')
+      cy.get('[data-test="complex-property-json-input"]').should('have.value', '{"type": "object", "properties": {}}')
+      cy.get('[data-test="complex-property-bson-input"]').should('have.value', '{"bsonType": "object", "properties": {}}')
+    })
+
+    it('can change root property type to Object and verify controls', () => {
+      // Click on the type chip to open the type picker
+      cy.get('[data-test="type-chip"]').click()
+      
+      // Select Object type
+      cy.get('[data-test="built-in-type-object"]').click()
+      
+      // Verify the type has changed
+      cy.get('[data-test="type-display-name"]').should('contain', 'Object')
+      
+      // Verify the object property editor is visible
+      cy.get('[data-test="object-property-extension"]').should('be.visible')
+      cy.get('[data-test="object-property-body"]').should('be.visible')
+      
+      // Verify the "no properties" message is shown initially
+      cy.get('[data-test="no-object-properties-message"]').should('be.visible')
+      cy.get('[data-test="no-object-properties-text"]').should('contain', 'No properties defined')
+      
+      // Add a property
+      cy.get('[data-test="object-property-extension"]').within(() => {
+        cy.get('[data-test="add-property-btn"]').click()
+      })
+      
+      // Verify a new property was added
+      cy.get('[data-test="object-property-0"]').should('be.visible')
+      
+      // Reload the page to verify persistence
+      cy.reload()
+      
+      // Verify the type and property are preserved
+      cy.get('[data-test="type-display-name"]').should('contain', 'Object')
+      cy.get('[data-test="object-property-0"]').should('be.visible')
+    })
+
+    it('can change root property type to Array and verify controls', () => {
+      // Click on the type chip to open the type picker
+      cy.get('[data-test="type-chip"]').click()
+      
+      // Select Array type
+      cy.get('[data-test="built-in-type-array"]').click()
+      
+      // Verify the type has changed
+      cy.get('[data-test="type-display-name"]').should('contain', 'Array')
+      
+      // Verify the array property extension is visible
+      cy.get('[data-test="array-property-extension"]').should('be.visible')
+      cy.get('[data-test="items-type-picker"]').should('be.visible')
+      
+      // Click on the items type picker
+      cy.get('[data-test="items-type-picker"]').click()
+      
+      // Verify only object, array, and custom types are available for non-root properties
+      cy.get('[data-test="built-in-type-object"]').should('be.visible')
+      cy.get('[data-test="built-in-type-array"]').should('be.visible')
+      cy.get('[data-test="built-in-type-simple"]').should('not.exist')
+      cy.get('[data-test="built-in-type-complex"]').should('not.exist')
+      
+      // Select object as the items type
+      cy.get('[data-test="built-in-type-object"]').click()
+      
+      // Verify the array of object editor is visible
+      cy.get('[data-test="array-of-object-extension"]').should('be.visible')
+      cy.get('[data-test="array-of-object-body"]').should('be.visible')
+      
+      // Reload the page to verify persistence
+      cy.reload()
+      
+      // Verify the type and items type are preserved
+      cy.get('[data-test="type-display-name"]').should('contain', 'Array')
+      cy.get('[data-test="array-of-object-extension"]').should('be.visible')
+    })
+  })
+
+  describe('Types Detail Page - Object Property Editor', () => {
+    beforeEach(() => {
+      // Create a type with object root property
+      cy.visit('/types')
+      cy.contains('button', 'New').click()
+      
+      const typeName = `TestType-${Date.now()}`
+      cy.get('.v-dialog input').type(typeName)
+      cy.get('.v-dialog').contains('button', 'Create').click()
+      cy.url().should('include', `/types/${typeName}.yaml`)
+      
+      createdTypeName = typeName
+      
+      // Set root property to Object type
+      cy.get('[data-test="type-chip"]').click()
+      cy.get('[data-test="built-in-type-object"]').click()
+    })
+
+    it('can add properties to object', () => {
+      // Add a property
+      cy.get('[data-test="object-property-extension"]').within(() => {
+        cy.get('[data-test="add-property-btn"]').click()
+      })
+      
+      // Verify the property was added
+      cy.get('[data-test="object-property-0"]').should('be.visible')
+      
+      // Set the property name
+      cy.get('[data-test="object-property-0"] [data-test="property-name-input"]').clear().type('testProperty')
+      
+      // Set the property description
+      cy.get('[data-test="object-property-0"] [data-test="description-input"]').clear().type('Test property description')
+      
+      // Reload to verify persistence
+      cy.reload()
+      
+      // Verify the property is preserved
+      cy.get('[data-test="object-property-0"] [data-test="property-name-input"]').should('have.value', 'testProperty')
+      cy.get('[data-test="object-property-0"] [data-test="description-input"]').should('have.value', 'Test property description')
+    })
+
+    it('can edit property types in object', () => {
+      // Add a property first
+      cy.get('[data-test="object-property-extension"]').within(() => {
+        cy.get('[data-test="add-property-btn"]').click()
+      })
+      
+      // Change the property type to array
+      cy.get('[data-test="object-property-0"] [data-test="type-chip"]').click()
+      cy.get('[data-test="built-in-type-array"]').click()
+      
+      // Verify the array property extension is visible
+      cy.get('[data-test="object-property-0"] [data-test="array-property-extension"]').should('be.visible')
+      
+      // Reload to verify persistence
+      cy.reload()
+      
+      // Verify the property type is preserved
+      cy.get('[data-test="object-property-0"] [data-test="type-display-name"]').should('contain', 'Array')
+    })
+
+    it('can delete properties from object', () => {
+      // Add a property first
+      cy.get('[data-test="object-property-extension"]').within(() => {
+        cy.get('[data-test="add-property-btn"]').click()
+      })
+      
+      // Verify the property exists
+      cy.get('[data-test="object-property-0"]').should('be.visible')
+      
+      // Delete the property
+      cy.get('[data-test="object-property-0"] [data-test="delete-property-btn"]').click()
+      
+      // Verify the property is gone and "no properties" message is shown
+      cy.get('[data-test="object-property-0"]').should('not.exist')
+      cy.get('[data-test="no-object-properties-message"]').should('be.visible')
+    })
+  })
+
+  describe('Types Detail Page - Array Property Editor', () => {
+    beforeEach(() => {
+      // Create a type with array root property
+      cy.visit('/types')
+      cy.contains('button', 'New').click()
+      
+      const typeName = `TestType-${Date.now()}`
+      cy.get('.v-dialog input').type(typeName)
+      cy.get('.v-dialog').contains('button', 'Create').click()
+      cy.url().should('include', `/types/${typeName}.yaml`)
+      
+      createdTypeName = typeName
+      
+      // Set root property to Array type
+      cy.get('[data-test="type-chip"]').click()
+      cy.get('[data-test="built-in-type-array"]').click()
+    })
+
+    it('shows items type picker with correct options', () => {
+      // Verify the items type picker is visible
+      cy.get('[data-test="items-type-picker"]').should('be.visible')
+      
+      // Click on the items type picker
+      cy.get('[data-test="items-type-picker"]').click()
+      
+      // Verify only object, array, and custom types are available
+      cy.get('[data-test="built-in-type-object"]').should('be.visible')
+      cy.get('[data-test="built-in-type-array"]').should('be.visible')
+      cy.get('[data-test="built-in-type-simple"]').should('not.exist')
+      cy.get('[data-test="built-in-type-complex"]').should('not.exist')
+    })
+
+    it('can set items type to Object and manage properties', () => {
+      // Set items type to Object
+      cy.get('[data-test="items-type-picker"]').click()
+      cy.get('[data-test="built-in-type-object"]').click()
+      
+      // Verify the array of object editor is visible
+      cy.get('[data-test="array-of-object-extension"]').should('be.visible')
+      cy.get('[data-test="array-of-object-body"]').should('be.visible')
+      
+      // Add a property to the array items
+      cy.get('[data-test="array-of-object-extension"]').within(() => {
+        cy.get('[data-test="add-property-btn"]').click()
+      })
+      
+      // Verify the property was added
+      cy.get('[data-test="nested-property-0"]').should('be.visible')
+      
+      // Set the property name
+      cy.get('[data-test="nested-property-0"] [data-test="property-name-input"]').clear().type('itemProperty')
+      
+      // Reload to verify persistence
+      cy.reload()
+      
+      // Verify the items type and property are preserved
+      cy.get('[data-test="array-of-object-extension"]').should('be.visible')
+      cy.get('[data-test="nested-property-0"] [data-test="property-name-input"]').should('have.value', 'itemProperty')
+    })
+
+    it('can set items type to Array and create nested arrays', () => {
+      // Set items type to Array
+      cy.get('[data-test="items-type-picker"]').click()
+      cy.get('[data-test="built-in-type-array"]').click()
+      
+      // Verify the array of array editor is visible
+      cy.get('[data-test="array-of-array-extension"]').should('be.visible')
+      cy.get('[data-test="array-of-array-body"]').should('be.visible')
+      
+      // Verify the nested array property editor is visible
+      cy.get('[data-test="nested-array-property"]').should('be.visible')
+      
+      // Reload to verify persistence
+      cy.reload()
+      
+      // Verify the items type is preserved
+      cy.get('[data-test="array-of-array-extension"]').should('be.visible')
+    })
+  })
+
+  describe('Types Detail Page - Type Restrictions', () => {
+    beforeEach(() => {
+      // Create a type for testing
+      cy.visit('/types')
+      cy.contains('button', 'New').click()
+      
+      const typeName = `TestType-${Date.now()}`
+      cy.get('.v-dialog input').type(typeName)
+      cy.get('.v-dialog').contains('button', 'Create').click()
+      cy.url().should('include', `/types/${typeName}.yaml`)
+      
+      createdTypeName = typeName
+    })
+
+    it('shows all built-in types for root property', () => {
+      // Click on the root type chip
+      cy.get('[data-test="type-chip"]').click()
+      
+      // Verify all built-in types are available for root properties
+      cy.get('[data-test="built-in-type-simple"]').should('be.visible')
+      cy.get('[data-test="built-in-type-complex"]').should('be.visible')
+      cy.get('[data-test="built-in-type-object"]').should('be.visible')
+      cy.get('[data-test="built-in-type-array"]').should('be.visible')
+    })
+
+    it('shows only object, array, and custom types for non-root properties', () => {
+      // Set root property to Object type
+      cy.get('[data-test="type-chip"]').click()
+      cy.get('[data-test="built-in-type-object"]').click()
+      
+      // Add a property
+      cy.get('[data-test="object-property-extension"]').within(() => {
+        cy.get('[data-test="add-property-btn"]').click()
+      })
+      
+      // Click on the non-root property type chip
+      cy.get('[data-test="object-property-0"] [data-test="type-chip"]').click()
+      
+      // Verify only object, array, and custom types are available
+      cy.get('[data-test="built-in-type-object"]').should('be.visible')
+      cy.get('[data-test="built-in-type-array"]').should('be.visible')
+      cy.get('[data-test="built-in-type-simple"]').should('not.exist')
+      cy.get('[data-test="built-in-type-complex"]').should('not.exist')
+    })
+  })
+
+  describe('Types Detail Page - Custom Type Integration', () => {
+    let customTypeName: string
+
+    before(() => {
+      // Create a custom type for testing
+      cy.visit('/types')
+      cy.contains('button', 'New').click()
+      
+      customTypeName = `CustomType-${Date.now()}`
+      cy.get('.v-dialog input').type(customTypeName)
+      cy.get('.v-dialog').contains('button', 'Create').click()
+      cy.url().should('include', `/types/${customTypeName}.yaml`)
+      
+      // Set the custom type to Simple with a schema
+      cy.get('[data-test="type-chip"]').click()
+      cy.get('[data-test="built-in-type-simple"]').click()
+      cy.get('[data-test="simple-property-schema-input"]').clear().type('{"type": "string", "pattern": "^[A-Z]+$"}')
+      
+      // Lock the custom type so it can be used
+      cy.contains('button', 'Lock').click()
+    })
+
+    after(() => {
+      // Clean up the custom type
+      if (customTypeName) {
+        cy.request({
+          method: 'DELETE',
+          url: `/api/types/${customTypeName}.yaml/`,
+          failOnStatusCode: false
+        })
+      }
+    })
+
+    it('can use custom types in non-root properties', () => {
+      // Create a new type to test custom type integration
+      cy.visit('/types')
+      cy.contains('button', 'New').click()
+      
+      const typeName = `TestType-${Date.now()}`
+      cy.get('.v-dialog input').type(typeName)
+      cy.get('.v-dialog').contains('button', 'Create').click()
+      cy.url().should('include', `/types/${typeName}.yaml`)
+      
+      createdTypeName = typeName
+      
+      // Set root property to Object type
+      cy.get('[data-test="type-chip"]').click()
+      cy.get('[data-test="built-in-type-object"]').click()
+      
+      // Add a property
+      cy.get('[data-test="object-property-extension"]').within(() => {
+        cy.get('[data-test="add-property-btn"]').click()
+      })
+      
+      // Click on the non-root property type chip
+      cy.get('[data-test="object-property-0"] [data-test="type-chip"]').click()
+      
+      // Verify the custom type is available in the picker
+      cy.get('[data-test="custom-types-category"]').should('be.visible')
+      cy.get(`[data-test="custom-type-${customTypeName}.yaml"]`).should('be.visible')
+      cy.get(`[data-test="custom-type-name-${customTypeName}.yaml"]`).should('contain', customTypeName)
+      
+      // Select the custom type
+      cy.get(`[data-test="custom-type-${customTypeName}.yaml"]`).click()
+      
+      // Verify the custom type is selected
+      cy.get('[data-test="type-display-name"]').should('contain', customTypeName)
+      
+      // Reload to verify persistence
+      cy.reload()
+      
+      // Verify the custom type is preserved
+      cy.get('[data-test="object-property-0"] [data-test="type-display-name"]').should('contain', customTypeName)
+    })
+
+    it('can use custom types in array items', () => {
+      // Create a new type to test custom type in arrays
+      cy.visit('/types')
+      cy.contains('button', 'New').click()
+      
+      const typeName = `TestType-${Date.now()}`
+      cy.get('.v-dialog input').type(typeName)
+      cy.get('.v-dialog').contains('button', 'Create').click()
+      cy.url().should('include', `/types/${typeName}.yaml`)
+      
+      createdTypeName = typeName
+      
+      // Set root property to Array type
+      cy.get('[data-test="type-chip"]').click()
+      cy.get('[data-test="built-in-type-array"]').click()
+      
+      // Click on the items type picker
+      cy.get('[data-test="items-type-picker"]').click()
+      
+      // Verify the custom type is available in the items type picker
+      cy.get('[data-test="custom-types-category"]').should('be.visible')
+      cy.get(`[data-test="custom-type-${customTypeName}.yaml"]`).should('be.visible')
+      
+      // Select the custom type as the items type
+      cy.get(`[data-test="custom-type-${customTypeName}.yaml"]`).click()
+      
+      // Verify the custom type is selected as items type
+      cy.get('[data-test="items-type-picker"] [data-test="type-display-name"]').should('contain', customTypeName)
+      
+      // Reload to verify persistence
+      cy.reload()
+      
+      // Verify the custom type is preserved as items type
+      cy.get('[data-test="items-type-picker"] [data-test="type-display-name"]').should('contain', customTypeName)
+    })
+  })
 })
