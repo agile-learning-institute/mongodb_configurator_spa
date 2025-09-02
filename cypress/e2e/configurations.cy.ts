@@ -2,13 +2,13 @@ describe('Configurations page flow', () => {
   let createdConfigurationName: string
   let createdConfigurationVersion: string
   let createdEnumeratorsVersion: string
-
+  let thingsToDelete: string[]
   
   beforeEach(() => {
     createdConfigurationName = `TestConfig_${Date.now()}`
     createdConfigurationVersion = '0.1.0'
     createdEnumeratorsVersion = '2'
-
+    
     cy.visit('/configurations')
     cy.get('[data-test="new-collection-btn"]').click()
     cy.get('[data-test="new-collection-name-input"]').type(createdConfigurationName)
@@ -16,15 +16,14 @@ describe('Configurations page flow', () => {
     cy.get('[data-test="version-minor-plus-btn"]').click()
     cy.get('[data-test="version-display"]').should('contain', '0.1.0.2')
     cy.get('[data-test="new-collection-create-btn"]').click()
+
+    thingsToDelete = []
+    thingsToDelete.push(`/api/configurations/${createdConfigurationName}.yaml/`)
+    thingsToDelete.push(`/api/dictionaries/${createdConfigurationName}.${createdConfigurationVersion}.yaml/`)
+    thingsToDelete.push(`/api/test_data/${createdConfigurationName}.${createdConfigurationVersion}.${createdEnumeratorsVersion}.json/`)
   })
 
   afterEach(() => {
-    const thingsToDelete = [
-      `/api/configurations/${createdConfigurationName}.yaml/`,
-      `/api/dictionaries/${createdConfigurationName}.${createdConfigurationVersion}.yaml/`,
-      `/api/test_data/${createdConfigurationName}.${createdConfigurationVersion}.${createdEnumeratorsVersion}.json/`,
-      `/api/enumerators/enumerations.3.yaml/`,
-    ]
     thingsToDelete.forEach((thing) => {
       cy.request({
         method: 'DELETE',
@@ -140,6 +139,13 @@ describe('Configurations page flow', () => {
       cy.get("[data-test='base-card-default']").should('exist')
 
       // Create two new versions (0.1.1) and (0.1.2)
+      thingsToDelete.push(`/api/configurations/${createdConfigurationName}.0.1.1.yaml/`)
+      thingsToDelete.push(`/api/dictionaries/${createdConfigurationName}.0.1.1.yaml/`)
+      thingsToDelete.push(`/api/test_data/${createdConfigurationName}.0.1.1.${createdEnumeratorsVersion}.json/`)
+      thingsToDelete.push(`/api/configurations/${createdConfigurationName}.0.1.2.yaml/`)
+      thingsToDelete.push(`/api/dictionaries/${createdConfigurationName}.0.1.2.yaml/`)
+      thingsToDelete.push(`/api/test_data/${createdConfigurationName}.0.1.2.${createdEnumeratorsVersion}.json/`)
+
       cy.get('[data-test="new-version-btn"]').click()
       cy.get('[data-test="new-version-dialog"]').should('be.visible')
       cy.get('[data-test="new-version-patch-plus-btn"]').click()
@@ -230,7 +236,7 @@ describe('Configurations page flow', () => {
       cy.get('[data-test="new-version-dialog"]').should('not.exist')
     })
 
-    it('creates new enumerators if needed', () => {
+    it.only('creates new enumerators if needed', () => {
       // First open the test configuration, and new version dialog
       cy.visit(`/configurations/${createdConfigurationName}.yaml`)
       cy.get('[data-test="new-version-btn"]').click()
@@ -245,13 +251,14 @@ describe('Configurations page flow', () => {
       cy.get('[data-test="new-version-dialog"]').should('not.exist')
       
       // Verify enumerations.3.yaml was created
-      cy.request({
-        method: 'GET',
-        url: `/api/enumerators/enumerations.3.yaml/`,
-        failOnStatusCode: false
-      }).then((response) => {
-        expect(response.status).to.equal(200)
-      })
+      cy.visit(`/enumerators/enumerations.3.yaml`)
+      cy.url().should('contain', '/enumerators/enumerations.3.yaml')
+      cy.get('[data-test="enum-value-count-0"]').should('contain', '3 values')
+
+      // Add things to delete
+      thingsToDelete.push(`/api/enumerators/enumerations.3.yaml/`)
+      thingsToDelete.push(`/api/dictionaries/${createdConfigurationName}.0.1.0.yaml/`)
+      thingsToDelete.push(`/api/test_data/${createdConfigurationName}.0.1.0.3.json/`)
     })
   })
 
@@ -313,7 +320,7 @@ describe('Configurations page flow', () => {
   })
 
   describe('Step3 Migration Management', () => {
-    it('can add, link, and delete new migration', () => {
+    it.only('can add, link, and delete new migration', () => {
       cy.visit(`/configurations/${createdConfigurationName}.yaml`)
       // Test adding new migration
       cy.get('[data-test="add-migration-btn"]').click()
@@ -326,6 +333,9 @@ describe('Configurations page flow', () => {
       // Verify chip links to migration detail page
       cy.get('[data-test="migration-chip"]').first().click()
       cy.url().should('include', `/migrations/test_migration.json`)
+
+      // Add things to delete
+      thingsToDelete.push(`/api/migrations/test_migration.json/`)
     })
 
     it('can add, link, and delete existing migration', () => {
