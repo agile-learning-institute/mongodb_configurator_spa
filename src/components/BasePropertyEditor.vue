@@ -1,7 +1,8 @@
 <template>
   <div class="base-property-editor" :data-test="`base-property-editor-${property.name || 'root'}`">
     <!-- Property Header with Name, Description, Type, Extension Slot, Required, and Delete -->
-    <div class="property-header d-flex align-center" data-test="property-header">
+    <!-- Only show header for non-root properties -->
+    <div v-if="!isRoot" class="property-header d-flex align-center" data-test="property-header">
       <div class="property-name-section" v-if="!isRoot" :id="`property-name-${property.name || 'root'}`" data-test="property-name-section">
         <v-text-field
           v-model="editableName"
