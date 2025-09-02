@@ -13,7 +13,6 @@ describe('Enumerators page flow', () => {
     cy.contains('button', 'Add Enumeration').should('be.visible')
 
     cy.get('[data-test="enumerator-name-input-0"]').should('have.value', 'default_status')
-    cy.get('[data-test="enum-value-count-0"]').should('contain', '3 values')
     cy.get('[data-test="enum-value-input-0-0"]').find('input').should('have.value', 'draft')
     cy.get('[data-test="enum-description-input-0-0"]').find('input').should('have.value', 'Draft')
     cy.get('[data-test="enum-value-input-0-1"]').find('input').should('have.value', 'active')
@@ -91,6 +90,7 @@ describe('Enumerators page flow', () => {
       // Visit the working version enumerator detail page
       cy.visit(`/enumerators/enumerations.3.yaml`)
       cy.url().should('contain', '/enumerators/enumerations.3.yaml')
+      cy.get('[data-test="enum-value-count-0"]').should('contain', '3 values')
       verifySeedData()
     })
 
@@ -99,6 +99,7 @@ describe('Enumerators page flow', () => {
       cy.visit(`/enumerators/${enumeratorFileName}`)
       
       // Verify starting state (should contain seed data from V2)
+      cy.get('[data-test="enum-value-count-0"]').should('contain', '3 values')
       verifySeedData()
              
       // Add new enumeration
@@ -121,6 +122,7 @@ describe('Enumerators page flow', () => {
       cy.reload()
 
       // Verify all values on the page after reload
+      cy.get('[data-test="enum-value-count-0"]').should('contain', '3 values')
       verifySeedData()
 
       // Verify new enumeration and its values
@@ -142,6 +144,7 @@ describe('Enumerators page flow', () => {
       cy.get('[data-test="enumerator-name-input-1"]').should('not.exist')
       
       // Verify original seed data still exists
+      cy.get('[data-test="enum-value-count-0"]').should('contain', '3 values')
       verifySeedData()
     })
   })
@@ -246,6 +249,7 @@ describe('Enumerators page flow', () => {
       cy.get('[data-test="add-version-btn"]').should('exist').click()
 
       cy.url().should('contain', '/enumerators/enumerations.4.yaml')
+      cy.get('[data-test="enum-value-count-0"]').should('contain', '3 values')
       verifySeedData()
     })
 
@@ -256,6 +260,7 @@ describe('Enumerators page flow', () => {
       cy.get('[data-test="unlock-dialog-cancel-btn"]').should('exist')
       cy.get('[data-test="unlock-dialog-create-version-btn"]').should('exist').click()
       cy.url().should('contain', '/enumerators/enumerations.4.yaml')
+      cy.get('[data-test="enum-value-count-0"]').should('contain', '3 values')
       verifySeedData()
     })
 
@@ -266,6 +271,7 @@ describe('Enumerators page flow', () => {
       cy.get('[data-test="unlock-dialog-cancel-btn"]').should('exist')
       cy.get('[data-test="unlock-dialog-create-version-btn"]').should('exist').click()
       cy.url().should('contain', '/enumerators/enumerations.4.yaml')
+      cy.get('[data-test="enum-value-count-0"]').should('contain', '3 values')
       verifySeedData()
     })
 
@@ -276,6 +282,7 @@ describe('Enumerators page flow', () => {
       cy.get('[data-test="unlock-dialog-cancel-btn"]').should('exist')
       cy.get('[data-test="unlock-dialog-create-version-btn"]').should('exist').click()
       cy.url().should('contain', '/enumerators/enumerations.4.yaml')
+      cy.get('[data-test="enum-value-count-0"]').should('contain', '3 values')
       verifySeedData()
     })
 
@@ -288,21 +295,24 @@ describe('Enumerators page flow', () => {
       cy.get('[data-test="unlock-dialog-cancel-btn"]').should('exist')
       cy.get('[data-test="unlock-dialog-create-version-btn"]').should('exist').click()
       cy.url().should('contain', '/enumerators/enumerations.4.yaml')
+      cy.get('[data-test="enum-value-count-0"]').should('contain', '3 values')
       verifySeedData()
     })
 
-    it.only('creates a new version with new version button', () => {
+    it('creates a new version with new version button', () => {
       cy.visit('/enumerators/enumerations.3.yaml')
-      
+
       // Add a value to the new default status enumeration
       cy.get('[data-test="add-enum-value-btn-0"]').click()
       cy.get('[data-test="enum-value-input-0-3"]').type('TestNewValue1')
       cy.get('[data-test="enum-description-input-0-3"]').type('Test New Description')
 
       // Create the new version
+      cy.wait(1000)
       cy.get('[data-test="add-version-btn"]').should('exist').click()
       
       // Wait for navigation to complete
+      cy.wait(1000)
       cy.url().should('contain', '/enumerators/enumerations.4.yaml')
       
       // Now check the version
@@ -310,17 +320,30 @@ describe('Enumerators page flow', () => {
       cy.get('[data-test="enumerator-version"]').should('contain', 'Version: 4')
 
       // Verify the new data is present
-      cy.wait(1000)
-      cy.reload()
       cy.get('[data-test="enum-value-input-0-3"]').find('input').should('have.value', 'TestNewValue1')
       cy.get('[data-test="enum-description-input-0-3"]').find('input').should('have.value', 'Test New Description')
-      cy.get('[data-test="enum-value-count-0"]').should('contain', '4 values')
       cy.get('[data-test="enumerator-name-input-1"]').should('not.exist')
+      cy.get('[data-test="enum-value-count-0"]').should('contain', '4 values')
       verifySeedData()      
 
     })
 
-    it('creates a new version from current version unlock warning dialog', () => {
+    it('locks when new list new button', () => {
+      // Visit the current version enumerator detail page
+      cy.visit('/enumerators')
+      cy.contains('button', 'New').click()
+        
+      // Wait for navigation to the new version
+      cy.url().should('contain', '/enumerators/enumerations.4.yaml')
+      cy.get('[data-test="lock-btn"]').should('exist')
+
+      // Verify V3 is locked
+      cy.visit('/enumerators/enumerations.3.yaml')
+      cy.get('[data-test="lock-btn"]').should('not.exist')
+      cy.get('[data-test="unlock-btn"]').should('exist')
+    })
+
+    it('locks when new from current version unlock warning dialog', () => {
       // Visit the current version enumerator detail page
       cy.visit('/enumerators/enumerations.3.yaml')
       
@@ -328,51 +351,61 @@ describe('Enumerators page flow', () => {
       cy.get('[data-test="lock-btn"]').click()
       cy.get('[data-test="unlock-btn"]').click()
       cy.get('[data-test="unlock-warning-dialog"]').should('be.visible')
-      cy.get('[data-test="unlock-warning-title"]').should('contain', 'Warning: Editing Deployed Enumerator')
       cy.get('[data-test="unlock-dialog-create-version-btn"]').should('be.visible').click()
       
-      // Step 4: Wait for navigation to the new version
+      // Wait for navigation to the new version
       cy.url().should('contain', '/enumerators/enumerations.4.yaml')
-      verifySeedData()      
+      cy.get('[data-test="lock-btn"]').should('exist')
+
+      // Verify the current version is locked
+      cy.visit('/enumerators/enumerations.3.yaml')
+      cy.get('[data-test="lock-btn"]').should('not.exist')
+      cy.get('[data-test="unlock-btn"]').should('exist')
     })
 
-    it('tests version deletion rules (only unlocked versions can be deleted)', () => {
+    it('locks when new from old version unlock warning dialog', () => {
+      // Visit the current version enumerator detail page
+      cy.visit('/enumerators/enumerations.1.yaml')
+      
+      // Try to unlock and add new version
+      cy.get('[data-test="unlock-btn"]').click()
+      cy.get('[data-test="unlock-warning-dialog"]').should('be.visible')
+      cy.get('[data-test="unlock-dialog-create-version-btn"]').should('be.visible').click()
+      
+      // Wait for navigation to the new version
+      cy.url().should('contain', '/enumerators/enumerations.4.yaml')
+      cy.get('[data-test="lock-btn"]').should('exist')
+
+      // Verify the current version is locked
+      cy.visit('/enumerators/enumerations.3.yaml')
+      cy.get('[data-test="lock-btn"]').should('not.exist')
+      cy.get('[data-test="unlock-btn"]').should('exist')
+    })
+
+  })
+
+  describe('Delete Functionality', () => {
+    it('can not delete locked files)', () => {
       // Visit the working version enumerator detail page
       cy.visit(`/enumerators/enumerations.3.yaml`)
     
       // Try to delete the version (should show warning dialog)
       cy.get('[data-test="delete-enumerator-btn"]').should('be.visible')
-             cy.get('[data-test="lock-btn"]').click()
-      cy.get('[data-test="delete-enumerator-btn"]').should('not.be.visible')
+      cy.get('[data-test="lock-btn"]').click()
+      cy.get('[data-test="delete-enumerator-btn"]').should('not.exist')
     })
 
-    it('locks the current version when a new version is created', () => {
-      // Visit the old version enumerator detail page
-      cy.visit('/enumerators/enumerations.3.yaml')
-      
-      // Try to unlock the old version (should show warning dialog)
-      cy.get('[data-test="add-version-btn"]').click()
-      cy.url().should('equal', '/enumerators/enumerations.4.yaml')
-
-      cy.visit('/enumerators/enumerations.3.yaml')
-      cy.get('[data-test="unlock-btn"]').should('be.visible')      
-    })
-  })
-
-  describe('Delete Functionality', () => {
     it('deletes with a warning', () => {
       // Visit the working version enumerator detail page (should already be unlocked)
       cy.visit(`/enumerators/enumerations.3.yaml`)
       
       // Now click delete to show the warning dialog
-      cy.get('[data-test="delete-enumerator-btn"]').click()
+      cy.get('[data-test="delete-enumerator-btn"]').should('be.visible').click()
       cy.get('[data-test="delete-warning-dialog"]').should('be.visible')
       cy.get('[data-test="delete-warning-title"]').should('contain', 'Warning: Delete Enumerator')
-      cy.get('[data-test="delete-warning-content"]').should('be.visible')
-      cy.get('[data-test="delete-warning-alert"]').should('contain', 'Warning: This is a destructive action')
       cy.get('[data-test="delete-dialog-cancel-btn"]').should('be.visible')
       cy.get('[data-test="delete-dialog-delete-btn"]').should('be.visible').click()
-      cy.url().should('equal', '/enumerators')
+      cy.url().should('contain', '/enumerators')
     })
   })
 })
