@@ -42,24 +42,12 @@ describe('Types page flow', () => {
       // Verify page title is "Type: <file-name>"
       cy.get('h2.text-h3').should('contain', 'Type:')
       cy.get('h2.text-h3').should('contain', name)
-      
-      // Verify lock button is visible and enabled
       cy.get('[data-test="lock-type-btn"]').should('be.visible').and('be.enabled')
-      
-      // Verify delete button is visible and enabled
       cy.get('[data-test="delete-type-btn"]').should('be.visible').and('be.enabled')
-      
-      // Verify unlock button does not exist
       cy.get('[data-test="unlock-type-btn"]').should('not.exist')
-
-      // Verify description display is visible and contains "Click to add description"
       cy.get('[data-test="root-description-placeholder"]').should('be.visible').and('contain', 'Click to add description')
-      
-      // Verify type chip picker is visible and contains "void"
       cy.get('[data-test="root-type-chip-picker"] [data-test="type-chip"]').should('be.visible').and('contain', 'void')
-      
-      // Verify that card body is empty (no property editor content)
-      cy.get('[data-test="root-property-card"] .v-card-text').should('be.empty')
+      cy.get('[data-test="root-property-card"] [data-test="card-content"]').should('not.exist')
     })
 
     it('can lock/unlock a type', () => {
