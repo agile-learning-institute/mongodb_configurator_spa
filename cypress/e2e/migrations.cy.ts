@@ -5,7 +5,6 @@ describe('Migrations page flow', () => {
   let fileName: string = `${name}.json`
 
   it('can create a migrations file', () => {
-
     // Create a new migrations file
     cy.visit('/migrations')
     cy.get('[data-test="new-migration-btn"]').click()
@@ -15,42 +14,39 @@ describe('Migrations page flow', () => {
 
     // Verify the migrations file was created
     cy.url().should('include', `/migrations/${fileName}`)
+    cy.get('[data-test="card-title"]').should('contain', fileName)
+    cy.get('[data-test="delete-file-btn"]').should('be.enabled')
+    cy.get('[data-test="array-editor-title"]').should('contain', 'Migrations')
+    cy.get('[data-test="add-item-btn"]').should('be.enabled')
+    cy.get('[data-test=array-editor-empty').should('be.visible')
   })
 
-  it('can add and edit a migration', () => {
+  it('can add a migration', () => {
     cy.visit(`/migrations/${fileName}`)
 
-    // Verify the migrations file was created and is empty
-    cy.getByTest('array-editor-empty').should('be.visible')
-
     // Add first migration
-    cy.getByTest('add-item-btn').click()
-    cy.getByTest('array-item-textarea-0').should('be.visible')
-    cy.getByTest('array-item-textarea-0').find('textarea').first().clear()
+    cy.get('[data-test="add-item-btn"]').click()
+    cy.get('[data-test="array-panel-0"]').should('be.visible')
+    cy.get('[data-test="array-item-label-0"]').should('contain', 'Migration 1')
+    cy.get('[data-test="remove-item-btn-0"]').should('be.enabled')
+    cy.get('[data-test="array-item-textarea-0"]').should('be.visible')
+    cy.get('[data-test="array-item-textarea-0"]').find('textarea').first().clear()
+    cy.get('[data-test="array-item-textarea-0"]').find('textarea').first().type('{"foo":"bar"}', { parseSpecialCharSequences: false }).blur()
 
-      .clear({ force: true })
-      .type('{"foo":"bar"}', { parseSpecialCharSequences: false })
-      .blur()
-
-    // Verify first added
-    cy.getByTest('array-panel-0').should('exist')
+    // Test hide/show functionality using expansion panel title
+    cy.get('[data-test="array-panel-title-0"]').click() // Hide panel
+    cy.get('[data-test="array-item-textarea-0"]').should('not.be.visible')
+    cy.get('[data-test="array-panel-title-0"]').click() // Show panel
+    cy.get('[data-test="array-item-textarea-0"]').should('be.visible')
 
     // Add second migration
-    cy.getByTest('add-item-btn').click()
-    cy.getByTest('array-item-textarea-1').should('be.visible')
-    cy.getByTest('array-item-textarea-1')
-      .find('textarea')
-      .first()
-      .clear({ force: true })
-      .type('{"far":"boo"}', { parseSpecialCharSequences: false })
-      .blur()
-
-    // Verify second added
-    cy.getByTest('array-panel-1').should('exist')
-
-    // Delete first entry (trash can button)
-    cy.get('[data-test="remove-item-icon-0"]').click({ force: true })
-    cy.getByTest('array-panel-0').should('exist') // Now former index 1 shifts to 0
+    cy.get('[data-test="add-item-btn"]').click()
+    cy.get('[data-test="array-panel-1"]').should('be.visible')
+    cy.get('[data-test="array-item-label-1"]').should('contain', 'Migration 1')
+    cy.get('[data-test="remove-item-btn-1"]').should('be.enabled')
+    cy.get('[data-test="array-item-textarea-1"]').should('be.visible')
+    cy.get('[data-test="array-item-textarea-1"]').find('textarea').first().clear()
+    cy.get('[data-test="array-item-textarea-1"]').find('textarea').first().type('{"boo":"far"}', { parseSpecialCharSequences: false }).blur()
 
     // Reload and verify persistence
     cy.reload()

@@ -31,7 +31,7 @@
           class="mb-2"
           :data-test="`array-panel-${index}`"
         >
-          <v-expansion-panel-title data-test="array-panel-title">
+          <v-expansion-panel-title :data-test="`array-panel-title-${index}`">
             <div class="d-flex justify-space-between align-center w-100">
               <div class="d-flex align-center">
                 <span class="text-caption text-medium-emphasis mr-2" data-test="array-item-label">
