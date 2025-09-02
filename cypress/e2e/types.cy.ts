@@ -40,38 +40,95 @@ describe('Types page flow', () => {
   describe('Types Detail Page - Basic', () => {
     it('loads types detail page and shows basic elements', () => {
       // Verify page title is "Type: <file-name>"
+      cy.get('h2.text-h3').should('contain', 'Type:')
+      cy.get('h2.text-h3').should('contain', name)
+      
       // Verify lock button is visible and enabled
+      cy.get('[data-test="lock-type-btn"]').should('be.visible').and('be.enabled')
+      
       // Verify delete button is visible and enabled
+      cy.get('[data-test="delete-type-btn"]').should('be.visible').and('be.enabled')
+      
       // Verify unlock button does not exist
+      cy.get('[data-test="unlock-type-btn"]').should('not.exist')
 
       // Verify description display is visible and contains "Click to add description"
+      cy.get('[data-test="root-description-placeholder"]').should('be.visible').and('contain', 'Click to add description')
+      
       // Verify type chip picker is visible and contains "void"
-      // Verify that card body is empty
+      cy.get('[data-test="root-type-chip-picker"] [data-test="type-chip"]').should('be.visible').and('contain', 'void')
+      
+      // Verify that card body is empty (no property editor content)
+      cy.get('[data-test="root-property-card"] .v-card-text').should('be.empty')
     })
 
     it('can lock/unlock a type', () => {
       // verify unlocked
+      cy.get('[data-test="lock-type-btn"]').should('be.visible')
+      cy.get('[data-test="unlock-type-btn"]').should('not.exist')
+      
       // click lock button
+      cy.get('[data-test="lock-type-btn"]').click()
+      
       // verify locked
+      cy.get('[data-test="unlock-type-btn"]').should('be.visible')
+      cy.get('[data-test="lock-type-btn"]').should('not.exist')
+      
       // click unlock button
+      cy.get('[data-test="unlock-type-btn"]').click()
+      
       // verify unlocked
+      cy.get('[data-test="lock-type-btn"]').should('be.visible')
+      cy.get('[data-test="unlock-type-btn"]').should('not.exist')
     })
 
     it('has the correct types in the type picker', () => {
+      // click on root type chip to open picker
+      cy.get('[data-test="root-type-chip-picker"] [data-test="type-chip"]').click()
+      
       // verify root type picker contains only "object", "array", "simple", "complex"
+      cy.get('[data-test="type-picker-menu"]').should('be.visible')
+      cy.get('[data-test="type-picker-menu"] [data-test="type-option"]').should('have.length', 4)
+      cy.get('[data-test="type-picker-menu"] [data-test="type-option"]').should('contain', 'object')
+      cy.get('[data-test="type-picker-menu"] [data-test="type-option"]').should('contain', 'array')
+      cy.get('[data-test="type-picker-menu"] [data-test="type-option"]').should('contain', 'simple')
+      cy.get('[data-test="type-picker-menu"] [data-test="type-option"]').should('contain', 'complex')
+      
+      // close picker by clicking outside
+      cy.get('body').click()
     })
 
     it('can delete a type with confirmation', () => {
       // verify delete button is visible and enabled
+      cy.get('[data-test="delete-type-btn"]').should('be.visible').and('be.enabled')
+      
       // click delete button
+      cy.get('[data-test="delete-type-btn"]').click()
+      
       // verify delete confirmation dialog is visible
+      cy.get('[data-test="delete-type-dialog"]').should('be.visible')
+      
       // verify delete confirmation dialog has "Are you sure you want to delete "test-type.yaml"?"
+      cy.get('[data-test="delete-confirmation-message"]').should('contain', `Are you sure you want to delete "${name}"?`)
+      
       // verify delete confirmation dialog has "This action cannot be undone. The type will be permanently removed from the system."
+      cy.get('[data-test="delete-warning-message"]').should('contain', 'This action cannot be undone. The type will be permanently removed from the system.')
+      
       // verify delete confirmation dialog has "Cancel" button
+      cy.get('[data-test="delete-cancel-btn"]').should('be.visible')
+      
       // verify delete confirmation dialog has "Delete" button
+      cy.get('[data-test="delete-confirm-btn"]').should('be.visible')
+      
       // click delete button in dialog
+      cy.get('[data-test="delete-confirm-btn"]').click()
+      
       // verify dialog is closed and we're redirected to types list
+      cy.url().should('include', '/types')
+      cy.get('[data-test="delete-type-dialog"]').should('not.exist')
+      
       // verify type is deleted
+      cy.get('[data-test^="file-card-"]').should('not.contain', fileName)
     })
 
   })

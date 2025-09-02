@@ -24,6 +24,7 @@
             variant="elevated"
             @click="lockType"
             class="font-weight-bold"
+            data-test="lock-type-btn"
           >
             <v-icon start>mdi-lock</v-icon>
             Lock
@@ -33,6 +34,7 @@
             variant="elevated"
             @click="handleDelete"
             class="font-weight-bold"
+            data-test="delete-type-btn"
           >
             <v-icon start>mdi-delete</v-icon>
             Delete
@@ -44,6 +46,7 @@
             variant="elevated"
             @click="unlockType"
             class="font-weight-bold"
+            data-test="unlock-type-btn"
           >
             <v-icon start>mdi-lock-open</v-icon>
             Unlock
@@ -111,27 +114,28 @@
   </v-container>
 
   <!-- Delete Confirmation Dialog -->
-  <v-dialog v-model="showDeleteDialog" max-width="500">
+  <v-dialog v-model="showDeleteDialog" max-width="500" data-test="delete-type-dialog">
     <v-card>
       <v-card-title class="text-h5 d-flex align-center">
         <v-icon color="error" class="mr-3">mdi-alert-circle</v-icon>
         Delete Type
       </v-card-title>
       <v-card-text>
-        <p class="mb-3">
+        <p class="mb-3" data-test="delete-confirmation-message">
           <strong>Are you sure you want to delete "{{ typeData?.file_name.replace('.yaml', '') }}"?</strong>
         </p>
-        <p class="text-body-2 text-medium-emphasis">
+        <p class="text-body-2 text-medium-emphasis" data-test="delete-warning-message">
           This action cannot be undone. The type will be permanently removed from the system.
         </p>
       </v-card-text>
       <v-card-actions>
         <v-spacer />
-        <v-btn @click="cancelDelete">Cancel</v-btn>
+        <v-btn @click="cancelDelete" data-test="delete-cancel-btn">Cancel</v-btn>
         <v-btn 
           color="error" 
           variant="elevated"
           @click="confirmDelete"
+          data-test="delete-confirm-btn"
         >
           Delete
         </v-btn>
