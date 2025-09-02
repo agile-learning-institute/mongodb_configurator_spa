@@ -105,7 +105,7 @@ describe('Configurations page flow', () => {
   })
 
   describe('Configuration Detail Page', () => {
-    it.only('displays correct elements', () => {
+    it('displays correct elements', () => {
       // First create a configuration
       cy.visit(`/configurations/${createdConfigurationName}.yaml`)
 
@@ -134,7 +134,7 @@ describe('Configurations page flow', () => {
       cy.get('[data-test="test-data-file-chip"]').should('contain', `${createdConfigurationName}.${createdConfigurationVersion}.${createdEnumeratorsVersion}.json`)
     })
 
-    it.only('displays correct version navigator icons', () => {
+    it('displays correct version navigator icons', () => {
       // Create two new versions (0.1.1) and (0.1.2)
       cy.visit(`/configurations/${createdConfigurationName}.yaml`)
       cy.get("[data-test='base-card-default']").should('exist')
@@ -183,38 +183,39 @@ describe('Configurations page flow', () => {
     })
   })
 
-  describe('Version Management', () => {
-    it('can create new version with patch logic', () => {
+  describe('New Version Management', () => {
+    it.only('can create new version with patch logic', () => {
       // Arrange - very minimal assertions
-      cy.visit('/configurations/${createdConfigurationName}.yaml')
+      cy.visit(`/configurations/${createdConfigurationName}.yaml`)
       cy.get('[data-test="new-version-btn"]').click()
       
       // Assert we are in Create New Version dialog
       cy.get('[data-test="new-version-dialog"]').should('be.visible')
       cy.get('[data-test="new-version-dialog-title"]').should('contain', 'Create New Version')
-      
       // Verify patch down and up
       cy.get('[data-test="new-version-major-plus-btn"]').click()
-      cy.get('[data-test="new-version-major-display"]').should('contain', '1')
-      cy.get('[data-test="new-version-display"]').should('contain', '1.0.0')
+      cy.get('[data-test="new-version-major"]').should('contain', '1')
+      cy.get('[data-test="new-version-display"]').should('contain', '1.0.0.0')
       
       cy.get('[data-test="new-version-minor-plus-btn"]').click()
-      cy.get('[data-test="new-version-minor-display"]').should('contain', '1')
-      cy.get('[data-test="new-version-display"]').should('contain', '1.1.0')
+      cy.get('[data-test="new-version-minor"]').should('contain', '1')
+      cy.get('[data-test="new-version-display"]').should('contain', '1.1.0.0')
 
       cy.get('[data-test="new-version-patch-plus-btn"]').click()
-      cy.get('[data-test="new-version-patch-display"]').should('contain', '1')
-      cy.get('[data-test="new-version-display"]').should('contain', '1.1.1')
+      cy.get('[data-test="new-version-patch"]').should('contain', '1')
+      cy.get('[data-test="new-version-display"]').should('contain', '1.1.1.0')
 
       cy.get('[data-test="new-version-patch-plus-btn"]').click()
-      cy.get('[data-test="new-version-display"]').should('contain', '1.1.2')
+      cy.get('[data-test="new-version-patch"]').should('contain', '2')
+      cy.get('[data-test="new-version-display"]').should('contain', '1.1.2.0')
 
       cy.get('[data-test="new-version-minor-plus-btn"]').click()
-      cy.get('[data-test="new-version-display"]').should('contain', '1.2.0')
-
+      cy.get('[data-test="new-version-minor"]').should('contain', '2')
+      cy.get('[data-test="new-version-display"]').should('contain', '1.2.0.0')
 
       cy.get('[data-test="new-version-major-plus-btn"]').click()
-      cy.get('[data-test="new-version-display"]').should('contain', '2.0.0')
+      cy.get('[data-test="new-version-major"]').should('contain', '2')
+      cy.get('[data-test="new-version-display"]').should('contain', '2.0.0.0')
 
       // Close dialog without creating
       cy.get('[data-test="new-version-cancel-btn"]').click()

@@ -293,7 +293,7 @@
           <v-divider />
           <div class="version-preview">
             <h4 class="text-subtitle-1 font-weight-medium mb-3 text-medium-emphasis">Preview</h4>
-            <div class="version-display">
+            <div class="version-display" data-test="new-version-display">
               <span class="text-body-2 text-medium-emphasis">New Version: </span>
               <span class="text-h5 font-weight-bold text-primary">{{ newVersionString }}</span>
             </div>
