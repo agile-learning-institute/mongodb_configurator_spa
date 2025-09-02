@@ -1,5 +1,6 @@
 <template>
   <BasePropertyEditor
+    v-if="shouldRenderPropertyEditor"
     :property="property"
     :is-root="isRoot"
     :is-dictionary="isDictionary"
@@ -216,6 +217,19 @@ const emit = defineEmits<{
 const isRoot = computed(() => props.isRoot || false)
 const isDictionary = computed(() => props.isDictionary || false)
 const isType = computed(() => props.isType || false)
+
+// Only render PropertyEditor for root properties when there's content to show
+const shouldRenderPropertyEditor = computed(() => {
+  if (!isRoot.value) {
+    return true // Always render for non-root properties
+  }
+  
+  // For root properties, only render if there's content to show
+  return isObjectProperty(props.property) || 
+         isArrayProperty(props.property) || 
+         isSimpleProperty(props.property) || 
+         isComplexProperty(props.property)
+})
 
 // Computed properties for Simple and Complex property editing
 const simplePropertySchema = computed(() => {
