@@ -144,33 +144,28 @@
   </v-dialog>
 
   <!-- Unlock Confirmation Dialog -->
-  <v-dialog v-model="showUnlockDialog" max-width="400">
+  <v-dialog v-model="showUnlockDialog" max-width="500" data-test="unlock-type-dialog">
     <v-card>
-      <v-card-title class="text-h5">
-        Final Confirmation
+      <v-card-title class="text-h5 d-flex align-center">
+        <v-icon color="warning" class="mr-3">mdi-alert-circle</v-icon>
+        Unlock Type
       </v-card-title>
       <v-card-text>
-        <p class="mb-3">
-          <strong>Are you absolutely sure you want to unlock this type?</strong>
+        <p class="mb-3" data-test="unlock-confirmation-message">
+          <strong>Are you sure you want to unlock "{{ typeData?.file_name.replace('.yaml', '') }}"?</strong>
         </p>
-        <p class="mb-4">
-          Type "UNLOCK" below to confirm:
+        <p class="text-body-2 text-medium-emphasis" data-test="unlock-warning-message">
+          This will allow the type to be modified. Changes will be saved automatically.
         </p>
-        <v-text-field
-          v-model="unlockConfirmationText"
-          placeholder="Type UNLOCK to confirm"
-          variant="outlined"
-          density="compact"
-          hide-details
-        />
       </v-card-text>
       <v-card-actions>
         <v-spacer />
-        <v-btn @click="cancelUnlock">Cancel</v-btn>
+        <v-btn @click="cancelUnlock" data-test="unlock-cancel-btn">Cancel</v-btn>
         <v-btn 
           color="warning" 
+          variant="elevated"
           @click="confirmUnlock"
-          :disabled="unlockConfirmationText !== 'UNLOCK'"
+          data-test="unlock-confirm-btn"
         >
           Unlock
         </v-btn>
@@ -195,7 +190,6 @@ const saving = ref(false)
 const error = ref<string | null>(null)
 const showDeleteDialog = ref(false)
 const showUnlockDialog = ref(false)
-const unlockConfirmationText = ref('')
 const typeData = ref<TypeData | null>(null)
 const isEditingDescription = ref(false)
 const editableDescription = ref('')
@@ -323,7 +317,6 @@ const confirmUnlock = async () => {
     // Update local state
     typeData.value._locked = false
     showUnlockDialog.value = false
-    unlockConfirmationText.value = ''
     
     // Save the unlocked state to the backend
     await autoSave()
@@ -335,7 +328,6 @@ const confirmUnlock = async () => {
 
 const cancelUnlock = () => {
   showUnlockDialog.value = false
-  unlockConfirmationText.value = ''
 }
 
 // Load type on mount
