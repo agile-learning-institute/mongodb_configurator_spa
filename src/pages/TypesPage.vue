@@ -33,7 +33,7 @@
     />
 
     <!-- New Type Dialog -->
-    <v-dialog v-model="showNewDialog" max-width="400">
+    <v-dialog v-model="showNewDialog" max-width="400" data-test="new-type-dialog">
       <v-card>
         <v-card-title class="text-h5">
           Create New Type
@@ -47,6 +47,7 @@
             density="compact"
             hide-details
             @keyup.enter="createNewType"
+            data-test="new-type-name-input"
           />
         </v-card-text>
         <v-card-actions>
@@ -56,6 +57,7 @@
             color="primary" 
             @click="createNewType"
             :disabled="!newTypeName.trim()"
+            data-test="new-type-create-btn"
           >
             Create
           </v-btn>
