@@ -108,7 +108,7 @@
         >
           <template #title>
             <div class="d-flex align-center gap-2">
-              <h3 class="text-h5 mb-0 mr-2">Version:</h3>
+              <h3 class="text-h5 mb-0 mr-2" data-test="card-header">Version:</h3>
               <div class="d-flex align-center">
                 <v-btn
                   icon="mdi-skip-previous"
