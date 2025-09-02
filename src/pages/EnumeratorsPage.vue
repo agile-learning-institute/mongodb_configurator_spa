@@ -37,7 +37,6 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import FileList from '@/components/FileList.vue'
-import { apiService } from '@/utils/api'
 import { useNewVersion } from '@/composables/useNewVersion'
 
 const router = useRouter()

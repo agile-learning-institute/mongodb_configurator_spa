@@ -1,9 +1,7 @@
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
 import { apiService } from '@/utils/api'
 
 export function useNewVersion() {
-  const router = useRouter()
   const creating = ref(false)
   const error = ref<string | null>(null)
 
@@ -35,7 +33,7 @@ export function useNewVersion() {
       let maxVersion = 0
       let newestFile: { file_name: string; _locked?: boolean } | null = null
       
-      existingFiles.forEach((file: { file_name: string; _locked?: boolean }) => {
+      existingFiles.forEach((file: any) => {
         const match = file.file_name.match(/enumerations\.(\d+)\.yaml/)
         if (match) {
           const version = parseInt(match[1], 10)
@@ -49,16 +47,16 @@ export function useNewVersion() {
       // Get the data from the newest version
       let newestEnumeratorData = null
       if (newestFile) {
-        newestEnumeratorData = await apiService.getEnumerator(newestFile.file_name)
+        newestEnumeratorData = await apiService.getEnumerator((newestFile as any).file_name)
       }
       
       // Lock the newest version if it exists and is not already locked
-      if (newestFile && !newestFile._locked) {
+      if (newestFile && !(newestFile as any)._locked) {
         const lockData = {
           ...newestEnumeratorData,
           _locked: true
         }
-        await apiService.saveEnumerator(newestFile.file_name, lockData)
+        await apiService.saveEnumerator((newestFile as any).file_name, lockData)
       }
       
       // Create new version number
