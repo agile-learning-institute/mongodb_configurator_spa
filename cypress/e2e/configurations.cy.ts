@@ -236,7 +236,7 @@ describe('Configurations page flow', () => {
       cy.get('[data-test="new-version-dialog"]').should('not.exist')
     })
 
-    it.only('creates new enumerators if needed', () => {
+    it('creates new enumerators if needed', () => {
       // First open the test configuration, and new version dialog
       cy.visit(`/configurations/${createdConfigurationName}.yaml`)
       cy.get('[data-test="new-version-btn"]').click()
@@ -302,7 +302,9 @@ describe('Configurations page flow', () => {
       cy.get('[data-test="new-version-dialog"]').should('be.visible')
       cy.get('[data-test="new-version-minor-plus-btn"]').click()
       cy.get('[data-test="new-version-create-btn"]').click()
-      
+      thingsToDelete.push(`/api/dictionaries/${createdConfigurationName}.0.2.0.yaml/`)
+      thingsToDelete.push(`/api/test_data/${createdConfigurationName}.0.2.0.${createdEnumeratorsVersion}.json/`)
+
       // Test adding drop index by selecting previously created index
       cy.get('[data-test="add-drop-index-btn"]').click()
       cy.get('[data-test="drop-index-name-input"]').should('be.visible')
@@ -320,7 +322,7 @@ describe('Configurations page flow', () => {
   })
 
   describe('Step3 Migration Management', () => {
-    it.only('can add, link, and delete new migration', () => {
+    it('can add, link, and delete new migration', () => {
       cy.visit(`/configurations/${createdConfigurationName}.yaml`)
       // Test adding new migration
       cy.get('[data-test="add-migration-btn"]').click()
