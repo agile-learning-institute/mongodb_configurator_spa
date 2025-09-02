@@ -93,7 +93,7 @@ Your plan should:
 - [x] Update non-root property editors to match Enumerators page styling
 - [x] Add necessary `data-test` attributes for reliable testing
 - [x] Create structured test files with clear separation of concerns
-- [ ] Implement `types.cy.ts` - General type document testing
+- [x] Implement `types.cy.ts` - General type document testing
 - [ ] Implement `types.simple.cy.ts` - Simple property editor testing
 - [ ] Implement `types.complex.cy.ts` - Complex property editor testing
 - [ ] Implement `types.objects.cy.ts` - Object property editor testing
@@ -111,7 +111,13 @@ Your plan should:
 - Each test file focuses on specific property type functionality
 - All tests use `cy.get('[data-test="key"]')` selectors for reliable automation
 - Tests include persistence verification by reloading pages
-- Ready to implement comprehensive test coverage for all property types
+- **COMPLETED**: `types.cy.ts` - General type document testing
+  - Fixed root property editor to hide property header for void types
+  - Fixed PropertyEditor to not render for void type root properties
+  - Updated unlock dialog to use standard warning pattern (no "Type UNLOCK" required)
+  - Fixed type picker test selectors to use correct data-test attributes
+  - Tests cover: basic elements, lock/unlock with confirmation dialog, type picker verification, delete confirmation
+- Ready to implement remaining property type test files
 
 ## Phase 5: Dictionary Detail Page Testing
 **Goal**: Test dictionary-specific property editing with type restrictions

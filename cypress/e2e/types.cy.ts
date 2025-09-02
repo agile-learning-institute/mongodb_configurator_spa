@@ -94,7 +94,7 @@ describe('Types page flow', () => {
       // verify root type picker contains only "object", "array", "simple", "complex"
       cy.get('[data-test="type-picker-menu"]').should('be.visible')
       cy.get('[data-test="built-in-types-category"]').should('be.visible')
-      cy.get('[data-test^="built-in-type-"]').should('have.length', 4)
+      cy.get('[data-test^="built-in-type-title-"]').should('have.length', 4)
       cy.get('[data-test="built-in-type-object"]').should('be.visible')
       cy.get('[data-test="built-in-type-array"]').should('be.visible')
       cy.get('[data-test="built-in-type-simple"]').should('be.visible')
