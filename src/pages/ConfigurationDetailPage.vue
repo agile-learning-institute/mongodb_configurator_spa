@@ -345,6 +345,7 @@ import { ref, onMounted, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useEvents } from '@/composables/useEvents'
 import { useEventState } from '@/composables/useEventState'
+import { useNewVersion } from '@/composables/useNewVersion'
 import { apiService } from '@/utils/api'
 import BaseCard from '@/components/BaseCard.vue'
 import VersionInformationCards from '@/components/VersionInformationCards.vue'
@@ -367,6 +368,10 @@ interface Configuration {
 
 const route = useRoute()
 const router = useRouter()
+
+// New version functionality for enumerators
+const { createNewEnumeratorVersion } = useNewVersion()
+
 const loading = ref(false)
 const saving = ref(false)
 const processing = ref(false)
@@ -732,16 +737,11 @@ const createNewVersion = async () => {
         const enumeratorsVersion = versionParts[3] // enumerators version is the 4th part
         const enumeratorsFileName = `enumerations.${enumeratorsVersion}.yaml`
         
-        // Create empty enumerators structure
-        const newEnumerators = {
-          version: parseInt(enumeratorsVersion),
-          enumerators: []
-        }
+        // Use unified new version logic to create enumerators file
+        // This will find the newest enumerator version, lock it, and create a new version
+        await createNewEnumeratorVersion()
         
-        // Save the new enumerators file
-        await apiService.saveEnumerator(enumeratorsFileName, newEnumerators)
-        
-        console.log(`Enumerators file created: ${enumeratorsFileName}`)
+        console.log(`Enumerators file created using unified logic: ${enumeratorsFileName}`)
       }
     } catch (err: any) {
       console.log(`Failed to create enumerators file for new version: ${err.message}`)
