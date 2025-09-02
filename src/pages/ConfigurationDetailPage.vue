@@ -325,7 +325,7 @@
   </v-dialog>
   
   <!-- Delete Collection Confirmation Dialog -->
-  <v-dialog v-model="showDeleteCollectionDialog" max-width="500">
+  <v-dialog v-model="showDeleteCollectionDialog" max-width="500" data-test="delete-collection-dialog">
     <v-card>
       <v-card-title class="text-h5">
         Delete Collection?
@@ -338,8 +338,8 @@
       </v-card-text>
       <v-card-actions>
         <v-spacer />
-        <v-btn @click="showDeleteCollectionDialog = false">Cancel</v-btn>
-        <v-btn color="error" @click="confirmDeleteCollection">Delete</v-btn>
+        <v-btn @click="showDeleteCollectionDialog = false" data-test="delete-collection-cancel-btn">Cancel</v-btn>
+        <v-btn color="error" @click="confirmDeleteCollection" data-test="delete-collection-confirm-btn">Delete</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>

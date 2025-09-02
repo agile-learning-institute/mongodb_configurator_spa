@@ -181,6 +181,14 @@ describe('Configurations page flow', () => {
       cy.get('[data-test="next-version-btn"]').should('not.be.disabled')
       cy.get('[data-test="new-version-btn"]').should('not.exist')
     })
+
+    it('can delete with confirmation', () => {
+      cy.visit(`/configurations/${createdConfigurationName}.yaml`)
+      cy.get('[data-test="delete-collection-btn"]').click()
+      cy.get('[data-test="delete-collection-dialog"]').should('be.visible')
+      cy.get('[data-test="delete-collection-confirm-btn"]').click()
+      cy.get('[data-test="delete-collection-dialog"]').should('not.exist')
+    })
   })
 
   describe('New Version Management', () => {
