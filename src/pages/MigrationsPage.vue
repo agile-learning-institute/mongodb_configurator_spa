@@ -8,6 +8,7 @@
           variant="elevated"
           prepend-icon="mdi-plus"
           @click="showNewDialog = true"
+          data-test="new-migration-btn"
         >
           New
         </v-btn>
@@ -21,7 +22,7 @@
     />
 
     <!-- New Migration Dialog -->
-    <v-dialog v-model="showNewDialog" max-width="400">
+    <v-dialog v-model="showNewDialog" max-width="400" data-test="new-migration-dialog">
       <v-card>
         <v-card-title class="text-h5">
           Create New Migration
@@ -35,15 +36,17 @@
             density="compact"
             hide-details
             @keyup.enter="createNewMigration"
+            data-test="new-migration-name-input"
           />
         </v-card-text>
         <v-card-actions>
           <v-spacer />
-          <v-btn @click="showNewDialog = false">Cancel</v-btn>
+          <v-btn @click="showNewDialog = false" data-test="new-migration-cancel-btn">Cancel</v-btn>
           <v-btn 
             color="primary" 
             @click="createNewMigration"
             :disabled="!newMigrationName.trim()"
+            data-test="new-migration-create-btn"
           >
             Create
           </v-btn>

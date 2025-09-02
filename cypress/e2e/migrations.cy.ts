@@ -1,28 +1,33 @@
 
 
 describe('Migrations page flow', () => {
-  it('creates, edits entries, persists, and deletes a migration file', () => {
-    const name = `e2e-migration-${Date.now()}`
-    const fileName = `${name}.json`
+  let name: string = `e2e-migration-${Date.now()}`
+  let fileName: string = `${name}.json`
 
-    // List page
+  it('can create a migrations file', () => {
+
+    // Create a new migrations file
     cy.visit('/migrations')
-    cy.contains('button', 'New').click()
-    cy.get('div.v-dialog input').type(name)
-    cy.get('div.v-dialog').contains('button', 'Create').click()
+    cy.get('[data-test="new-migration-btn"]').click()
+    cy.get('[data-test="new-migration-dialog"]').should('be.visible')
+    cy.get('[data-test="new-migration-name-input"]').type(name)
+    cy.get('[data-test="new-migration-create-btn"]').click()
 
-    // Detail page URL
+    // Verify the migrations file was created
     cy.url().should('include', `/migrations/${fileName}`)
+  })
 
-    // Empty list
+  it('can add and edit a migration', () => {
+    cy.visit(`/migrations/${fileName}`)
+
+    // Verify the migrations file was created and is empty
     cy.getByTest('array-editor-empty').should('be.visible')
 
     // Add first migration
     cy.getByTest('add-item-btn').click()
     cy.getByTest('array-item-textarea-0').should('be.visible')
-    cy.getByTest('array-item-textarea-0')
-      .find('textarea')
-      .first()
+    cy.getByTest('array-item-textarea-0').find('textarea').first().clear()
+
       .clear({ force: true })
       .type('{"foo":"bar"}', { parseSpecialCharSequences: false })
       .blur()
