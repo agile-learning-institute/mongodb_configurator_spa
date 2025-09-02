@@ -17,7 +17,7 @@
     <div v-else-if="typeData">
       <!-- Page Header -->
       <header class="d-flex align-center justify-space-between mb-6">
-        <h2 class="text-h3 mb-0">Type {{ typeData.file_name.replace('.yaml', '') }}</h2>
+        <h2 class="text-h3 mb-0">Type: {{ typeData.file_name.replace('.yaml', '') }}</h2>
         <div class="d-flex gap-2" v-if="!typeData._locked">
           <v-btn
             color="warning"

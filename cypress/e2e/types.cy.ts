@@ -201,9 +201,9 @@ describe('Types page flow', () => {
       createdTypeName = typeName
     })
 
-    it('shows page title with "Type" prefix', () => {
-      // Verify the page title includes "Type" before the filename
-      cy.get('h2.text-h3').should('contain', 'Type')
+    it('shows page title with "Type:" prefix', () => {
+      // Verify the page title includes "Type:" before the filename
+      cy.get('h2.text-h3').should('contain', 'Type:')
       cy.get('h2.text-h3').should('contain', createdTypeName)
     })
 
