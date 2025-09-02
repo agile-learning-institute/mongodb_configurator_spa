@@ -211,19 +211,20 @@ describe('Types page flow', () => {
       // Verify the root property card is visible
       cy.get('[data-test="root-property-card"]').should('be.visible')
       
-      // Verify the card has the correct title
-      cy.get('[data-test="root-property-card"] [data-test="card-title"]').should('contain', 'Root Property')
+      // Verify the card title contains description and type picker
+      cy.get('[data-test="root-property-card"] [data-test="root-description-display"]').should('be.visible')
+      cy.get('[data-test="root-property-card"] [data-test="root-type-chip-picker"]').should('be.visible')
     })
 
     it('can change root property type to Simple and verify controls', () => {
-      // Click on the type chip to open the type picker
-      cy.get('[data-test="type-chip"]').click()
+      // Click on the type chip in the card title to open the type picker
+      cy.get('[data-test="root-type-chip-picker"] [data-test="type-chip"]').click()
       
       // Select Simple type
       cy.get('[data-test="built-in-type-simple"]').click()
       
       // Verify the type has changed
-      cy.get('[data-test="type-display-name"]').should('contain', 'Simple')
+      cy.get('[data-test="root-type-chip-picker"] [data-test="type-display-name"]').should('contain', 'Simple')
       
       // Verify the schema configuration section is visible
       cy.get('[data-test="simple-property-body"]').should('be.visible')
@@ -237,19 +238,19 @@ describe('Types page flow', () => {
       cy.reload()
       
       // Verify the type and schema are preserved
-      cy.get('[data-test="type-display-name"]').should('contain', 'Simple')
+      cy.get('[data-test="root-type-chip-picker"] [data-test="type-display-name"]').should('contain', 'Simple')
       cy.get('[data-test="simple-property-schema-input"]').should('have.value', '{"type": "string", "minLength": 1}')
     })
 
     it('can change root property type to Complex and verify controls', () => {
-      // Click on the type chip to open the type picker
-      cy.get('[data-test="type-chip"]').click()
+      // Click on the type chip in the card title to open the type picker
+      cy.get('[data-test="root-type-chip-picker"] [data-test="type-chip"]').click()
       
       // Select Complex type
       cy.get('[data-test="built-in-type-complex"]').click()
       
       // Verify the type has changed
-      cy.get('[data-test="type-display-name"]').should('contain', 'Complex')
+      cy.get('[data-test="root-type-chip-picker"] [data-test="type-display-name"]').should('contain', 'Complex')
       
       // Verify the type configuration section is visible
       cy.get('[data-test="complex-property-body"]').should('be.visible')
@@ -265,20 +266,20 @@ describe('Types page flow', () => {
       cy.reload()
       
       // Verify the type and values are preserved
-      cy.get('[data-test="type-display-name"]').should('contain', 'Complex')
+      cy.get('[data-test="root-type-chip-picker"] [data-test="type-display-name"]').should('contain', 'Complex')
       cy.get('[data-test="complex-property-json-input"]').should('have.value', '{"type": "object", "properties": {}}')
       cy.get('[data-test="complex-property-bson-input"]').should('have.value', '{"bsonType": "object", "properties": {}}')
     })
 
     it('can change root property type to Object and verify controls', () => {
-      // Click on the type chip to open the type picker
-      cy.get('[data-test="type-chip"]').click()
+      // Click on the type chip in the card title to open the type picker
+      cy.get('[data-test="root-type-chip-picker"] [data-test="type-chip"]').click()
       
       // Select Object type
       cy.get('[data-test="built-in-type-object"]').click()
       
       // Verify the type has changed
-      cy.get('[data-test="type-display-name"]').should('contain', 'Object')
+      cy.get('[data-test="root-type-chip-picker"] [data-test="type-display-name"]').should('contain', 'Object')
       
       // Verify the object property editor is visible
       cy.get('[data-test="object-property-extension"]').should('be.visible')
@@ -300,19 +301,19 @@ describe('Types page flow', () => {
       cy.reload()
       
       // Verify the type and property are preserved
-      cy.get('[data-test="type-display-name"]').should('contain', 'Object')
+      cy.get('[data-test="root-type-chip-picker"] [data-test="type-display-name"]').should('contain', 'Object')
       cy.get('[data-test="object-property-0"]').should('be.visible')
     })
 
     it('can change root property type to Array and verify controls', () => {
-      // Click on the type chip to open the type picker
-      cy.get('[data-test="type-chip"]').click()
+      // Click on the type chip in the card title to open the type picker
+      cy.get('[data-test="root-type-chip-picker"] [data-test="type-chip"]').click()
       
       // Select Array type
       cy.get('[data-test="built-in-type-array"]').click()
       
       // Verify the type has changed
-      cy.get('[data-test="type-display-name"]').should('contain', 'Array')
+      cy.get('[data-test="root-type-chip-picker"] [data-test="type-display-name"]').should('contain', 'Array')
       
       // Verify the array property extension is visible
       cy.get('[data-test="array-property-extension"]').should('be.visible')
@@ -338,7 +339,7 @@ describe('Types page flow', () => {
       cy.reload()
       
       // Verify the type and items type are preserved
-      cy.get('[data-test="type-display-name"]').should('contain', 'Array')
+      cy.get('[data-test="root-type-chip-picker"] [data-test="type-display-name"]').should('contain', 'Array')
       cy.get('[data-test="array-of-object-extension"]').should('be.visible')
     })
   })
@@ -357,7 +358,7 @@ describe('Types page flow', () => {
       createdTypeName = typeName
       
       // Set root property to Object type
-      cy.get('[data-test="type-chip"]').click()
+      cy.get('[data-test="root-type-chip-picker"] [data-test="type-chip"]').click()
       cy.get('[data-test="built-in-type-object"]').click()
     })
 
@@ -436,7 +437,7 @@ describe('Types page flow', () => {
       createdTypeName = typeName
       
       // Set root property to Array type
-      cy.get('[data-test="type-chip"]').click()
+      cy.get('[data-test="root-type-chip-picker"] [data-test="type-chip"]').click()
       cy.get('[data-test="built-in-type-array"]').click()
     })
 
@@ -517,8 +518,8 @@ describe('Types page flow', () => {
     })
 
     it('shows all built-in types for root property', () => {
-      // Click on the root type chip
-      cy.get('[data-test="type-chip"]').click()
+      // Click on the root type chip in the card title
+      cy.get('[data-test="root-type-chip-picker"] [data-test="type-chip"]').click()
       
       // Verify all built-in types are available for root properties
       cy.get('[data-test="built-in-type-simple"]').should('be.visible')
@@ -529,7 +530,7 @@ describe('Types page flow', () => {
 
     it('shows only object, array, and custom types for non-root properties', () => {
       // Set root property to Object type
-      cy.get('[data-test="type-chip"]').click()
+      cy.get('[data-test="root-type-chip-picker"] [data-test="type-chip"]').click()
       cy.get('[data-test="built-in-type-object"]').click()
       
       // Add a property
@@ -562,7 +563,7 @@ describe('Types page flow', () => {
       cy.url().should('include', `/types/${customTypeName}.yaml`)
       
       // Set the custom type to Simple with a schema
-      cy.get('[data-test="type-chip"]').click()
+      cy.get('[data-test="root-type-chip-picker"] [data-test="type-chip"]').click()
       cy.get('[data-test="built-in-type-simple"]').click()
       cy.get('[data-test="simple-property-schema-input"]').clear().type('{"type": "string", "pattern": "^[A-Z]+$"}')
       
@@ -594,7 +595,7 @@ describe('Types page flow', () => {
       createdTypeName = typeName
       
       // Set root property to Object type
-      cy.get('[data-test="type-chip"]').click()
+      cy.get('[data-test="root-type-chip-picker"] [data-test="type-chip"]').click()
       cy.get('[data-test="built-in-type-object"]').click()
       
       // Add a property
@@ -636,7 +637,7 @@ describe('Types page flow', () => {
       createdTypeName = typeName
       
       // Set root property to Array type
-      cy.get('[data-test="type-chip"]').click()
+      cy.get('[data-test="root-type-chip-picker"] [data-test="type-chip"]').click()
       cy.get('[data-test="built-in-type-array"]').click()
       
       // Click on the items type picker

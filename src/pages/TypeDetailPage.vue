@@ -54,15 +54,56 @@
       <!-- Root Property Editor with Card Layout -->
       <BaseCard
         v-if="typeData.root"
-        :title="typeData.root.name || 'Root Property'"
         icon="mdi-shape"
         data-test="root-property-card"
       >
+        <template #title>
+          <div class="d-flex align-center gap-3">
+            <!-- Description Display/Edit -->
+            <div class="description-section" :style="{ minWidth: '200px', flex: '1' }">
+              <div v-if="!isEditingDescription" 
+                   class="description-display" 
+                   @click="startEditDescription"
+                   data-test="root-description-display">
+                <span v-if="typeData.root.description" class="description-text" data-test="root-description-text">{{ typeData.root.description }}</span>
+                <span v-else class="description-placeholder" data-test="root-description-placeholder">Click to add description</span>
+              </div>
+              <v-text-field
+                v-if="isEditingDescription"
+                v-model="editableDescription"
+                variant="plain"
+                density="compact"
+                hide-details
+                :disabled="typeData._locked"
+                :style="{ minWidth: '200px', flex: '1' }"
+                placeholder="Description"
+                @blur="finishEditDescription"
+                @keyup.enter="finishEditDescription"
+                ref="descriptionInput"
+                data-test="root-description-input-edit"
+              />
+            </div>
+            
+            <!-- Type Picker -->
+            <div class="type-section">
+              <TypeChipPicker
+                v-model="editableType"
+                :is-root="true"
+                :is-type="true"
+                :disabled="typeData._locked"
+                @update:model-value="handleTypeChange"
+                data-test="root-type-chip-picker"
+              />
+            </div>
+          </div>
+        </template>
+        
         <PropertyEditor
           :property="typeData.root"
           :is-root="true"
           :is-type="true"
           :disabled="typeData._locked"
+          :hideTypeSelector="true"
           @change="handleRootPropertyChange"
         />
       </BaseCard>
@@ -141,11 +182,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { apiService } from '@/utils/api'
 import PropertyEditor from '@/components/PropertyEditor.vue'
 import BaseCard from '@/components/BaseCard.vue'
+import TypeChipPicker from '@/components/TypeChipPicker.vue'
 import type { TypeProperty, TypeData } from '@/types/types'
 
 const route = useRoute()
@@ -158,6 +200,10 @@ const showUnlockDialog = ref(false)
 const deleteConfirmationText = ref('')
 const unlockConfirmationText = ref('')
 const typeData = ref<TypeData | null>(null)
+const isEditingDescription = ref(false)
+const editableDescription = ref('')
+const editableType = ref('')
+const descriptionInput = ref<HTMLElement>()
 
 // Methods
 const loadType = async () => {
@@ -166,6 +212,12 @@ const loadType = async () => {
   try {
     const fileName = route.params.fileName as string
     typeData.value = await apiService.getType(fileName)
+    
+    // Initialize local state
+    if (typeData.value?.root) {
+      editableDescription.value = typeData.value.root.description || ''
+      editableType.value = typeData.value.root.type
+    }
   } catch (err: any) {
     error.value = err.message || 'Failed to load type'
     console.error('Failed to load type:', err)
@@ -192,7 +244,41 @@ const autoSave = async () => {
 const handleRootPropertyChange = (updatedProperty: TypeProperty) => {
   if (typeData.value) {
     typeData.value.root = updatedProperty
+    // Update local state
+    editableDescription.value = updatedProperty.description || ''
+    editableType.value = updatedProperty.type
     autoSave()
+  }
+}
+
+const startEditDescription = () => {
+  if (!typeData.value?._locked) {
+    isEditingDescription.value = true
+    // Focus the input after it's rendered
+    nextTick(() => {
+      if (descriptionInput.value) {
+        descriptionInput.value.focus()
+      }
+    })
+  }
+}
+
+const finishEditDescription = () => {
+  isEditingDescription.value = false
+  if (typeData.value?.root && editableDescription.value !== typeData.value.root.description) {
+    typeData.value.root.description = editableDescription.value
+    autoSave()
+  }
+}
+
+const handleTypeChange = (newType: string) => {
+  if (typeData.value?.root && newType !== typeData.value.root.type) {
+    // Create a new property with the updated type
+    const updatedProperty = {
+      ...typeData.value.root,
+      type: newType
+    }
+    handleRootPropertyChange(updatedProperty)
   }
 }
 
@@ -266,5 +352,41 @@ onMounted(() => {
 /* Type content styling */
 .type-content {
   margin-top: 24px;
+}
+
+/* Root property card title styling */
+.description-display {
+  cursor: pointer;
+  padding: 8px 12px;
+  border-radius: 4px;
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
+  font-size: 1.25rem;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.description-display:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.description-text {
+  color: white;
+}
+
+.description-placeholder {
+  color: rgba(255, 255, 255, 0.7);
+  font-style: italic;
+}
+
+/* Ensure the type picker in the card title has proper styling */
+.type-section {
+  flex-shrink: 0;
+}
+
+.description-section {
+  flex: 1;
+  min-width: 0;
 }
 </style> 
