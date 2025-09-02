@@ -101,18 +101,6 @@
               </div>
             </div>
 
-            <!-- Enumerators Version -->
-            <div class="version-row mb-4">
-              <div class="version-label">
-                <span class="text-body-1 font-weight-medium">Enumerators</span>
-                <span class="text-caption text-medium-emphasis d-block">Enumeration version</span>
-              </div>
-              <div class="version-controls">
-                <div class="version-display-value" data-test="version-enumerators-display">{{ newestEnumeratorVersion }}</div>
-                <span class="text-caption text-medium-emphasis ml-2">(read-only)</span>
-              </div>
-            </div>
-
             <!-- Version Preview -->
             <div class="version-preview" data-test="version-preview">
               <div class="text-caption text-medium-emphasis mb-2">Final Version:</div>
