@@ -111,33 +111,27 @@
   </v-container>
 
   <!-- Delete Confirmation Dialog -->
-  <v-dialog v-model="showDeleteDialog" max-width="400">
+  <v-dialog v-model="showDeleteDialog" max-width="500">
     <v-card>
-      <v-card-title class="text-h5">
-        Final Confirmation
+      <v-card-title class="text-h5 d-flex align-center">
+        <v-icon color="error" class="mr-3">mdi-alert-circle</v-icon>
+        Delete Type
       </v-card-title>
       <v-card-text>
         <p class="mb-3">
-          <strong>Are you absolutely sure you want to delete "{{ typeData?.file_name.replace('.yaml', '') }}"?</strong>
+          <strong>Are you sure you want to delete "{{ typeData?.file_name.replace('.yaml', '') }}"?</strong>
         </p>
-        <p class="mb-4">
-          Type "DELETE" below to confirm:
+        <p class="text-body-2 text-medium-emphasis">
+          This action cannot be undone. The type will be permanently removed from the system.
         </p>
-        <v-text-field
-          v-model="deleteConfirmationText"
-          placeholder="Type DELETE to confirm"
-          variant="outlined"
-          density="compact"
-          hide-details
-        />
       </v-card-text>
       <v-card-actions>
         <v-spacer />
         <v-btn @click="cancelDelete">Cancel</v-btn>
         <v-btn 
           color="error" 
+          variant="elevated"
           @click="confirmDelete"
-          :disabled="deleteConfirmationText !== 'DELETE'"
         >
           Delete
         </v-btn>
@@ -197,7 +191,6 @@ const saving = ref(false)
 const error = ref<string | null>(null)
 const showDeleteDialog = ref(false)
 const showUnlockDialog = ref(false)
-const deleteConfirmationText = ref('')
 const unlockConfirmationText = ref('')
 const typeData = ref<TypeData | null>(null)
 const isEditingDescription = ref(false)
@@ -318,7 +311,6 @@ const confirmDelete = async () => {
 
 const cancelDelete = () => {
   showDeleteDialog.value = false
-  deleteConfirmationText.value = ''
 }
 
 const confirmUnlock = async () => {
