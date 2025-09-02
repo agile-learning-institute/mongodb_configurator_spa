@@ -7,6 +7,9 @@
       :is-secondary="true"
       data-test="step-1-card"
     >
+      <template #title>
+        <span data-test="step1-name">Step 1: Drop existing schema validation</span>
+      </template>
     </BaseCard>
 
     <!-- Step 2: Drop Indexes Card -->
@@ -16,6 +19,9 @@
       :is-secondary="true"
       data-test="drop-indexes-card"
     >
+      <template #title>
+        <span data-test="step2-name">{{ `Step 2: Drop the following indexes${!version.drop_indexes || version.drop_indexes.length === 0 ? ' (none)' : ''}` }}</span>
+      </template>
       <template #header-actions>
         <v-btn
           v-if="!props.disabled"
@@ -64,6 +70,9 @@
       :is-secondary="true"
       data-test="migrations-card"
     >
+      <template #title>
+        <span data-test="step3-name">{{ `Step 3: Execute the following migrations${!version.migrations || version.migrations.length === 0 ? ' (none)' : ''}` }}</span>
+      </template>
       <template #header-actions>
         <v-btn
           v-if="!props.disabled"
@@ -105,6 +114,9 @@
       :is-secondary="true"
       data-test="step-4-card"
     >
+      <template #title>
+        <span data-test="step4-name">Step 4: Apply Schema</span>
+      </template>
       <div class="d-flex gap-2">
         <!-- Dictionary File Link -->
         <v-chip
@@ -141,6 +153,9 @@
       :is-secondary="true"
       data-test="step-5-card"
     >
+      <template #title>
+        <span data-test="step5-name">{{ `Step 5: Add these indexes${!version.add_indexes || version.add_indexes.length === 0 ? ' (none)' : ''}` }}</span>
+      </template>
       <template #header-actions>
         <v-btn
           v-if="!props.disabled"
@@ -155,7 +170,7 @@
         </v-btn>
       </template>
       
-      <div class="d-flex flex-wrap gap-2">
+      <div class="d-flex flex-wrap gap-2" data-test="step5-indexes-content">
         <!-- Index Chips -->
         <v-chip
           v-for="(indexData, index) in version.add_indexes"
@@ -185,7 +200,7 @@
     <!-- Index Editor Dialog -->
     <v-dialog
       v-model="showIndexEditorDialog"
-      max-width="600px"
+      max-width="800px"
     >
       <v-card>
         <v-card-title class="d-flex align-center gap-2">
@@ -194,16 +209,35 @@
         </v-card-title>
         
         <v-card-text>
-          <v-text-field
-            v-model="editingIndexData.name"
-            label="Index Name"
-            placeholder="Enter index name (e.g., user_email)"
-            variant="outlined"
-            density="compact"
-            :disabled="props.disabled"
-            @keyup.enter="saveIndex"
-            data-test="index-name-input"
-          />
+          <!-- JSON Editor -->
+          <div data-test="step5-json-editor-container">
+            <label class="text-body-2 font-weight-medium mb-2 d-block">Index JSON</label>
+            <v-textarea
+              v-model="jsonText"
+              placeholder="Enter index JSON (e.g., {'name': 'index_name', 'key': {'field': 1}, 'options': {}})"
+              variant="outlined"
+              density="compact"
+              :disabled="props.disabled"
+              :error="!!jsonError"
+              :error-messages="jsonError"
+              :rows="8"
+              auto-grow
+              @update:model-value="handleJsonChange"
+              @blur="validateJson"
+              data-test="step5-index-json-textarea"
+            />
+            
+            <!-- Error Display -->
+            <v-alert
+              v-if="jsonError"
+              type="error"
+              variant="tonal"
+              class="mt-3"
+              data-test="json-error-alert"
+            >
+              {{ jsonError }}
+            </v-alert>
+          </div>
         </v-card-text>
         
         <v-card-actions>
@@ -218,7 +252,7 @@
           <v-btn
             color="primary"
             @click="saveIndex"
-            :disabled="props.disabled || !editingIndexData.name?.trim()"
+            :disabled="isSaveDisabled"
             data-test="save-index-btn"
           >
             {{ editingIndexTitle === 'New Index' ? 'Create' : 'Save' }}
@@ -227,65 +261,7 @@
       </v-card>
     </v-dialog>
 
-    <!-- Index JSON Editor Dialog -->
-    <v-dialog
-      v-model="showIndexJsonEditorDialog"
-      max-width="800px"
-    >
-      <v-card>
-        <v-card-title class="d-flex align-center gap-2">
-          <v-icon>mdi-code-json</v-icon>
-          {{ editingIndexData.name }}
-        </v-card-title>
-        
-        <v-card-text>
-          <v-textarea
-            v-model="jsonText"
-            placeholder="Enter JSON content..."
-            variant="outlined"
-            density="compact"
-            :disabled="props.disabled"
-            :error="!!jsonError"
-            :error-messages="jsonError"
-            :rows="8"
-            auto-grow
-            @update:model-value="handleJsonChange"
-            @blur="validateJson"
-            data-test="index-json-textarea"
-          />
-          
-          <!-- Error Display -->
-          <v-alert
-            v-if="jsonError"
-            type="error"
-            variant="tonal"
-            class="mt-3"
-            data-test="json-error-alert"
-          >
-            {{ jsonError }}
-          </v-alert>
-        </v-card-text>
-        
-        <v-card-actions>
-          <v-spacer />
-          <v-btn
-            variant="text"
-            @click="showIndexJsonEditorDialog = false"
-            data-test="cancel-json-edit-btn"
-          >
-            Cancel
-          </v-btn>
-          <v-btn
-            color="primary"
-            @click="saveIndexJson"
-            :disabled="props.disabled"
-            data-test="save-json-btn"
-          >
-            Save Changes
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+
 
     <!-- Step 6: Load Test Data Card -->
     <BaseCard 
@@ -294,6 +270,9 @@
       :is-secondary="true"
       data-test="step-6-card"
     >
+      <template #title>
+        <span data-test="step6-name">Step 6: Load Test Data</span>
+      </template>
       <div class="d-flex gap-2">
         <!-- Test Data File Link -->
         <v-chip
@@ -363,6 +342,16 @@
         >
           Cancel
         </v-btn>
+        <v-btn
+          color="primary"
+          variant="elevated"
+          @click="addSelectedDropIndex"
+          :disabled="!newDropIndexName.trim()"
+          data-test="drop-index-create-btn"
+        >
+          <v-icon start size="small">mdi-plus</v-icon>
+          Add Index
+        </v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -376,31 +365,19 @@
           <!-- Add New Migration Section -->
           <div>
             <h4 class="text-subtitle-1 font-weight-medium mb-2">Create New Migration</h4>
-            <div class="d-flex gap-2">
-              <v-text-field
-                v-model="newMigrationName"
-                label="Migration name"
-                placeholder="Enter migration name (e.g., add_user_index)"
-                variant="outlined"
-                density="compact"
-                @keyup.enter="createNewMigration"
-                data-test="new-migration-name-input"
-              />
-              <v-btn
-                color="primary"
-                variant="elevated"
-                @click="createNewMigration"
-                :disabled="!newMigrationName.trim()"
-                data-test="create-migration-btn"
-              >
-                <v-icon start size="small">mdi-plus</v-icon>
-                Create
-              </v-btn>
-            </div>
+            <v-text-field
+              v-model="newMigrationName"
+              label="Migration name"
+              placeholder="Enter migration name (e.g., add_user_index)"
+              variant="outlined"
+              density="compact"
+              @keyup.enter="createNewMigration"
+              data-test="new-migration-name-input"
+            />
           </div>
 
           <!-- Existing Migrations Section -->
-          <div v-if="migrationFiles.length > 0">
+          <div v-if="migrationFiles.length > 0" data-test="new-migration-existing-migrations">
             <h4 class="text-subtitle-1 font-weight-medium mb-2">Existing Migrations</h4>
             <div class="text-body-2 text-medium-emphasis mb-3">Click a migration to add it:</div>
             <div class="d-flex flex-wrap gap-2">
@@ -427,8 +404,19 @@
         <v-spacer />
         <v-btn
           @click="showMigrationDialog = false"
+          data-test="migration-cancel-btn"
         >
           Cancel
+        </v-btn>
+        <v-btn
+          color="primary"
+          variant="elevated"
+          @click="createNewMigration"
+          :disabled="!newMigrationName.trim()"
+          data-test="new-migration-create-btn"
+        >
+          <v-icon start size="small">mdi-plus</v-icon>
+          Create
         </v-btn>
       </v-card-actions>
     </v-card>
@@ -477,7 +465,6 @@ const newMigrationName = ref('')
 
 // Index Editor Dialog state
 const showIndexEditorDialog = ref(false)
-const showIndexJsonEditorDialog = ref(false) // New state for JSON editor
 const editingIndexTitle = ref('')
 const editingIndexData = ref<any>({})
 const jsonText = ref('')
@@ -693,104 +680,118 @@ const addNewIndex = () => {
     key: {},
     options: {}
   }
+  // Initialize JSON text with default structure
+  jsonText.value = JSON.stringify({
+    name: '',
+    key: {},
+    options: {}
+  }, null, 2)
   showIndexEditorDialog.value = true
 }
 
 const openIndexEditor = (indexData: any) => {
   editingIndexData.value = { ...indexData }
   editingIndexTitle.value = 'Edit Index'
+  // Populate JSON text with current index data
+  jsonText.value = JSON.stringify(indexData, null, 2)
   showIndexEditorDialog.value = true
 }
 
 const handleJsonChange = (value: string) => {
   jsonText.value = value
-  jsonError.value = ''
+  // Trigger validation on every change
+  validateJson()
 }
 
 const validateJson = () => {
   try {
     if (jsonText.value.trim()) {
-      JSON.parse(jsonText.value)
+      const parsed = JSON.parse(jsonText.value)
       jsonError.value = ''
+      
+      // Check if it has required fields
+      if (!parsed.name || typeof parsed.name !== 'string') {
+        jsonError.value = 'Index must have a valid name field'
+      } else if (!parsed.key || typeof parsed.key !== 'object') {
+        jsonError.value = 'Index must have a valid key field'
+      } else if (!parsed.options || typeof parsed.options !== 'object') {
+        jsonError.value = 'Index must have a valid options field'
+      }
     }
   } catch (error) {
     jsonError.value = 'Invalid JSON format'
   }
 }
 
+// Computed property to determine if save button should be disabled
+const isSaveDisabled = computed(() => {
+  return props.disabled || !jsonText.value.trim() || !!jsonError.value
+})
+
 const saveIndex = async () => {
   try {
-    if (editingIndexData.value.name?.trim()) {
-      // Ensure add_indexes array exists
-      if (!props.version.add_indexes) {
-        props.version.add_indexes = []
-      }
-      
-      // If editing existing index, update it
+    if (!jsonText.value.trim()) {
+      return
+    }
+
+    // Parse and validate JSON
+    const parsedIndex = JSON.parse(jsonText.value)
+    
+    // Validate required fields
+    if (!parsedIndex.name || typeof parsedIndex.name !== 'string') {
+      jsonError.value = 'Index must have a valid name field'
+      return
+    }
+    
+    if (!parsedIndex.key || typeof parsedIndex.key !== 'object') {
+      jsonError.value = 'Index must have a valid key field'
+      return
+    }
+    
+    if (!parsedIndex.options || typeof parsedIndex.options !== 'object') {
+      jsonError.value = 'Index must have a valid options field'
+      return
+    }
+
+    // Ensure add_indexes array exists
+    if (!props.version.add_indexes) {
+      props.version.add_indexes = []
+    }
+    
+    if (editingIndexTitle.value === 'New Index') {
+      // Add new index
+      props.version.add_indexes.push(parsedIndex)
+    } else {
+      // Update existing index - find by original name
       const indexToUpdate = props.version.add_indexes.find((idx: any) => 
         idx.name === editingIndexData.value.name
       )
       
       if (indexToUpdate) {
         // Update existing index
-        Object.assign(indexToUpdate, editingIndexData.value)
-      } else {
-        // Add new index with default structure
-        const newIndex = {
-          name: editingIndexData.value.name.trim(),
-          key: { [editingIndexData.value.name.trim()]: 1 }, // Default key
-          options: {} // Default empty options
-        }
-        props.version.add_indexes.push(newIndex)
-      }
-      
-      // Call the update function to save changes
-      props.onUpdate()
-      showIndexEditorDialog.value = false
-      showIndexJsonEditorDialog.value = false // Close JSON editor
-      
-      // Reset form for new indexes
-      if (editingIndexTitle.value === 'New Index') {
-        editingIndexData.value = { name: '', key: {}, options: {} }
+        Object.assign(indexToUpdate, parsedIndex)
       }
     }
+    
+    // Call the update function to save changes
+    props.onUpdate()
+    showIndexEditorDialog.value = false
+    
+    // Reset form for new indexes
+    if (editingIndexTitle.value === 'New Index') {
+      editingIndexData.value = { name: '', key: {}, options: {} }
+      jsonText.value = ''
+    }
+    
+    // Clear any errors
+    jsonError.value = ''
   } catch (err) {
+    jsonError.value = 'Invalid JSON format'
     console.error('Failed to save index:', err)
   }
 }
 
-const saveIndexJson = async () => {
-  try {
-    // Validate JSON before saving
-    if (jsonText.value.trim()) {
-      const parsedData = JSON.parse(jsonText.value)
-      editingIndexData.value = parsedData
-    }
-    
-    if (editingIndexData.value.name?.trim()) {
-      // Ensure add_indexes array exists
-      if (!props.version.add_indexes) {
-        props.version.add_indexes = []
-      }
-      
-      // Find and update the existing index
-      const indexToUpdate = props.version.add_indexes.find((idx: any) => 
-        idx.name === editingIndexData.value.name
-      )
-      
-      if (indexToUpdate) {
-        // Update existing index
-        Object.assign(indexToUpdate, editingIndexData.value)
-        // Call the update function to save changes
-        props.onUpdate()
-        showIndexJsonEditorDialog.value = false
-      }
-    }
-  } catch (err) {
-    console.error('Failed to save index JSON:', err)
-    jsonError.value = 'Invalid JSON format'
-  }
-}
+
 
 const deleteIndex = (index: number) => {
   if (props.version.add_indexes && props.version.add_indexes[index]) {
@@ -911,5 +912,18 @@ onMounted(() => {
   font-family: monospace;
   font-size: 14px;
   color: rgba(0, 0, 0, 0.6);
+}
+
+.index-name-display {
+  min-width: 200px;
+  padding: 8px 12px;
+  background-color: rgba(var(--v-theme-surface), 0.8);
+  border: 1px solid rgba(var(--v-theme-outline), 0.2);
+  border-radius: 4px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 1rem;
+  color: rgba(var(--v-theme-on-surface), 0.87);
+  font-family: monospace;
 }
 </style>

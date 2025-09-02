@@ -22,7 +22,7 @@
           <div class="d-flex align-center">
             <h3 class="text-h5 text-medium-emphasis mr-2 mb-0">{{ configuration.file_name.replace('.yaml', '') }}:</h3>
             <div v-if="!editingTitle" @click="startEditTitle" class="title-display">
-              <h3 class="title-text mb-0 cursor-pointer">{{ configuration.title || 'Enter configuration title...' }}</h3>
+              <h3 class="title-text mb-0 cursor-pointer" data-test="page-header">{{ configuration.title || 'Enter configuration title...' }}</h3>
             </div>
             <v-text-field
               v-else
@@ -43,6 +43,7 @@
               color="secondary"
               @click="processAllVersions"
               :loading="processing"
+              data-test="configure-collection-btn"
             >
               <v-icon start>mdi-cog</v-icon>
               Configure Collection
@@ -52,6 +53,7 @@
               color="red"
               variant="outlined"
               @click="showDeleteCollectionDialog = true"
+              data-test="delete-collection-btn"
             >
               <v-icon start>mdi-delete</v-icon>
               Delete Collection
@@ -63,6 +65,7 @@
                 variant="outlined"
                 size="small"
                 @click="downloadJsonSchema(activeVersion)"
+                data-test="json-schema-btn"
               >
                 <v-icon start size="small">mdi-code-json</v-icon>
                 JSON Schema
@@ -72,6 +75,7 @@
                 variant="outlined"
                 size="small"
                 @click="downloadBsonSchema(activeVersion)"
+                data-test="bson-schema-btn"
               >
                 <v-icon start size="small">mdi-database</v-icon>
                 BSON Schema
@@ -82,7 +86,7 @@
         
         <!-- Description row -->
         <div v-if="!editingDescription" @click="startEditDescription" class="description-display">
-          <p class="description-text mb-0 cursor-pointer">{{ configuration.description || 'Enter configuration description...' }}</p>
+          <p class="description-text mb-0 cursor-pointer" data-test="page-description">{{ configuration.description || 'Enter configuration description...' }}</p>
         </div>
         <v-text-field
           v-else
@@ -108,38 +112,40 @@
         >
           <template #title>
             <div class="d-flex align-center gap-2">
-              <h3 class="text-h5 mb-0 mr-2">Version:</h3>
+              <h3 class="text-h5 mb-0 mr-2" data-test="card-header">Version:</h3>
               <div class="d-flex align-center">
                 <v-btn
-                  icon="mdi-chevron-left"
+                  icon="mdi-skip-previous"
                   variant="text"
-                  size="small"
+                  size="default"
                   :disabled="!hasPreviousVersion"
                   @click="navigateToPreviousVersion"
                   class="mr-1"
                   data-test="previous-version-btn"
                 />
-                <span class="text-h6 font-weight-medium">{{ activeVersion }}</span>
-                <v-btn
-                  v-if="!hasNextVersion"
-                  prepend-icon="mdi-plus"
-                  variant="elevated"
-                  size="small"
-                  color="primary"
-                  class="ml-1 new-version-btn"
-                  title="Create new version"
-                  @click="showNewVersionDialog = true"
-                >
-                  New Version
-                </v-btn>
+                <span class="text-h6 font-weight-medium" data-test="active-version">{{ activeVersion }}</span>
+                                  <v-btn
+                    v-if="!hasNextVersion"
+                    prepend-icon="mdi-plus"
+                    variant="elevated"
+                    size="small"
+                    color="primary"
+                    class="ml-1 new-version-btn"
+                    title="Create new version"
+                    @click="showNewVersionDialog = true"
+                    data-test="new-version-btn"
+                  >
+                    New Version
+                  </v-btn>
                 <v-btn
                   v-else
-                  icon="mdi-chevron-right"
+                  icon="mdi-skip-next"
                   variant="text"
-                  size="small"
+                  size="default"
                   :disabled="!hasNextVersion"
                   @click="navigateToNextVersion"
                   class="ml-1"
+                  data-test="next-version-btn"
                 />
               </div>
             </div>
@@ -154,9 +160,10 @@
                   variant="elevated"
                   size="small"
                   @click="toggleVersionLock"
+                  data-test="toggle-lock-btn"
                 >
-                  <v-icon start size="small">{{ activeVersionData?._locked ? 'mdi-lock' : 'mdi-lock-open' }}</v-icon>
-                  {{ activeVersionData?._locked ? 'Unlock' : 'Lock' }}
+                  <v-icon start size="small" data-test="lock-icon">{{ activeVersionData?._locked ? 'mdi-lock' : 'mdi-lock-open' }}</v-icon>
+                  <span data-test="lock-btn-text">{{ activeVersionData?._locked ? 'Unlock' : 'Lock' }}</span>
                 </v-btn>
                 <v-btn
                   v-if="!activeVersionData?._locked"
@@ -164,9 +171,10 @@
                   variant="elevated"
                   size="small"
                   @click="deleteVersion"
+                  data-test="delete-version-btn"
                 >
-                  <v-icon start size="small">mdi-delete</v-icon>
-                  Delete
+                  <v-icon start size="small" data-test="delete-icon">mdi-delete</v-icon>
+                  <span data-test="delete-btn-text">Delete</span>
                 </v-btn>
               </div>
             </div>
@@ -187,9 +195,9 @@
   </v-container>
 
   <!-- New Version Dialog -->
-  <v-dialog v-model="showNewVersionDialog" max-width="600px">
+  <v-dialog v-model="showNewVersionDialog" max-width="600px" data-test="new-version-dialog">
     <v-card>
-      <v-card-title class="text-h5 pa-6 pb-4">
+      <v-card-title class="text-h5 pa-6 pb-4" data-test="new-version-dialog-title">
         <v-icon start color="primary" class="mr-2">mdi-plus-circle</v-icon>
         Create New Version
       </v-card-title>
@@ -206,15 +214,7 @@
                 <span class="text-caption text-medium-emphasis d-block">Breaking changes</span>
               </div>
               <div class="version-controls">
-                <v-text-field
-                  v-model.number="newVersion.major"
-                  type="number"
-                  variant="outlined"
-                  density="compact"
-                  hide-details
-                  class="version-input"
-                  min="0"
-                />
+                <div class="version-display-value" data-test="new-version-major">{{ newVersion.major }}</div>
                 <v-btn
                   icon="mdi-plus"
                   size="small"
@@ -222,6 +222,7 @@
                   color="primary"
                   @click="incrementVersion('major')"
                   class="ml-2"
+                  data-test="new-version-major-plus-btn"
                 />
               </div>
             </div>
@@ -233,15 +234,7 @@
                 <span class="text-caption text-medium-emphasis d-block">New features</span>
               </div>
               <div class="version-controls">
-                <v-text-field
-                  v-model.number="newVersion.minor"
-                  type="number"
-                  variant="outlined"
-                  density="compact"
-                  hide-details
-                  class="version-input"
-                  min="0"
-                />
+                <div class="version-display-value" data-test="new-version-minor">{{ newVersion.minor }}</div>
                 <v-btn
                   icon="mdi-plus"
                   size="small"
@@ -249,6 +242,7 @@
                   color="primary"
                   @click="incrementVersion('minor')"
                   class="ml-2"
+                  data-test="new-version-minor-plus-btn"
                 />
               </div>
             </div>
@@ -260,15 +254,7 @@
                 <span class="text-caption text-medium-emphasis d-block">Bug fixes</span>
               </div>
               <div class="version-controls">
-                <v-text-field
-                  v-model.number="newVersion.patch"
-                  type="number"
-                  variant="outlined"
-                  density="compact"
-                  hide-details
-                  class="version-input"
-                  min="0"
-                />
+                <div class="version-display-value" data-test="new-version-patch">{{ newVersion.patch }}</div>
                 <v-btn
                   icon="mdi-plus"
                   size="small"
@@ -276,6 +262,7 @@
                   color="primary"
                   @click="incrementVersion('patch')"
                   class="ml-2"
+                  data-test="new-version-patch-plus-btn"
                 />
               </div>
             </div>
@@ -287,22 +274,16 @@
                 <span class="text-caption text-medium-emphasis d-block">Enumeration version</span>
               </div>
               <div class="version-controls">
-                <v-text-field
-                  v-model.number="newVersion.enumerators"
-                  type="number"
-                  variant="outlined"
-                  density="compact"
-                  hide-details
-                  class="version-input"
-                  min="0"
-                />
+                <div class="version-display-value" data-test="new-version-enumerators">{{ newVersion.enumerators }}</div>
                 <v-btn
+                  v-if="newVersion.enumerators < 3"
                   icon="mdi-plus"
                   size="small"
                   variant="elevated"
                   color="primary"
-                  @click="newVersion.enumerators++"
+                  @click="incrementVersion('enumerators')"
                   class="ml-2"
+                  data-test="new-version-enumerators-plus-btn"
                 />
               </div>
             </div>
@@ -312,7 +293,7 @@
           <v-divider />
           <div class="version-preview">
             <h4 class="text-subtitle-1 font-weight-medium mb-3 text-medium-emphasis">Preview</h4>
-            <div class="version-display">
+            <div class="version-display" data-test="new-version-display">
               <span class="text-body-2 text-medium-emphasis">New Version: </span>
               <span class="text-h5 font-weight-bold text-primary">{{ newVersionString }}</span>
             </div>
@@ -325,6 +306,7 @@
           color="secondary"
           variant="text"
           @click="showNewVersionDialog = false"
+          data-test="new-version-cancel-btn"
         >
           Cancel
         </v-btn>
@@ -333,6 +315,7 @@
           variant="elevated"
           @click="createNewVersion"
           :loading="saving"
+          data-test="new-version-create-btn"
         >
           <v-icon start>mdi-plus</v-icon>
           Create Version
@@ -342,7 +325,7 @@
   </v-dialog>
   
   <!-- Delete Collection Confirmation Dialog -->
-  <v-dialog v-model="showDeleteCollectionDialog" max-width="500">
+  <v-dialog v-model="showDeleteCollectionDialog" max-width="500" data-test="delete-collection-dialog">
     <v-card>
       <v-card-title class="text-h5">
         Delete Collection?
@@ -355,8 +338,8 @@
       </v-card-text>
       <v-card-actions>
         <v-spacer />
-        <v-btn @click="showDeleteCollectionDialog = false">Cancel</v-btn>
-        <v-btn color="error" @click="confirmDeleteCollection">Delete</v-btn>
+        <v-btn @click="showDeleteCollectionDialog = false" data-test="delete-collection-cancel-btn">Cancel</v-btn>
+        <v-btn color="error" @click="confirmDeleteCollection" data-test="delete-collection-confirm-btn">Delete</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -367,6 +350,7 @@ import { ref, onMounted, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useEvents } from '@/composables/useEvents'
 import { useEventState } from '@/composables/useEventState'
+import { useNewVersion } from '@/composables/useNewVersion'
 import { apiService } from '@/utils/api'
 import BaseCard from '@/components/BaseCard.vue'
 import VersionInformationCards from '@/components/VersionInformationCards.vue'
@@ -389,6 +373,10 @@ interface Configuration {
 
 const route = useRoute()
 const router = useRouter()
+
+// New version functionality for enumerators
+const { createNewEnumeratorVersion } = useNewVersion()
+
 const loading = ref(false)
 const saving = ref(false)
 const processing = ref(false)
@@ -639,7 +627,7 @@ const initializeNewVersion = () => {
   }
 }
 
-const incrementVersion = (type: 'major' | 'minor' | 'patch') => {
+const incrementVersion = (type: 'major' | 'minor' | 'patch' | 'enumerators') => {
   if (type === 'major') {
     newVersion.value.major++
     newVersion.value.minor = 0
@@ -649,6 +637,8 @@ const incrementVersion = (type: 'major' | 'minor' | 'patch') => {
     newVersion.value.patch = 0
   } else if (type === 'patch') {
     newVersion.value.patch++
+  } else if (type === 'enumerators') {
+    newVersion.value.enumerators++
   }
 }
 
@@ -742,6 +732,32 @@ const createNewVersion = async () => {
       }
     } catch (err: any) {
       console.log(`Failed to create test data file for new version: ${err.message}`)
+    }
+
+    // Create new enumerators file if enumerators version changed
+    try {
+      const versionParts = versionString.split('.')
+      
+      if (versionParts.length >= 4 && previousLatestVersion) {
+        const oldVersionParts = previousLatestVersion.version.split('.')
+        const newEnumeratorsVersion = versionParts[3] // enumerators version is the 4th part
+        const oldEnumeratorsVersion = oldVersionParts.length >= 4 ? oldVersionParts[3] : '0'
+        
+        // Only create new enumerators version if the enumerators version actually changed
+        if (newEnumeratorsVersion !== oldEnumeratorsVersion) {
+          const enumeratorsFileName = `enumerations.${newEnumeratorsVersion}.yaml`
+          
+          // Use unified new version logic to create enumerators file
+          // This will find the newest enumerator version, lock it, and create a new version
+          await createNewEnumeratorVersion()
+          
+          console.log(`Enumerators file created using unified logic: ${enumeratorsFileName}`)
+        } else {
+          console.log(`Enumerators version unchanged (${newEnumeratorsVersion}), skipping enumerators file creation`)
+        }
+      }
+    } catch (err: any) {
+      console.log(`Failed to create enumerators file for new version: ${err.message}`)
     }
     
     // Set as active version
@@ -951,8 +967,16 @@ watch(showNewVersionDialog, (newValue) => {
   gap: 8px;
 }
 
-.version-input {
-  max-width: 120px;
+.version-display-value {
+  min-width: 60px;
+  padding: 8px 12px;
+  background-color: rgba(var(--v-theme-surface), 0.8);
+  border: 1px solid rgba(var(--v-theme-outline), 0.2);
+  border-radius: 4px;
+  text-align: center;
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: rgba(var(--v-theme-on-surface), 0.87);
 }
 
 .version-preview {

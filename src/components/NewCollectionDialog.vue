@@ -105,8 +105,8 @@
             <div class="version-preview" data-test="version-preview">
               <div class="text-caption text-medium-emphasis mb-2">Final Version:</div>
               <div class="version-display" data-test="version-display">
-                <span class="text-h6 font-weight-bold">{{ newVersionString }}</span>
-                <span class="text-caption text-medium-emphasis d-block">+ enumerator version</span>
+                <span class="text-h6 font-weight-bold">{{ newVersionString }}.{{ newestEnumeratorVersion }}</span>
+                <span class="text-caption text-medium-emphasis d-block">Major.Minor.Patch.Enumerators</span>
               </div>
               <div v-if="!isVersionValid" class="text-caption text-error mt-2" data-test="version-warning">
                 ⚠️ Version must be greater than 0.0.0
@@ -167,6 +167,9 @@ const newVersion = ref({
   patch: 0,
 })
 
+// Enumerator version state
+const newestEnumeratorVersion = ref(0)
+
 const newVersionString = computed(() => {
   return `${newVersion.value.major}.${newVersion.value.minor}.${newVersion.value.patch}`
 })
@@ -206,11 +209,38 @@ const incrementPatchVersion = () => {
 }
 
 // Reset form to initial state
-const resetForm = () => {
+const resetForm = async () => {
   newCollectionName.value = ''
   newCollectionDescription.value = ''
   nameError.value = null
   newVersion.value = { major: 0, minor: 0, patch: 0 }
+  
+  // Load the newest enumerator version
+  try {
+    const enumeratorFiles = await apiService.getEnumerators()
+    let newestVersion = 0
+    
+    if (enumeratorFiles && enumeratorFiles.length > 0) {
+      // Filter out any files that don't have the expected structure
+      const validFiles = enumeratorFiles.filter((f: any) => f && f.file_name && typeof f.file_name === 'string')
+      
+      if (validFiles.length > 0) {
+        const versions = validFiles
+          .map((f: any) => {
+            const match = f.file_name.match(/enumerations\.(\d+)\.yaml/)
+            return match ? parseInt(match[1], 10) : 0
+          })
+          .filter((version: number) => !isNaN(version))
+        
+        newestVersion = versions.length > 0 ? Math.max(...versions) : 0
+      }
+    }
+    
+    newestEnumeratorVersion.value = newestVersion
+  } catch (err) {
+    console.warn('Failed to load enumerator version:', err)
+    newestEnumeratorVersion.value = 0
+  }
 }
 
 // Close dialog
@@ -244,27 +274,8 @@ const createCollection = async () => {
 
   creating.value = true
   try {
-    // Get the newest enumerator version
-    const enumeratorFiles = await apiService.getEnumerators()
-    let newestEnumeratorVersion = 0
-    
-    if (enumeratorFiles && enumeratorFiles.length > 0) {
-      // Filter out any files that don't have the expected structure
-      const validFiles = enumeratorFiles.filter((f: any) => f && f.file_name && typeof f.file_name === 'string')
-      
-      if (validFiles.length > 0) {
-        const versions = validFiles
-          .map((f: any) => {
-            const match = f.file_name.match(/enumerations\.(\d+)\.yaml/)
-            return match ? parseInt(match[1], 10) : 0
-          })
-          .filter((version: number) => !isNaN(version))
-        
-        newestEnumeratorVersion = versions.length > 0 ? Math.max(...versions) : 0
-      }
-    }
-    
-    const version = `${newVersion.value.major}.${newVersion.value.minor}.${newVersion.value.patch}.${newestEnumeratorVersion}`
+    // Use the reactive enumerator version value
+    const version = `${newVersion.value.major}.${newVersion.value.minor}.${newVersion.value.patch}.${newestEnumeratorVersion.value}`
     const configFileName = `${name}.yaml`
     
     // Create configuration file
@@ -275,7 +286,7 @@ const createCollection = async () => {
       versions: [{
         version: version,
         dictionary: `${name}.${newVersion.value.major}.${newVersion.value.minor}.${newVersion.value.patch}.yaml`,
-        enumerators: `enumerations.${newestEnumeratorVersion}.yaml`,
+        enumerators: `enumerations.${newestEnumeratorVersion.value}.yaml`,
         indexes: [],
         migrations: []
       }]
@@ -301,7 +312,7 @@ const createCollection = async () => {
     // Save all files using PUT endpoints
     await apiService.saveConfiguration(configFileName, configuration)
     await apiService.saveDictionary(`${name}.${newVersion.value.major}.${newVersion.value.minor}.${newVersion.value.patch}.yaml`, dictionary)
-    await apiService.saveTestDataFile(`${name}.${newVersion.value.major}.${newVersion.value.minor}.${newVersion.value.patch}.${newestEnumeratorVersion}.json`, testData)
+    await apiService.saveTestDataFile(`${name}.${newVersion.value.major}.${newVersion.value.minor}.${newVersion.value.patch}.${newestEnumeratorVersion.value}.json`, testData)
     
     // Close dialog and reset
     closeDialog()
