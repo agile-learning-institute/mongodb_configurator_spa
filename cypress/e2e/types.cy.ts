@@ -65,6 +65,23 @@ describe('Types page flow', () => {
       // click unlock button
       cy.get('[data-test="unlock-type-btn"]').click()
       
+      // verify unlock confirmation dialog is visible
+      cy.get('[data-test="unlock-type-dialog"]').should('be.visible')
+      
+      // verify unlock confirmation dialog has proper message
+      cy.get('[data-test="unlock-confirmation-message"]').should('contain', `Are you sure you want to unlock "${name}"?`)
+      cy.get('[data-test="unlock-warning-message"]').should('contain', 'This will allow the type to be modified. Changes will be saved automatically.')
+      
+      // verify unlock confirmation dialog has Cancel and Unlock buttons
+      cy.get('[data-test="unlock-cancel-btn"]').should('be.visible')
+      cy.get('[data-test="unlock-confirm-btn"]').should('be.visible')
+      
+      // click unlock confirm button in dialog
+      cy.get('[data-test="unlock-confirm-btn"]').click()
+      
+      // verify dialog is closed
+      cy.get('[data-test="unlock-type-dialog"]').should('not.exist')
+      
       // verify unlocked
       cy.get('[data-test="lock-type-btn"]').should('be.visible')
       cy.get('[data-test="unlock-type-btn"]').should('not.exist')
