@@ -145,6 +145,7 @@
                   :disabled="!hasNextVersion"
                   @click="navigateToNextVersion"
                   class="ml-1"
+                  data-test="next-version-btn"
                 />
               </div>
             </div>
