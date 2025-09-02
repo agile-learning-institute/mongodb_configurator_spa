@@ -184,7 +184,7 @@ describe('Configurations page flow', () => {
   })
 
   describe('New Version Management', () => {
-    it.only('can create new version with patch logic', () => {
+    it('can create new version with patch logic', () => {
       // Arrange - very minimal assertions
       cy.visit(`/configurations/${createdConfigurationName}.yaml`)
       cy.get('[data-test="new-version-btn"]').click()
@@ -195,27 +195,27 @@ describe('Configurations page flow', () => {
       // Verify patch down and up
       cy.get('[data-test="new-version-major-plus-btn"]').click()
       cy.get('[data-test="new-version-major"]').should('contain', '1')
-      cy.get('[data-test="new-version-display"]').should('contain', '1.0.0.0')
+      cy.get('[data-test="new-version-display"]').should('contain', '1.0.0.2')
       
       cy.get('[data-test="new-version-minor-plus-btn"]').click()
       cy.get('[data-test="new-version-minor"]').should('contain', '1')
-      cy.get('[data-test="new-version-display"]').should('contain', '1.1.0.0')
+      cy.get('[data-test="new-version-display"]').should('contain', '1.1.0.2')
 
       cy.get('[data-test="new-version-patch-plus-btn"]').click()
       cy.get('[data-test="new-version-patch"]').should('contain', '1')
-      cy.get('[data-test="new-version-display"]').should('contain', '1.1.1.0')
+      cy.get('[data-test="new-version-display"]').should('contain', '1.1.1.2')
 
       cy.get('[data-test="new-version-patch-plus-btn"]').click()
       cy.get('[data-test="new-version-patch"]').should('contain', '2')
-      cy.get('[data-test="new-version-display"]').should('contain', '1.1.2.0')
+      cy.get('[data-test="new-version-display"]').should('contain', '1.1.2.2')
 
       cy.get('[data-test="new-version-minor-plus-btn"]').click()
       cy.get('[data-test="new-version-minor"]').should('contain', '2')
-      cy.get('[data-test="new-version-display"]').should('contain', '1.2.0.0')
+      cy.get('[data-test="new-version-display"]').should('contain', '1.2.0.2')
 
       cy.get('[data-test="new-version-major-plus-btn"]').click()
       cy.get('[data-test="new-version-major"]').should('contain', '2')
-      cy.get('[data-test="new-version-display"]').should('contain', '2.0.0.0')
+      cy.get('[data-test="new-version-display"]').should('contain', '2.0.0.2')
 
       // Close dialog without creating
       cy.get('[data-test="new-version-cancel-btn"]').click()
@@ -224,7 +224,7 @@ describe('Configurations page flow', () => {
 
     it('creates new enumerators if needed', () => {
       // First open the test configuration, and new version dialog
-      cy.visit('/configurations/${createdConfigurationName}.yaml')
+      cy.visit(`/configurations/${createdConfigurationName}.yaml`)
       cy.get('[data-test="new-version-btn"]').click()
       cy.get('[data-test="new-version-dialog"]').should('be.visible')
 
@@ -249,7 +249,7 @@ describe('Configurations page flow', () => {
 
   describe('Step2: Drop Indexes', () => {
     it('can add and delete index with new name', () => {
-      cy.visit('/configurations/${createdConfigurationName}.yaml')
+      cy.visit(`/configurations/${createdConfigurationName}.yaml`)
 
       // Test adding new index with custom name
       cy.get('[data-test="add-drop-index-btn"]').click()
@@ -271,9 +271,8 @@ describe('Configurations page flow', () => {
     })
 
     it('can add and delete an index from existing indexes', () => {
-      
       // Add a index to the current version (so it exists as "previously created")
-      cy.visit('/configurations/${createdConfigurationName}.yaml')
+      cy.visit(`/configurations/${createdConfigurationName}.yaml`)
       cy.get('[data-test="add-index-btn"]').click()
       cy.get('[data-test="step5-json-editor-container"]').should('be.visible')
       cy.get('[data-test="step5-index-json-textarea"] textarea:not(.v-textarea__sizer)').clear().type('{"name": "test_index_name", "key": {"field": 1}, "options": {}}', { parseSpecialCharSequences: false })
@@ -307,6 +306,7 @@ describe('Configurations page flow', () => {
 
   describe('Step3 Migration Management', () => {
     it('can add, link, and delete new migration', () => {
+      cy.visit(`/configurations/${createdConfigurationName}.yaml`)
       // Test adding new migration
       cy.get('[data-test="add-migration-btn"]').click()
       cy.get('[data-test="new-migration-name-input"]').type('test_migration')
@@ -321,6 +321,7 @@ describe('Configurations page flow', () => {
     })
 
     it('can add, link, and delete existing migration', () => {
+      cy.visit(`/configurations/${createdConfigurationName}.yaml`)
       cy.get('[data-test="add-migration-btn"]').click()
       cy.get('[data-test="new-migration-existing-migrations"]').first()
       .contains('first_last_to_full_name.json').click()
@@ -337,13 +338,23 @@ describe('Configurations page flow', () => {
 
   describe('Step4: Schema Links', () => {
     it('links to the correct schema file', () => {
+      cy.visit(`/configurations/${createdConfigurationName}.yaml`)
       cy.get('[data-test="dictionary-file-chip"]').should('contain', `${createdConfigurationName}.${createdConfigurationVersion}.yaml`)
+      cy.get('[data-test="dictionary-file-chip"]').click()
+      cy.url().should('include', `/dictionaries/${createdConfigurationName}.${createdConfigurationVersion}.yaml`)
+    })
+
+    it('links to the correct enumerators file', () => {
+      cy.visit(`/configurations/${createdConfigurationName}.yaml`)
       cy.get('[data-test="enumerators-file-chip"]').should('contain', `enumerations.${createdEnumeratorsVersion}.yaml`)
+      cy.get('[data-test="enumerators-file-chip"]').click()
+      cy.url().should('include', `/enumerators/enumerations.${createdEnumeratorsVersion}.yaml`)
     })
   })
 
   describe('Step 5 Index Management', () => {
     it('can add, edit, and remove indexes', () => {
+      cy.visit(`/configurations/${createdConfigurationName}.yaml`)
       // Test adding new index
       cy.get('[data-test="add-index-btn"]').click()
       
@@ -398,6 +409,7 @@ describe('Configurations page flow', () => {
 
   describe('Step6: Load Test Data', () => {
     it('links to the correct test data file', () => {
+      cy.visit(`/configurations/${createdConfigurationName}.yaml`)
       cy.get('[data-test="test-data-file-chip"]').should('contain', `${createdConfigurationName}.${createdConfigurationVersion}.${createdEnumeratorsVersion}.json`)
     })
   })

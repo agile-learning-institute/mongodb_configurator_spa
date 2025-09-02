@@ -738,15 +738,23 @@ const createNewVersion = async () => {
     try {
       const versionParts = versionString.split('.')
       
-      if (versionParts.length >= 4) {
-        const enumeratorsVersion = versionParts[3] // enumerators version is the 4th part
-        const enumeratorsFileName = `enumerations.${enumeratorsVersion}.yaml`
+      if (versionParts.length >= 4 && previousLatestVersion) {
+        const oldVersionParts = previousLatestVersion.version.split('.')
+        const newEnumeratorsVersion = versionParts[3] // enumerators version is the 4th part
+        const oldEnumeratorsVersion = oldVersionParts.length >= 4 ? oldVersionParts[3] : '0'
         
-        // Use unified new version logic to create enumerators file
-        // This will find the newest enumerator version, lock it, and create a new version
-        await createNewEnumeratorVersion()
-        
-        console.log(`Enumerators file created using unified logic: ${enumeratorsFileName}`)
+        // Only create new enumerators version if the enumerators version actually changed
+        if (newEnumeratorsVersion !== oldEnumeratorsVersion) {
+          const enumeratorsFileName = `enumerations.${newEnumeratorsVersion}.yaml`
+          
+          // Use unified new version logic to create enumerators file
+          // This will find the newest enumerator version, lock it, and create a new version
+          await createNewEnumeratorVersion()
+          
+          console.log(`Enumerators file created using unified logic: ${enumeratorsFileName}`)
+        } else {
+          console.log(`Enumerators version unchanged (${newEnumeratorsVersion}), skipping enumerators file creation`)
+        }
       }
     } catch (err: any) {
       console.log(`Failed to create enumerators file for new version: ${err.message}`)
