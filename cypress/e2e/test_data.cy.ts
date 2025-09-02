@@ -1,72 +1,104 @@
 describe('Test Data page flow', () => {
-  it('creates, edits entries, persists, and deletes a test data file', () => {
-    const name = `e2e-test-data-${Date.now()}`
-    const fileName = `${name}.json`
-
-    // List page
+  const name = `e2e-test-data-${Date.now()}`
+  const fileName = `${name}.json`
+  it('can create a test data file', () => {
     cy.visit('/test_data')
-    cy.contains('button', 'New').click()
-    cy.get('div.v-dialog input').type(name)
-    cy.get('div.v-dialog').contains('button', 'Create').click()
+    cy.get('[data-test="new-test-data-btn"]').click()
+    cy.get('[data-test="new-test-data-dialog"]').should('be.visible')
+    cy.get('[data-test="new-test-data-name-input"]').type(name)
+    cy.get('[data-test="new-test-data-create-btn"]').click()
 
-    // Detail page URL
+    cy.wait(500)
     cy.url().should('include', `/test_data/${fileName}`)
+    cy.get('[data-test="card-title"]').should('contain', fileName)
+    cy.get('[data-test="delete-file-btn"]').should('be.enabled')
+    cy.get('[data-test="array-editor-title"]').should('contain', 'Test Data')
+    cy.get('[data-test="add-item-btn"]').should('be.enabled')
+    cy.get('[data-test=array-editor-empty').should('be.visible')
+  })
 
-    // Empty list
-    cy.getByTest('array-editor-empty').should('be.visible')
+  it('can add test data', () => {
+    cy.visit(`/test_data/${fileName}`)
 
     // Add first test data document
-    cy.getByTest('add-item-btn').click()
-    cy.getByTest('array-item-textarea-0').should('be.visible')
-    cy.getByTest('array-item-textarea-0')
-      .find('textarea')
-      .first()
-      .clear({ force: true })
-      .type('{"name":"John","age":30}', { parseSpecialCharSequences: false })
-      .blur()
-
-    // Verify first added
-    cy.getByTest('array-panel-0').should('exist')
+    cy.get('[data-test="add-item-btn"]').click()
+    cy.get('[data-test="array-panel-0"]').should('be.visible')
+    cy.get('[data-test="array-item-label"]').eq(0).should('contain', 'Document 1')
+    cy.get('[data-test="remove-item-btn-0"]').should('be.enabled')
+    cy.get('[data-test="array-item-textarea-0"]').should('be.visible')
+    cy.get('[data-test="array-item-textarea-0"]').find('textarea').first().clear()
+    cy.get('[data-test="array-item-textarea-0"]').find('textarea').first().type('{"name":"John","age":30}', { parseSpecialCharSequences: false }).blur()
 
     // Add second test data document
-    cy.getByTest('add-item-btn').click()
-    cy.getByTest('array-item-textarea-1').should('be.visible')
-    cy.getByTest('array-item-textarea-1')
-      .find('textarea')
-      .first()
-      .clear({ force: true })
-      .type('{"name":"Jane","age":25}', { parseSpecialCharSequences: false })
-      .blur()
+    cy.get('[data-test="add-item-btn"]').click()
+    cy.get('[data-test="array-panel-1"]').should('be.visible')
+    cy.get('[data-test="array-item-label"]').eq(1).should('contain', 'Document 2')
+    cy.get('[data-test="remove-item-btn-1"]').should('be.enabled')
+    cy.get('[data-test="array-item-textarea-1"]').should('be.visible')
+    cy.get('[data-test="array-item-textarea-1"]').find('textarea').first().clear()
+    cy.get('[data-test="array-item-textarea-1"]').find('textarea').first().type('{"name":"Jane","age":25}', { parseSpecialCharSequences: false }).blur()
+
+    // Verify first added
+    cy.get('[data-test="array-panel-0"]').should('be.visible')
+    cy.get('[data-test="array-item-label"]').eq(0).should('contain', 'Document 1')
+    cy.get('[data-test="remove-item-btn-0"]').should('be.enabled')
+    cy.get('[data-test="array-item-textarea-0"]').should('be.visible')
+    cy.get('[data-test="array-item-textarea-0"]').find('textarea').first()
+      .invoke('val').should('contain', '"name"').and('contain', '"John"').and('contain', '"age"').and('contain', '30')
 
     // Verify second added
-    cy.getByTest('array-panel-1').should('exist')
+    cy.get('[data-test="array-panel-1"]').should('be.visible')
+    cy.get('[data-test="array-item-label"]').eq(1).should('contain', 'Document 2')
+    cy.get('[data-test="remove-item-btn-1"]').should('be.enabled')
+    cy.get('[data-test="array-item-textarea-1"]').should('be.visible')
+    cy.get('[data-test="array-item-textarea-1"]').find('textarea').first()
+      .invoke('val').should('contain', '"name"').and('contain', '"Jane"').and('contain', '"age"').and('contain', '25')
+  })
+
+  it('can show/hide test data', () => {
+    cy.visit(`/test_data/${fileName}`)
+    cy.wait(500)
+
+    cy.get('[data-test="array-panel-title-0"]').should('be.visible')
+    cy.get('[data-test="array-item-textarea-0"]').should('not.exist')
+
+    cy.get('[data-test="array-panel-title-0"]').click()
+    cy.get('[data-test="array-item-textarea-0"]').should('be.visible')
+    
+    cy.get('[data-test="array-panel-title-0"]').click()
+    cy.get('[data-test="array-item-textarea-0"]').should('not.exist')
+  })
+
+  it('can delete test data', () => {
+    cy.visit(`/test_data/${fileName}`)
+    cy.wait(500)
 
     // Delete first entry (trash can button)
-    cy.get('[data-test="remove-item-icon-0"]').click({ force: true })
-    cy.getByTest('array-panel-0').should('exist') // Now former index 1 shifts to 0
+    cy.get('[data-test="remove-item-btn-0"]').should('be.enabled')
+    cy.get('[data-test="remove-item-btn-0"]').click()
 
-    // Reload and verify persistence
+    // Reload and verify persistence what was 2 is now 1
     cy.reload()
-    cy.getByTest('array-panel-0').should('exist')
-    
-    // Click the chevron to expand the panel after reload
-    cy.get('.mdi-chevron-down').first().click()
-    
-    cy.getByTest('array-item-textarea-0').should('be.visible') // Ensure panel is visible after reload
-    cy.getByTest('array-item-textarea-0')
-      .find('textarea')
-      .first()
-      .invoke('val')
-      .should('contain', '"name"')
-      .and('contain', '"Jane"')
+    cy.wait(500)
+    cy.get('[data-test="array-panel-title-0"]').click()
+    cy.get('[data-test="array-item-textarea-0"]').should('be.visible')
+    cy.get('[data-test="array-panel-0"]').should('be.visible')
+    cy.get('[data-test="array-item-label"]').eq(0).should('contain', 'Document 1')
+    cy.get('[data-test="remove-item-btn-0"]').should('be.enabled')
+    cy.get('[data-test="array-item-textarea-0"]').should('be.visible')
+    cy.get('[data-test="array-item-textarea-0"]').find('textarea').first()
+      .invoke('val').should('contain', '"name"').and('contain', '"Jane"').and('contain', '"age"').and('contain', '25')
+
+  })
+
+  it('can delete the test data file', () => {
+    cy.visit(`/test_data/${fileName}`)
 
     // Delete the test data file (header Delete) within the specific BaseCard for this file
-    cy.get(`[data-test="base-card-${fileName}"] [data-test="delete-file-btn"]`)
-      .click({ force: true })
-    cy.get('.v-overlay--active [data-test="confirm-delete-btn"]').first().click({ force: true })
-
-    // Back to list
-    cy.url().should('match', /\/test_data\/?$/)
+    cy.get(`[data-test="delete-file-btn"]`).click()
+    cy.get(`[data-test="confirm-delete-btn"]`).click()
+    cy.url().should('contain', 'test_data')
     cy.get(`[data-test="file-card-${fileName}"]`).should('not.exist')
+    cy.get('[data-test^="file-card-"]').should('have.length', 2)
   })
 })
