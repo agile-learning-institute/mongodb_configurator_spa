@@ -8,6 +8,7 @@
           variant="elevated"
           prepend-icon="mdi-plus"
           @click="showNewDialog = true"
+          data-test="new-test-data-btn"
         >
           New
         </v-btn>
@@ -21,7 +22,7 @@
     />
 
     <!-- New Test Data Dialog -->
-    <v-dialog v-model="showNewDialog" max-width="400">
+    <v-dialog v-model="showNewDialog" max-width="400" data-test="new-test-data-dialog">
       <v-card>
         <v-card-title class="text-h5">
           Create New Test Data
@@ -35,6 +36,7 @@
             density="compact"
             hide-details
             @keyup.enter="createNewTestData"
+            data-test="new-test-data-name-input"
           />
         </v-card-text>
         <v-card-actions>
@@ -44,6 +46,7 @@
             color="primary" 
             @click="createNewTestData"
             :disabled="!newTestDataName.trim()"
+            data-test="new-test-data-create-btn"
           >
             Create
           </v-btn>

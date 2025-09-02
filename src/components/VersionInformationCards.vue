@@ -357,7 +357,7 @@
   </v-dialog>
 
   <!-- Migration Selection Dialog -->
-  <v-dialog v-model="showMigrationDialog" max-width="600px">
+  <v-dialog v-model="showMigrationDialog" max-width="600px" data-test="new-migration-dialog">
     <v-card>
       <v-card-title>Select Migration</v-card-title>
       <v-card-text>
