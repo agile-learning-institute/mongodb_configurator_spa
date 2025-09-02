@@ -47,7 +47,7 @@ describe('Types page flow', () => {
       cy.get('[data-test="unlock-type-btn"]').should('not.exist')
       cy.get('[data-test="root-description-placeholder"]').should('be.visible').and('contain', 'Click to add description')
       cy.get('[data-test="root-type-chip-picker"] [data-test="type-chip"]').should('be.visible').and('contain', 'void')
-      cy.get('[data-test="root-property-card"] [data-test="card-content"]').should('not.exist')
+      cy.get('[data-test="root-property-card"] [data-test="card-content"]').should('be.empty')
     })
 
     it('can lock/unlock a type', () => {
