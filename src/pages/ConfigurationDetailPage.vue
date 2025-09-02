@@ -22,7 +22,7 @@
           <div class="d-flex align-center">
             <h3 class="text-h5 text-medium-emphasis mr-2 mb-0">{{ configuration.file_name.replace('.yaml', '') }}:</h3>
             <div v-if="!editingTitle" @click="startEditTitle" class="title-display">
-              <h3 class="title-text mb-0 cursor-pointer">{{ configuration.title || 'Enter configuration title...' }}</h3>
+              <h3 class="title-text mb-0 cursor-pointer" data-test="page-header">{{ configuration.title || 'Enter configuration title...' }}</h3>
             </div>
             <v-text-field
               v-else
@@ -43,6 +43,7 @@
               color="secondary"
               @click="processAllVersions"
               :loading="processing"
+              data-test="configure-collection-btn"
             >
               <v-icon start>mdi-cog</v-icon>
               Configure Collection
@@ -52,6 +53,7 @@
               color="red"
               variant="outlined"
               @click="showDeleteCollectionDialog = true"
+              data-test="delete-collection-btn"
             >
               <v-icon start>mdi-delete</v-icon>
               Delete Collection
@@ -63,6 +65,7 @@
                 variant="outlined"
                 size="small"
                 @click="downloadJsonSchema(activeVersion)"
+                data-test="json-schema-btn"
               >
                 <v-icon start size="small">mdi-code-json</v-icon>
                 JSON Schema
@@ -72,6 +75,7 @@
                 variant="outlined"
                 size="small"
                 @click="downloadBsonSchema(activeVersion)"
+                data-test="bson-schema-btn"
               >
                 <v-icon start size="small">mdi-database</v-icon>
                 BSON Schema
@@ -82,7 +86,7 @@
         
         <!-- Description row -->
         <div v-if="!editingDescription" @click="startEditDescription" class="description-display">
-          <p class="description-text mb-0 cursor-pointer">{{ configuration.description || 'Enter configuration description...' }}</p>
+          <p class="description-text mb-0 cursor-pointer" data-test="page-description">{{ configuration.description || 'Enter configuration description...' }}</p>
         </div>
         <v-text-field
           v-else

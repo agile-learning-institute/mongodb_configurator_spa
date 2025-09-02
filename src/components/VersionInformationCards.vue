@@ -7,6 +7,9 @@
       :is-secondary="true"
       data-test="step-1-card"
     >
+      <template #title>
+        <span data-test="step1-name">Step 1: Drop existing schema validation</span>
+      </template>
     </BaseCard>
 
     <!-- Step 2: Drop Indexes Card -->
@@ -16,6 +19,9 @@
       :is-secondary="true"
       data-test="drop-indexes-card"
     >
+      <template #title>
+        <span data-test="step2-name">{{ `Step 2: Drop the following indexes${!version.drop_indexes || version.drop_indexes.length === 0 ? ' (none)' : ''}` }}</span>
+      </template>
       <template #header-actions>
         <v-btn
           v-if="!props.disabled"
@@ -64,6 +70,9 @@
       :is-secondary="true"
       data-test="migrations-card"
     >
+      <template #title>
+        <span data-test="step3-name">{{ `Step 3: Execute the following migrations${!version.migrations || version.migrations.length === 0 ? ' (none)' : ''}` }}</span>
+      </template>
       <template #header-actions>
         <v-btn
           v-if="!props.disabled"
@@ -105,6 +114,9 @@
       :is-secondary="true"
       data-test="step-4-card"
     >
+      <template #title>
+        <span data-test="step4-name">Step 4: Apply Schema</span>
+      </template>
       <div class="d-flex gap-2">
         <!-- Dictionary File Link -->
         <v-chip
@@ -141,6 +153,9 @@
       :is-secondary="true"
       data-test="step-5-card"
     >
+      <template #title>
+        <span data-test="step5-name">{{ `Step 5: Add these indexes${!version.add_indexes || version.add_indexes.length === 0 ? ' (none)' : ''}` }}</span>
+      </template>
       <template #header-actions>
         <v-btn
           v-if="!props.disabled"
@@ -255,6 +270,9 @@
       :is-secondary="true"
       data-test="step-6-card"
     >
+      <template #title>
+        <span data-test="step6-name">Step 6: Load Test Data</span>
+      </template>
       <div class="d-flex gap-2">
         <!-- Test Data File Link -->
         <v-chip

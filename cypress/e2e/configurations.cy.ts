@@ -37,7 +37,7 @@ describe('Configurations page flow', () => {
   })
 
   describe('List Configurations Page Functionality', () => {
-    it.only('loads configurations page and shows basic elements', () => {
+    it('loads configurations page and shows basic elements', () => {
       // Visit list configurations page
       cy.visit('/configurations')
 
@@ -50,19 +50,20 @@ describe('Configurations page flow', () => {
       cy.get('.v-card').should('exist').should('have.length', 2)
     })
 
-    it.only('can create a new configuration', () => {
+    it('can create a new configuration', () => {
       // Before Each created with the dialog
-      cy.visit('/configurations/${createdConfigurationName}.yaml')
+      cy.visit(`/configurations/${createdConfigurationName}.yaml`)
+      cy.wait(500)
 
       // Verify default values
-      // cy.get('[data-test="card-header"] h3').contains('Version:')
+      // cy.get('[data-test="card-header"]').contains('Version:')
       cy.get('[data-test="active-version"]').should('contain', '0.1.0.2')
-      cy.get('[data-test="dictionary-file-chip"]').should('contain', '${createdConfigurationName}.${createdConfigurationVersion}.yaml')
+      cy.get('[data-test="dictionary-file-chip"]').should('contain', `${createdConfigurationName}.${createdConfigurationVersion}.yaml`)
       cy.get('[data-test="enumerators-file-chip"]').should('contain', 'enumerations.2.yaml')
-      cy.get('[data-test="test-data-file-chip"]').should('contain', '${createdConfigurationName}.${createdConfigurationVersion}.${createdEnumeratorsVersion}.json')
+      cy.get('[data-test="test-data-file-chip"]').should('contain', `${createdConfigurationName}.${createdConfigurationVersion}.${createdEnumeratorsVersion}.json`)
     })
 
-    it.only('correctly patches version numbers', () => {
+    it('correctly patches version numbers', () => {
       // Visit configurations page
       cy.visit('/configurations')
       cy.get('[data-test="new-collection-btn"]').click()
@@ -104,32 +105,33 @@ describe('Configurations page flow', () => {
   })
 
   describe('Configuration Detail Page', () => {
-    it('displays correct elements', () => {
+    it.only('displays correct elements', () => {
       // First create a configuration
-      cy.visit('/configurations/${createdConfigurationName}.yaml')
+      cy.visit(`/configurations/${createdConfigurationName}.yaml`)
 
-      cy.contains('h3.text-h5').should('contain', createdConfigurationName)
-      cy.contains('p.description-text').should('contain', 'Test configuration for E2E testing')
-      cy.contains('button', 'Configure Collection').should('be.visible')
-      cy.contains('button', 'Delete Collection').should('be.visible')
-      cy.contains('button', 'JSON Schema').should('be.visible')
-      cy.contains('button', 'BSON Schema').should('be.visible')
+      cy.get('[data-test="page-header"]').should('contain', createdConfigurationName)
+      cy.get('[data-test="page-description"]').should('contain', 'Test configuration for E2E testing')
+      cy.get('[data-test="page-description"]').should('contain', 'Test configuration for E2E testing')
+      cy.get('[data-test="configure-collection-btn"]').should('be.enabled')
+      cy.get('[data-test="delete-collection-btn"]').should('be.enabled')
+      cy.get('[data-test="json-schema-btn"]').should('be.enabled')
+      cy.get('[data-test="bson-schema-btn"]').should('be.enabled')
 
-      cy.get('[data-test="card-header"] h3').contains('Version:')
-      cy.get('[data-test="active-version"]').should('contain', '0.1.0.2')
-      //cy.get('[data-test="new-version-btn"]).should('contain', 'New Version')
-      //cy.get('[data-test="lock-btn"]).should('not.be.disabled')
-      //cy.get('[data-test="delete-btn"]).should('not.be.disabled')
+      cy.get('[data-test="card-header"]').should('contain', 'Version:')
+      cy.get('[data-test="active-version"]').should('contain', `${createdConfigurationVersion}.${createdEnumeratorsVersion}`)
+      cy.get('[data-test="new-version-btn"]').should('be.enabled')
+      cy.get('[data-test="toggle-lock-btn"]').should('be.enabled')
+      cy.get('[data-test="delete-version-btn"]').should('be.enabled')
 
-      //cy.get('[data-test="step1-name"]').should('contain', 'Step 1: Drop existing schema validation')
-      //cy.get('[data-test="step2-name"]').should('contain', 'Step 2: Drop the following indexes (none)')
-      //cy.get('[data-test="step3-name"]').should('contain', 'Step 3: Execute the following migrations (none)')
-      //cy.get('[data-test="step4-name"]').should('contain', 'Step 4: Apply Schema')
-      //cy.get('[data-test="schema-chip"]').should('contain', 'test.0.1.0.yaml')
-      //cy.get('[data-test="enumerators-chip"]').should('contain', 'enumerations.2.yaml')
-      //cy.get('[data-test="step5-name"]').should('contain', 'Step 5: Add these indexes (none)')
-      //cy.get('[data-test="step6-name"]').should('contain', 'Step 6: Load Test Data')
-      //cy.get('[data-test="test-data-chip"]').should('contain', '${createdConfigurationName}.${createdConfigurationVersion}.${createdEnumeratorsVersion}.json')
+      cy.get('[data-test="step1-name"]').should('contain', 'Step 1: Drop existing schema validation')
+      cy.get('[data-test="step2-name"]').should('contain', 'Step 2: Drop the following indexes (none)')
+      cy.get('[data-test="step3-name"]').should('contain', 'Step 3: Execute the following migrations (none)')
+      cy.get('[data-test="step4-name"]').should('contain', 'Step 4: Apply Schema')
+      cy.get('[data-test="dictionary-file-chip"]').should('contain', `test.${createdConfigurationVersion}.yaml`)
+      cy.get('[data-test="enumerators-file-chip"]').should('contain', `enumerations.${createdEnumeratorsVersion}.yaml`)
+      cy.get('[data-test="step5-name"]').should('contain', 'Step 5: Add these indexes (none)')
+      cy.get('[data-test="step6-name"]').should('contain', 'Step 6: Load Test Data')
+      cy.get('[data-test="test-data-file-chip"]').should('contain', `${createdConfigurationName}.${createdConfigurationVersion}.${createdEnumeratorsVersion}.json`)
     })
 
     it('displays correct version navigator icons', () => {
