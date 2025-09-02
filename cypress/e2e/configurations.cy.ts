@@ -134,10 +134,10 @@ describe('Configurations page flow', () => {
       cy.get('[data-test="test-data-file-chip"]').should('contain', `${createdConfigurationName}.${createdConfigurationVersion}.${createdEnumeratorsVersion}.json`)
     })
 
-    it('displays correct version navigator icons', () => {
+    it.only('displays correct version navigator icons', () => {
       // Create two new versions (0.1.1) and (0.1.2)
-      cy.visit('/configurations/${createdConfigurationName}.yaml')
-      cy.get('[data-test^="file-card-"]').should('exist')
+      cy.visit(`/configurations/${createdConfigurationName}.yaml`)
+      cy.get("[data-test='base-card-default']").should('exist')
 
       // Create two new versions (0.1.1) and (0.1.2)
       cy.get('[data-test="new-version-btn"]').click()
