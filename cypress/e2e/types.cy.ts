@@ -93,11 +93,12 @@ describe('Types page flow', () => {
       
       // verify root type picker contains only "object", "array", "simple", "complex"
       cy.get('[data-test="type-picker-menu"]').should('be.visible')
-      cy.get('[data-test="type-picker-menu"] [data-test="type-option"]').should('have.length', 4)
-      cy.get('[data-test="type-picker-menu"] [data-test="type-option"]').should('contain', 'object')
-      cy.get('[data-test="type-picker-menu"] [data-test="type-option"]').should('contain', 'array')
-      cy.get('[data-test="type-picker-menu"] [data-test="type-option"]').should('contain', 'simple')
-      cy.get('[data-test="type-picker-menu"] [data-test="type-option"]').should('contain', 'complex')
+      cy.get('[data-test="built-in-types-category"]').should('be.visible')
+      cy.get('[data-test^="built-in-type-"]').should('have.length', 4)
+      cy.get('[data-test="built-in-type-object"]').should('be.visible')
+      cy.get('[data-test="built-in-type-array"]').should('be.visible')
+      cy.get('[data-test="built-in-type-simple"]').should('be.visible')
+      cy.get('[data-test="built-in-type-complex"]').should('be.visible')
       
       // close picker by clicking outside
       cy.get('body').click()
