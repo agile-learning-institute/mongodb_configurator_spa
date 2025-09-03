@@ -146,13 +146,13 @@ const toggleCollapsed = () => {
 .array-of-object-extension {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 2px;
 }
 
 .object-actions {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 1px;
 }
 
 .action-section {

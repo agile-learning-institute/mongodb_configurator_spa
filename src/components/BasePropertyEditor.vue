@@ -82,14 +82,13 @@
       
       <div class="property-required-section" v-if="canBeRequired" data-test="property-required-section">
         <v-tooltip 
-          text="Mark this property as required"
+          :text="editableRequired ? 'Mark as optional' : 'Mark as required'"
           location="top"
           color="primary"
           text-color="white"
         >
           <template v-slot:activator="{ props }">
             <v-btn
-              :icon="editableRequired ? 'mdi-checkbox-marked' : 'mdi-checkbox-blank-outline'"
               variant="text"
               size="small"
               color="default"
@@ -97,7 +96,9 @@
               @click="toggleRequired"
               :disabled="disabled"
               data-test="required-toggle-btn"
-            />
+            >
+              <span class="material-symbols-outlined">{{ editableRequired ? 'toggle_on' : 'toggle_off' }}</span>
+            </v-btn>
           </template>
         </v-tooltip>
       </div>
@@ -111,14 +112,15 @@
         >
           <template v-slot:activator="{ props }">
             <v-btn
-              icon="mdi-delete"
               variant="text"
               size="small"
               color="error"
               v-bind="props"
               @click="handleDelete"
               data-test="delete-property-btn"
-            />
+            >
+              <span class="material-symbols-outlined">delete</span>
+            </v-btn>
           </template>
         </v-tooltip>
       </div>

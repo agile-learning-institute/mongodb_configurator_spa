@@ -116,19 +116,19 @@ const getAdditionalPropsIcon = (): string => {
 .object-property-extension {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 2px;
   flex-shrink: 0;
 }
 
 .property-add-section {
-  margin-left: 8px;
+  margin-left: 2px;
 }
 
 .property-additional-props-section {
-  margin-left: 8px;
+  margin-left: 2px;
 }
 
 .property-collapse-section {
-  margin-left: 8px;
+  margin-left: 2px;
 }
 </style>
