@@ -274,10 +274,19 @@ const finishEditDescription = () => {
 const handleTypeChange = (newType: string) => {
   if (typeData.value?.root && newType !== typeData.value.root.type) {
     // Create a new property with the updated type
-    const updatedProperty = {
+    let updatedProperty: any = {
       ...typeData.value.root,
       type: newType
     }
+    
+    // Set default values for simple and complex types
+    if (newType === 'simple') {
+      updatedProperty.schema = { type: "string", maxLength: 40 }
+    } else if (newType === 'complex') {
+      updatedProperty.json_type = { type: "string", maxLength: 40 }
+      updatedProperty.bson_type = { type: "string", maxLength: 40 }
+    }
+    
     handleRootPropertyChange(updatedProperty)
   }
 }

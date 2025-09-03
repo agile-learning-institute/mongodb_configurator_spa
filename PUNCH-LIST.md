@@ -94,8 +94,8 @@ Your plan should:
 - [x] Add necessary `data-test` attributes for reliable testing
 - [x] Create structured test files with clear separation of concerns
 - [x] Implement `types.cy.ts` - General type document testing
-- [ ] Implement `types.simple.cy.ts` - Simple property editor testing
-- [ ] Implement `types.complex.cy.ts` - Complex property editor testing
+- [x] Implement `types.simple.cy.ts` - Simple property editor testing
+- [x] Implement `types.complex.cy.ts` - Complex property editor testing
 - [ ] Implement `types.objects.cy.ts` - Object property editor testing
 - [ ] Implement `types.array.cy.ts` - Array property editor testing
 - [ ] Update PUNCH-LIST.md with completion status
@@ -117,7 +117,27 @@ Your plan should:
   - Updated unlock dialog to use standard warning pattern (no "Type UNLOCK" required)
   - Fixed type picker test selectors to use correct data-test attributes
   - Tests cover: basic elements, lock/unlock with confirmation dialog, type picker verification, delete confirmation
-- Ready to implement remaining property type test files
+- **COMPLETED**: `types.simple.cy.ts` - Simple property editor testing
+  - Tests JSON schema input with auto-save functionality
+  - Verifies lock/unlock behavior with readonly attribute assertions
+  - Tests persistence after page reload
+  - Fixed textarea disabled state assertions to use readonly attribute
+- **COMPLETED**: `types.complex.cy.ts` - Complex property editor testing
+  - Tests both JSON and BSON type definition inputs
+  - Verifies default values are present (string type with maxLength: 40)
+  - Tests individual and combined schema entry with persistence
+  - Tests lock/unlock behavior for both textarea inputs
+  - Tests invalid JSON handling and schema replacement
+  - Fixed textarea disabled state assertions to use readonly attribute
+- **COMPLETED**: Auto-save functionality improvements
+  - Implemented consistent auto-save pattern across all JSON textarea inputs
+  - Fixed broken simple property editor auto-save
+  - Updated PropertyEditor to use @update:model-value handlers (save on valid JSON only)
+  - Removed blur-based saving for auto-save textarea inputs
+  - Set default values in property object when changing to simple/complex types
+  - Ensured default values are persisted immediately via autoSave()
+  - Fixed TypeScript build errors with proper type annotations
+- Ready to implement remaining property type test files (objects, array)
 
 ## Phase 5: Dictionary Detail Page Testing
 **Goal**: Test dictionary-specific property editing with type restrictions

@@ -136,12 +136,11 @@
           <v-textarea
             v-model="simplePropertySchema"
             label="JSON Schema"
-            placeholder='{"type": "string", "minLength": 1, "maxLength": 100}'
             variant="outlined"
             rows="6"
             :readonly="disabled"
-            @blur="handleSimplePropertySchemaChange"
-            @input="handleSimplePropertySchemaInput"
+            persistent-hint
+            @update:model-value="handleSimplePropertySchemaChange"
             data-test="simple-property-schema-input"
           />
         </div>
@@ -157,11 +156,11 @@
               <v-textarea
                 v-model="complexPropertyJsonType"
                 label="JSON Type Definition"
-                placeholder='{"type": "object", "properties": {...}}'
                 variant="outlined"
                 rows="6"
                 :readonly="disabled"
-                @blur="handleComplexPropertyJsonTypeChange"
+                persistent-hint
+                @update:model-value="handleComplexPropertyJsonTypeChange"
                 data-test="complex-property-json-input"
               />
             </v-col>
@@ -169,11 +168,11 @@
               <v-textarea
                 v-model="complexPropertyBsonType"
                 label="BSON Type Definition"
-                placeholder='{"bsonType": "object", "properties": {...}}'
                 variant="outlined"
                 rows="6"
                 :readonly="disabled"
-                @blur="handleComplexPropertyBsonTypeChange"
+                persistent-hint
+                @update:model-value="handleComplexPropertyBsonTypeChange"
                 data-test="complex-property-bson-input"
               />
             </v-col>
@@ -235,23 +234,23 @@ const shouldRenderPropertyEditor = computed(() => {
 // Computed properties for Simple and Complex property editing
 const simplePropertySchema = computed(() => {
   if (isSimpleProperty(props.property)) {
-    return JSON.stringify(props.property.schema, null, 2)
+    return JSON.stringify(props.property.schema || { type: "string", maxLength: 40 }, null, 2)
   }
-  return ''
+  return JSON.stringify({ type: "string", maxLength: 40 }, null, 2)
 })
 
 const complexPropertyJsonType = computed(() => {
   if (isComplexProperty(props.property)) {
-    return JSON.stringify(props.property.json_type, null, 2)
+    return JSON.stringify(props.property.json_type || { type: "string", maxLength: 40 }, null, 2)
   }
-  return ''
+  return JSON.stringify({ type: "string", maxLength: 40 }, null, 2)
 })
 
 const complexPropertyBsonType = computed(() => {
   if (isComplexProperty(props.property)) {
-    return JSON.stringify(props.property.bson_type, null, 2)
+    return JSON.stringify(props.property.bson_type || { type: "string", maxLength: 40 }, null, 2)
   }
-  return ''
+  return JSON.stringify({ type: "string", maxLength: 40 }, null, 2)
 })
 
 
@@ -371,67 +370,53 @@ const handleArrayArrayCollapsed = (collapsed: boolean) => {
   }
 }
 
-const handleSimplePropertySchemaInput = (event: Event) => {
-  const value = (event.target as HTMLTextAreaElement).value;
+const handleSimplePropertySchemaChange = (value: string) => {
   if (isSimpleProperty(props.property)) {
     try {
-      const parsedSchema = JSON.parse(value);
-      const updatedProperty = {
-        ...props.property,
-        schema: parsedSchema
-      };
-      emit('change', updatedProperty);
+      if (value.trim()) {
+        const parsedSchema = JSON.parse(value);
+        const updatedProperty = {
+          ...props.property,
+          schema: parsedSchema
+        };
+        emit('change', updatedProperty);
+      }
     } catch (error) {
-      // Don't log errors on every keystroke for invalid JSON
-      // The user might be in the middle of typing
+      // Don't save on invalid JSON - user might be in the middle of typing
     }
   }
 };
 
-const handleSimplePropertySchemaChange = (event: Event) => {
-  const value = (event.target as HTMLTextAreaElement).value;
-  if (isSimpleProperty(props.property)) {
-    try {
-      const parsedSchema = JSON.parse(value);
-      const updatedProperty = {
-        ...props.property,
-        schema: parsedSchema
-      };
-      emit('change', updatedProperty);
-    } catch (error) {
-      console.error('Invalid JSON schema:', error);
-    }
-  }
-};
-
-const handleComplexPropertyJsonTypeChange = (event: Event) => {
-  const value = (event.target as HTMLTextAreaElement).value;
+const handleComplexPropertyJsonTypeChange = (value: string) => {
   if (isComplexProperty(props.property)) {
     try {
-      const parsedJsonType = JSON.parse(value);
-      const updatedProperty = {
-        ...props.property,
-        json_type: parsedJsonType
-      };
-      emit('change', updatedProperty);
+      if (value.trim()) {
+        const parsedJsonType = JSON.parse(value);
+        const updatedProperty = {
+          ...props.property,
+          json_type: parsedJsonType
+        };
+        emit('change', updatedProperty);
+      }
     } catch (error) {
-      console.error('Invalid JSON type definition:', error);
+      // Don't save on invalid JSON - user might be in the middle of typing
     }
   }
 };
 
-const handleComplexPropertyBsonTypeChange = (event: Event) => {
-  const value = (event.target as HTMLTextAreaElement).value;
+const handleComplexPropertyBsonTypeChange = (value: string) => {
   if (isComplexProperty(props.property)) {
     try {
-      const parsedBsonType = JSON.parse(value);
-      const updatedProperty = {
-        ...props.property,
-        bson_type: parsedBsonType
-      };
-      emit('change', updatedProperty);
+      if (value.trim()) {
+        const parsedBsonType = JSON.parse(value);
+        const updatedProperty = {
+          ...props.property,
+          bson_type: parsedBsonType
+        };
+        emit('change', updatedProperty);
+      }
     } catch (error) {
-      console.error('Invalid BSON type definition:', error);
+      // Don't save on invalid JSON - user might be in the middle of typing
     }
   }
 };
