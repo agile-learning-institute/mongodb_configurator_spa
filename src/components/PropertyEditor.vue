@@ -136,10 +136,10 @@
           <v-textarea
             v-model="simplePropertySchema"
             label="JSON Schema"
-            placeholder='{"type": "string", "minLength": 1, "maxLength": 100}'
             variant="outlined"
             rows="6"
             :readonly="disabled"
+            persistent-hint
             @blur="handleSimplePropertySchemaChange"
             @input="handleSimplePropertySchemaInput"
             data-test="simple-property-schema-input"
@@ -157,10 +157,10 @@
               <v-textarea
                 v-model="complexPropertyJsonType"
                 label="JSON Type Definition"
-                placeholder='{"type": "object", "properties": {...}}'
                 variant="outlined"
                 rows="6"
                 :readonly="disabled"
+                persistent-hint
                 @blur="handleComplexPropertyJsonTypeChange"
                 data-test="complex-property-json-input"
               />
@@ -169,10 +169,10 @@
               <v-textarea
                 v-model="complexPropertyBsonType"
                 label="BSON Type Definition"
-                placeholder='{"bsonType": "object", "properties": {...}}'
                 variant="outlined"
                 rows="6"
                 :readonly="disabled"
+                persistent-hint
                 @blur="handleComplexPropertyBsonTypeChange"
                 data-test="complex-property-bson-input"
               />
@@ -235,23 +235,23 @@ const shouldRenderPropertyEditor = computed(() => {
 // Computed properties for Simple and Complex property editing
 const simplePropertySchema = computed(() => {
   if (isSimpleProperty(props.property)) {
-    return JSON.stringify(props.property.schema, null, 2)
+    return JSON.stringify(props.property.schema || {}, null, 2)
   }
-  return ''
+  return '{}'
 })
 
 const complexPropertyJsonType = computed(() => {
   if (isComplexProperty(props.property)) {
-    return JSON.stringify(props.property.json_type, null, 2)
+    return JSON.stringify(props.property.json_type || {}, null, 2)
   }
-  return ''
+  return '{}'
 })
 
 const complexPropertyBsonType = computed(() => {
   if (isComplexProperty(props.property)) {
-    return JSON.stringify(props.property.bson_type, null, 2)
+    return JSON.stringify(props.property.bson_type || {}, null, 2)
   }
-  return ''
+  return '{}'
 })
 
 

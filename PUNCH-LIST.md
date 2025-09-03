@@ -94,7 +94,7 @@ Your plan should:
 - [x] Add necessary `data-test` attributes for reliable testing
 - [x] Create structured test files with clear separation of concerns
 - [x] Implement `types.cy.ts` - General type document testing
-- [ ] Implement `types.simple.cy.ts` - Simple property editor testing
+- [x] Implement `types.simple.cy.ts` - Simple property editor testing
 - [ ] Implement `types.complex.cy.ts` - Complex property editor testing
 - [ ] Implement `types.objects.cy.ts` - Object property editor testing
 - [ ] Implement `types.array.cy.ts` - Array property editor testing
