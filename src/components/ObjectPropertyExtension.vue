@@ -10,6 +10,7 @@
         <template v-slot:activator="{ props }">
           <v-btn
             icon="list_alt_add"
+            icon-set="material-symbols"
             variant="text"
             size="small"
             color="default"
@@ -31,6 +32,7 @@
         <template v-slot:activator="{ props }">
           <v-btn
             :icon="getAdditionalPropsIcon()"
+            icon-set="material-symbols"
             variant="text"
             size="large"
             v-bind="props"
@@ -51,6 +53,7 @@
         <template v-slot:activator="{ props }">
           <v-btn
             :icon="collapsed ? 'expand_content' : 'collapse_content'"
+            icon-set="material-symbols"
             variant="text"
             size="small"
             color="default"

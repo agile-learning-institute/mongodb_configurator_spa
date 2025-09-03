@@ -2,15 +2,20 @@ import { createVuetify } from 'vuetify'
 import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
 import { aliases, mdi } from 'vuetify/iconsets/mdi'
+import { aliases as materialSymbolsAliases, materialSymbols } from 'vuetify/iconsets/material-symbols'
 
 export default createVuetify({
   components,
   directives,
   icons: {
     defaultSet: 'mdi',
-    aliases,
+    aliases: {
+      ...aliases,
+      ...materialSymbolsAliases,
+    },
     sets: {
       mdi,
+      'material-symbols': materialSymbols,
     },
   },
   theme: {
