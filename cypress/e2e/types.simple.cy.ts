@@ -71,7 +71,7 @@ describe('Types page flow', () => {
     it('can enter schema string', () => {
       // Enter a schema string
       cy.get('[data-test="simple-property-schema-input"]').should('be.visible')
-      cy.get('[data-test="simple-property-schema-input"]').find('textarea').first()
+      cy.get('[data-test="simple-property-schema-input"]').find('textarea').first().clear()
         .type('{"type": "string", "minLength": 1, "maxLength": 100}', { parseSpecialCharSequences: false })
 
       cy.reload()
@@ -97,7 +97,7 @@ describe('Types page flow', () => {
       cy.get('[data-test="lock-type-btn"]').should('not.exist')
       cy.get('[data-test="root-description-display"]').should('contain', 'Click to add description') 
       cy.get('[data-test="root-type-chip-picker"] [data-test="type-chip"]').should('not.have.attr', 'data-disabled')
-      // cy.get('[data-test="simple-property-schema-input"]').find('textarea').first().should('be.disabled')
+      // cy.get('[data-test="simple-property-schema-input"]').find('textarea').first().should('have.attr', 'readonly')
     })
 
     it('unlocks', () => {
@@ -130,7 +130,7 @@ describe('Types page flow', () => {
       cy.get('[data-test="unlock-type-btn"]').should('not.exist')
       cy.get('[data-test="root-description-display"]').should('be.visible')
       cy.get('[data-test="root-type-chip-picker"] [data-test="type-chip"]').should('be.visible')
-      cy.get('[data-test="simple-property-schema-input"]').find('textarea').should('not.be.disabled')
+      cy.get('[data-test="simple-property-schema-input"]').find('textarea').should('not.have.attr', 'readonly')
     })
   })
 })

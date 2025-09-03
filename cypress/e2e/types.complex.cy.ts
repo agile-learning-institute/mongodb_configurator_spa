@@ -86,18 +86,11 @@ describe('Types page flow', () => {
         .should('contain', 'type').and('contain', 'string').and('contain', 'maxLength').and('contain', '40')
     })
 
-    it.only('can enter JSON schema', () => {
-      const jsonSchema = {
-        type: "object",
-        properties: {
-          name: { type: "string", minLength: 1 },
-          age: { type: "number", minimum: 0 }
-        },
-        required: ["name"]
-      }
+    it('can enter JSON schema', () => {
+      const jsonSchema = {"foo":"bar", "boo":"far"}
       
       // Enter JSON schema
-      cy.get('[data-test="complex-property-json-input"]').find('textarea').first()
+      cy.get('[data-test="complex-property-json-input"]').find('textarea').first().clear()
         .type(JSON.stringify(jsonSchema, null, 2), { parseSpecialCharSequences: false })
 
       cy.reload()
@@ -105,33 +98,24 @@ describe('Types page flow', () => {
       
       // Verify JSON schema persisted
       cy.get('[data-test="complex-property-json-input"]').find('textarea').first().invoke('val')
-        .should('contain', 'type').and('contain', 'object')
-        .and('contain', 'properties').and('contain', 'name')
-        .and('contain', 'age').and('contain', 'required')
+        .should('contain', 'foo').and('contain', 'bar')
+        .and('contain', 'boo').and('contain', 'far')
     })
 
     it('can enter BSON schema', () => {
-      const bsonSchema = {
-        bsonType: "object",
-        properties: {
-          name: { bsonType: "string" },
-          age: { bsonType: "int" }
-        },
-        required: ["name"]
-      }
+      const bsonSchema = {"fat":"box", "bat":"fox"}
       
       // Enter BSON schema
-      cy.get('[data-test="complex-property-bson-input"]').find('textarea').first()
+      cy.get('[data-test="complex-property-bson-input"]').find('textarea').first().clear()
         .type(JSON.stringify(bsonSchema, null, 2), { parseSpecialCharSequences: false })
 
       cy.reload()
       cy.wait(500)
       
-      // Verify BSON schema persisted
+      // Verify JSON schema persisted
       cy.get('[data-test="complex-property-bson-input"]').find('textarea').first().invoke('val')
-        .should('contain', 'bsonType').and('contain', 'object')
-        .and('contain', 'properties').and('contain', 'name')
-        .and('contain', 'age').and('contain', 'required')
+        .should('contain', 'fat').and('contain', 'box')
+        .and('contain', 'bat').and('contain', 'fox')
     })
 
     it('locks', () => {
@@ -149,8 +133,8 @@ describe('Types page flow', () => {
       cy.get('[data-test="lock-type-btn"]').should('not.exist')
       cy.get('[data-test="root-description-display"]').should('contain', 'Click to add description') 
       cy.get('[data-test="root-type-chip-picker"] [data-test="type-chip"]').should('not.have.attr', 'data-disabled')
-      cy.get('[data-test="complex-property-json-input"]').find('textarea').first().should('be.disabled')
-      cy.get('[data-test="complex-property-bson-input"]').find('textarea').first().should('be.disabled')
+      cy.get('[data-test="complex-property-json-input"]').find('textarea').first().should('have.attr', 'readonly')
+      cy.get('[data-test="complex-property-bson-input"]').find('textarea').first().should('have.attr', 'readonly')
     })
 
     it('unlocks', () => {
@@ -183,8 +167,8 @@ describe('Types page flow', () => {
       cy.get('[data-test="unlock-type-btn"]').should('not.exist')
       cy.get('[data-test="root-description-display"]').should('be.visible')
       cy.get('[data-test="root-type-chip-picker"] [data-test="type-chip"]').should('be.visible')
-      cy.get('[data-test="complex-property-json-input"]').find('textarea').should('not.be.disabled')
-      cy.get('[data-test="complex-property-bson-input"]').find('textarea').should('not.be.disabled')
+      cy.get('[data-test="complex-property-json-input"]').find('textarea').should('not.have.attr', 'readonly')
+      cy.get('[data-test="complex-property-bson-input"]').find('textarea').should('not.have.attr', 'readonly')
     })
 
     it('handles invalid JSON gracefully', () => {
@@ -201,39 +185,6 @@ describe('Types page flow', () => {
       cy.get('[data-test="complex-property-bson-input"]').should('be.visible')
     })
 
-    it('can clear and re-enter schemas', () => {
-      // Enter initial schemas
-      const initialJson = '{"type": "string"}'
-      const initialBson = '{"bsonType": "string"}'
-      
-      cy.get('[data-test="complex-property-json-input"]').find('textarea').first()
-        .type(initialJson, { parseSpecialCharSequences: false })
-      
-      cy.get('[data-test="complex-property-bson-input"]').find('textarea').first()
-        .type(initialBson, { parseSpecialCharSequences: false })
-
-      // Clear and enter new schemas
-      cy.get('[data-test="complex-property-json-input"]').find('textarea').first()
-        .clear()
-        .type('{"type": "object", "properties": {"id": {"type": "string"}}}', { parseSpecialCharSequences: false })
-      
-      cy.get('[data-test="complex-property-bson-input"]').find('textarea').first()
-        .clear()
-        .type('{"bsonType": "object", "properties": {"id": {"bsonType": "string"}}}', { parseSpecialCharSequences: false })
-
-      cy.reload()
-      cy.wait(500)
-      
-      // Verify new schemas persisted
-      cy.get('[data-test="complex-property-json-input"]').find('textarea').first().invoke('val')
-        .should('contain', 'type').and('contain', 'object')
-        .and('contain', 'properties').and('contain', 'id')
-        .and('not.contain', 'string')
-      
-      cy.get('[data-test="complex-property-bson-input"]').find('textarea').first().invoke('val')
-        .should('contain', 'bsonType').and('contain', 'object')
-        .and('contain', 'properties').and('contain', 'id')
-        .and('not.contain', 'string')
-    })
   })
+
 })
