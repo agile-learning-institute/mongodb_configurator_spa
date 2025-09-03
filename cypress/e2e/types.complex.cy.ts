@@ -79,11 +79,11 @@ describe('Types page flow', () => {
       cy.get('[data-test="complex-property-json-input"]').parent().should('contain', 'JSON Type Definition')
       cy.get('[data-test="complex-property-bson-input"]').parent().should('contain', 'BSON Type Definition')
       
-      // Verify default values are present (empty JSON objects)
+      // Verify default values are present (string type with maxLength)
       cy.get('[data-test="complex-property-json-input"]').find('textarea').first().invoke('val')
-        .should('contain', '{}')
+        .should('contain', 'type').and('contain', 'string').and('contain', 'maxLength').and('contain', '40')
       cy.get('[data-test="complex-property-bson-input"]').find('textarea').first().invoke('val')
-        .should('contain', '{}')
+        .should('contain', 'type').and('contain', 'string').and('contain', 'maxLength').and('contain', '40')
     })
 
     it('can enter JSON schema', () => {

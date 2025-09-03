@@ -235,23 +235,23 @@ const shouldRenderPropertyEditor = computed(() => {
 // Computed properties for Simple and Complex property editing
 const simplePropertySchema = computed(() => {
   if (isSimpleProperty(props.property)) {
-    return JSON.stringify(props.property.schema || {}, null, 2)
+    return JSON.stringify(props.property.schema || { type: "string", maxLength: 40 }, null, 2)
   }
-  return '{}'
+  return JSON.stringify({ type: "string", maxLength: 40 }, null, 2)
 })
 
 const complexPropertyJsonType = computed(() => {
   if (isComplexProperty(props.property)) {
-    return JSON.stringify(props.property.json_type || {}, null, 2)
+    return JSON.stringify(props.property.json_type || { type: "string", maxLength: 40 }, null, 2)
   }
-  return '{}'
+  return JSON.stringify({ type: "string", maxLength: 40 }, null, 2)
 })
 
 const complexPropertyBsonType = computed(() => {
   if (isComplexProperty(props.property)) {
-    return JSON.stringify(props.property.bson_type || {}, null, 2)
+    return JSON.stringify(props.property.bson_type || { type: "string", maxLength: 40 }, null, 2)
   }
-  return '{}'
+  return JSON.stringify({ type: "string", maxLength: 40 }, null, 2)
 })
 
 
