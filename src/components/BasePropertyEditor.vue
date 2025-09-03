@@ -390,6 +390,12 @@ watch(() => props.property, (newProperty) => {
   flex-shrink: 0;
 }
 
+/* Reduce button padding in property header */
+.property-header .v-btn {
+  padding: 0 4px !important;
+  min-width: 32px !important;
+}
+
 .property-body {
   padding: 16px;
   background-color: #ffffff;
