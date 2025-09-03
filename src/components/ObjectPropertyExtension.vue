@@ -9,7 +9,7 @@
       >
         <template v-slot:activator="{ props }">
           <v-btn
-            icon="list-alt-add"
+            icon="mdi-plus-box"
             variant="text"
             size="small"
             color="default"
@@ -50,7 +50,7 @@
       >
         <template v-slot:activator="{ props }">
           <v-btn
-            :icon="collapsed ? 'expand-content' : 'collapse-content'"
+            :icon="collapsed ? 'mdi-chevron-right' : 'mdi-chevron-down'"
             variant="text"
             size="small"
             color="default"
@@ -103,9 +103,9 @@ const toggleCollapsed = () => {
 
 const getAdditionalPropsIcon = (): string => {
   if (isObjectProperty(props.property)) {
-    return props.property.additional_properties ? 'list-alt-check' : 'list-alt'
+    return props.property.additional_properties ? 'mdi-checkbox-marked-circle' : 'mdi-checkbox-blank-circle-outline'
   }
-  return 'list-alt'
+  return 'mdi-checkbox-blank-circle-outline'
 }
 </script>
 
