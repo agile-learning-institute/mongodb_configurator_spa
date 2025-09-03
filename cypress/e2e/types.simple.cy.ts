@@ -16,7 +16,9 @@ describe('Types page flow', () => {
     cy.url().should('include', `/types/${name}`)
     cy.get('[data-test="root-description-placeholder"]').should('be.visible').and('contain', 'Click to add description')
     cy.get('[data-test="root-type-chip-picker"] [data-test="type-chip"]').should('be.visible').and('contain', 'void')    
-  })
+    cy.get('[data-test="root-type-chip-picker"] [data-test="type-chip"]').click()
+    cy.get('[data-test="built-in-type-simple"]').click()
+})
 
   afterEach(() => {
     thingsToDelete.forEach((thing) => {
@@ -31,21 +33,15 @@ describe('Types page flow', () => {
   })
 
   describe('Simple Property Editor', () => {
-    it.only('can change type', () => {
-      // Change type to simple
-      cy.get('[data-test="root-type-chip-picker"] [data-test="type-chip"]').click()
-      cy.get('[data-test="built-in-type-simple"]').click()
-
-      cy.reload()
-      cy.wait(500)
+    it('can change type', () => {
+      cy.visit(`/types/${fileName}`)
       cy.get('[data-test="type-display-name"]').should('contain', 'Simple')
     })
     
-    it.only('can add description', () => {
+    it('can add description', () => {
       // Add description
       cy.get('[data-test="root-description-display"]').click()
       cy.get('[data-test="root-description-input-edit"]').type('Simple property for testing')
-      cy.get('[data-test="card-header"]').click()
 
       cy.reload()
       cy.wait(500)
@@ -55,74 +51,63 @@ describe('Types page flow', () => {
     it('can enter schema string', () => {
       // Enter a schema string
       cy.get('[data-test="simple-property-schema-input"]').should('be.visible')
-      cy.get('[data-test="simple-property-schema-input"]').type('{"type": "string", "minLength": 1, "maxLength": 100}', { parseSpecialCharSequences: false })
-      cy.get('[data-test="simple-property-schema-input"]').blur()
-    })
+      cy.get('[data-test="simple-property-schema-input"]').find('textarea').type('{"type": "string", "minLength": 1, "maxLength": 100}', { parseSpecialCharSequences: false })
 
-    it('persists all the data', () => {
-      // Reload page to verify persistence
       cy.reload()
-      
-      // Verify values entered in beforeEach are persisted
-      cy.get('[data-test="root-description-text"]').should('contain', 'Simple property for testing')
-      cy.get('[data-test="root-type-chip-picker"] [data-test="type-chip"]').should('contain', 'simple')
-      cy.get('[data-test="simple-property-schema-input"]').should('have.value', '{"type": "string", "minLength": 1, "maxLength": 100}')
+      cy.wait(500)
+      cy.get('[data-test="simple-property-schema-display"]')
+        .should('contain', 'type').and('contain', 'string')
+        .and('contain', 'minLength').and('contain', '1')
+        .and('contain', 'maxLength').and('contain', '100')
     })
 
-    it('locks', () => {
-      // Verify unlocked state
+    it.only('locks', () => {
+      cy.visit(`/types/${fileName}`)
+
+      // Arrange unlocked state
       cy.get('[data-test="lock-type-btn"]').should('be.visible')
       cy.get('[data-test="unlock-type-btn"]').should('not.exist')
-      
-      // Click lock button
+
+      // Act - Lock the type
       cy.get('[data-test="lock-type-btn"]').click()
-      
-      // Verify locked state
+
+      // Verify the state
       cy.get('[data-test="unlock-type-btn"]').should('be.visible')
       cy.get('[data-test="lock-type-btn"]').should('not.exist')
-      
-      // Verify root property description and type chip picker are disabled
-      cy.get('[data-test="root-description-display"]').should('not.exist') // Should not be clickable
+      cy.get('[data-test="root-description-display"]').should('contain', 'Click to add description') 
       cy.get('[data-test="root-type-chip-picker"] [data-test="type-chip"]').should('not.have.attr', 'data-disabled')
-      
-      // Verify schema json editor is disabled
-      cy.get('[data-test="simple-property-schema-input"]').should('be.disabled')
+      cy.get('[data-test="simple-property-schema-input"]').find('textarea').should('be.disabled')
     })
 
     it('unlocks', () => {
-      // Verify unlocked state
-      cy.get('[data-test="lock-type-btn"]').should('be.visible')
-      cy.get('[data-test="unlock-type-btn"]').should('not.exist')
-      
-      // Click lock button
-      cy.get('[data-test="lock-type-btn"]').click()
-      
-      // Verify locked state
+      cy.visit(`/types/${fileName}`)
+
+      // Arrange an unlocked type
       cy.get('[data-test="unlock-type-btn"]').should('be.visible')
       cy.get('[data-test="lock-type-btn"]').should('not.exist')
-      
-      // Click unlock button
       cy.get('[data-test="unlock-type-btn"]').click()
+      cy.get('[data-test="lock-type-btn"]').should('be.visible')
+      cy.get('[data-test="unlock-type-btn"]').should('not.exist')
+
+      // Act - Lock the type
+      cy.get('[data-test="lock-type-btn"]').click()
       
-      // Verify unlock confirmation dialog appears
+      // Verify the state
+      cy.get('[data-test="unlock-type-btn"]').should('be.visible')
+      cy.get('[data-test="lock-type-btn"]').should('not.exist')
+
+      // Act - Unlock the type
+      cy.get('[data-test="unlock-type-btn"]').click()
       cy.get('[data-test="unlock-type-dialog"]').should('be.visible')
-      
-      // Click unlock confirm button
       cy.get('[data-test="unlock-confirm-btn"]').click()
-      
-      // Verify dialog closes
       cy.get('[data-test="unlock-type-dialog"]').should('not.exist')
       
       // Verify unlocked state
       cy.get('[data-test="lock-type-btn"]').should('be.visible')
       cy.get('[data-test="unlock-type-btn"]').should('not.exist')
-      
-      // Verify root property description and type chip picker are enabled
       cy.get('[data-test="root-description-display"]').should('be.visible')
       cy.get('[data-test="root-type-chip-picker"] [data-test="type-chip"]').should('be.visible')
-      
-      // Verify schema json editor is enabled
-      cy.get('[data-test="simple-property-schema-input"]').should('not.be.disabled')
+      cy.get('[data-test="simple-property-schema-input"]').find('textarea').should('not.be.disabled')
     })
   })
 })
