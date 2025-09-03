@@ -90,7 +90,7 @@
           <template v-slot:activator="{ props }">
             <v-btn
               variant="text"
-              size="small"
+              size="normal"
               density="compact"
               color="default"
               v-bind="props"
@@ -114,7 +114,7 @@
           <template v-slot:activator="{ props }">
             <v-btn
               variant="text"
-              size="small"
+              size="normal"
               density="compact"
               color="error"
               v-bind="props"
