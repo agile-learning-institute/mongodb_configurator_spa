@@ -274,7 +274,7 @@ const finishEditDescription = () => {
 const handleTypeChange = (newType: string) => {
   if (typeData.value?.root && newType !== typeData.value.root.type) {
     // Create a new property with the updated type
-    const updatedProperty = {
+    let updatedProperty: any = {
       ...typeData.value.root,
       type: newType
     }
