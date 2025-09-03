@@ -176,8 +176,9 @@ const canBeRequired = computed(() => {
   // Root properties can always be required
   if (isRoot.value) return true
   
-  // Non-root properties can be required if they're not arrays or objects
-  return !isArrayProperty(props.property) && !isObjectProperty(props.property)
+  // Non-root properties can be required if they're not arrays
+  // Objects can be required (they have a required field in the schema)
+  return !isArrayProperty(props.property)
 })
 
 const canBeDeleted = computed(() => {
