@@ -17,7 +17,7 @@
         <v-tooltip text="Add Property" location="top">
           <template v-slot:activator="{ props }">
             <v-btn
-              icon="mdi-plus"
+              icon="list-alt-add"
               size="small"
               variant="text"
               color="primary"
@@ -51,7 +51,7 @@
         <v-tooltip :text="collapsed ? 'Show Properties' : 'Hide Properties'" location="top">
           <template v-slot:activator="{ props }">
             <v-btn
-              :icon="collapsed ? 'mdi-chevron-left' : 'mdi-chevron-down'"
+              :icon="collapsed ? 'expand-content' : 'collapse-content'"
               size="small"
               variant="text"
               color="primary"
@@ -101,9 +101,9 @@ const additionalPropsIcon = computed(() => {
   if (props.property.type === 'array' && 'items' in props.property && props.property.items.type === 'object') {
     const items = props.property.items as any
     const hasAdditionalProps = items.additional_properties !== undefined ? items.additional_properties : false
-    return hasAdditionalProps ? 'mdi-checkbox-marked-circle' : 'mdi-checkbox-blank-circle-outline'
+    return hasAdditionalProps ? 'list-alt-check' : 'list-alt'
   }
-  return 'mdi-checkbox-blank-circle-outline'
+  return 'list-alt'
 })
 
 // Methods
