@@ -61,17 +61,18 @@ describe('Types page flow', () => {
       // enter description
       cy.get('[data-test="root-description-placeholder"]').click()
       cy.get('[data-test="root-description-input"]').type('Root object description')
-      cy.get('[data-test="root-description-input"]').blur()
+      cy.reload()
+      cy.wait(100)
+      cy.get('[data-test="root-description-display"]').should('contain', 'Root object description')
       
       // verify required checkbox is unchecked, check and verify checked
       cy.get('[data-test="required-toggle-btn"]').should('be.visible')
       cy.get('[data-test="required-toggle-btn"]').find('.material-symbols-outlined').should('contain', 'toggle_off')
       cy.get('[data-test="required-toggle-btn"]').click()
+      cy.reload()
+      cy.wait(100)
       cy.get('[data-test="required-toggle-btn"]').find('.material-symbols-outlined').should('contain', 'toggle_on')
-      
-      // verify description has same value entered
-      cy.get('[data-test="root-description-display"]').should('contain', 'Root object description')
-      
+            
       // verify No properties defined message is visible
       cy.get('[data-test="card-content"]').should('contain', 'No properties defined')
     })
@@ -215,9 +216,44 @@ describe('Types page flow', () => {
     })
     
     it('can arrange properties', () => {
+      // First add three properties to the root object
+      cy.get('[data-test="add-property-btn"]').click()
+      cy.get('[data-test="property-name-input"]').first().type('prop1')
+      cy.get('[data-test="property-name-input"]').first().blur()
+      
+      cy.get('[data-test="add-property-btn"]').click()
+      cy.get('[data-test="property-name-input"]').eq(1).type('prop2')
+      cy.get('[data-test="property-name-input"]').eq(1).blur()
+      
+      cy.get('[data-test="add-property-btn"]').click()
+      cy.get('[data-test="property-name-input"]').eq(2).type('prop3')
+      cy.get('[data-test="property-name-input"]').eq(2).blur()
+      
+      // Verify initial order: prop1, prop2, prop3
+      cy.get('[data-test="property-name-input"]').eq(0).should('have.value', 'prop1')
+      cy.get('[data-test="property-name-input"]').eq(1).should('have.value', 'prop2')
+      cy.get('[data-test="property-name-input"]').eq(2).should('have.value', 'prop3')
+      
       // drag the 2nd to before 1 and verify 2,1,3
+      cy.get('[data-test="property-drag-handle"]').eq(1).trigger('dragstart')
+      cy.get('[data-test="drop-zone-0"]').trigger('dragover').trigger('drop')
+      cy.get('[data-test="property-name-input"]').eq(0).should('have.value', 'prop2')
+      cy.get('[data-test="property-name-input"]').eq(1).should('have.value', 'prop1')
+      cy.get('[data-test="property-name-input"]').eq(2).should('have.value', 'prop3')
+      
       // drag the 1st property to after spot 3 and verify 1,3,2
+      cy.get('[data-test="property-drag-handle"]').eq(0).trigger('dragstart')
+      cy.get('[data-test="drop-zone-3"]').trigger('dragover').trigger('drop')
+      cy.get('[data-test="property-name-input"]').eq(0).should('have.value', 'prop1')
+      cy.get('[data-test="property-name-input"]').eq(1).should('have.value', 'prop3')
+      cy.get('[data-test="property-name-input"]').eq(2).should('have.value', 'prop2')
+      
       // drag the 3rd property to before spot 1 and verify 2,1,3
+      cy.get('[data-test="property-drag-handle"]').eq(2).trigger('dragstart')
+      cy.get('[data-test="drop-zone-0"]').trigger('dragover').trigger('drop')
+      cy.get('[data-test="property-name-input"]').eq(0).should('have.value', 'prop2')
+      cy.get('[data-test="property-name-input"]').eq(1).should('have.value', 'prop1')
+      cy.get('[data-test="property-name-input"]').eq(2).should('have.value', 'prop3')
     })
 
     it('can show/hide properties', () => {

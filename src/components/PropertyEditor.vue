@@ -113,18 +113,38 @@
         </div>
         
         <div v-else class="properties-section" data-test="object-properties-section">
-          <PropertyEditor
-            v-for="(prop, index) in property.properties"
-            :key="prop.name || index"
-            :property="prop"
-            :is-root="false"
-            :is-dictionary="isDictionary"
-            :is-type="isType"
-            :disabled="disabled"
-            @change="(updatedProp) => handlePropertyChange(index, updatedProp)"
-            @delete="() => handlePropertyDelete(index)"
-            :data-test="`object-property-${prop.name || index}`"
-          />
+          <template v-for="(prop, index) in property.properties" :key="prop.name || index">
+            <!-- Drop zone before each property -->
+            <div 
+              class="drop-zone" 
+              :data-test="`drop-zone-${index}`"
+              @dragover.prevent
+              @drop="(event) => handleDrop(event, index)"
+            >
+              <div class="drop-indicator"></div>
+            </div>
+            
+            <PropertyEditor
+              :property="prop"
+              :is-root="false"
+              :is-dictionary="isDictionary"
+              :is-type="isType"
+              :disabled="disabled"
+              @change="(updatedProp) => handlePropertyChange(index, updatedProp)"
+              @delete="() => handlePropertyDelete(index)"
+              :data-test="`object-property-${prop.name || index}`"
+            />
+          </template>
+          
+          <!-- Drop zone after last property -->
+          <div 
+            class="drop-zone" 
+            :data-test="`drop-zone-${isObjectProperty(property) ? property.properties.length : 0}`"
+            @dragover.prevent
+            @drop="(event) => handleDrop(event, isObjectProperty(property) ? property.properties.length : 0)"
+          >
+            <div class="drop-indicator"></div>
+          </div>
         </div>
       </div>
       
@@ -354,6 +374,40 @@ const handleArrayObjectPropertyDelete = (index: number) => {
   }
 }
 
+const handleDrop = (event: DragEvent, dropIndex: number) => {
+  event.preventDefault()
+  
+  if (!event.dataTransfer) return
+  
+  const draggedPropertyName = event.dataTransfer.getData('text/plain')
+  if (!draggedPropertyName) return
+  
+  if (isObjectProperty(props.property) && props.property.properties) {
+    // Find the dragged property index
+    const draggedIndex = props.property.properties.findIndex(prop => prop.name === draggedPropertyName)
+    if (draggedIndex === -1) return
+    
+    // Don't do anything if dropping on itself
+    if (draggedIndex === dropIndex) return
+    
+    // Create new properties array with reordered items
+    const newProperties = [...props.property.properties]
+    const [draggedProperty] = newProperties.splice(draggedIndex, 1)
+    
+    // Adjust drop index if dragging from before the drop position
+    const adjustedDropIndex = draggedIndex < dropIndex ? dropIndex - 1 : dropIndex
+    newProperties.splice(adjustedDropIndex, 0, draggedProperty)
+    
+    // Update the property
+    const updatedProperty = {
+      ...props.property,
+      properties: newProperties
+    }
+    
+    emit('change', updatedProperty)
+  }
+}
+
 const handleArrayObjectCollapsed = (collapsed: boolean) => {
   // Store the collapsed state locally for this array of object
   if (isArrayProperty(props.property) && props.property.items && props.property.items.type === 'object') {
@@ -526,5 +580,26 @@ const handleComplexPropertyBsonTypeChange = (value: string) => {
 
 .type-configuration {
   /* Add specific styles for type configuration if needed */
+}
+
+/* Drop zone styling */
+.drop-zone {
+  min-height: 4px;
+  margin: 2px 0;
+  transition: all 0.2s ease;
+}
+
+.drop-zone:hover {
+  background-color: rgba(25, 118, 210, 0.1);
+}
+
+.drop-indicator {
+  height: 2px;
+  background-color: transparent;
+  transition: background-color 0.2s ease;
+}
+
+.drop-zone:hover .drop-indicator {
+  background-color: #1976d2;
 }
 </style> 

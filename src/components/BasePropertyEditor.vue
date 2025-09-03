@@ -1,8 +1,18 @@
 <template>
   <div class="base-property-editor" :data-test="`base-property-editor-${property.name || 'root'}`">
-    <!-- Property Header with Name, Description, Type, Extension Slot, Required, and Delete -->
+    <!-- Property Header with Drag Handle, Name, Description, Type, Extension Slot, Required, and Delete -->
     <!-- Only show header for non-root properties -->
     <div v-if="!isRoot" class="property-header d-flex align-center" data-test="property-header">
+      <!-- Drag handle for non-root properties -->
+      <div class="property-drag-handle" 
+           v-if="!disabled" 
+           data-test="property-drag-handle"
+           draggable="true"
+           @dragstart="handleDragStart"
+           @dragend="handleDragEnd">
+        <v-icon icon="mdi-drag" size="small" color="grey" />
+      </div>
+      
       <div class="property-name-section" v-if="!isRoot" :id="`property-name-${property.name || 'root'}`" data-test="property-name-section">
         <v-text-field
           v-model="editableName"
@@ -346,7 +356,23 @@ const handleRequiredChange = () => {
   }
 }
 
+const handleDragStart = (event: DragEvent) => {
+  if (event.dataTransfer) {
+    event.dataTransfer.setData('text/plain', props.property.name || '')
+    event.dataTransfer.effectAllowed = 'move'
+  }
+  // Add visual feedback
+  if (event.target) {
+    (event.target as HTMLElement).style.opacity = '0.5'
+  }
+}
 
+const handleDragEnd = (event: DragEvent) => {
+  // Remove visual feedback
+  if (event.target) {
+    (event.target as HTMLElement).style.opacity = '1'
+  }
+}
 
 // Watch for property changes and update local state
 watch(() => props.property, (newProperty) => {
@@ -390,6 +416,17 @@ watch(() => props.property, (newProperty) => {
 
 .property-actions {
   flex-shrink: 0;
+}
+
+.property-drag-handle {
+  flex-shrink: 0;
+  cursor: grab;
+  padding: 4px;
+  margin-right: 8px;
+}
+
+.property-drag-handle:active {
+  cursor: grabbing;
 }
 
 
