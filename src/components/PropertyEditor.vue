@@ -141,6 +141,7 @@
             rows="6"
             :readonly="disabled"
             @blur="handleSimplePropertySchemaChange"
+            @input="handleSimplePropertySchemaInput"
             data-test="simple-property-schema-input"
           />
         </div>
@@ -369,6 +370,23 @@ const handleArrayArrayCollapsed = (collapsed: boolean) => {
     ;(props.property.items as any)._collapsed = collapsed
   }
 }
+
+const handleSimplePropertySchemaInput = (event: Event) => {
+  const value = (event.target as HTMLTextAreaElement).value;
+  if (isSimpleProperty(props.property)) {
+    try {
+      const parsedSchema = JSON.parse(value);
+      const updatedProperty = {
+        ...props.property,
+        schema: parsedSchema
+      };
+      emit('change', updatedProperty);
+    } catch (error) {
+      // Don't log errors on every keystroke for invalid JSON
+      // The user might be in the middle of typing
+    }
+  }
+};
 
 const handleSimplePropertySchemaChange = (event: Event) => {
   const value = (event.target as HTMLTextAreaElement).value;
