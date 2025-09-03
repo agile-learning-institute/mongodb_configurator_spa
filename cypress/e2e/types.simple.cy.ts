@@ -5,6 +5,8 @@ describe('Types page flow', () => {
 
   // Setup a type with a simple root property
   beforeEach(() => {
+    thingsToDelete.push(`/api/types/${fileName}/`)
+
     cy.visit('/types')
     cy.get('[data-test="new-type-btn"]').click()
     cy.get('[data-test="new-type-dialog"]').should('be.visible')
@@ -12,32 +14,8 @@ describe('Types page flow', () => {
     cy.get('[data-test="new-type-create-btn"]').click()
     cy.wait(500)
     cy.url().should('include', `/types/${name}`)
-
-    // Verify initial state: description placeholder and void type
     cy.get('[data-test="root-description-placeholder"]').should('be.visible').and('contain', 'Click to add description')
-    cy.get('[data-test="root-type-chip-picker"] [data-test="type-chip"]').should('be.visible').and('contain', 'void')
-    
-    // Change type to simple
-    cy.get('[data-test="root-type-chip-picker"] [data-test="type-chip"]').click()
-    cy.get('[data-test="built-in-type-simple"]').click()
-    
-    // Verify type changed to simple
-    cy.get('[data-test="root-type-chip-picker"] [data-test="type-chip"]').should('contain', 'simple')
-    
-    // Add description
-    cy.get('[data-test="root-description-display"]').click()
-    cy.get('[data-test="root-description-input-edit"]').type('Simple property for testing')
-    cy.get('[data-test="root-description-input-edit"]').blur()
-    
-    // Enter a schema string
-    cy.get('[data-test="simple-property-schema-input"]').should('be.visible')
-    cy.get('[data-test="simple-property-schema-input"]').type('{"type": "string", "minLength": 1, "maxLength": 100}')
-    cy.get('[data-test="simple-property-schema-input"]').blur()
-    
-    // Wait for auto-save
-    cy.wait(1000)
-
-    thingsToDelete.push(`/api/types/${fileName}/`)
+    cy.get('[data-test="root-type-chip-picker"] [data-test="type-chip"]').should('be.visible').and('contain', 'void')    
   })
 
   afterEach(() => {
@@ -53,7 +31,35 @@ describe('Types page flow', () => {
   })
 
   describe('Simple Property Editor', () => {
-    it('persists schema string', () => {
+    it.only('can change type', () => {
+      // Change type to simple
+      cy.get('[data-test="root-type-chip-picker"] [data-test="type-chip"]').click()
+      cy.get('[data-test="built-in-type-simple"]').click()
+
+      cy.reload()
+      cy.wait(500)
+      cy.get('[data-test="type-display-name"]').should('contain', 'Simple')
+    })
+    
+    it.only('can add description', () => {
+      // Add description
+      cy.get('[data-test="root-description-display"]').click()
+      cy.get('[data-test="root-description-input-edit"]').type('Simple property for testing')
+      cy.get('[data-test="card-header"]').click()
+
+      cy.reload()
+      cy.wait(500)
+      cy.get('[data-test="root-description-display"]').should('contain', 'Simple property for testing')
+    })
+
+    it('can enter schema string', () => {
+      // Enter a schema string
+      cy.get('[data-test="simple-property-schema-input"]').should('be.visible')
+      cy.get('[data-test="simple-property-schema-input"]').type('{"type": "string", "minLength": 1, "maxLength": 100}', { parseSpecialCharSequences: false })
+      cy.get('[data-test="simple-property-schema-input"]').blur()
+    })
+
+    it('persists all the data', () => {
       // Reload page to verify persistence
       cy.reload()
       

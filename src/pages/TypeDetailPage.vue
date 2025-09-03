@@ -82,6 +82,7 @@
                 placeholder="Description"
                 @blur="finishEditDescription"
                 @keyup.enter="finishEditDescription"
+                @input="handleDescriptionInput"
                 ref="descriptionInput"
                 data-test="root-description-input-edit"
               />
@@ -251,6 +252,14 @@ const startEditDescription = () => {
         descriptionInput.value.focus()
       }
     })
+  }
+}
+
+const handleDescriptionInput = () => {
+  // Auto-save on every keystroke while editing
+  if (typeData.value?.root) {
+    typeData.value.root.description = editableDescription.value
+    autoSave()
   }
 }
 
