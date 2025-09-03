@@ -17,15 +17,15 @@
         <v-tooltip text="Add Property" location="top">
           <template v-slot:activator="{ props }">
             <v-btn
-              icon="list_alt_add"
-              icon-set="material-symbols"
               size="small"
               variant="text"
               color="primary"
               v-bind="props"
               @click="handleAddProperty"
               data-test="add-property-btn"
-            />
+            >
+              <span class="material-symbols-outlined">list_alt_add</span>
+            </v-btn>
           </template>
         </v-tooltip>
       </div>
@@ -35,15 +35,15 @@
         <v-tooltip :text="additionalPropsTooltip" location="top">
           <template v-slot:activator="{ props }">
             <v-btn
-              :icon="additionalPropsIcon"
-              icon-set="material-symbols"
               size="small"
               variant="text"
               color="primary"
               v-bind="props"
               @click="toggleAdditionalProperties"
               data-test="additional-props-toggle-btn"
-            />
+            >
+              <span class="material-symbols-outlined">{{ additionalPropsIcon }}</span>
+            </v-btn>
           </template>
         </v-tooltip>
       </div>
@@ -53,15 +53,15 @@
         <v-tooltip :text="collapsed ? 'Show Properties' : 'Hide Properties'" location="top">
           <template v-slot:activator="{ props }">
             <v-btn
-              :icon="collapsed ? 'expand_content' : 'collapse_content'"
-              icon-set="material-symbols"
               size="small"
               variant="text"
               color="primary"
               v-bind="props"
               @click="toggleCollapsed"
               data-test="collapse-toggle-btn"
-            />
+            >
+              <span class="material-symbols-outlined">{{ collapsed ? 'expand_content' : 'collapse_content' }}</span>
+            </v-btn>
           </template>
         </v-tooltip>
       </div>
