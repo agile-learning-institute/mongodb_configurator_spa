@@ -69,7 +69,7 @@ describe('Types page flow', () => {
       cy.get('[data-test="root-description-display"]').should('contain', 'Complex property for testing')
     })
 
-    it.only('shows both JSON and BSON input fields', () => {      
+    it('shows both JSON and BSON input fields', () => {      
       // Verify both input fields are visible
       cy.visit(`/types/${fileName}`)
       cy.get('[data-test="complex-property-json-input"]').should('be.visible')
@@ -86,7 +86,7 @@ describe('Types page flow', () => {
         .should('contain', 'type').and('contain', 'string').and('contain', 'maxLength').and('contain', '40')
     })
 
-    it('can enter JSON schema', () => {
+    it.only('can enter JSON schema', () => {
       const jsonSchema = {
         type: "object",
         properties: {
