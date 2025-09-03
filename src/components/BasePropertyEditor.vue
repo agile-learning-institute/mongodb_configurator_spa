@@ -363,7 +363,7 @@ watch(() => props.property, (newProperty) => {
 }
 
 .property-header {
-  padding: 12px 16px;
+  padding: 12px 5px;
   background-color: #fafafa;
   border-bottom: 1px solid #e0e0e0;
   gap: 8px;
