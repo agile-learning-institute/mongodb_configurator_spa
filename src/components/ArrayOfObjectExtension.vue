@@ -17,7 +17,8 @@
         <v-tooltip text="Add Property" location="top">
           <template v-slot:activator="{ props }">
             <v-btn
-              size="small"
+              size="x-small"
+              density="compact"
               variant="text"
               color="primary"
               v-bind="props"
@@ -35,7 +36,8 @@
         <v-tooltip :text="additionalPropsTooltip" location="top">
           <template v-slot:activator="{ props }">
             <v-btn
-              size="small"
+              size="x-small"
+              density="compact"
               variant="text"
               color="primary"
               v-bind="props"
@@ -53,7 +55,8 @@
         <v-tooltip :text="collapsed ? 'Show Properties' : 'Hide Properties'" location="top">
           <template v-slot:activator="{ props }">
             <v-btn
-              size="small"
+              size="x-small"
+              density="compact"
               variant="text"
               color="primary"
               v-bind="props"

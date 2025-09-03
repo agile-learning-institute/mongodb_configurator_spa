@@ -10,7 +10,8 @@
         <template v-slot:activator="{ props }">
           <v-btn
             variant="text"
-            size="small"
+            size="x-small"
+            density="compact"
             color="default"
             v-bind="props"
             @click="handleAddProperty"
@@ -32,7 +33,8 @@
         <template v-slot:activator="{ props }">
           <v-btn
             variant="text"
-            size="large"
+            size="x-small"
+            density="compact"
             v-bind="props"
             @click="toggleAdditionalProperties"
             data-test="additional-props-toggle-btn"
@@ -53,7 +55,8 @@
         <template v-slot:activator="{ props }">
           <v-btn
             variant="text"
-            size="small"
+            size="x-small"
+            density="compact"
             color="default"
             v-bind="props"
             @click="toggleCollapsed"

@@ -90,7 +90,8 @@
           <template v-slot:activator="{ props }">
             <v-btn
               variant="text"
-              size="small"
+              size="x-small"
+              density="compact"
               color="default"
               v-bind="props"
               @click="toggleRequired"
@@ -113,7 +114,8 @@
           <template v-slot:activator="{ props }">
             <v-btn
               variant="text"
-              size="small"
+              size="x-small"
+              density="compact"
               color="error"
               v-bind="props"
               @click="handleDelete"
@@ -390,11 +392,7 @@ watch(() => props.property, (newProperty) => {
   flex-shrink: 0;
 }
 
-/* Reduce button padding in property header */
-.property-header .v-btn {
-  padding: 0 4px !important;
-  min-width: 32px !important;
-}
+
 
 .property-body {
   padding: 16px;
