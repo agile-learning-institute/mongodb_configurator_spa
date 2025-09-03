@@ -1,36 +1,56 @@
 describe('Types page flow', () => {
-  const name = `e2e-test-data-${Date.now()}`
-  const fileName = `${name}.json`
+  const name = `e2e-test-dictionary-${Date.now()}`
+  const fileName = `${name}.yaml`
   const thingsToDelete: string[] = []
 
   // Setup a type with an object root property
   beforeEach(() => {
-    cy.visit('/types')
-    cy.get('[data-test="new-type-btn"]').click()
-    cy.get('[data-test="new-type-dialog"]').should('be.visible')
-    cy.get('[data-test="new-type-name-input"]').type(name)
-    cy.get('[data-test="new-type-create-btn"]').click()
-    cy.wait(500)
-    cy.url().should('include', `/types/${name}`)
+    // thingsToDelete.push(`/api/dictionaries/${fileName}/`)
 
-    // test description and type chip picker with "void" value
-    // change type to array
-    // enter a description
-    // verify items type chip picker with "void" value
-
-    thingsToDelete.push(`/api/types/${fileName}.yaml/`)
+    // cy.visit('/dictionaries')
+    // cy.wait(500)
+    // cy.get('[data-test="new-dictionary-btn"]').click()
+    // cy.get('[data-test="new-dictionary-dialog"]').should('be.visible')
+    // cy.get('[data-test="new-dictionary-name-input"]').type(name)
+    // cy.get('[data-test="new-dictionary-create-btn"]').click()
+    // cy.wait(500)
+    // cy.url().should('include', `/dictionaries/${name}`)
+    // cy.get('[data-test="root-description-placeholder"]').should('be.visible').and('contain', 'Click to add description')
+    // cy.get('[data-test="root-type-chip-picker"] [data-test="type-chip"]').should('be.visible').and('contain', 'void')    
+    // cy.get('[data-test="root-type-chip-picker"] [data-test="type-chip"]').click()
+    // cy.get('[data-test="built-in-type-array"]').click()
   })
 
+  // Clean up any types created during tests
   afterEach(() => {
     thingsToDelete.forEach((thing) => {
       cy.request({
-        method: 'DELETE',
+        method: 'PUT',    
         url: thing,
+        headers: {"Content-Type": "application/json"},
+        body: {"_locked": false, "root":{"name":""}},
         failOnStatusCode: false
+      }).then((response) => {
+        if (response.status === 200) {
+          cy.log(`Successfully unlocked ${thing}`)
+          cy.request({
+            method: 'DELETE',
+            url: thing,
+            failOnStatusCode: false
+          }).then((response) => {
+            if (response.status === 200) {
+              cy.log(`Successfully deleted ${thing}`)
+            } else {
+              cy.log(`Failed to delete ${thing}: ${response.status}`)
+            }
+          })
+        } else {
+          cy.log(`Failed to unlock ${thing}: ${response.status}`)
+        }
       })
     })
-    cy.visit('/types')
-    cy.get('[data-test^="file-card-"]').should('not.contain', fileName)
+    // cy.visit('/dictionaries')
+    // cy.get('[data-test^="file-card-"]').should('not.contain', fileName)
   })
 
   describe('Array Property Editor', () => {

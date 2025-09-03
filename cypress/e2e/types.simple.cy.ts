@@ -1,5 +1,5 @@
 describe('Types page flow', () => {
-  const name = `e2e-test-data-${Date.now()}`
+  const name = `e2e-test-type-simple-${Date.now()}`
   const fileName = `${name}.yaml`
   const thingsToDelete: string[] = []
 
@@ -36,6 +36,12 @@ describe('Types page flow', () => {
             method: 'DELETE',
             url: thing,
             failOnStatusCode: false
+          }).then((response) => {
+            if (response.status === 200) {
+              cy.log(`Successfully deleted ${thing}`)
+            } else {
+              cy.log(`Failed to delete ${thing}: ${response.status}`)
+            }
           })
         } else {
           cy.log(`Failed to unlock ${thing}: ${response.status}`)
@@ -70,7 +76,7 @@ describe('Types page flow', () => {
 
       cy.reload()
       cy.wait(500)
-      cy.get('[data-test="simple-property-schema-input"]').find('textarea').first()
+      cy.get('[data-test="simple-property-schema-input"]').find('textarea').first().invoke('val')
         .should('contain', 'type').and('contain', 'string')
         .and('contain', 'minLength').and('contain', '1')
         .and('contain', 'maxLength').and('contain', '100')

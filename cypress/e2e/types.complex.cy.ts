@@ -1,10 +1,12 @@
 describe('Types page flow', () => {
-  const name = `e2e-test-data-${Date.now()}`
+  const name = `e2e-test-type-complex-${Date.now()}`
   const fileName = `${name}.yaml`
   const thingsToDelete: string[] = []
 
   // Setup a type with an complex root property
   beforeEach(() => {
+    thingsToDelete.push(`/api/types/${fileName}/`)
+
     cy.visit('/types')
     cy.get('[data-test="new-type-btn"]').click()
     cy.get('[data-test="new-type-dialog"]').should('be.visible')
@@ -12,21 +14,38 @@ describe('Types page flow', () => {
     cy.get('[data-test="new-type-create-btn"]').click()
     cy.wait(500)
     cy.url().should('include', `/types/${name}`)
-
-    // test description and type chip picker with "void" value
-    // change type to complex
-    // enter a json schema string
-    // enter a bson schema string
-
-    thingsToDelete.push(`/api/types/${fileName}/`)
+    cy.get('[data-test="root-description-placeholder"]').should('be.visible').and('contain', 'Click to add description')
+    cy.get('[data-test="root-type-chip-picker"] [data-test="type-chip"]').should('be.visible').and('contain', 'void')    
+    cy.get('[data-test="root-type-chip-picker"] [data-test="type-chip"]').click()
+    cy.get('[data-test="built-in-type-complex"]').click()
   })
 
+  // Clean up any types created during tests
   afterEach(() => {
     thingsToDelete.forEach((thing) => {
       cy.request({
-        method: 'DELETE',
+        method: 'PUT',    
         url: thing,
+        headers: {"Content-Type": "application/json"},
+        body: {"_locked": false, "root":{"name":""}},
         failOnStatusCode: false
+      }).then((response) => {
+        if (response.status === 200) {
+          cy.log(`Successfully unlocked ${thing}`)
+          cy.request({
+            method: 'DELETE',
+            url: thing,
+            failOnStatusCode: false
+          }).then((response) => {
+            if (response.status === 200) {
+              cy.log(`Successfully deleted ${thing}`)
+            } else {
+              cy.log(`Failed to delete ${thing}: ${response.status}`)
+            }
+          })
+        } else {
+          cy.log(`Failed to unlock ${thing}: ${response.status}`)
+        }
       })
     })
     cy.visit('/types')
