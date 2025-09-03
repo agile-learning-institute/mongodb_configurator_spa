@@ -162,6 +162,7 @@
                 :readonly="disabled"
                 persistent-hint
                 @blur="handleComplexPropertyJsonTypeChange"
+                @input="handleComplexPropertyJsonTypeInput"
                 data-test="complex-property-json-input"
               />
             </v-col>
@@ -174,6 +175,7 @@
                 :readonly="disabled"
                 persistent-hint
                 @blur="handleComplexPropertyBsonTypeChange"
+                @input="handleComplexPropertyBsonTypeInput"
                 data-test="complex-property-bson-input"
               />
             </v-col>
@@ -432,6 +434,38 @@ const handleComplexPropertyBsonTypeChange = (event: Event) => {
       emit('change', updatedProperty);
     } catch (error) {
       console.error('Invalid BSON type definition:', error);
+    }
+  }
+};
+
+const handleComplexPropertyJsonTypeInput = (event: Event) => {
+  const value = (event.target as HTMLTextAreaElement).value;
+  if (isComplexProperty(props.property)) {
+    try {
+      const parsedJsonType = JSON.parse(value);
+      const updatedProperty = {
+        ...props.property,
+        json_type: parsedJsonType
+      };
+      emit('change', updatedProperty);
+    } catch (error) {
+      // Suppress console errors during typing - only log on blur
+    }
+  }
+};
+
+const handleComplexPropertyBsonTypeInput = (event: Event) => {
+  const value = (event.target as HTMLTextAreaElement).value;
+  if (isComplexProperty(props.property)) {
+    try {
+      const parsedBsonType = JSON.parse(value);
+      const updatedProperty = {
+        ...props.property,
+        bson_type: parsedBsonType
+      };
+      emit('change', updatedProperty);
+    } catch (error) {
+      // Suppress console errors during typing - only log on blur
     }
   }
 };

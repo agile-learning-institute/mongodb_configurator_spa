@@ -278,6 +278,15 @@ const handleTypeChange = (newType: string) => {
       ...typeData.value.root,
       type: newType
     }
+    
+    // Set default values for simple and complex types
+    if (newType === 'simple') {
+      updatedProperty.schema = { type: "string", maxLength: 40 }
+    } else if (newType === 'complex') {
+      updatedProperty.json_type = { type: "string", maxLength: 40 }
+      updatedProperty.bson_type = { type: "string", maxLength: 40 }
+    }
+    
     handleRootPropertyChange(updatedProperty)
   }
 }
