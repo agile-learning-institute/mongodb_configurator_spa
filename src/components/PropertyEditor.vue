@@ -1,5 +1,6 @@
 <template>
   <BasePropertyEditor
+    v-if="shouldRenderPropertyEditor"
     :property="property"
     :is-root="isRoot"
     :is-dictionary="isDictionary"
@@ -140,6 +141,7 @@
             rows="6"
             :readonly="disabled"
             @blur="handleSimplePropertySchemaChange"
+            @input="handleSimplePropertySchemaInput"
             data-test="simple-property-schema-input"
           />
         </div>
@@ -216,6 +218,19 @@ const emit = defineEmits<{
 const isRoot = computed(() => props.isRoot || false)
 const isDictionary = computed(() => props.isDictionary || false)
 const isType = computed(() => props.isType || false)
+
+// Only render PropertyEditor for root properties when there's content to show
+const shouldRenderPropertyEditor = computed(() => {
+  if (!isRoot.value) {
+    return true // Always render for non-root properties
+  }
+  
+  // For root properties, only render if there's content to show
+  return isObjectProperty(props.property) || 
+         isArrayProperty(props.property) || 
+         isSimpleProperty(props.property) || 
+         isComplexProperty(props.property)
+})
 
 // Computed properties for Simple and Complex property editing
 const simplePropertySchema = computed(() => {
@@ -355,6 +370,23 @@ const handleArrayArrayCollapsed = (collapsed: boolean) => {
     ;(props.property.items as any)._collapsed = collapsed
   }
 }
+
+const handleSimplePropertySchemaInput = (event: Event) => {
+  const value = (event.target as HTMLTextAreaElement).value;
+  if (isSimpleProperty(props.property)) {
+    try {
+      const parsedSchema = JSON.parse(value);
+      const updatedProperty = {
+        ...props.property,
+        schema: parsedSchema
+      };
+      emit('change', updatedProperty);
+    } catch (error) {
+      // Don't log errors on every keystroke for invalid JSON
+      // The user might be in the middle of typing
+    }
+  }
+};
 
 const handleSimplePropertySchemaChange = (event: Event) => {
   const value = (event.target as HTMLTextAreaElement).value;

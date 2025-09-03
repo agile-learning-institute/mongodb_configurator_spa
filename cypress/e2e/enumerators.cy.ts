@@ -26,7 +26,7 @@ describe('Enumerators page flow', () => {
     const filesToDelete = ["enumerations.3.yaml", "enumerations.4.yaml", "enumerations.5.yaml", "enumerations.6.yaml", "enumerations.7.yaml", "enumerations.8.yaml"]
     filesToDelete.forEach((file) => {
       cy.request({
-        method: 'PUT',
+        method: 'PUT',    
         url: `/api/enumerators/${file}/`,
         body: {"_locked": false},
         failOnStatusCode: false

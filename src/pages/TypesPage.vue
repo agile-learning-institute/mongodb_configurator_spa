@@ -1,13 +1,14 @@
 <template>
   <v-container>
     <div class="d-flex justify-space-between align-center mb-6">
-      <h3>Types</h3>
+      <h3 data-test="page-title">Types</h3>
       <div class="d-flex align-center gap-2">
         <v-btn
           color="primary"
           variant="elevated"
           prepend-icon="mdi-plus"
           @click="showNewDialog = true"
+          data-test="new-type-btn"
         >
           New
         </v-btn>
@@ -18,6 +19,7 @@
           prepend-icon="mdi-lock"
           @click="handleLockAll"
           :loading="locking"
+          data-test="lock-all-btn"
         >
           Lock All
         </v-btn>
@@ -31,7 +33,7 @@
     />
 
     <!-- New Type Dialog -->
-    <v-dialog v-model="showNewDialog" max-width="400">
+    <v-dialog v-model="showNewDialog" max-width="400" data-test="new-type-dialog">
       <v-card>
         <v-card-title class="text-h5">
           Create New Type
@@ -45,6 +47,7 @@
             density="compact"
             hide-details
             @keyup.enter="createNewType"
+            data-test="new-type-name-input"
           />
         </v-card-text>
         <v-card-actions>
@@ -54,6 +57,7 @@
             color="primary" 
             @click="createNewType"
             :disabled="!newTypeName.trim()"
+            data-test="new-type-create-btn"
           >
             Create
           </v-btn>

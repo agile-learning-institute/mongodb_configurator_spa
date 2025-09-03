@@ -76,25 +76,48 @@ Your plan should:
 - Version management functionality exists in UI but tests need investigation into button state management
 - Ready to move to Phase 4 with core functionality working
 
-## Phase 4: Types Detail Page Testing
-**Goal**: Comprehensive testing of type property editing system
-**Status**: Pending Phase 3 approval
+## Phase 4: Types Detail Page Testing 🚀
+**Goal**: Comprehensive testing of type property editing system with structured test files
+**Status**: IN PROGRESS 🚀
+
+**Test File Structure**:
+- `types.cy.ts` - General type document testing (basic elements, lock/unlock, delete)
+- `types.simple.cy.ts` - Simple property editor testing
+- `types.complex.cy.ts` - Complex property editor testing  
+- `types.objects.cy.ts` - Object property editor testing
+- `types.array.cy.ts` - Array property editor testing
 
 **Steps**:
-- [ ] Test root property type changes and editor switching (simple, complex, object, array)
-- [ ] Test object property editor functionality (add/edit/drag/remove properties)
-- [ ] Test array property editor with item type picker (object, array, custom only)
-- [ ] Test array of object/array property editors
-- [ ] Test property type restrictions for different contexts
-- [ ] Test custom type integration
-- [ ] Update page title to include "Type" before filename
-- [ ] Update root property editor to use standard Card layout
-- [ ] Update non-root property editors to match Enumerators page styling
-- [ ] Add necessary `data-test` attributes for reliable testing
+- [x] Update page title to include "Type" before filename
+- [x] Update root property editor to use standard Card layout
+- [x] Update non-root property editors to match Enumerators page styling
+- [x] Add necessary `data-test` attributes for reliable testing
+- [x] Create structured test files with clear separation of concerns
+- [x] Implement `types.cy.ts` - General type document testing
+- [ ] Implement `types.simple.cy.ts` - Simple property editor testing
+- [ ] Implement `types.complex.cy.ts` - Complex property editor testing
+- [ ] Implement `types.objects.cy.ts` - Object property editor testing
+- [ ] Implement `types.array.cy.ts` - Array property editor testing
 - [ ] Update PUNCH-LIST.md with completion status
 - [ ] Commit and push changes
 
 **Phase Gate**: Your approval required before proceeding to Phase 5
+
+**Notes**:
+- Successfully updated TypeDetailPage with "Type" prefix in page title
+- Implemented BaseCard layout for root property editor with proper styling
+- Non-root property editors already had correct Enumerators page styling
+- Created structured test files with clear separation of concerns
+- Each test file focuses on specific property type functionality
+- All tests use `cy.get('[data-test="key"]')` selectors for reliable automation
+- Tests include persistence verification by reloading pages
+- **COMPLETED**: `types.cy.ts` - General type document testing
+  - Fixed root property editor to hide property header for void types
+  - Fixed PropertyEditor to not render for void type root properties
+  - Updated unlock dialog to use standard warning pattern (no "Type UNLOCK" required)
+  - Fixed type picker test selectors to use correct data-test attributes
+  - Tests cover: basic elements, lock/unlock with confirmation dialog, type picker verification, delete confirmation
+- Ready to implement remaining property type test files
 
 ## Phase 5: Dictionary Detail Page Testing
 **Goal**: Test dictionary-specific property editing with type restrictions

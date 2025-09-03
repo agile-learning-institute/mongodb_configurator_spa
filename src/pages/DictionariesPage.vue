@@ -1,13 +1,14 @@
 <template>
   <v-container>
     <div class="d-flex justify-space-between align-center mb-6">
-      <h3>Dictionaries</h3>
+      <h3 data-test="page-title">Dictionaries</h3>
       <div class="d-flex align-center gap-2">
         <v-btn
           color="primary"
           variant="elevated"
           prepend-icon="mdi-plus"
           @click="showNewDialog = true"
+          data-test="new-dictionary-btn"
         >
           New
         </v-btn>
@@ -18,6 +19,7 @@
           prepend-icon="mdi-lock"
           @click="handleLockAll"
           :loading="locking"
+          data-test="lock-all-btn"
         >
           Lock All
         </v-btn>
@@ -31,7 +33,7 @@
     />
 
     <!-- New Dictionary Dialog -->
-    <v-dialog v-model="showNewDialog" max-width="400">
+    <v-dialog v-model="showNewDialog" max-width="400" data-test="new-dictionary-dialog">
       <v-card>
         <v-card-title class="text-h5">
           Create New Dictionary
@@ -45,15 +47,17 @@
             density="compact"
             hide-details
             @keyup.enter="createNewDictionary"
+            data-test="new-dictionary-name-input"
           />
         </v-card-text>
         <v-card-actions>
           <v-spacer />
-          <v-btn @click="showNewDialog = false">Cancel</v-btn>
+          <v-btn @click="showNewDialog = false" data-test="new-dictionary-cancel-btn">Cancel</v-btn>
           <v-btn 
             color="primary" 
             @click="createNewDictionary"
             :disabled="!newDictionaryName.trim()"
+            data-test="new-dictionary-create-btn"
           >
             Create
           </v-btn>
