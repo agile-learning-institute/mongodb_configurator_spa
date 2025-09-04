@@ -96,7 +96,7 @@ Your plan should:
 - [x] Implement `types.cy.ts` - General type document testing
 - [x] Implement `types.simple.cy.ts` - Simple property editor testing
 - [x] Implement `types.complex.cy.ts` - Complex property editor testing
-- [ ] Implement `types.objects.cy.ts` - Object property editor testing
+- [x] Implement `types.objects.cy.ts` - Object property editor testing
 - [ ] Implement `types.array.cy.ts` - Array property editor testing
 - [ ] Update PUNCH-LIST.md with completion status
 - [ ] Commit and push changes
@@ -137,7 +137,15 @@ Your plan should:
   - Set default values in property object when changing to simple/complex types
   - Ensured default values are persisted immediately via autoSave()
   - Fixed TypeScript build errors with proper type annotations
-- Ready to implement remaining property type test files (objects, array)
+- **COMPLETED**: `types.objects.cy.ts` - Object property editor testing
+  - Implemented comprehensive object property editor testing
+  - Fixed drag and drop functionality for property reordering
+  - Enhanced drop zones to make entire property divs drop targets
+  - Fixed show/hide functionality for non-root object properties
+  - Fixed lock behavior - required toggle hidden when locked, collapse toggle remains visible
+  - Tests cover: root/non-root object action icons, property management, drag/drop, show/hide, lock/unlock
+  - All object property editor functionality working correctly
+- Ready to implement `types.array.cy.ts` - Array property editor testing
 
 ## Phase 5: Dictionary Detail Page Testing
 **Goal**: Test dictionary-specific property editing with type restrictions
