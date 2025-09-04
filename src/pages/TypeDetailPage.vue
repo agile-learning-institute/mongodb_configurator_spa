@@ -61,35 +61,38 @@
         data-test="root-property-card"
       >
         <template #title>
-          <div class="d-flex align-center gap-3">
-            <!-- Description Display/Edit -->
-            <div class="description-section" :style="{ minWidth: '200px', flex: '1' }">
-              <div v-if="!isEditingDescription" 
-                   class="description-display" 
-                   @click="startEditDescription"
-                   data-test="root-description-display">
-                <span v-if="typeData.root.description" class="description-text" data-test="root-description-text">{{ typeData.root.description }}</span>
-                <span v-else class="description-placeholder" data-test="root-description-placeholder">Click to add description</span>
-              </div>
-              <v-text-field
-                v-if="isEditingDescription"
-                v-model="editableDescription"
-                variant="plain"
-                density="compact"
-                hide-details
-                :disabled="typeData._locked"
-                :style="{ minWidth: '200px', flex: '1' }"
-                placeholder="Description"
-                @blur="finishEditDescription"
-                @keyup.enter="finishEditDescription"
-                @input="handleDescriptionInput"
-                ref="descriptionInput"
-                data-test="root-description-input-edit"
-              />
+          <!-- Description Display/Edit -->
+          <div class="description-section" :style="{ minWidth: '200px' }">
+            <div v-if="!isEditingDescription" 
+                 class="description-display" 
+                 @click="startEditDescription"
+                 data-test="root-description-display">
+              <span v-if="typeData.root.description" class="description-text" data-test="root-description-text">{{ typeData.root.description }}</span>
+              <span v-else class="description-placeholder" data-test="root-description-placeholder">Click to add description</span>
             </div>
-            
+            <v-text-field
+              v-if="isEditingDescription"
+              v-model="editableDescription"
+              variant="plain"
+              density="compact"
+              hide-details
+              :disabled="typeData._locked"
+              :style="{ minWidth: '200px' }"
+              placeholder="Description"
+              @blur="finishEditDescription"
+              @keyup.enter="finishEditDescription"
+              @input="handleDescriptionInput"
+              ref="descriptionInput"
+              data-test="root-description-input-edit"
+            />
+          </div>
+        </template>
+        
+        <template #header-actions>
+          <!-- Type Picker and Action Icons - Right aligned -->
+          <div class="d-flex align-center">
             <!-- Type Picker -->
-            <div class="type-section">
+            <div class="property-type-section" data-test="property-type-section">
               <TypeChipPicker
                 v-model="editableType"
                 :is-root="true"
@@ -99,6 +102,17 @@
                 data-test="root-type-chip-picker"
               />
             </div>
+            
+            <!-- Object Action Icons (only for object types) -->
+            <ObjectPropertyExtension
+              v-if="typeData.root && typeData.root.type === 'object'"
+              :property="typeData.root as any"
+              :disabled="typeData._locked"
+              @change="handleRootPropertyChange"
+              @addProperty="handleAddProperty"
+              @toggleCollapsed="handleToggleCollapsed"
+              data-test="root-object-extension"
+            />
           </div>
         </template>
         
@@ -182,6 +196,7 @@ import { apiService } from '@/utils/api'
 import PropertyEditor from '@/components/PropertyEditor.vue'
 import BaseCard from '@/components/BaseCard.vue'
 import TypeChipPicker from '@/components/TypeChipPicker.vue'
+import ObjectPropertyExtension from '@/components/ObjectPropertyExtension.vue'
 import type { TypeProperty, TypeData } from '@/types/types'
 
 const route = useRoute()
@@ -279,12 +294,15 @@ const handleTypeChange = (newType: string) => {
       type: newType
     }
     
-    // Set default values for simple and complex types
+    // Set default values for simple, complex, and object types
     if (newType === 'simple') {
       updatedProperty.schema = { type: "string", maxLength: 40 }
     } else if (newType === 'complex') {
       updatedProperty.json_type = { type: "string", maxLength: 40 }
       updatedProperty.bson_type = { type: "string", maxLength: 40 }
+    } else if (newType === 'object') {
+      updatedProperty.properties = []
+      updatedProperty.additional_properties = false
     }
     
     handleRootPropertyChange(updatedProperty)
@@ -302,6 +320,35 @@ const lockType = async () => {
   } catch (err: any) {
     error.value = err.message || 'Failed to lock type'
     console.error('Failed to lock type:', err)
+  }
+}
+
+const handleAddProperty = () => {
+  if (typeData.value?.root && typeData.value.root.type === 'object') {
+    const newProperty = {
+      name: '',
+      type: 'void' as const,
+      description: '',
+      required: false
+    }
+    
+    const updatedRoot = {
+      ...typeData.value.root,
+      properties: [...((typeData.value.root as any).properties || []), newProperty]
+    }
+    
+    handleRootPropertyChange(updatedRoot)
+  }
+}
+
+const handleToggleCollapsed = (collapsed: boolean) => {
+  if (typeData.value?.root && typeData.value.root.type === 'object') {
+    const updatedRoot = {
+      ...typeData.value.root,
+      _collapsed: collapsed
+    }
+    
+    handleRootPropertyChange(updatedRoot)
   }
 }
 

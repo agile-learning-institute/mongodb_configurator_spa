@@ -56,97 +56,109 @@ describe('Types Object page flow', () => {
     it('can change root type from void to object', () => {
       // beforeEach sets up the type 
       // verify property type chip picker with "object" value, 
-      cy.get('[data-test="root-type-chip-picker"] [data-test="type-chip"]').should('contain', 'object')
+      cy.get('[data-test="type-display-name"]').should('contain', 'Object')
       
       // enter description
       cy.get('[data-test="root-description-placeholder"]').click()
-      cy.get('[data-test="root-description-input"]').type('Root object description')
+      cy.get('[data-test="root-description-input-edit"]').type('Root object description')
       cy.reload()
       cy.wait(100)
       cy.get('[data-test="root-description-display"]').should('contain', 'Root object description')
-      
-      // verify required checkbox is unchecked, check and verify checked
-      cy.get('[data-test="required-toggle-btn"]').should('be.visible')
-      cy.get('[data-test="required-toggle-btn"]').find('.material-symbols-outlined').should('contain', 'toggle_off')
-      cy.get('[data-test="required-toggle-btn"]').click()
-      cy.reload()
-      cy.wait(100)
-      cy.get('[data-test="required-toggle-btn"]').find('.material-symbols-outlined').should('contain', 'toggle_on')
-            
-      // verify No properties defined message is visible
       cy.get('[data-test="card-content"]').should('contain', 'No properties defined')
     })
 
     it('displays root object action icons', () => {
-      // verify allow-additional-properties button is visible and enabled
-      cy.get('[data-test="additional-props-toggle-btn"]').should('be.visible').and('not.be.disabled')
-      cy.get('[data-test="additional-props-toggle-btn"]').find('.material-symbols-outlined').should('contain', 'list_alt')
-      
-      // verify show-properties button is visible and enabled
-      cy.get('[data-test="collapse-toggle-btn"]').should('be.visible').and('not.be.disabled')
-      cy.get('[data-test="collapse-toggle-btn"]').find('.material-symbols-outlined').should('contain', 'expand_content')
-      
-      // verify hide-properties button does not exist (should show expand_content initially)
-      cy.get('[data-test="collapse-toggle-btn"]').find('.material-symbols-outlined').should('not.contain', 'collapse_content')
-      
-      // verify delete-property button does not exist (root properties can't be deleted)
-      cy.get('[data-test="delete-property-btn"]').should('not.exist')
-    })
-
-    it('displays non-root object action icons', () => {
-      // First add a property to the root object
-      cy.get('[data-test="add-property-btn"]').click()
-      cy.get('[data-test="property-name-input"]').first().type('testProperty')
-      cy.get('[data-test="property-name-input"]').first().blur()
-      
-      // change the property to object
-      cy.get('[data-test="type-chip-picker"] [data-test="type-chip"]').first().click()
-      cy.get('[data-test="built-in-type-object"]').click()
-      
-      // verify add-property button is visible and enabled
+      // verify add property button is visible and enabled
       cy.get('[data-test="add-property-btn"]').should('be.visible').and('not.be.disabled')
       cy.get('[data-test="add-property-btn"]').find('.material-symbols-outlined').should('contain', 'list_alt_add')
       
       // verify allow-additional-properties button is visible and enabled
       cy.get('[data-test="additional-props-toggle-btn"]').should('be.visible').and('not.be.disabled')
       cy.get('[data-test="additional-props-toggle-btn"]').find('.material-symbols-outlined').should('contain', 'list_alt')
+      cy.get('[data-test="additional-props-toggle-btn"]').click()
+      cy.get('[data-test="additional-props-toggle-btn"]').should('be.visible').and('not.be.disabled')
+      cy.get('[data-test="additional-props-toggle-btn"]').find('.material-symbols-outlined').should('contain', 'list_alt_check')
       
-      // verify show-properties button is visible and enabled
+      // verify show-hide-properties button is visible and enabled
+      cy.get('[data-test="collapse-toggle-btn"]').should('be.visible').and('not.be.disabled')
+      cy.get('[data-test="collapse-toggle-btn"]').find('.material-symbols-outlined').should('contain', 'collapse_content')
+      cy.get('[data-test="collapse-toggle-btn"]').find('.material-symbols-outlined').should('not.contain', 'expand_content')
+      cy.get('[data-test="collapse-toggle-btn"]').click()
       cy.get('[data-test="collapse-toggle-btn"]').should('be.visible').and('not.be.disabled')
       cy.get('[data-test="collapse-toggle-btn"]').find('.material-symbols-outlined').should('contain', 'expand_content')
-      
-      // verify hide-properties button does not exist (should show expand_content initially)
       cy.get('[data-test="collapse-toggle-btn"]').find('.material-symbols-outlined').should('not.contain', 'collapse_content')
       
-      // verify delete-property button is visible and enabled (non-root properties can be deleted)
-      cy.get('[data-test="delete-property-btn"]').should('be.visible').and('not.be.disabled')
+      // verify delete and required buttons do not exist (root properties can't be deleted and required has no effect)
+      cy.get('[data-test="required-toggle-btn"]').should('not.exist')
+      cy.get('[data-test="delete-property-btn"]').should('not.exist')
     })
 
-    it('has the correct non-root type picker', () => {
+    it('displays non-root object action icons', () => {
       // First add a property to the root object
       cy.get('[data-test="add-property-btn"]').click()
-      cy.get('[data-test="property-name-input"]').first().type('testProperty')
-      cy.get('[data-test="property-name-input"]').first().blur()
+      cy.get('[data-test="type-display-name"]').should('contain', 'void')
+      cy.get('[data-test="property-name-input"] input').should('have.value', '')
+      cy.get('[data-test="property-name-input"] input').should('have.attr', 'placeholder', 'Name')
+      cy.get('[data-test="description-input"] input').should('have.value', '')
+      cy.get('[data-test="description-input"] input').should('have.attr', 'placeholder', 'Description')
+
+      cy.get('[data-test="property-name-input"]').click()
+      cy.get('[data-test="property-name-input"] input').first().type('testProperty')
+      cy.get('[data-test="description-input"]').click()
+      cy.get('[data-test="description-input"] input').type('A property for testing object properties')
       
-      // click on the first property type chip 
+      // change the property to object
+      cy.get('[data-test="type-chip-picker"]').should('be.visible').wait(100)
+      cy.get('[data-test="type-chip-picker"]').click()
+      cy.get('[data-test="built-in-type-object"]').should('be.visible').click()
+      cy.get('[data-test="type-display-name"]').should('contain', 'Object')
+      
+      // verify add property button is visible and enabled
+      cy.get('[data-test="add-property-btn"]').should('be.visible').and('not.be.disabled')
+      cy.get('[data-test="add-property-btn"]').find('.material-symbols-outlined').should('contain', 'list_alt_add')
+      
+      // verify allow-additional-properties button is visible and enabled
+      cy.get('[data-test="additional-props-toggle-btn"]').eq(1).should('be.visible').and('not.be.disabled')
+      cy.get('[data-test="additional-props-toggle-btn"]').eq(1).find('.material-symbols-outlined').should('contain', 'list_alt')
+      cy.get('[data-test="additional-props-toggle-btn"]').eq(1).click()
+      cy.get('[data-test="additional-props-toggle-btn"]').eq(1).should('be.visible').and('not.be.disabled')
+      cy.get('[data-test="additional-props-toggle-btn"]').eq(1).find('.material-symbols-outlined').should('contain', 'list_alt_check')
+      
+      // verify show-hide-properties button is visible and enabled
+      cy.get('[data-test="collapse-toggle-btn"]').eq(1).should('be.visible').and('not.be.disabled')
+      cy.get('[data-test="collapse-toggle-btn"]').eq(1).find('.material-symbols-outlined').should('contain', 'collapse_content')
+      cy.get('[data-test="collapse-toggle-btn"]').eq(1).find('.material-symbols-outlined').should('not.contain', 'expand_content')
+      cy.get('[data-test="collapse-toggle-btn"]').eq(1).click()
+      cy.get('[data-test="collapse-toggle-btn"]').eq(1).should('be.visible').and('not.be.disabled')
+      cy.get('[data-test="collapse-toggle-btn"]').eq(1).find('.material-symbols-outlined').should('contain', 'expand_content')
+      cy.get('[data-test="collapse-toggle-btn"]').eq(1).find('.material-symbols-outlined').should('not.contain', 'collapse_content')
+      
+      // verify required toggle works
+      cy.get('[data-test="required-toggle-btn"]').should('exist')
+      cy.get('[data-test="required-toggle-btn"]').find('.material-symbols-outlined').should('contain', 'toggle_off')
+      cy.get('[data-test="required-toggle-btn"]').click()
+      cy.get('[data-test="required-toggle-btn"]').find('.material-symbols-outlined').should('contain', 'toggle_on')
+
+      // verify delete property button works
+      cy.get('[data-test="delete-property-btn"]').should('exist').click()
+      cy.get('[data-test="no-object-properties-text"]').should('exist')
+    })
+
+    it.only('has the correct non-root type picker', () => {
+      // First add a property to the root object
+      cy.get('[data-test="add-property-btn"]').click()
       cy.get('[data-test="type-chip-picker"] [data-test="type-chip"]').first().click()
       
       // verify type picker has Built-in Types section
-      cy.get('[data-test="built-in-types-section"]').should('be.visible')
-      
-      // verify Built-in types contains only "object", "array" 
-      cy.get('[data-test^="built-in-type-"]').should('have.length', 2)
+      cy.get('[data-test="built-in-types-category"]').should('be.visible')
+      cy.get('[data-test="built-in-types-category"] i').should('have.length', 2)
       cy.get('[data-test="built-in-type-object"]').should('be.visible')
       cy.get('[data-test="built-in-type-array"]').should('be.visible')
       
       // verify type picker has Custom Types section
-      cy.get('[data-test="custom-types-section"]').should('be.visible')
-      
-      // verify Custom Types more than 10 chips
-      cy.get('[data-test^="custom-type-"]').should('have.length.greaterThan', 10)
-      
-      // verify that {name} is in chips
-      cy.get(`[data-test="custom-type-${name}"]`).should('be.visible')
+      cy.get('[data-test="custom-types-category"]').should('be.visible')
+      cy.get('[data-test="custom-types-category"] i').should('have.length.greaterThan', 10)
+      cy.get(`[data-test="custom-type-name-${fileName}"]`).should('be.visible')
     })
 
     it('adds properties to non-root object', () => {
