@@ -45,7 +45,7 @@
       </v-tooltip>
     </div>
     
-    <div class="property-collapse-section" v-if="!disabled" data-test="property-collapse-section">
+    <div class="property-collapse-section" data-test="property-collapse-section">
       <v-tooltip 
         :text="collapsed ? 'Show properties' : 'Hide properties'"
         location="top"
@@ -60,6 +60,7 @@
             color="default"
             v-bind="props"
             @click="toggleCollapsed"
+            :disabled="false"
             data-test="collapse-toggle-btn"
           >
             <span class="material-symbols-outlined">{{ collapsed ? 'expand_content' : 'collapse_content' }}</span>
@@ -71,7 +72,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { type ObjectProperty, isObjectProperty } from '@/types/types'
 
 const props = defineProps<{
@@ -85,8 +86,15 @@ const emit = defineEmits<{
   toggleCollapsed: [collapsed: boolean]
 }>()
 
-// Reactive state
-const collapsed = ref(false)
+// Reactive state - initialize from property's collapsed state
+const collapsed = ref((props.property as any)._collapsed || false)
+
+// Watch for changes to the property's collapsed state
+watch(() => (props.property as any)._collapsed, (newCollapsed) => {
+  if (newCollapsed !== undefined) {
+    collapsed.value = newCollapsed
+  }
+})
 
 
 

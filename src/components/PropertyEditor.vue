@@ -114,9 +114,9 @@
         
         <div v-else class="properties-section" data-test="object-properties-section">
           <template v-for="(prop, index) in property.properties" :key="prop.name || index">
-            <!-- Drop zone before each property -->
+            <!-- Each property is its own drop zone for dropping above it -->
             <div 
-              class="drop-zone" 
+              class="property-drop-zone"
               :class="{ 'drag-over': dragOverIndex === index }"
               :data-test="`drop-zone-${index}`"
               @dragover.prevent="handleDragOver(index)"
@@ -124,19 +124,17 @@
               @dragleave="handleDragLeave(index)"
               @drop="(event) => handleDrop(event, index)"
             >
-              <div class="drop-indicator"></div>
+              <PropertyEditor
+                :property="prop"
+                :is-root="false"
+                :is-dictionary="isDictionary"
+                :is-type="isType"
+                :disabled="disabled"
+                @change="(updatedProp) => handlePropertyChange(index, updatedProp)"
+                @delete="() => handlePropertyDelete(index)"
+                :data-test="`object-property-${prop.name || index}`"
+              />
             </div>
-            
-            <PropertyEditor
-              :property="prop"
-              :is-root="false"
-              :is-dictionary="isDictionary"
-              :is-type="isType"
-              :disabled="disabled"
-              @change="(updatedProp) => handlePropertyChange(index, updatedProp)"
-              @delete="() => handlePropertyDelete(index)"
-              :data-test="`object-property-${prop.name || index}`"
-            />
           </template>
           
           <!-- Drop zone after last property -->
@@ -336,10 +334,15 @@ const handleAddProperty = () => {
   }
 }
 
-const handleToggleCollapsed = () => {
-  // Handle collapse state if needed
-  // For now, we'll just emit the change
-  emit('change', props.property)
+const handleToggleCollapsed = (collapsed: boolean) => {
+  // Toggle the collapsed state for object properties
+  if (isObjectProperty(props.property)) {
+    const updatedProperty = {
+      ...props.property,
+      _collapsed: collapsed
+    }
+    emit('change', updatedProperty)
+  }
 }
 
 const handlePropertyChange = (index: number, updatedProp: Property) => {
@@ -637,5 +640,35 @@ const handleComplexPropertyBsonTypeChange = (value: string) => {
 .drop-zone.drag-over .drop-indicator {
   background-color: #1976d2;
   height: 3px;
+}
+
+/* Property drop zone styling - each property is a drop zone */
+.property-drop-zone {
+  transition: all 0.2s ease;
+  border-radius: 8px;
+  margin: 2px 0;
+  position: relative;
+}
+
+.property-drop-zone:hover {
+  background-color: rgba(25, 118, 210, 0.05);
+}
+
+.property-drop-zone.drag-over {
+  background-color: rgba(25, 118, 210, 0.15);
+  border: 2px dashed #1976d2;
+  box-shadow: 0 0 0 1px rgba(25, 118, 210, 0.3);
+}
+
+.property-drop-zone.drag-over::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background-color: #1976d2;
+  border-radius: 2px;
+  z-index: 1;
 }
 </style> 

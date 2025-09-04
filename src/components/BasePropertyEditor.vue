@@ -185,6 +185,9 @@ const isDictionary = computed(() => props.isDictionary || false)
 const isType = computed(() => props.isType || false)
 
 const canBeRequired = computed(() => {
+  // If disabled (locked), cannot be required
+  if (props.disabled) return false
+  
   // Root properties can always be required
   if (isRoot.value) return true
   
