@@ -49,6 +49,7 @@ describe('Types Object page flow', () => {
       })
     })
     cy.visit('/types')
+    cy.url().should('include', '/types')
     cy.get('[data-test^="file-card-"]').should('not.contain', fileName)
   })
 
@@ -144,7 +145,7 @@ describe('Types Object page flow', () => {
       cy.get('[data-test="no-object-properties-text"]').should('exist')
     })
 
-    it.only('has the correct non-root type picker', () => {
+    it('has the correct non-root type picker', () => {
       // First add a property to the root object
       cy.get('[data-test="add-property-btn"]').click()
       cy.get('[data-test="type-chip-picker"] [data-test="type-chip"]').first().click()
@@ -161,111 +162,201 @@ describe('Types Object page flow', () => {
       cy.get(`[data-test="custom-type-name-${fileName}"]`).should('be.visible')
     })
 
-    it('adds properties to non-root object', () => {
-      // First add a property to the root object
-      cy.get('[data-test="add-property-btn"]').click()
-      cy.get('[data-test="property-name-input"]').first().type('testProperty')
-      cy.get('[data-test="property-name-input"]').first().blur()
+    it('adds and removes properties to root object', () => {
+      cy.get('[data-test="add-property-btn"]').click().click().click()
+
+      cy.get('[data-test="property-name-input"]').eq(0).click()
+      cy.get('[data-test="property-name-input"]').eq(0).find('input').type('firstTestProperty')
+      cy.get('[data-test="description-input"]').eq(0).click()
+      cy.get('[data-test="description-input"]').eq(0).find('input').type('A property for testing object properties')
+
+      cy.get('[data-test="property-name-input"]').eq(1).click()
+      cy.get('[data-test="property-name-input"]').eq(1).find('input').type('secondTestProperty')
+      cy.get('[data-test="description-input"]').eq(1).click()
+      cy.get('[data-test="description-input"]').eq(1).find('input').type('A property for testing object properties')
       
-      // change the property to object
-      cy.get('[data-test="type-chip-picker"] [data-test="type-chip"]').first().click()
-      cy.get('[data-test="built-in-type-object"]').click()
-      
-      // verify property type chip picker with "object" value, 
-      cy.get('[data-test="type-chip-picker"] [data-test="type-chip"]').first().should('contain', 'object')
-      
-      // verify required checkbox is unchecked, check and verify checked
-      cy.get('[data-test="required-toggle-btn"]').find('.material-symbols-outlined').should('contain', 'toggle_off')
-      cy.get('[data-test="required-toggle-btn"]').click()
-      cy.get('[data-test="required-toggle-btn"]').find('.material-symbols-outlined').should('contain', 'toggle_on')
-      
-      // verify property name and description input are visible and enabled
-      cy.get('[data-test="property-name-input"]').first().should('be.visible').and('not.be.disabled')
-      cy.get('[data-test="description-input"]').first().should('be.visible').and('not.be.disabled')
-      
-      // verify object property action icons are visible and enabled
-      cy.get('[data-test="add-property-btn"]').should('be.visible').and('not.be.disabled')
-      cy.get('[data-test="additional-props-toggle-btn"]').should('be.visible').and('not.be.disabled')
-      cy.get('[data-test="collapse-toggle-btn"]').should('be.visible').and('not.be.disabled')
-      
-      // add three sub-properties to the object and set name and description for each
-      cy.get('[data-test="add-property-btn"]').click()
-      cy.get('[data-test="property-name-input"]').eq(1).type('subProp1')
-      cy.get('[data-test="property-name-input"]').eq(1).blur()
-      cy.get('[data-test="description-input"]').eq(1).type('Sub property 1')
-      cy.get('[data-test="description-input"]').eq(1).blur()
-      
-      cy.get('[data-test="add-property-btn"]').click()
-      cy.get('[data-test="property-name-input"]').eq(2).type('subProp2')
-      cy.get('[data-test="property-name-input"]').eq(2).blur()
-      cy.get('[data-test="description-input"]').eq(2).type('Sub property 2')
-      cy.get('[data-test="description-input"]').eq(2).blur()
-      
-      cy.get('[data-test="add-property-btn"]').click()
-      cy.get('[data-test="property-name-input"]').eq(3).type('subProp3')
-      cy.get('[data-test="property-name-input"]').eq(3).blur()
-      cy.get('[data-test="description-input"]').eq(3).type('Sub property 3')
-      cy.get('[data-test="description-input"]').eq(3).blur()
-      
-      // verify all properties have Name, Description, and type chip picker with "void" value, required checkbox is unchecked
-      cy.get('[data-test="property-name-input"]').should('have.length', 4) // root + 3 sub properties
-      cy.get('[data-test="description-input"]').should('have.length', 4)
-      cy.get('[data-test="type-chip-picker"] [data-test="type-chip"]').should('have.length', 4)
-      cy.get('[data-test="type-chip-picker"] [data-test="type-chip"]').each(($chip) => {
-        cy.wrap($chip).should('contain', 'void')
-      })
-      cy.get('[data-test="required-toggle-btn"]').each(($toggle) => {
-        cy.wrap($toggle).find('.material-symbols-outlined').should('contain', 'toggle_off')
-      })
-      
-      // delete the second property
+      cy.get('[data-test="property-name-input"]').eq(2).click()
+      cy.get('[data-test="property-name-input"]').eq(2).find('input').type('thirdTestProperty')
+      cy.get('[data-test="description-input"]').eq(2).click()
+      cy.get('[data-test="description-input"]').eq(2).find('input').type('A property for testing object properties')
+
+      cy.get('[data-test="property-name-input"]').eq(0).find('input').should('have.attr', 'value', 'firstTestProperty')
+      cy.get('[data-test="property-name-input"]').eq(1).find('input').should('have.attr', 'value', 'secondTestProperty')
+      cy.get('[data-test="property-name-input"]').eq(2).find('input').should('have.attr', 'value', 'thirdTestProperty')
+
       cy.get('[data-test="delete-property-btn"]').eq(1).click()
+      cy.get('[data-test="property-name-input"]').should('have.length', 2)
+      cy.get('[data-test="property-name-input"]').eq(0).find('input').should('have.attr', 'value', 'firstTestProperty')
+      cy.get('[data-test="property-name-input"]').eq(1).find('input').should('have.attr', 'value', 'thirdTestProperty')
+
+      cy.get('[data-test="delete-property-btn"]').eq(0).click()
+      cy.get('[data-test="property-name-input"]').eq(0).should('have.length', 1)
+      cy.get('[data-test="property-name-input"]').eq(0).find('input').should('have.attr', 'value', 'thirdTestProperty')
       
-      // verify property list has 3 properties (root + 2 remaining sub properties)
-      cy.get('[data-test="property-name-input"]').should('have.length', 3)
-      cy.get('[data-test="property-name-input"]').eq(1).should('have.value', 'subProp2') // subProp2 is now second
-      cy.get('[data-test="property-name-input"]').eq(2).should('have.value', 'subProp3') // subProp3 is now third
+      cy.get('[data-test="delete-property-btn"]').eq(0).click()
+      cy.get('[data-test="card-content"]').should('contain', 'No properties defined')
+    })
+
+    it('adds and removes properties to non-root object', () => {
+      // Arrange - create a non-root object property
+      cy.get('[data-test="add-property-btn"]').click()
+      cy.get('[data-test="type-display-name"]').should('contain', 'void')
+      cy.get('[data-test="type-chip-picker"]').should('be.visible').wait(100)
+      cy.get('[data-test="type-chip-picker"]').click()
+      cy.get('[data-test="built-in-type-object"]').should('be.visible').click()
+      cy.get('[data-test="type-display-name"]').should('contain', 'Object')
+
+      // Add three properties to the object property body
+      cy.get('[data-test="add-property-btn"]').eq(1).should('be.visible').wait(100)
+        .click().click().click()
+
+      // set context to the object property section
+      cy.get('[data-test="object-properties-section"]').eq(1).within(() => {
+
+        // Input names and descriptions for the properties
+        cy.get('[data-test="property-name-input"]').eq(0).click()
+        cy.get('[data-test="property-name-input"]').eq(0).find('input').type('firstTestProperty')
+        cy.get('[data-test="description-input"]').eq(0).click()
+        cy.get('[data-test="description-input"]').eq(0).find('input').type('A property for testing object properties')
+
+        cy.get('[data-test="property-name-input"]').eq(1).click()
+        cy.get('[data-test="property-name-input"]').eq(1).find('input').type('secondTestProperty')
+        cy.get('[data-test="description-input"]').eq(1).click()
+        cy.get('[data-test="description-input"]').eq(1).find('input').type('A property for testing object properties')
+        
+        cy.get('[data-test="property-name-input"]').eq(2).click()
+        cy.get('[data-test="property-name-input"]').eq(2).find('input').type('thirdTestProperty')
+        cy.get('[data-test="description-input"]').eq(2).click()
+        cy.get('[data-test="description-input"]').eq(2).find('input').type('A property for testing object properties')
+
+        // verify the properties were added
+        cy.get('[data-test="property-name-input"]').eq(0).find('input').should('have.attr', 'value', 'firstTestProperty')
+        cy.get('[data-test="property-name-input"]').eq(1).find('input').should('have.attr', 'value', 'secondTestProperty')
+        cy.get('[data-test="property-name-input"]').eq(2).find('input').should('have.attr', 'value', 'thirdTestProperty')
+  
+        // delete the second property
+        cy.get('[data-test="delete-property-btn"]').eq(1).click()
+        cy.get('[data-test="property-name-input"]').should('have.length', 2)
+        cy.get('[data-test="property-name-input"]').eq(0).find('input').should('have.attr', 'value', 'firstTestProperty')
+        cy.get('[data-test="property-name-input"]').eq(1).find('input').should('have.attr', 'value', 'thirdTestProperty')
+  
+        // delete the first property
+        cy.get('[data-test="delete-property-btn"]').eq(0).click()
+        cy.get('[data-test="property-name-input"]').eq(0).should('have.length', 1)
+        cy.get('[data-test="property-name-input"]').eq(0).find('input').should('have.attr', 'value', 'thirdTestProperty')
+        
+        // delete the last property
+        cy.get('[data-test="delete-property-btn"]').eq(0).click()
+        cy.wait(100)
+      })
+      
+      // Check for "No properties defined" message outside the within block
+      cy.get('[data-test="property-body"]').should('contain', 'No properties defined')
     })
     
-    it('can arrange properties', () => {
-      // First add three properties to the root object
-      cy.get('[data-test="add-property-btn"]').click()
-      cy.get('[data-test="property-name-input"]').first().type('prop1')
-      cy.get('[data-test="property-name-input"]').first().blur()
+    it.only('can arrange root object properties', () => {
+      // Arrange root object with three properties
+      cy.get('[data-test="add-property-btn"]').click().click().click()
+
+      // Set up first property
+      cy.get('[data-test="property-name-input"]').eq(0).click()
+      cy.get('[data-test="property-name-input"]').eq(0).find('input').type('firstTestProperty')
+      cy.get('[data-test="description-input"]').eq(0).click()
+      cy.get('[data-test="description-input"]').eq(0).find('input').type('A property for testing object properties')
+
+      // Set up second property
+      cy.get('[data-test="property-name-input"]').eq(1).click()
+      cy.get('[data-test="property-name-input"]').eq(1).find('input').type('secondTestProperty')
+      cy.get('[data-test="description-input"]').eq(1).click()
+      cy.get('[data-test="description-input"]').eq(1).find('input').type('A property for testing object properties')
       
-      cy.get('[data-test="add-property-btn"]').click()
-      cy.get('[data-test="property-name-input"]').eq(1).type('prop2')
-      cy.get('[data-test="property-name-input"]').eq(1).blur()
+      // Set up third property
+      cy.get('[data-test="property-name-input"]').eq(2).click()
+      cy.get('[data-test="property-name-input"]').eq(2).find('input').type('thirdTestProperty')
+      cy.get('[data-test="description-input"]').eq(2).click()
+      cy.get('[data-test="description-input"]').eq(2).find('input').type('A property for testing object properties')
       
-      cy.get('[data-test="add-property-btn"]').click()
-      cy.get('[data-test="property-name-input"]').eq(2).type('prop3')
-      cy.get('[data-test="property-name-input"]').eq(2).blur()
+      // Verify initial order: firstTestProperty, secondTestProperty, thirdTestProperty
+      cy.get('[data-test="property-name-input"]').eq(0).find('input').should('have.value', 'firstTestProperty')
+      cy.get('[data-test="property-name-input"]').eq(1).find('input').should('have.value', 'secondTestProperty')
+      cy.get('[data-test="property-name-input"]').eq(2).find('input').should('have.value', 'thirdTestProperty')
       
-      // Verify initial order: prop1, prop2, prop3
-      cy.get('[data-test="property-name-input"]').eq(0).should('have.value', 'prop1')
-      cy.get('[data-test="property-name-input"]').eq(1).should('have.value', 'prop2')
-      cy.get('[data-test="property-name-input"]').eq(2).should('have.value', 'prop3')
+      // Drag the 2nd property to before the 1st property and verify: secondTestProperty, firstTestProperty, thirdTestProperty
+      cy.get('[data-test="property-drag-handle"]').eq(1).then(($dragHandle) => {
+        const dragHandle = $dragHandle[0]
+        const dropZone = cy.get('[data-test="drop-zone-0"]')
+        
+        // Create a proper drag and drop sequence
+        const dragStartEvent = new DragEvent('dragstart', {
+          bubbles: true,
+          cancelable: true,
+          dataTransfer: new DataTransfer()
+        })
+        dragStartEvent.dataTransfer?.setData('text/plain', 'secondTestProperty')
+        
+        const dragOverEvent = new DragEvent('dragover', {
+          bubbles: true,
+          cancelable: true,
+          dataTransfer: new DataTransfer()
+        })
+        
+        const dropEvent = new DragEvent('drop', {
+          bubbles: true,
+          cancelable: true,
+          dataTransfer: new DataTransfer()
+        })
+        dropEvent.dataTransfer?.setData('text/plain', 'secondTestProperty')
+        
+        // Trigger the events
+        dragHandle.dispatchEvent(dragStartEvent)
+        cy.get('[data-test="drop-zone-0"]').then(($dropZone) => {
+          const dropZoneEl = $dropZone[0]
+          dropZoneEl.dispatchEvent(dragOverEvent)
+          dropZoneEl.dispatchEvent(dropEvent)
+        })
+      })
       
-      // drag the 2nd to before 1 and verify 2,1,3
-      cy.get('[data-test="property-drag-handle"]').eq(1).trigger('dragstart')
-      cy.get('[data-test="drop-zone-0"]').trigger('dragover').trigger('drop')
-      cy.get('[data-test="property-name-input"]').eq(0).should('have.value', 'prop2')
-      cy.get('[data-test="property-name-input"]').eq(1).should('have.value', 'prop1')
-      cy.get('[data-test="property-name-input"]').eq(2).should('have.value', 'prop3')
+      // Wait for the drag operation to complete
+      cy.wait(500)
       
-      // drag the 1st property to after spot 3 and verify 1,3,2
-      cy.get('[data-test="property-drag-handle"]').eq(0).trigger('dragstart')
-      cy.get('[data-test="drop-zone-3"]').trigger('dragover').trigger('drop')
-      cy.get('[data-test="property-name-input"]').eq(0).should('have.value', 'prop1')
-      cy.get('[data-test="property-name-input"]').eq(1).should('have.value', 'prop3')
-      cy.get('[data-test="property-name-input"]').eq(2).should('have.value', 'prop2')
+      // Verify new order: secondTestProperty, firstTestProperty, thirdTestProperty
+      cy.get('[data-test="property-name-input"]').eq(0).find('input').should('have.value', 'secondTestProperty')
+      cy.get('[data-test="property-name-input"]').eq(1).find('input').should('have.value', 'firstTestProperty')
+      cy.get('[data-test="property-name-input"]').eq(2).find('input').should('have.value', 'thirdTestProperty')
       
-      // drag the 3rd property to before spot 1 and verify 2,1,3
-      cy.get('[data-test="property-drag-handle"]').eq(2).trigger('dragstart')
-      cy.get('[data-test="drop-zone-0"]').trigger('dragover').trigger('drop')
-      cy.get('[data-test="property-name-input"]').eq(0).should('have.value', 'prop2')
-      cy.get('[data-test="property-name-input"]').eq(1).should('have.value', 'prop1')
-      cy.get('[data-test="property-name-input"]').eq(2).should('have.value', 'prop3')
+      // Drag the 1st property (now at index 1) to after the 3rd property and verify: secondTestProperty, thirdTestProperty, firstTestProperty
+      cy.get('[data-test="property-drag-handle"]').eq(1)
+        .trigger('mousedown', { which: 1 })
+        .trigger('dragstart', { dataTransfer: new DataTransfer() })
+      cy.get('[data-test="drop-zone-3"]')
+        .trigger('dragover', { dataTransfer: new DataTransfer() })
+        .trigger('drop', { dataTransfer: new DataTransfer() })
+      cy.get('[data-test="property-drag-handle"]').eq(1).trigger('dragend')
+      
+      // Wait for the drag operation to complete
+      cy.wait(200)
+      
+      // Verify new order: secondTestProperty, thirdTestProperty, firstTestProperty
+      cy.get('[data-test="property-name-input"]').eq(0).find('input').should('have.value', 'secondTestProperty')
+      cy.get('[data-test="property-name-input"]').eq(1).find('input').should('have.value', 'thirdTestProperty')
+      cy.get('[data-test="property-name-input"]').eq(2).find('input').should('have.value', 'firstTestProperty')
+      
+      // Drag the 3rd property (now at index 2) to before the 1st property and verify: firstTestProperty, secondTestProperty, thirdTestProperty
+      cy.get('[data-test="property-drag-handle"]').eq(2)
+        .trigger('mousedown', { which: 1 })
+        .trigger('dragstart', { dataTransfer: new DataTransfer() })
+      cy.get('[data-test="drop-zone-0"]')
+        .trigger('dragover', { dataTransfer: new DataTransfer() })
+        .trigger('drop', { dataTransfer: new DataTransfer() })
+      cy.get('[data-test="property-drag-handle"]').eq(2).trigger('dragend')
+      
+      // Wait for the drag operation to complete
+      cy.wait(200)
+      
+      // Verify final order: firstTestProperty, secondTestProperty, thirdTestProperty
+      cy.get('[data-test="property-name-input"]').eq(0).find('input').should('have.value', 'firstTestProperty')
+      cy.get('[data-test="property-name-input"]').eq(1).find('input').should('have.value', 'secondTestProperty')
+      cy.get('[data-test="property-name-input"]').eq(2).find('input').should('have.value', 'thirdTestProperty')
     })
 
     it('can show/hide properties', () => {

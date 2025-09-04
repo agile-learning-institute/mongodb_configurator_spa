@@ -360,17 +360,20 @@ const handleDragStart = (event: DragEvent) => {
   if (event.dataTransfer) {
     event.dataTransfer.setData('text/plain', props.property.name || '')
     event.dataTransfer.effectAllowed = 'move'
+    event.dataTransfer.dropEffect = 'move'
   }
-  // Add visual feedback
-  if (event.target) {
-    (event.target as HTMLElement).style.opacity = '0.5'
+  // Add visual feedback to the entire property
+  const propertyElement = (event.target as HTMLElement).closest('.base-property-editor')
+  if (propertyElement) {
+    (propertyElement as HTMLElement).style.opacity = '0.5'
   }
 }
 
 const handleDragEnd = (event: DragEvent) => {
-  // Remove visual feedback
-  if (event.target) {
-    (event.target as HTMLElement).style.opacity = '1'
+  // Remove visual feedback from the entire property
+  const propertyElement = (event.target as HTMLElement).closest('.base-property-editor')
+  if (propertyElement) {
+    (propertyElement as HTMLElement).style.opacity = '1'
   }
 }
 
