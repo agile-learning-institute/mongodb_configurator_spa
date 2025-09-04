@@ -118,7 +118,7 @@ describe('Enumerators page flow', () => {
 
       // Wait for the enumeration to be saved and reload the page
       cy.get('[data-test^="enumerator-name-input-"]').should('have.length', 2)
-      cy.wait(1000)
+      cy.wait(500)
       cy.reload()
 
       // Verify all values on the page after reload
@@ -308,11 +308,11 @@ describe('Enumerators page flow', () => {
       cy.get('[data-test="enum-description-input-0-3"]').type('Test New Description')
 
       // Create the new version
-      cy.wait(1000)
+      cy.wait(500)
       cy.get('[data-test="add-version-btn"]').should('exist').click()
       
       // Wait for navigation to complete
-      cy.wait(1000)
+      cy.wait(500)
       cy.url().should('contain', '/enumerators/enumerations.4.yaml')
       
       // Now check the version

@@ -1,4 +1,4 @@
-describe('Types page flow', () => {
+describe('Types Array page flow', () => {
   const name = `e2e-test-type-array-${Date.now()}`
   const fileName = `${name}.yaml`
   const thingsToDelete: string[] = []
@@ -54,6 +54,7 @@ describe('Types page flow', () => {
 
   describe('Array Property Editor', () => {
     it('can change root type from void to array', () => {
+      expect(true, 'Not Yet Implemented').to.equal(false)
       // enter description
       // verify property type chip picker with "array" value, 
       // verify items type chip picker with "void" value
@@ -62,6 +63,7 @@ describe('Types page flow', () => {
     })
 
     it('displays proper items type picker', () => {
+      expect(true, 'Not Yet Implemented').to.equal(false)
       // click on items type chip
       // verify items type picker has Built-in Types section
       // verify Built-in types contains only "object", "array" 
@@ -71,6 +73,7 @@ describe('Types page flow', () => {
     })
 
     it('handles array of array', () => {
+      expect(true, 'Not Yet Implemented').to.equal(false)
       // change the items type to array
       // verify items type chip picker with "array" value
       // verify required checkbox is unchecked, check and verify checked
@@ -81,6 +84,7 @@ describe('Types page flow', () => {
     })
 
     it('array of array locks', () => {
+      expect(true, 'Not Yet Implemented').to.equal(false)
       // verify unlocked
       // click lock button
       // verify lock button is replaced with unlock button
@@ -88,6 +92,7 @@ describe('Types page flow', () => {
     })
 
     it('array of array unlocks', () => {
+      expect(true, 'Not Yet Implemented').to.equal(false)
       // verify unlocked
       // click lock button
       // verify lock button is replaced with unlock button
@@ -97,6 +102,7 @@ describe('Types page flow', () => {
     })
 
     it('handles array of object', () => {
+      expect(true, 'Not Yet Implemented').to.equal(false)
       // change the items type to object
       // verify items type chip picker with "object" value
       // verify required checkbox is unchecked, check and verify checked
@@ -110,6 +116,7 @@ describe('Types page flow', () => {
     })
 
     it('array of object locks', () => {
+      expect(true, 'Not Yet Implemented').to.equal(false)
       // verify unlocked
       // click lock button
       // verify lock button is replaced with unlock button
@@ -117,6 +124,7 @@ describe('Types page flow', () => {
     })
 
     it('array of object unlocks', () => {
+      expect(true, 'Not Yet Implemented').to.equal(false)
       // verify unlocked
       // click lock button
       // verify lock button is replaced with unlock button
@@ -126,6 +134,7 @@ describe('Types page flow', () => {
     })
 
     it('can show/hide object properties', () => {
+      expect(true, 'Not Yet Implemented').to.equal(false)
       // change the items type to object
       // add three sub-properties to the array of object and set name and description for each
       // click hide-properties button
@@ -135,9 +144,11 @@ describe('Types page flow', () => {
     })
 
     it('handles array of custom', () => {
+      expect(true, 'Not Yet Implemented').to.equal(false)
     })
     
     it('array of custom locks', () => {
+      expect(true, 'Not Yet Implemented').to.equal(false)
       // verify unlocked
       // click lock button
       // verify lock button is replaced with unlock button
@@ -145,6 +156,7 @@ describe('Types page flow', () => {
     })
 
     it('array of custom unlocks', () => {
+      expect(true, 'Not Yet Implemented').to.equal(false)
       // verify unlocked
       // click lock button
       // verify lock button is replaced with unlock button

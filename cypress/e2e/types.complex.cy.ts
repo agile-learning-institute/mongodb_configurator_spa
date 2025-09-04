@@ -1,4 +1,4 @@
-describe('Types page flow', () => {
+describe('Types COmplex page flow', () => {
   const name = `e2e-test-type-complex-${Date.now()}`
   const fileName = `${name}.yaml`
   const thingsToDelete: string[] = []

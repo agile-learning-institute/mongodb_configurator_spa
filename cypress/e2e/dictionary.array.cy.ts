@@ -1,20 +1,20 @@
-describe('Types page flow', () => {
-  const name = `e2e-test-dictionary-${Date.now()}`
+describe('Dictionary Array page flow', () => {
+  const name = `e2e-test-dictionary-array-${Date.now()}`
   const fileName = `${name}.yaml`
   const thingsToDelete: string[] = []
 
   // Setup a type with an object root property
   beforeEach(() => {
-    // thingsToDelete.push(`/api/dictionaries/${fileName}/`)
+    thingsToDelete.push(`/api/dictionaries/${fileName}/`)
 
-    // cy.visit('/dictionaries')
-    // cy.wait(500)
-    // cy.get('[data-test="new-dictionary-btn"]').click()
-    // cy.get('[data-test="new-dictionary-dialog"]').should('be.visible')
-    // cy.get('[data-test="new-dictionary-name-input"]').type(name)
-    // cy.get('[data-test="new-dictionary-create-btn"]').click()
-    // cy.wait(500)
-    // cy.url().should('include', `/dictionaries/${name}`)
+    cy.visit('/dictionaries')
+    cy.wait(500)
+    cy.get('[data-test="new-dictionary-btn"]').click()
+    cy.get('[data-test="new-dictionary-dialog"]').should('be.visible')
+    cy.get('[data-test="new-dictionary-name-input"]').type(name)
+    cy.get('[data-test="new-dictionary-create-btn"]').click()
+    cy.wait(500)
+    cy.url().should('include', `/dictionaries/${name}`)
     // cy.get('[data-test="root-description-placeholder"]').should('be.visible').and('contain', 'Click to add description')
     // cy.get('[data-test="root-type-chip-picker"] [data-test="type-chip"]').should('be.visible').and('contain', 'void')    
     // cy.get('[data-test="root-type-chip-picker"] [data-test="type-chip"]').click()
@@ -55,6 +55,7 @@ describe('Types page flow', () => {
 
   describe('Array Property Editor', () => {
     it('can change root type from void to array', () => {
+      expect(true, 'Not Yet Implemented').to.equal(false)
       // enter description
       // verify property type chip picker with "array" value, 
       // verify items type chip picker with "void" value
@@ -63,6 +64,7 @@ describe('Types page flow', () => {
     })
 
     it('displays proper items type picker', () => {
+      expect(true, 'Not Yet Implemented').to.equal(false)
       // click on items type chip
       // verify items type picker has Built-in Types section
       // verify Built-in types contains only "object", "array" 
@@ -72,6 +74,7 @@ describe('Types page flow', () => {
     })
 
     it('handles array of array', () => {
+      expect(true, 'Not Yet Implemented').to.equal(false)
       // change the items type to array
       // verify items type chip picker with "array" value
       // verify required checkbox is unchecked, check and verify checked
@@ -82,6 +85,7 @@ describe('Types page flow', () => {
     })
 
     it('handles array of object', () => {
+      expect(true, 'Not Yet Implemented').to.equal(false)
       // change the items type to object
       // verify items type chip picker with "object" value
       // verify required checkbox is unchecked, check and verify checked
@@ -95,6 +99,7 @@ describe('Types page flow', () => {
     })
 
     it('can show/hide object properties', () => {
+      expect(true, 'Not Yet Implemented').to.equal(false)
       // change the items type to object
       // add three sub-properties to the array of object and set name and description for each
       // click hide-properties button
@@ -104,6 +109,7 @@ describe('Types page flow', () => {
     })
 
     it('handles array of one_of', () => {
+      expect(true, 'Not Yet Implemented').to.equal(false)
       // change items type to one_of
       // verify items type chip picker with "one_of" value
       // verify required checkbox is unchecked, check and verify checked
@@ -117,6 +123,7 @@ describe('Types page flow', () => {
     })
 
     it('can show/hide one_of properties', () => {
+      expect(true, 'Not Yet Implemented').to.equal(false)
       // change the items type to one_of
       // add three sub-properties to the array of object and set name and description for each
       // click hide-properties button
@@ -126,6 +133,7 @@ describe('Types page flow', () => {
     })
 
     it('handles array of ref', () => {
+      expect(true, 'Not Yet Implemented').to.equal(false)
       // change items type to ref
       // verify items type chip picker with "ref" value
       // verify required checkbox is unchecked, check and verify checked
@@ -139,15 +147,18 @@ describe('Types page flow', () => {
     })
 
     it('handles array of custom', () => {
+      expect(true, 'Not Yet Implemented').to.equal(false)
     })
     
 
     it('can delete properties', () => {
+      expect(true, 'Not Yet Implemented').to.equal(false)
       // delete the first property
       // verify property list has property 2 is now property 1, property 3 is now property 2
     })
 
     it('locks', () => {
+      expect(true, 'Not Yet Implemented').to.equal(false)
       // change the second property to object
       // add three sub-properties to the object and set name and description for each
 
@@ -162,6 +173,7 @@ describe('Types page flow', () => {
     })
 
     it('unlocks', () => {
+      expect(true, 'Not Yet Implemented').to.equal(false)
       // change the second property to object
       // add three sub-properties to the object and set name and description for each
 
