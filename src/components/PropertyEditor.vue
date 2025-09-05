@@ -90,7 +90,7 @@
       <!-- Array of Array: Show nested array editor (only when not collapsed) -->
       <div v-else-if="isArrayProperty(property) && property.items && property.items.type === 'array' && !(property.items as any)._collapsed" class="array-property-body" data-test="array-of-array-body">
         <div class="array-item-editor">
-          <!-- Use PropertyEditor for the nested array with type selector hidden -->
+          <!-- Use PropertyEditor for the nested array with type selector and delete button hidden -->
           <PropertyEditor
             :property="property.items"
             :is-root="false"
@@ -98,6 +98,7 @@
             :is-type="isType"
             :disabled="disabled"
             :hideTypeSelector="true"
+            :hideDeleteButton="true"
             @change="handleItemsChange"
             data-test="nested-array-property"
           />

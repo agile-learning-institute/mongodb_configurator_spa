@@ -164,6 +164,7 @@ const props = defineProps<{
   isType?: boolean
   disabled?: boolean
   hideTypeSelector?: boolean
+  hideDeleteButton?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -199,6 +200,9 @@ const canBeRequired = computed(() => {
 const canBeDeleted = computed(() => {
   // Root properties cannot be deleted
   if (isRoot.value) return false
+  
+  // If explicitly hidden, don't show delete button
+  if (props.hideDeleteButton) return false
   
   // Non-root properties can be deleted
   return true
@@ -436,12 +440,6 @@ watch(() => props.property, (newProperty) => {
 }
 
 
-
-.root-extension-section {
-  padding: 12px 16px;
-  background-color: #f8f9fa;
-  border-bottom: 1px solid #e0e0e0;
-}
 
 .property-body {
   padding: 16px;
