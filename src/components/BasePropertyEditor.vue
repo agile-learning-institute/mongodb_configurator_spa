@@ -138,11 +138,6 @@
       </div>
     </div>
     
-    <!-- Extension slot for root properties -->
-    <div v-if="isRoot" class="root-extension-section" data-test="root-extension-section">
-      <slot name="extension"></slot>
-    </div>
-    
     <!-- Property Body - only for types that need it -->
     <div class="property-body" v-if="showBody" data-test="property-body">
       <slot name="body"></slot>

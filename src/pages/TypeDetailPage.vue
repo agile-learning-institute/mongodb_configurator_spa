@@ -113,6 +113,16 @@
               @toggleCollapsed="handleToggleCollapsed"
               data-test="root-object-extension"
             />
+            
+            <!-- Array Items Type Picker (only for array types) -->
+            <ArrayPropertyExtension
+              v-if="typeData.root && typeData.root.type === 'array'"
+              :property="typeData.root as any"
+              :is-type="true"
+              :disabled="typeData._locked"
+              @change="handleRootPropertyChange"
+              data-test="root-array-extension"
+            />
           </div>
         </template>
         
@@ -197,6 +207,7 @@ import PropertyEditor from '@/components/PropertyEditor.vue'
 import BaseCard from '@/components/BaseCard.vue'
 import TypeChipPicker from '@/components/TypeChipPicker.vue'
 import ObjectPropertyExtension from '@/components/ObjectPropertyExtension.vue'
+import ArrayPropertyExtension from '@/components/ArrayPropertyExtension.vue'
 import type { TypeProperty, TypeData } from '@/types/types'
 
 const route = useRoute()
@@ -304,6 +315,7 @@ const handleTypeChange = (newType: string) => {
       updatedProperty.properties = []
       updatedProperty.additional_properties = false
     } else if (newType === 'array') {
+      updatedProperty.name = updatedProperty.name || 'root'
       updatedProperty.items = {
         name: 'item',
         description: 'Array item',
