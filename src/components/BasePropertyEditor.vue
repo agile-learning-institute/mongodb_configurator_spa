@@ -138,6 +138,11 @@
       </div>
     </div>
     
+    <!-- Extension slot for root properties -->
+    <div v-if="isRoot" class="root-extension-section" data-test="root-extension-section">
+      <slot name="extension"></slot>
+    </div>
+    
     <!-- Property Body - only for types that need it -->
     <div class="property-body" v-if="showBody" data-test="property-body">
       <slot name="body"></slot>
@@ -436,6 +441,12 @@ watch(() => props.property, (newProperty) => {
 }
 
 
+
+.root-extension-section {
+  padding: 12px 16px;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #e0e0e0;
+}
 
 .property-body {
   padding: 16px;
