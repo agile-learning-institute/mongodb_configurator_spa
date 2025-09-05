@@ -294,7 +294,7 @@ const handleTypeChange = (newType: string) => {
       type: newType
     }
     
-    // Set default values for simple, complex, and object types
+    // Set default values for simple, complex, object, and array types
     if (newType === 'simple') {
       updatedProperty.schema = { type: "string", maxLength: 40 }
     } else if (newType === 'complex') {
@@ -303,6 +303,13 @@ const handleTypeChange = (newType: string) => {
     } else if (newType === 'object') {
       updatedProperty.properties = []
       updatedProperty.additional_properties = false
+    } else if (newType === 'array') {
+      updatedProperty.items = {
+        name: 'item',
+        description: 'Array item',
+        type: 'word',
+        required: false
+      }
     }
     
     handleRootPropertyChange(updatedProperty)
