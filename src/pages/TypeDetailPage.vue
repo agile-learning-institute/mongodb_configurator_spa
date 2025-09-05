@@ -116,12 +116,24 @@
             
             <!-- Array Items Type Picker (only for array types) -->
             <ArrayPropertyExtension
-              v-if="typeData.root && typeData.root.type === 'array'"
+              v-if="typeData.root && typeData.root.type === 'array' && (!typeData.root.items || typeData.root.items.type !== 'object')"
               :property="typeData.root as any"
               :is-type="true"
               :disabled="typeData._locked"
               @change="handleRootPropertyChange"
               data-test="root-array-extension"
+            />
+            
+            <!-- Array of Object Extension (for array with object items) -->
+            <ArrayOfObjectExtension
+              v-if="typeData.root && typeData.root.type === 'array' && typeData.root.items && typeData.root.items.type === 'object'"
+              :property="typeData.root as any"
+              :is-type="true"
+              :disabled="typeData._locked"
+              @change="handleRootPropertyChange"
+              @addProperty="handleAddArrayObjectProperty"
+              @collapsed="handleArrayObjectCollapsed"
+              data-test="root-array-of-object-extension"
             />
           </div>
         </template>
@@ -208,6 +220,7 @@ import BaseCard from '@/components/BaseCard.vue'
 import TypeChipPicker from '@/components/TypeChipPicker.vue'
 import ObjectPropertyExtension from '@/components/ObjectPropertyExtension.vue'
 import ArrayPropertyExtension from '@/components/ArrayPropertyExtension.vue'
+import ArrayOfObjectExtension from '@/components/ArrayOfObjectExtension.vue'
 import type { TypeProperty, TypeData } from '@/types/types'
 
 const route = useRoute()
@@ -365,6 +378,42 @@ const handleToggleCollapsed = (collapsed: boolean) => {
     const updatedRoot = {
       ...typeData.value.root,
       _collapsed: collapsed
+    }
+    
+    handleRootPropertyChange(updatedRoot)
+  }
+}
+
+const handleAddArrayObjectProperty = () => {
+  if (typeData.value?.root && typeData.value.root.type === 'array' && typeData.value.root.items && typeData.value.root.items.type === 'object') {
+    const items = typeData.value.root.items as any
+    if (!items.properties) {
+      items.properties = []
+    }
+    
+    const newProperty = {
+      name: '',
+      type: 'void' as const,
+      description: '',
+      required: false
+    }
+    
+    items.properties.push(newProperty)
+    handleRootPropertyChange(typeData.value.root)
+  }
+}
+
+const handleArrayObjectCollapsed = (collapsed: boolean) => {
+  if (typeData.value?.root && typeData.value.root.type === 'array' && typeData.value.root.items && typeData.value.root.items.type === 'object') {
+    const items = typeData.value.root.items as any
+    const updatedItems = {
+      ...items,
+      _collapsed: collapsed
+    }
+    
+    const updatedRoot = {
+      ...typeData.value.root,
+      items: updatedItems
     }
     
     handleRootPropertyChange(updatedRoot)
