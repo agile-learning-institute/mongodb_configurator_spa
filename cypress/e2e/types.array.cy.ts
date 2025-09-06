@@ -57,7 +57,7 @@ describe('Types Page', () => {
   })
 
   describe('Array Property Editor', () => {
-    it.only('can change root type from void to array', () => {
+    it('can change root type from void to array', () => {
       // Verify default root array type elements visible 
       cy.get('[data-test="property-drag-handle"]').should('not.exist')
       cy.get('[data-test="root-description-placeholder"]').should('contain', 'Click to add description')
@@ -76,7 +76,7 @@ describe('Types Page', () => {
       
     })
 
-    it('displays proper items type picker', () => {
+    it.only('displays proper items type picker', () => {
       // Click on items type chip
       cy.get('[data-test="items-type-picker"] [data-test="type-chip"]').click()
       
