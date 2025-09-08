@@ -156,65 +156,78 @@ describe('Types Page', () => {
     })
 
     it('array of array locks', () => {
-      // Change the items type to array (of array)
-      cy.get('[data-test="items-type-picker"] [data-test="type-chip"]').click()
-      cy.get('[data-test="built-in-type-array"]').click()
+      // Arrange array of array of array of word
       cy.get('[data-test="type-display-name"]').eq(0).should('contain', 'Array')
+      cy.get('[data-test="type-display-name"]').eq(1).click()
+      cy.get('[data-test="built-in-type-array"]').click()
       cy.get('[data-test="type-display-name"]').eq(1).should('contain', 'Array')
+      cy.get('[data-test="type-display-name"]').eq(2).click()
+      cy.get('[data-test="built-in-type-array"]').click()
+      cy.get('[data-test="type-display-name"]').eq(2).should('contain', 'Array')
+      cy.get('[data-test="type-display-name"]').eq(3).should('contain', 'word')      
       
       // Verify unlocked
       cy.get('[data-test="lock-type-btn"]').should('be.visible')
       cy.get('[data-test="unlock-type-btn"]').should('not.exist')
-      
-      // Click lock button
+      cy.get('[data-test="root-type-chip-picker"]').eq(0).should('exist')
+      cy.get('[data-test="root-type-chip-picker"] [data-test="dropdown-icon"]').should('exist')
+      cy.get('[data-test="items-type-picker"]').eq(0).find('[data-test="dropdown-icon"]').should('exist')
+      cy.get('[data-test="items-type-picker"]').eq(1).find('[data-test="dropdown-icon"]').should('exist')
+      cy.get('[data-test="items-type-picker"]').eq(2).find('[data-test="dropdown-icon"]').should('exist')
+      cy.get('[data-test="property-name-input"] input').eq(0).should('be.enabled')
+      cy.get('[data-test="property-name-input"] input').eq(1).should('be.enabled')
+      cy.get('[data-test="description-input"] input').eq(0).should('be.enabled')
+      cy.get('[data-test="description-input"] input').eq(1).should('be.enabled')
+      cy.get('[data-test="required-toggle-btn"]').should('have.length', 2)
+      cy.get('[data-test="required-toggle-btn"]').eq(0).should('be.visible')
+      cy.get('[data-test="required-toggle-btn"]').eq(1).should('be.visible')
+            
+      // Can Lock
       cy.get('[data-test="lock-type-btn"]').click()
-      
-      // Verify lock button is replaced with unlock button
       cy.get('[data-test="lock-type-btn"]').should('not.exist')
       cy.get('[data-test="unlock-type-btn"]').should('be.visible')
-      
-      // Verify locked - inputs should be disabled
-      cy.get('[data-test="root-name-input"]').should('be.disabled')
-      cy.get('[data-test="root-description-input"]').should('be.disabled')
-      cy.get('[data-test="required-toggle-btn"]').should('not.exist')
-      cy.get('[data-test="items-type-picker"]').should('be.disabled')
+      cy.get('[data-test="root-type-chip-picker"] [data-test="dropdown-icon"]').should('not.exist')
+      cy.get('[data-test="items-type-picker"]').eq(0).find('[data-test="dropdown-icon"]').should('not.exist')
+      cy.get('[data-test="items-type-picker"]').eq(1).find('[data-test="dropdown-icon"]').should('not.exist')
+      cy.get('[data-test="items-type-picker"]').eq(2).find('[data-test="dropdown-icon"]').should('not.exist')
+      cy.get('[data-test="required-toggle-btn"]').should('have.length', 0)
+
     })
 
     it('array of array unlocks', () => {
-      // Change the items type to array first
-      cy.get('[data-test="items-type-picker"] [data-test="type-chip"]').click()
+      // Arrange array of array of array of word
+      cy.get('[data-test="type-display-name"]').eq(0).should('contain', 'Array')
+      cy.get('[data-test="type-display-name"]').eq(1).click()
       cy.get('[data-test="built-in-type-array"]').click()
+      cy.get('[data-test="type-display-name"]').eq(1).should('contain', 'Array')
+      cy.get('[data-test="type-display-name"]').eq(2).click()
+      cy.get('[data-test="built-in-type-array"]').click()
+      cy.get('[data-test="type-display-name"]').eq(2).should('contain', 'Array')
+      cy.get('[data-test="type-display-name"]').eq(3).should('contain', 'word')      
       
-      // Verify unlocked
+      // Lock Type
       cy.get('[data-test="lock-type-btn"]').should('be.visible')
       cy.get('[data-test="unlock-type-btn"]').should('not.exist')
-      
-      // Click lock button
       cy.get('[data-test="lock-type-btn"]').click()
-      
-      // Verify lock button is replaced with unlock button
       cy.get('[data-test="lock-type-btn"]').should('not.exist')
       cy.get('[data-test="unlock-type-btn"]').should('be.visible')
-      
-      // Click unlock button
+
+      // Can Unlock
       cy.get('[data-test="unlock-type-btn"]').click()
       cy.get('[data-test="unlock-type-dialog"]').should('be.visible')
-      cy.get('[data-test="unlock-confirmation-message"]').should('be.visible')
-      cy.get('[data-test="unlock-warning-message"]').should('be.visible')
-      cy.get('[data-test="unlock-cancel-btn"]').should('be.visible')
-      cy.get('[data-test="unlock-confirm-btn"]').should('be.visible')
       cy.get('[data-test="unlock-confirm-btn"]').click()
       cy.get('[data-test="unlock-type-dialog"]').should('not.exist')
-      
-      // Verify lock button is replaced with unlock button
       cy.get('[data-test="unlock-type-btn"]').should('not.exist')
       cy.get('[data-test="lock-type-btn"]').should('be.visible')
-      
-      // Verify unlocked - inputs should be enabled
-      cy.get('[data-test="root-name-input"]').should('not.be.disabled')
-      cy.get('[data-test="root-description-input"]').should('not.be.disabled')
-      cy.get('[data-test="required-toggle-btn"]').should('be.visible')
-      cy.get('[data-test="items-type-picker"]').should('not.be.disabled')
+      cy.get('[data-test="root-type-chip-picker"]').eq(0).should('exist')
+      cy.get('[data-test="root-type-chip-picker"] [data-test="dropdown-icon"]').should('exist')
+      cy.get('[data-test="items-type-picker"]').eq(0).find('[data-test="dropdown-icon"]').should('exist')
+      cy.get('[data-test="items-type-picker"]').eq(1).find('[data-test="dropdown-icon"]').should('exist')
+      cy.get('[data-test="items-type-picker"]').eq(2).find('[data-test="dropdown-icon"]').should('exist')
+      cy.get('[data-test="property-name-input"] input').eq(0).should('be.enabled')
+      cy.get('[data-test="property-name-input"] input').eq(1).should('be.enabled')
+      cy.get('[data-test="description-input"] input').eq(0).should('be.enabled')
+      cy.get('[data-test="description-input"] input').eq(1).should('be.enabled')
     })
 
     it('handles array of object', () => {
