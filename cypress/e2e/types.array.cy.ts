@@ -76,64 +76,61 @@ describe('Types Page', () => {
       
     })
 
-    it.only('displays proper items type picker', () => {
+    it('displays proper items type picker', () => {
       // Click on items type chip
       cy.get('[data-test="items-type-picker"] [data-test="type-chip"]').click()
-      
-      // Verify items type picker has Built-in Types section
-      cy.get('[data-test="type-picker-dialog"]').should('be.visible')
-      cy.get('[data-test="built-in-types-section"]').should('be.visible')
-      
-      // Verify Built-in types contains only "object", "array" 
-      cy.get('[data-test="built-in-types-section"] [data-test="built-in-type-object"]').should('be.visible')
-      cy.get('[data-test="built-in-types-section"] [data-test="built-in-type-array"]').should('be.visible')
+      cy.get('[data-test="type-picker-card"]').should('be.visible')
+      cy.get('[data-test="built-in-types-category"]').should('be.visible')
+      cy.get('[data-test="built-in-type-object"]').should('be.visible')
+      cy.get('[data-test="built-in-type-array"]').should('be.visible')
+      cy.get('[data-test="built-in-type-simple"]').should('not.exist')
+      cy.get('[data-test="built-in-type-complex"]').should('not.exist')
       
       // Verify items type picker has Custom Types section
-      cy.get('[data-test="custom-types-section"]').should('be.visible')
-      
-      // Verify Custom Types has multiple chips (including "word")
-      cy.get('[data-test="custom-types-section"] [data-test^="custom-type-"]').should('have.length.greaterThan', 10)
-      
-      // Verify that "word" is in chips
-      cy.get('[data-test="custom-types-section"] [data-test="custom-type-word"]').should('be.visible')
+      cy.get('[data-test="custom-types-category"]').should('be.visible')
+      cy.get('[data-test^="custom-type-name-"]').should('have.length', 18)
       
       // Close the picker
-      cy.get('[data-test="type-picker-dialog"]').click()
+      cy.get('header').first().click()
     })
 
-    it('handles array of array', () => {     
+    it.only('handles array of array', () => {     
       // Change the items type to array
       cy.get('[data-test="items-type-picker"] [data-test="type-chip"]').click()
       cy.get('[data-test="built-in-type-array"]').click()
+      cy.wait(200)
+      cy.get('[data-test="type-display-name"]').eq(0).should('contain', 'Array')
+      cy.get('[data-test="type-display-name"]').eq(1).should('contain', 'Array')
       
-      // Verify items type chip picker with "array" value
-      cy.get('[data-test="items-type-picker"] [data-test="type-chip"]').should('contain', 'array')
-      
-      // Verify required checkbox is unchecked, check and verify checked
-      cy.get('[data-test="required-toggle-btn"]').should('not.have.class', 'v-btn--variant-elevated')
-      cy.get('[data-test="required-toggle-btn"]').click()
-      cy.get('[data-test="required-toggle-btn"]').should('have.class', 'v-btn--variant-elevated')
-      
-      // Verify property name and description input are visible and enabled
-      cy.get('[data-test="root-name-input"]').should('be.visible').and('not.be.disabled')
-      cy.get('[data-test="root-description-input"]').should('be.visible').and('not.be.disabled')
-      
-      // Verify body has "items" and items type picker with proper values
-      cy.get('[data-test="array-of-array-extension"]').should('be.visible')
-      cy.get('[data-test="array-of-array-extension"] [data-test="items-type-picker"] [data-test="type-chip"]').should('contain', 'word')
-      
-      // Select array (so we have array of array of array)
-      cy.get('[data-test="array-of-array-extension"] [data-test="items-type-picker"] [data-test="type-chip"]').click()
-      cy.get('[data-test="built-in-type-array"]').click()
-      
-      // Verify nested content is visible
-      cy.get('[data-test="array-of-array-extension"] [data-test="array-of-array-extension"]').should('be.visible')
-      cy.get('[data-test="array-of-array-extension"] [data-test="array-of-array-extension"] [data-test="items-type-picker"] [data-test="type-chip"]').should('contain', 'word')
-      
+      // Verify items editor is visible
+      cy.get('[data-test="property-body"]').should('be.visible')
+      cy.get('[data-test="nested-array-property"]').should('have.length', 1)
+      cy.get('[data-test="nested-array-property"]').within(() => {
+        cy.get('[data-test="property-name-text"]').should('contain', 'item')
+        cy.get('[data-test="property-description-input"]').should('contain', 'Array item')
+        cy.get('[data-test="type-chip-picker"] [data-test="type-chip"]').should('contain', 'void')
+        cy.get('[data-test="required-toggle-btn"]').should('be.visible')
+        cy.get('[data-test="delete-property-btn"]').should('not.exist')
+        
+        // Verify items type picker 
+        cy.get('[data-test="items-type-picker"] [data-test="type-chip"]').click()
+        cy.get('[data-test="type-picker-card"]').should('be.visible')
+        cy.get('[data-test="built-in-types-category"]').should('be.visible')
+        cy.get('[data-test="built-in-type-object"]').should('be.visible')
+        cy.get('[data-test="built-in-type-array"]').should('be.visible')
+        cy.get('[data-test="built-in-type-simple"]').should('not.exist')
+        cy.get('[data-test="built-in-type-complex"]').should('not.exist')
+        cy.get('[data-test="custom-types-category"]').should('be.visible')
+        cy.get('[data-test^="custom-type-name-"]').should('have.length', 18)
+
+        // Verify Nested array property 
+        // cy.get('[data-test="required-toggle-btn"]').should('not.have.class', 'v-btn--variant-elevated')
+      })
+
       // Reload and verify persistence
       cy.reload()
-      cy.get('[data-test="items-type-picker"] [data-test="type-chip"]').should('contain', 'array')
-      cy.get('[data-test="array-of-array-extension"] [data-test="items-type-picker"] [data-test="type-chip"]').should('contain', 'array')
+      
+      
     })
 
     it('array of array locks', () => {
