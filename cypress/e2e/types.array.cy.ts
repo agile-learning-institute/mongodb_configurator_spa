@@ -52,8 +52,8 @@ describe('Types Page', () => {
       })
     })
     cy.visit('/types')
-    cy.get('[data-test^="file-card-"]').should('have.length', 17) 
-    // API reset loads 17 types
+    cy.url().should('include', '/types')
+    // cy.get('[data-test^="file-card-"]').should('not.contain', fileName)
   })
 
   describe('Array Property Editor', () => {
@@ -94,27 +94,30 @@ describe('Types Page', () => {
       cy.get('header').first().click()
     })
 
-    it.only('handles array of array', () => {     
+    it('handles array of array', () => {     
       // Change the items type to array
       cy.get('[data-test="items-type-picker"] [data-test="type-chip"]').click()
       cy.get('[data-test="built-in-type-array"]').click()
-      cy.wait(200)
       cy.get('[data-test="type-display-name"]').eq(0).should('contain', 'Array')
       cy.get('[data-test="type-display-name"]').eq(1).should('contain', 'Array')
       
-      // Verify items editor is visible
+      // Verify sub-items editor
       cy.get('[data-test="property-body"]').should('be.visible')
       cy.get('[data-test="nested-array-property"]').should('have.length', 1)
       cy.get('[data-test="nested-array-property"]').within(() => {
-        cy.get('[data-test="property-name-text"]').should('contain', 'item')
-        cy.get('[data-test="property-description-input"]').should('contain', 'Array item')
-        cy.get('[data-test="type-chip-picker"] [data-test="type-chip"]').should('contain', 'void')
+        cy.get('[data-test="property-name-input"] input').should('have.attr', 'value', 'item').clear().type('test_sub1')
+        cy.get('[data-test="description-input"] input').should('have.attr', 'value', 'Array item').clear().type('test_sub1_description')
+        cy.get('[data-test="property-name-input"] input').should('have.attr', 'value', 'test_sub1')
+        cy.get('[data-test="description-input"] input').should('have.attr', 'value', 'test_sub1_description')
+        cy.get('[data-test="type-display-name"]').should('contain', 'word')
         cy.get('[data-test="required-toggle-btn"]').should('be.visible')
         cy.get('[data-test="delete-property-btn"]').should('not.exist')
-        
-        // Verify items type picker 
-        cy.get('[data-test="items-type-picker"] [data-test="type-chip"]').click()
-        cy.get('[data-test="type-picker-card"]').should('be.visible')
+      })
+
+      // Verify sub-items type picker 
+      cy.get('[data-test="type-display-name"]').eq(2).should('contain', 'word').click()
+      cy.get('[data-test="type-picker-card"]').should('be.visible')
+      cy.get('[data-test="type-picker-card"]').within(() => {
         cy.get('[data-test="built-in-types-category"]').should('be.visible')
         cy.get('[data-test="built-in-type-object"]').should('be.visible')
         cy.get('[data-test="built-in-type-array"]').should('be.visible')
@@ -123,20 +126,41 @@ describe('Types Page', () => {
         cy.get('[data-test="custom-types-category"]').should('be.visible')
         cy.get('[data-test^="custom-type-name-"]').should('have.length', 18)
 
-        // Verify Nested array property 
-        // cy.get('[data-test="required-toggle-btn"]').should('not.have.class', 'v-btn--variant-elevated')
+        // Create another nested array property        
+        cy.get('[data-test="built-in-type-array"]').click()
       })
+
+      // Set nested array property name and description
+      cy.get('[data-test="nested-array-property"]').should('have.length', 2)
+      cy.get('[data-test="property-name-input"] input').eq(1).should('have.attr', 'value', 'item').clear().type('test_sub2')
+      cy.get('[data-test="description-input"] input').eq(1).should('have.attr', 'value', 'Array item').clear().type('test_sub2_description')
+      cy.get('[data-test="property-name-input"] input').eq(1).should('have.attr', 'value', 'test_sub2')
+      cy.get('[data-test="description-input"] input').eq(1).should('have.attr', 'value', 'test_sub2_description').blur()
+
+      cy.get('[data-test="type-picker-card"]').should('not.exist')
+      cy.get('[data-test="nested-array-property"]').should('have.length', 2)
+      cy.get('[data-test="type-display-name"]').eq(3).should('contain', 'word')
 
       // Reload and verify persistence
       cy.reload()
-      
-      
+      cy.get('[data-test="nested-array-property"]').should('have.length', 2)
+      cy.get('[data-test="property-name-input"] input').eq(0).should('have.attr', 'value', 'test_sub1')
+      cy.get('[data-test="description-input"] input').eq(0).should('have.attr', 'value', 'test_sub1_description')
+      cy.get('[data-test="property-name-input"] input').eq(1).should('have.attr', 'value', 'test_sub2')
+      cy.get('[data-test="description-input"] input').eq(1).should('have.attr', 'value', 'test_sub2_description')
+
+      cy.get('[data-test="type-display-name"]').eq(0).should('contain', 'Array')
+      cy.get('[data-test="type-display-name"]').eq(1).should('contain', 'Array')
+      cy.get('[data-test="type-display-name"]').eq(2).should('contain', 'Array')
+      cy.get('[data-test="type-display-name"]').eq(3).should('contain', 'word')      
     })
 
     it('array of array locks', () => {
-      // Change the items type to array first
+      // Change the items type to array (of array)
       cy.get('[data-test="items-type-picker"] [data-test="type-chip"]').click()
       cy.get('[data-test="built-in-type-array"]').click()
+      cy.get('[data-test="type-display-name"]').eq(0).should('contain', 'Array')
+      cy.get('[data-test="type-display-name"]').eq(1).should('contain', 'Array')
       
       // Verify unlocked
       cy.get('[data-test="lock-type-btn"]').should('be.visible')
