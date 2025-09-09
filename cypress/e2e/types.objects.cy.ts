@@ -1,4 +1,4 @@
-describe('Types page flow', () => {
+describe('Types Object page flow', () => {
   const name = `e2e-test-type-object-${Date.now()}`
   const fileName = `${name}.yaml`
   const thingsToDelete: string[] = []
@@ -49,6 +49,7 @@ describe('Types page flow', () => {
       })
     })
     cy.visit('/types')
+    cy.url().should('include', '/types')
     cy.get('[data-test^="file-card-"]').should('not.contain', fileName)
   })
 
@@ -56,102 +57,456 @@ describe('Types page flow', () => {
     it('can change root type from void to object', () => {
       // beforeEach sets up the type 
       // verify property type chip picker with "object" value, 
+      cy.get('[data-test="type-display-name"]').should('contain', 'Object')
+      
       // enter description
-      // verify required checkbox is unchecked, check and verify checked
-      // verify description has same value entered
-      // verify No properties defined message is visible
+      cy.get('[data-test="root-description-placeholder"]').click()
+      cy.get('[data-test="root-description-input-edit"]').type('Root object description')
+      cy.reload()
+      cy.wait(100)
+      cy.get('[data-test="root-description-display"]').should('contain', 'Root object description')
+      cy.get('[data-test="card-content"]').should('contain', 'No properties defined')
     })
 
     it('displays root object action icons', () => {
+      // verify add property button is visible and enabled
+      cy.get('[data-test="add-property-btn"]').should('be.visible').and('not.be.disabled')
+      cy.get('[data-test="add-property-btn"]').find('.material-symbols-outlined').should('contain', 'list_alt_add')
+      
       // verify allow-additional-properties button is visible and enabled
-      // verify show-properties button is visible and enabled
-      // verify hide-properties button does not exist
-      // verify delete-property button does not exist
+      cy.get('[data-test="additional-props-toggle-btn"]').should('be.visible').and('not.be.disabled')
+      cy.get('[data-test="additional-props-toggle-btn"]').find('.material-symbols-outlined').should('contain', 'list_alt')
+      cy.get('[data-test="additional-props-toggle-btn"]').click()
+      cy.get('[data-test="additional-props-toggle-btn"]').should('be.visible').and('not.be.disabled')
+      cy.get('[data-test="additional-props-toggle-btn"]').find('.material-symbols-outlined').should('contain', 'list_alt_check')
+      
+      // verify show-hide-properties button is visible and enabled
+      cy.get('[data-test="collapse-toggle-btn"]').should('be.visible').and('not.be.disabled')
+      cy.get('[data-test="collapse-toggle-btn"]').find('.material-symbols-outlined').should('contain', 'collapse_content')
+      cy.get('[data-test="collapse-toggle-btn"]').find('.material-symbols-outlined').should('not.contain', 'expand_content')
+      cy.get('[data-test="collapse-toggle-btn"]').click()
+      cy.get('[data-test="collapse-toggle-btn"]').should('be.visible').and('not.be.disabled')
+      cy.get('[data-test="collapse-toggle-btn"]').find('.material-symbols-outlined').should('contain', 'expand_content')
+      cy.get('[data-test="collapse-toggle-btn"]').find('.material-symbols-outlined').should('not.contain', 'collapse_content')
+      
+      // verify delete and required buttons do not exist (root properties can't be deleted and required has no effect)
+      cy.get('[data-test="required-toggle-btn"]').should('not.exist')
+      cy.get('[data-test="delete-property-btn"]').should('not.exist')
     })
 
     it('displays non-root object action icons', () => {
-      // change the second property to object
-      // verify add-property button is visible and enabled
+      // Arrange - create a non-root object property
+      cy.get('[data-test="add-property-btn"]').click()
+      cy.get('[data-test="type-display-name"]').should('contain', 'void')
+      cy.get('[data-test="type-chip-picker"]').should('be.visible').wait(100)
+      cy.get('[data-test="type-chip-picker"]').click()
+      cy.get('[data-test="built-in-type-object"]').should('be.visible').click()
+      cy.get('[data-test="type-display-name"]').should('contain', 'Object')
+
+      // Wait for the object property to be fully rendered
+      cy.wait(200)
+
+      // The action icons are in the ObjectPropertyExtension, not within the properties section
+      // verify add property button is visible and enabled (second one for the non-root object)
+      cy.get('[data-test="add-property-btn"]').eq(1).should('be.visible').and('not.be.disabled')
+      cy.get('[data-test="add-property-btn"]').eq(1).find('.material-symbols-outlined').should('contain', 'list_alt_add')
+      
       // verify allow-additional-properties button is visible and enabled
-      // verify show-properties button is visible and enabled
-      // verify hide-properties button does not exist
-      // verify delete-property button does not exist
+      cy.get('[data-test="additional-props-toggle-btn"]').eq(1).should('be.visible').and('not.be.disabled')
+      cy.get('[data-test="additional-props-toggle-btn"]').eq(1).find('.material-symbols-outlined').should('contain', 'list_alt')
+      cy.get('[data-test="additional-props-toggle-btn"]').eq(1).click()
+      cy.get('[data-test="additional-props-toggle-btn"]').eq(1).should('be.visible').and('not.be.disabled')
+      cy.get('[data-test="additional-props-toggle-btn"]').eq(1).find('.material-symbols-outlined').should('contain', 'list_alt_check')
+      
+      // verify show-hide-properties button is visible and enabled
+      cy.get('[data-test="collapse-toggle-btn"]').eq(1).should('be.visible').and('not.be.disabled')
+      cy.get('[data-test="collapse-toggle-btn"]').eq(1).find('.material-symbols-outlined').should('contain', 'collapse_content')
+      cy.get('[data-test="collapse-toggle-btn"]').eq(1).find('.material-symbols-outlined').should('not.contain', 'expand_content')
+      cy.get('[data-test="collapse-toggle-btn"]').eq(1).click()
+      cy.get('[data-test="collapse-toggle-btn"]').eq(1).should('be.visible').and('not.be.disabled')
+      cy.get('[data-test="collapse-toggle-btn"]').eq(1).find('.material-symbols-outlined').should('contain', 'expand_content')
+      cy.get('[data-test="collapse-toggle-btn"]').eq(1).find('.material-symbols-outlined').should('not.contain', 'collapse_content')
+      
+      // verify required toggle works
+      cy.get('[data-test="required-toggle-btn"]').first().should('exist')
+      cy.get('[data-test="required-toggle-btn"]').first().find('.material-symbols-outlined').should('contain', 'toggle_off')
+      cy.get('[data-test="required-toggle-btn"]').first().click()
+      cy.get('[data-test="required-toggle-btn"]').first().find('.material-symbols-outlined').should('contain', 'toggle_on')
+
+      // verify delete property button works
+      cy.get('[data-test="delete-property-btn"]').first().should('exist').click()
+      cy.get('[data-test="no-object-properties-text"]').should('exist')
     })
 
     it('has the correct non-root type picker', () => {
-      // click on the first property type chip 
+      // First add a property to the root object
+      cy.get('[data-test="add-property-btn"]').click()
+      cy.get('[data-test="type-chip-picker"] [data-test="type-chip"]').first().click()
+      
       // verify type picker has Built-in Types section
-      // verify Built-in types contains only "object", "array" 
+      cy.get('[data-test="built-in-types-category"]').should('be.visible')
+      cy.get('[data-test="built-in-types-category"] i').should('have.length', 2)
+      cy.get('[data-test="built-in-type-object"]').should('be.visible')
+      cy.get('[data-test="built-in-type-array"]').should('be.visible')
+      
       // verify type picker has Custom Types section
-      // verify Custom Types more than 10 chips
-      // verify that {name} is in chips
+      cy.get('[data-test="custom-types-category"]').should('be.visible')
+      cy.get('[data-test="custom-types-category"] i').should('have.length.greaterThan', 10)
+      cy.get(`[data-test="custom-type-name-${fileName}"]`).should('be.visible')
     })
 
-    it('adds properties to non-root object', () => {
-      // change the second property to object
-      // verify property type chip picker with "object" value, 
-      // verify required checkbox is unchecked, check and verify checked
-      // verify property name and description input are visible and enabled
-      // verify object property action icons are visible and enabled
-      // add three sub-properties to the object and set name and description for each
-      // verify all properties have Name, Description, and type chip picker with "void" value, required checkbox is unchecked
-      // delete the second property
-      // verify property list has 2 properties, property 3 is now property 2
+    it('adds and removes properties to root object', () => {
+      cy.get('[data-test="add-property-btn"]').click().click().click()
+
+      cy.get('[data-test="property-name-input"]').eq(0).click()
+      cy.get('[data-test="property-name-input"]').eq(0).find('input').type('firstTestProperty')
+      cy.get('[data-test="description-input"]').eq(0).click()
+      cy.get('[data-test="description-input"]').eq(0).find('input').type('A property for testing object properties')
+
+      cy.get('[data-test="property-name-input"]').eq(1).click()
+      cy.get('[data-test="property-name-input"]').eq(1).find('input').type('secondTestProperty')
+      cy.get('[data-test="description-input"]').eq(1).click()
+      cy.get('[data-test="description-input"]').eq(1).find('input').type('A property for testing object properties')
+      
+      cy.get('[data-test="property-name-input"]').eq(2).click()
+      cy.get('[data-test="property-name-input"]').eq(2).find('input').type('thirdTestProperty')
+      cy.get('[data-test="description-input"]').eq(2).click()
+      cy.get('[data-test="description-input"]').eq(2).find('input').type('A property for testing object properties')
+
+      cy.get('[data-test="property-name-input"]').eq(0).find('input').should('have.attr', 'value', 'firstTestProperty')
+      cy.get('[data-test="property-name-input"]').eq(1).find('input').should('have.attr', 'value', 'secondTestProperty')
+      cy.get('[data-test="property-name-input"]').eq(2).find('input').should('have.attr', 'value', 'thirdTestProperty')
+
+      cy.get('[data-test="delete-property-btn"]').eq(1).click()
+      cy.get('[data-test="property-name-input"]').should('have.length', 2)
+      cy.get('[data-test="property-name-input"]').eq(0).find('input').should('have.attr', 'value', 'firstTestProperty')
+      cy.get('[data-test="property-name-input"]').eq(1).find('input').should('have.attr', 'value', 'thirdTestProperty')
+
+      cy.get('[data-test="delete-property-btn"]').eq(0).click()
+      cy.get('[data-test="property-name-input"]').eq(0).should('have.length', 1)
+      cy.get('[data-test="property-name-input"]').eq(0).find('input').should('have.attr', 'value', 'thirdTestProperty')
+      
+      cy.get('[data-test="delete-property-btn"]').eq(0).click()
+      cy.get('[data-test="card-content"]').should('contain', 'No properties defined')
+    })
+
+    it('adds and removes properties to non-root object', () => {
+      // Arrange - create a non-root object property
+      cy.get('[data-test="add-property-btn"]').click()
+      cy.get('[data-test="type-display-name"]').should('contain', 'void')
+      cy.get('[data-test="type-chip-picker"]').should('be.visible').wait(100)
+      cy.get('[data-test="type-chip-picker"]').click()
+      cy.get('[data-test="built-in-type-object"]').should('be.visible').click()
+      cy.get('[data-test="type-display-name"]').should('contain', 'Object')
+
+      // Add three properties to the object property body
+      cy.get('[data-test="add-property-btn"]').eq(1).should('be.visible').wait(100)
+        .click().click().click()
+
+      // set context to the object property section
+      cy.get('[data-test="object-properties-section"]').eq(1).within(() => {
+
+        // Input names and descriptions for the properties
+        cy.get('[data-test="property-name-input"]').eq(0).click()
+        cy.get('[data-test="property-name-input"]').eq(0).find('input').type('firstTestProperty')
+        cy.get('[data-test="description-input"]').eq(0).click()
+        cy.get('[data-test="description-input"]').eq(0).find('input').type('A property for testing object properties')
+
+        cy.get('[data-test="property-name-input"]').eq(1).click()
+        cy.get('[data-test="property-name-input"]').eq(1).find('input').type('secondTestProperty')
+        cy.get('[data-test="description-input"]').eq(1).click()
+        cy.get('[data-test="description-input"]').eq(1).find('input').type('A property for testing object properties')
+        
+        cy.get('[data-test="property-name-input"]').eq(2).click()
+        cy.get('[data-test="property-name-input"]').eq(2).find('input').type('thirdTestProperty')
+        cy.get('[data-test="description-input"]').eq(2).click()
+        cy.get('[data-test="description-input"]').eq(2).find('input').type('A property for testing object properties')
+
+        // verify the properties were added
+        cy.get('[data-test="property-name-input"]').eq(0).find('input').should('have.attr', 'value', 'firstTestProperty')
+        cy.get('[data-test="property-name-input"]').eq(1).find('input').should('have.attr', 'value', 'secondTestProperty')
+        cy.get('[data-test="property-name-input"]').eq(2).find('input').should('have.attr', 'value', 'thirdTestProperty')
+  
+        // delete the second property
+        cy.get('[data-test="delete-property-btn"]').eq(1).click()
+        cy.get('[data-test="property-name-input"]').should('have.length', 2)
+        cy.get('[data-test="property-name-input"]').eq(0).find('input').should('have.attr', 'value', 'firstTestProperty')
+        cy.get('[data-test="property-name-input"]').eq(1).find('input').should('have.attr', 'value', 'thirdTestProperty')
+  
+        // delete the first property
+        cy.get('[data-test="delete-property-btn"]').eq(0).click()
+        cy.get('[data-test="property-name-input"]').eq(0).should('have.length', 1)
+        cy.get('[data-test="property-name-input"]').eq(0).find('input').should('have.attr', 'value', 'thirdTestProperty')
+        
+        // delete the last property
+        cy.get('[data-test="delete-property-btn"]').eq(0).click()
+        cy.wait(100)
+      })
+      
+      // Check for "No properties defined" message outside the within block
+      cy.get('[data-test="property-body"]').should('contain', 'No properties defined')
     })
     
-    it('can arrange properties', () => {
-      // drag the 2nd to before 1 and verify 2,1,3
-      // drag the 1st property to after spot 3 and verify 1,3,2
-      // drag the 3rd property to before spot 1 and verify 2,1,3
+    it('can arrange root object properties', () => {
+      // Arrange root object with three properties
+      cy.get('[data-test="add-property-btn"]').click().click().click()
+      cy.get('[data-test="property-name-input"]').eq(0).click()
+      cy.get('[data-test="property-name-input"]').eq(0).find('input').type('firstTestProperty')
+      cy.get('[data-test="property-name-input"]').eq(1).click()
+      cy.get('[data-test="property-name-input"]').eq(1).find('input').type('secondTestProperty')
+      cy.get('[data-test="property-name-input"]').eq(2).click()
+      cy.get('[data-test="property-name-input"]').eq(2).find('input').type('thirdTestProperty')
+      cy.get('[data-test="property-name-input"]').eq(0).find('input').should('have.value', 'firstTestProperty')
+      cy.get('[data-test="property-name-input"]').eq(1).find('input').should('have.value', 'secondTestProperty')
+      cy.get('[data-test="property-name-input"]').eq(2).find('input').should('have.value', 'thirdTestProperty')
+      
+      // Drag the 2nd property to before the 1st property and verify: secondTestProperty, firstTestProperty, thirdTestProperty
+      cy.get('[data-test="property-drag-handle"]').eq(1).then(($dragHandle) => {
+        const dragHandle = $dragHandle[0]
+        
+        // Create a proper drag and drop sequence
+        const dragStartEvent = new DragEvent('dragstart', {
+          bubbles: true,
+          cancelable: true,
+          dataTransfer: new DataTransfer()
+        })
+        dragStartEvent.dataTransfer?.setData('text/plain', 'secondTestProperty')
+        
+        const dragOverEvent = new DragEvent('dragover', {
+          bubbles: true,
+          cancelable: true,
+          dataTransfer: new DataTransfer()
+        })
+        
+        const dropEvent = new DragEvent('drop', {
+          bubbles: true,
+          cancelable: true,
+          dataTransfer: new DataTransfer()
+        })
+        dropEvent.dataTransfer?.setData('text/plain', 'secondTestProperty')
+        
+        const dragEndEvent = new DragEvent('dragend', {
+          bubbles: true,
+          cancelable: true,
+          dataTransfer: new DataTransfer()
+        })
+        
+        // Trigger the events
+        dragHandle.dispatchEvent(dragStartEvent)
+        cy.get('[data-test="drop-zone-0"]').then(($dropZone) => {
+          const dropZoneEl = $dropZone[0]
+          dropZoneEl.dispatchEvent(dragOverEvent)
+          dropZoneEl.dispatchEvent(dropEvent)
+          dropZoneEl.dispatchEvent(dragEndEvent)
+        })
+      })
+      
+      // Wait for the drag operation to complete
+      cy.wait(1000)
+      
+      // Verify new order: secondTestProperty, firstTestProperty, thirdTestProperty
+      cy.get('[data-test="property-name-input"]').eq(0).find('input').should('have.value', 'secondTestProperty')
+      cy.get('[data-test="property-name-input"]').eq(1).find('input').should('have.value', 'firstTestProperty')
+      cy.get('[data-test="property-name-input"]').eq(2).find('input').should('have.value', 'thirdTestProperty')
     })
 
-    it('can show/hide properties', () => {
+    it('can arrange non-root object properties', () => {
+      // Arrange - create a non-root object property
+      cy.get('[data-test="add-property-btn"]').click()
+      cy.get('[data-test="type-display-name"]').should('contain', 'void')
+      cy.get('[data-test="type-chip-picker"]').should('be.visible').wait(100)
+      cy.get('[data-test="type-chip-picker"]').click()
+      cy.get('[data-test="built-in-type-object"]').should('be.visible').click()
+      cy.get('[data-test="type-display-name"]').should('contain', 'Object')
+
+      // Add three properties to the object property body
+      cy.get('[data-test="add-property-btn"]').eq(1).should('be.visible').wait(100)
+        .click().click().click()
+
+      // set context to the object property section
+      cy.get('[data-test="object-properties-section"]').eq(1).within(() => {
+
+        // Set properties
+        cy.get('[data-test="property-name-input"]').eq(0).click()
+        cy.get('[data-test="property-name-input"]').eq(0).find('input').type('firstTestProperty')
+        cy.get('[data-test="property-name-input"]').eq(1).click()
+        cy.get('[data-test="property-name-input"]').eq(1).find('input').type('secondTestProperty')
+        cy.get('[data-test="property-name-input"]').eq(2).click()
+        cy.get('[data-test="property-name-input"]').eq(2).find('input').type('thirdTestProperty')
+        
+        // Verify initial order: firstTestProperty, secondTestProperty, thirdTestProperty
+        cy.get('[data-test="property-name-input"]').eq(0).find('input').should('have.value', 'firstTestProperty')
+        cy.get('[data-test="property-name-input"]').eq(1).find('input').should('have.value', 'secondTestProperty')
+        cy.get('[data-test="property-name-input"]').eq(2).find('input').should('have.value', 'thirdTestProperty')
+        
+        // Drag the 2nd property to before the 1st property and verify: secondTestProperty, firstTestProperty, thirdTestProperty
+        cy.get('[data-test="property-drag-handle"]').eq(1).then(($dragHandle) => {
+          const dragHandle = $dragHandle[0]
+          
+          // Create a proper drag and drop sequence
+          const dragStartEvent = new DragEvent('dragstart', {
+            bubbles: true,
+            cancelable: true,
+            dataTransfer: new DataTransfer()
+          })
+          dragStartEvent.dataTransfer?.setData('text/plain', 'secondTestProperty')
+          
+          const dragOverEvent = new DragEvent('dragover', {
+            bubbles: true,
+            cancelable: true,
+            dataTransfer: new DataTransfer()
+          })
+          
+          const dropEvent = new DragEvent('drop', {
+            bubbles: true,
+            cancelable: true,
+            dataTransfer: new DataTransfer()
+          })
+          dropEvent.dataTransfer?.setData('text/plain', 'secondTestProperty')
+          
+          const dragEndEvent = new DragEvent('dragend', {
+            bubbles: true,
+            cancelable: true,
+            dataTransfer: new DataTransfer()
+          })
+          
+          // Trigger the events
+          dragHandle.dispatchEvent(dragStartEvent)
+          cy.get('[data-test="drop-zone-0"]').then(($dropZone) => {
+            const dropZoneEl = $dropZone[0]
+            dropZoneEl.dispatchEvent(dragOverEvent)
+            dropZoneEl.dispatchEvent(dropEvent)
+            dropZoneEl.dispatchEvent(dragEndEvent)
+          })
+        })
+      
+        // Wait for the drag operation to complete
+        cy.wait(1000)
+        
+        // Verify new order: secondTestProperty, firstTestProperty, thirdTestProperty
+        cy.get('[data-test="property-name-input"]').eq(0).find('input').should('have.value', 'secondTestProperty')
+        cy.get('[data-test="property-name-input"]').eq(1).find('input').should('have.value', 'firstTestProperty')
+        cy.get('[data-test="property-name-input"]').eq(2).find('input').should('have.value', 'thirdTestProperty')
+      })
+    })
+
+    it('can show/hide root object properties', () => {
+      // Arrange root object with three properties
+      cy.get('[data-test="add-property-btn"]').click().click().click()
+      cy.get('[data-test="property-name-input"]').eq(0).click()
+      cy.get('[data-test="property-name-input"]').eq(0).find('input').type('firstTestProperty')
+      cy.get('[data-test="property-name-input"]').eq(1).click()
+      cy.get('[data-test="property-name-input"]').eq(1).find('input').type('secondTestProperty')
+      cy.get('[data-test="property-name-input"]').eq(2).click()
+      cy.get('[data-test="property-name-input"]').eq(2).find('input').type('thirdTestProperty')
+      cy.get('[data-test="property-name-input"]').eq(0).find('input').should('have.value', 'firstTestProperty')
+      cy.get('[data-test="property-name-input"]').eq(1).find('input').should('have.value', 'secondTestProperty')
+      cy.get('[data-test="property-name-input"]').eq(2).find('input').should('have.value', 'thirdTestProperty')
+     
       // click root hide-properties button
-      // verify root property list is not visible
+      cy.get('[data-test="collapse-toggle-btn"]').click()
+      cy.get('[data-test="object-property-body"]').should('not.exist')
+      
       // click root show-properties button
-      // verify root property list is visible
-
-      // change the second property to object
-      // click hide property on second property
-      // add three sub-properties to the object and set name and description for each
-      // verify list is visible
-      // click hide properties
-      // verify list is not visible
+      cy.get('[data-test="collapse-toggle-btn"]').click()
+      cy.get('[data-test="object-property-body"]').should('be.visible')
     })
 
-    it('can delete properties', () => {
-      // delete the first property
-      // verify property list has property 2 is now property 1, property 3 is now property 2
+    it('can show/hide non-root object properties', () => {
+      // Arrange - create a non-root object property
+      cy.get('[data-test="add-property-btn"]').click()
+      cy.get('[data-test="type-display-name"]').should('contain', 'void')
+      cy.get('[data-test="type-chip-picker"]').should('be.visible').wait(100)
+      cy.get('[data-test="type-chip-picker"]').click()
+      cy.get('[data-test="built-in-type-object"]').should('be.visible').click()
+      cy.get('[data-test="type-display-name"]').should('contain', 'Object')
+
+      // Add three properties to the object property body
+      cy.get('[data-test="add-property-btn"]').eq(1).should('be.visible').wait(100)
+        .click().click().click()
+
+      // set context to the object property section
+      cy.get('[data-test="object-properties-section"]').eq(1).within(() => {
+        cy.get('[data-test="property-name-input"]').eq(0).click()
+        cy.get('[data-test="property-name-input"]').eq(0).find('input').type('firstTestProperty')
+        cy.get('[data-test="property-name-input"]').eq(1).click()
+        cy.get('[data-test="property-name-input"]').eq(1).find('input').type('secondTestProperty')
+        cy.get('[data-test="property-name-input"]').eq(2).click()
+        cy.get('[data-test="property-name-input"]').eq(2).find('input').type('thirdTestProperty')
+        cy.get('[data-test="property-name-input"]').eq(0).find('input').should('have.value', 'firstTestProperty')
+        cy.get('[data-test="property-name-input"]').eq(1).find('input').should('have.value', 'secondTestProperty')
+        cy.get('[data-test="property-name-input"]').eq(2).find('input').should('have.value', 'thirdTestProperty')
+      
+      })
+      // click root hide-properties button
+      cy.get('[data-test="collapse-toggle-btn"]').eq(1).click()
+      cy.get('[data-test="object-property-body"]').eq(1).should('not.exist')
+      
+      // click root show-properties button
+      cy.get('[data-test="collapse-toggle-btn"]').eq(1).click()
+      cy.get('[data-test="object-property-body"]').eq(1).should('be.visible')
     })
 
     it('locks', () => {
-      // change the second property to object
-      // add three sub-properties to the object and set name and description for each
+      // Arrange - create a non-root object property
+      cy.get('[data-test="add-property-btn"]').click()
+      cy.get('[data-test="type-display-name"]').should('contain', 'void')
+      cy.get('[data-test="type-chip-picker"]').should('be.visible').wait(100)
+      cy.get('[data-test="type-chip-picker"]').click()
+      cy.get('[data-test="built-in-type-object"]').should('be.visible').click()
+      cy.get('[data-test="type-display-name"]').should('contain', 'Object')
 
-      // verify unlocked
-      // click lock button
-      // verify root property description and type chip picker are disabled
-      // verify object action icons do not exist
-      // verify property list is visible with 3 properties
-      // verify that property list name, description, and type chip picker are disabled
-      // verify that property list required checkbox and delete do not exist
-      // verify that property list object property action icons do not exist
+      // Lock
+      cy.wait(200)
+      cy.get('[data-test="lock-type-btn"]').should('not.be.disabled').click()
+      cy.get('[data-test="lock-type-btn"]').should('not.exist')
+      cy.get('[data-test="unlock-type-btn"]').should('exist')
+
+      // Make sure the action icons do not exist
+      cy.get('[data-test="add-property-btn"]').should('not.exist')
+      cy.get('[data-test="additional-props-toggle-btn"]').should('not.exist')
+      cy.get('[data-test="required-toggle-btn"]').should('not.exist')
+      cy.get('[data-test="delete-property-btn"]').should('not.exist')
+      
+      // verify show-hide-properties button is still visible and enabled (collapse should work even when locked)
+      cy.get('[data-test="collapse-toggle-btn"]').should('be.visible').and('not.be.disabled')
     })
 
     it('unlocks', () => {
-      // change the second property to object
-      // add three sub-properties to the object and set name and description for each
+      // Arrange - create a non-root object property
+      cy.get('[data-test="add-property-btn"]').click()
+      cy.get('[data-test="type-display-name"]').should('contain', 'void')
+      cy.get('[data-test="type-chip-picker"]').should('be.visible').wait(100)
+      cy.get('[data-test="type-chip-picker"]').click()
+      cy.get('[data-test="built-in-type-object"]').should('be.visible').click()
+      cy.get('[data-test="type-display-name"]').should('contain', 'Object')
 
-      // verify unlocked
-      // click lock button
-      // verify locked
-      // click unlock button
-      // verify root property description and type chip picker are enabled
-      // verify object action icons are enabled
-      // verify property list is visible with 2 properties
-      // verify that property list name, description, and type chip picker are enabled
-      // verify that property list required checkbox and delete are enabled
-      // verify that property list object property action icons are enabled
+      // Lock
+      cy.wait(200)
+      cy.get('[data-test="lock-type-btn"]').should('not.be.disabled').click()
+      cy.get('[data-test="lock-type-btn"]').should('not.exist')
+      cy.get('[data-test="unlock-type-btn"]').should('exist')
+
+      // Un-Lock
+      cy.wait(200)
+      cy.get('[data-test="unlock-type-btn"]').should('not.be.disabled').click()
+      cy.get('[data-test="unlock-type-dialog"]').should('be.visible')
+      cy.get('[data-test="unlock-confirmation-message"]').should('be.visible')
+      cy.get('[data-test="unlock-warning-message"]').should('be.visible')
+      cy.get('[data-test="unlock-cancel-btn"]').should('be.visible')
+      cy.get('[data-test="unlock-confirm-btn"]').should('be.visible')
+      cy.get('[data-test="unlock-confirm-btn"]').click()
+      cy.get('[data-test="unlock-type-dialog"]').should('not.exist')
+      cy.get('[data-test="unlock-type-btn"]').should('not.exist')
+
+      // Make sure the action icons do exist
+      cy.get('[data-test="add-property-btn"]').should('have.length', 2)
+      cy.get('[data-test="additional-props-toggle-btn"]').should('have.length', 2)
+      cy.get('[data-test="required-toggle-btn"]').should('have.length', 1)
+      cy.get('[data-test="delete-property-btn"]').should('have.length', 1)
+      
+      // verify show-hide-properties button is still visible and enabled (collapse should work even when locked)
+      cy.get('[data-test="collapse-toggle-btn"]').should('be.visible').and('not.be.disabled')
     })
   })
 })

@@ -17,14 +17,16 @@
         <v-tooltip :text="collapsed ? 'Show Items' : 'Hide Items'" location="top">
           <template v-slot:activator="{ props }">
             <v-btn
-              :icon="collapsed ? 'mdi-chevron-left' : 'mdi-chevron-down'"
-              size="small"
+              size="normal"
+              density="compact"
               variant="text"
-              color="primary"
+              color="default"
               v-bind="props"
               @click="toggleCollapsed"
               data-test="collapse-toggle-btn"
-            />
+            >
+              <span class="material-symbols-outlined">{{ collapsed ? 'expand_content' : 'collapse_content' }}</span>
+            </v-btn>
           </template>
         </v-tooltip>
       </div>

@@ -1,6 +1,34 @@
 # Cypress Improvements - Comprehensive Testing Plan
 
-Instructions for cursor: We have just completed implementing our foundational Cypress E2E tests, and now I want to move on to more complete testing. You should review existing e2e tests for context. I already know of a number of defects that we're going to find, and we will fix those defects as we come across them. As we are creating tests, if there is not an easy to use data-test attribute we can use to target automation, we can add them to the code to make the page more testable. I've listed a few purely stylistic items, these are changes I want to make to the code that we don't necessarily have to address in testing. Please consider my use of "assert" and "it" to be just very rough ideas of how to structure the testing, and probably not very good ideas at that. We have some updates that are not triggering API calls to persist state with the back end, so tests that enter values should re-load the page and confirm state was preserved. I'd like you to create a plan that includes the items identified below. 
+Instructions for cursor: We have just completed implementing our foundational Cypress E2E tests, and now I want to move on to more complete testing. You should review existing e2e tests for context. I already know of a number of defects that we're going to find, and we will fix those defects as we come across them. As we are creating tests, if there is not an easy to use data-test attribute we can use to target automation, we can add them to the code to make the page more testable. I've listed a few purely stylistic items, these are changes I want to make to the code that we don't necessarily have to address in testing. Please consider my use of "assert" and "it" to be just very rough ideas of how to structure the testing, and probably not very good ideas at that. We have some updates that are not triggering API calls to persist state with the back end, so tests that enter values should re-load the page and confirm state was preserved. I'd like you to create a plan that includes the items identified below.
+
+## Current Test File Status
+
+### ✅ **Completed & Working**
+- `app.help.cy.ts` - Help dialog testing
+- `configurations.cy.ts` - Configuration management testing
+- `enumerators.cy.ts` - Enumerator management testing
+- `event-viewer.cy.ts` - Event viewer testing
+- `migrations.cy.ts` - Migration testing
+- `test_data.cy.ts` - Test data testing
+- `types.cy.ts` - General type document testing
+- `types.simple.cy.ts` - Simple property editor testing
+- `types.complex.cy.ts` - Complex property editor testing
+- `types.objects.cy.ts` - Object property editor testing
+
+### 🔧 **Needs Debugging**
+- `types.array.cy.ts` - Array property editor testing (implemented, needs debugging)
+
+### 📋 **Pending Implementation**
+- `dictionaries.cy.ts` - General dictionary document testing
+- `dictionary.object.cy.ts` - Dictionary object property editor testing
+- `dictionary.array.cy.ts` - Dictionary array property editor testing
+- `dictionary.constant.cy.ts` - Dictionary constant property editor testing
+- `dictionary.enum.cy.ts` - Dictionary enum property editor testing
+- `dictionary.enum_array.cy.ts` - Dictionary enum array property editor testing
+- `dictionary.ref.cy.ts` - Dictionary ref property editor testing
+- `dictionary.one_of.cy.ts` - Dictionary one_of property editor testing
+- `user.journey1.cy.ts` - User journey testing 
 
 Your plan should:
 - Be organized into phases with phase gates that require my approval
@@ -96,10 +124,10 @@ Your plan should:
 - [x] Implement `types.cy.ts` - General type document testing
 - [x] Implement `types.simple.cy.ts` - Simple property editor testing
 - [x] Implement `types.complex.cy.ts` - Complex property editor testing
-- [ ] Implement `types.objects.cy.ts` - Object property editor testing
-- [ ] Implement `types.array.cy.ts` - Array property editor testing
-- [ ] Update PUNCH-LIST.md with completion status
-- [ ] Commit and push changes
+- [x] Implement `types.objects.cy.ts` - Object property editor testing
+- [x] Implement `types.array.cy.ts` - Array property editor testing (needs debugging)
+- [x] Update PUNCH-LIST.md with completion status
+- [x] Commit and push changes
 
 **Phase Gate**: Your approval required before proceeding to Phase 5
 
@@ -137,23 +165,42 @@ Your plan should:
   - Set default values in property object when changing to simple/complex types
   - Ensured default values are persisted immediately via autoSave()
   - Fixed TypeScript build errors with proper type annotations
-- Ready to implement remaining property type test files (objects, array)
+- **COMPLETED**: `types.objects.cy.ts` - Object property editor testing
+  - Implemented comprehensive object property editor testing
+  - Fixed drag and drop functionality for property reordering
+  - Enhanced drop zones to make entire property divs drop targets
+  - Fixed show/hide functionality for non-root object properties
+  - Fixed lock behavior - required toggle hidden when locked, collapse toggle remains visible
+  - Tests cover: root/non-root object action icons, property management, drag/drop, show/hide, lock/unlock
+  - All object property editor functionality working correctly
+- Ready to implement `types.array.cy.ts` - Array property editor testing
 
 ## Phase 5: Dictionary Detail Page Testing
 **Goal**: Test dictionary-specific property editing with type restrictions
 **Status**: Pending Phase 4 approval
 
+**Test File Structure**:
+- `dictionaries.cy.ts` - General dictionary document testing (basic elements, lock/unlock, delete)
+- `dictionary.object.cy.ts` - Dictionary object property editor testing
+- `dictionary.array.cy.ts` - Dictionary array property editor testing
+- `dictionary.constant.cy.ts` - Dictionary constant property editor testing
+- `dictionary.enum.cy.ts` - Dictionary enum property editor testing
+- `dictionary.enum_array.cy.ts` - Dictionary enum array property editor testing
+- `dictionary.ref.cy.ts` - Dictionary ref property editor testing
+- `dictionary.one_of.cy.ts` - Dictionary one_of property editor testing
+
 **Steps**:
-- [ ] Test dictionary property type restrictions (root: object/array only, non-root: object, array, constant, enum, enum_array, one_of, ref, custom)
-- [ ] Test object and array property editors in dictionary context
-- [ ] Test constant property editor (editable value input)
-- [ ] Test enum and enum_array property editors (enumerators picker)
-- [ ] Test ref property editor (dictionary picker)
-- [ ] Test one_of property editor (property list like object)
-- [ ] Test array of different property types (one_of, ref, custom)
 - [ ] Update page title to include "Dictionary" before filename
 - [ ] Update root property editor to use standard Card layout
 - [ ] Add necessary `data-test` attributes for reliable testing
+- [ ] Implement `dictionaries.cy.ts` - General dictionary document testing
+- [ ] Implement `dictionary.object.cy.ts` - Dictionary object property editor testing
+- [ ] Implement `dictionary.array.cy.ts` - Dictionary array property editor testing
+- [ ] Implement `dictionary.constant.cy.ts` - Dictionary constant property editor testing
+- [ ] Implement `dictionary.enum.cy.ts` - Dictionary enum property editor testing
+- [ ] Implement `dictionary.enum_array.cy.ts` - Dictionary enum array property editor testing
+- [ ] Implement `dictionary.ref.cy.ts` - Dictionary ref property editor testing
+- [ ] Implement `dictionary.one_of.cy.ts` - Dictionary one_of property editor testing
 - [ ] Update PUNCH-LIST.md with completion status
 - [ ] Commit and push changes
 

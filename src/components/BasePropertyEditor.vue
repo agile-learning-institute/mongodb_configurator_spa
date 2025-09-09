@@ -1,8 +1,18 @@
 <template>
   <div class="base-property-editor" :data-test="`base-property-editor-${property.name || 'root'}`">
-    <!-- Property Header with Name, Description, Type, Extension Slot, Required, and Delete -->
+    <!-- Property Header with Drag Handle, Name, Description, Type, Extension Slot, Required, and Delete -->
     <!-- Only show header for non-root properties -->
     <div v-if="!isRoot" class="property-header d-flex align-center" data-test="property-header">
+      <!-- Drag handle for non-root properties -->
+      <div class="property-drag-handle" 
+           v-if="!disabled" 
+           data-test="property-drag-handle"
+           draggable="true"
+           @dragstart="handleDragStart"
+           @dragend="handleDragEnd">
+        <v-icon icon="mdi-drag" size="small" color="grey" />
+      </div>
+      
       <div class="property-name-section" v-if="!isRoot" :id="`property-name-${property.name || 'root'}`" data-test="property-name-section">
         <v-text-field
           v-model="editableName"
@@ -82,22 +92,24 @@
       
       <div class="property-required-section" v-if="canBeRequired" data-test="property-required-section">
         <v-tooltip 
-          text="Mark this property as required"
+          :text="editableRequired ? 'Mark as optional' : 'Mark as required'"
           location="top"
           color="primary"
           text-color="white"
         >
           <template v-slot:activator="{ props }">
             <v-btn
-              :icon="editableRequired ? 'mdi-checkbox-marked' : 'mdi-checkbox-blank-outline'"
               variant="text"
-              size="small"
+              size="normal"
+              density="compact"
               color="default"
               v-bind="props"
               @click="toggleRequired"
               :disabled="disabled"
               data-test="required-toggle-btn"
-            />
+            >
+              <span class="material-symbols-outlined">{{ editableRequired ? 'toggle_on' : 'toggle_off' }}</span>
+            </v-btn>
           </template>
         </v-tooltip>
       </div>
@@ -111,14 +123,16 @@
         >
           <template v-slot:activator="{ props }">
             <v-btn
-              icon="mdi-delete"
               variant="text"
-              size="small"
+              size="normal"
+              density="compact"
               color="error"
               v-bind="props"
               @click="handleDelete"
               data-test="delete-property-btn"
-            />
+            >
+              <span class="material-symbols-outlined">delete</span>
+            </v-btn>
           </template>
         </v-tooltip>
       </div>
@@ -150,6 +164,7 @@ const props = defineProps<{
   isType?: boolean
   disabled?: boolean
   hideTypeSelector?: boolean
+  hideDeleteButton?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -171,16 +186,23 @@ const isDictionary = computed(() => props.isDictionary || false)
 const isType = computed(() => props.isType || false)
 
 const canBeRequired = computed(() => {
+  // If disabled (locked), cannot be required
+  if (props.disabled) return false
+  
   // Root properties can always be required
   if (isRoot.value) return true
   
-  // Non-root properties can be required if they're not arrays or objects
-  return !isArrayProperty(props.property) && !isObjectProperty(props.property)
+  // Non-root properties can be required
+  // All property types (including arrays) can be required
+  return true
 })
 
 const canBeDeleted = computed(() => {
   // Root properties cannot be deleted
   if (isRoot.value) return false
+  
+  // If explicitly hidden, don't show delete button
+  if (props.hideDeleteButton) return false
   
   // Non-root properties can be deleted
   return true
@@ -341,7 +363,26 @@ const handleRequiredChange = () => {
   }
 }
 
+const handleDragStart = (event: DragEvent) => {
+  if (event.dataTransfer) {
+    event.dataTransfer.setData('text/plain', props.property.name || '')
+    event.dataTransfer.effectAllowed = 'move'
+    event.dataTransfer.dropEffect = 'move'
+  }
+  // Add visual feedback to the entire property
+  const propertyElement = (event.target as HTMLElement).closest('.base-property-editor')
+  if (propertyElement) {
+    (propertyElement as HTMLElement).style.opacity = '0.5'
+  }
+}
 
+const handleDragEnd = (event: DragEvent) => {
+  // Remove visual feedback from the entire property
+  const propertyElement = (event.target as HTMLElement).closest('.base-property-editor')
+  if (propertyElement) {
+    (propertyElement as HTMLElement).style.opacity = '1'
+  }
+}
 
 // Watch for property changes and update local state
 watch(() => props.property, (newProperty) => {
@@ -360,7 +401,7 @@ watch(() => props.property, (newProperty) => {
 }
 
 .property-header {
-  padding: 12px 16px;
+  padding: 12px 5px;
   background-color: #fafafa;
   border-bottom: 1px solid #e0e0e0;
   gap: 8px;
@@ -386,6 +427,19 @@ watch(() => props.property, (newProperty) => {
 .property-actions {
   flex-shrink: 0;
 }
+
+.property-drag-handle {
+  flex-shrink: 0;
+  cursor: grab;
+  padding: 4px;
+  margin-right: 8px;
+}
+
+.property-drag-handle:active {
+  cursor: grabbing;
+}
+
+
 
 .property-body {
   padding: 16px;

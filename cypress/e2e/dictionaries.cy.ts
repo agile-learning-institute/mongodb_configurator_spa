@@ -1,4 +1,4 @@
-describe('Dictionaries page flow', () => {
+describe('Dictionaries basic page flow', () => {
   let createdDictionaryName: string
 
   // Clean up any dictionaries created during tests
@@ -60,7 +60,7 @@ describe('Dictionaries page flow', () => {
     createdDictionaryName = dictionaryName
 
     // Wait a moment for the API call to complete
-    cy.wait(1000)
+    cy.wait(200)
 
     // After creation, we should be redirected to the detail page
     cy.url().should('include', `/dictionaries/${dictionaryName}.yaml`)
@@ -145,7 +145,7 @@ describe('Dictionaries page flow', () => {
         // Dictionary is locked, unlock it first (no confirmation dialog needed)
         cy.contains('button', 'Unlock').click()
 
-        cy.wait(1000) // Wait for unlock to complete
+        cy.wait(200) // Wait for unlock to complete
       }
 
       // Now click Delete button

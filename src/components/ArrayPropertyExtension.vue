@@ -1,7 +1,7 @@
 <template>
   <div class="array-property-extension" data-test="array-property-extension">
     <div class="items-type-section" data-test="items-type-section">
-      <span class="text-caption text-medium-emphasis mr-2" data-test="items-type-label">Items:</span>
+      <span class="text-body-2 font-weight-medium mr-3 ml-2" data-test="items-type-label">Items:</span>
       <TypeChipPicker
         v-model="editableItemsType"
         :is-root="false"

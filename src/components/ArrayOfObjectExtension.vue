@@ -17,14 +17,16 @@
         <v-tooltip text="Add Property" location="top">
           <template v-slot:activator="{ props }">
             <v-btn
-              icon="mdi-plus"
-              size="small"
+              size="normal"
+              density="compact"
               variant="text"
-              color="primary"
+              color="default"
               v-bind="props"
               @click="handleAddProperty"
               data-test="add-property-btn"
-            />
+            >
+              <span class="material-symbols-outlined">list_alt_add</span>
+            </v-btn>
           </template>
         </v-tooltip>
       </div>
@@ -34,14 +36,16 @@
         <v-tooltip :text="additionalPropsTooltip" location="top">
           <template v-slot:activator="{ props }">
             <v-btn
-              :icon="additionalPropsIcon"
-              size="small"
+              size="normal"
+              density="compact"
               variant="text"
-              color="primary"
+              color="default"
               v-bind="props"
               @click="toggleAdditionalProperties"
               data-test="additional-props-toggle-btn"
-            />
+            >
+              <span class="material-symbols-outlined">{{ additionalPropsIcon }}</span>
+            </v-btn>
           </template>
         </v-tooltip>
       </div>
@@ -51,14 +55,16 @@
         <v-tooltip :text="collapsed ? 'Show Properties' : 'Hide Properties'" location="top">
           <template v-slot:activator="{ props }">
             <v-btn
-              :icon="collapsed ? 'mdi-chevron-left' : 'mdi-chevron-down'"
-              size="small"
+              size="normal"
+              density="compact"
               variant="text"
-              color="primary"
+              color="default"
               v-bind="props"
               @click="toggleCollapsed"
               data-test="collapse-toggle-btn"
-            />
+            >
+              <span class="material-symbols-outlined">{{ collapsed ? 'expand_content' : 'collapse_content' }}</span>
+            </v-btn>
           </template>
         </v-tooltip>
       </div>
@@ -101,9 +107,9 @@ const additionalPropsIcon = computed(() => {
   if (props.property.type === 'array' && 'items' in props.property && props.property.items.type === 'object') {
     const items = props.property.items as any
     const hasAdditionalProps = items.additional_properties !== undefined ? items.additional_properties : false
-    return hasAdditionalProps ? 'mdi-checkbox-marked-circle' : 'mdi-checkbox-blank-circle-outline'
+    return hasAdditionalProps ? 'list_alt_check' : 'list_alt'
   }
-  return 'mdi-checkbox-blank-circle-outline'
+  return 'list_alt'
 })
 
 // Methods
@@ -143,13 +149,13 @@ const toggleCollapsed = () => {
 .array-of-object-extension {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 2px;
 }
 
 .object-actions {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 1px;
 }
 
 .action-section {

@@ -9,14 +9,16 @@
       >
         <template v-slot:activator="{ props }">
           <v-btn
-            icon="mdi-plus"
             variant="text"
-            size="small"
+            size="normal"
+            density="compact"
             color="default"
             v-bind="props"
             @click="handleAddProperty"
             data-test="add-property-btn"
-          />
+          >
+            <span class="material-symbols-outlined">list_alt_add</span>
+          </v-btn>
         </template>
       </v-tooltip>
     </div>
@@ -30,18 +32,20 @@
       >
         <template v-slot:activator="{ props }">
           <v-btn
-            :icon="getAdditionalPropsIcon()"
             variant="text"
-            size="large"
+            size="normal"
+            density="compact"
             v-bind="props"
             @click="toggleAdditionalProperties"
             data-test="additional-props-toggle-btn"
-          />
+          >
+            <span class="material-symbols-outlined">{{ getAdditionalPropsIcon() }}</span>
+          </v-btn>
         </template>
       </v-tooltip>
     </div>
     
-    <div class="property-collapse-section" v-if="!disabled" data-test="property-collapse-section">
+    <div class="property-collapse-section" data-test="property-collapse-section">
       <v-tooltip 
         :text="collapsed ? 'Show properties' : 'Hide properties'"
         location="top"
@@ -50,14 +54,17 @@
       >
         <template v-slot:activator="{ props }">
           <v-btn
-            :icon="collapsed ? 'mdi-chevron-left' : 'mdi-chevron-down'"
             variant="text"
-            size="small"
+            size="normal"
+            density="compact"
             color="default"
             v-bind="props"
             @click="toggleCollapsed"
+            :disabled="false"
             data-test="collapse-toggle-btn"
-          />
+          >
+            <span class="material-symbols-outlined">{{ collapsed ? 'expand_content' : 'collapse_content' }}</span>
+          </v-btn>
         </template>
       </v-tooltip>
     </div>
@@ -65,7 +72,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { type ObjectProperty, isObjectProperty } from '@/types/types'
 
 const props = defineProps<{
@@ -79,8 +86,15 @@ const emit = defineEmits<{
   toggleCollapsed: [collapsed: boolean]
 }>()
 
-// Reactive state
-const collapsed = ref(false)
+// Reactive state - initialize from property's collapsed state
+const collapsed = ref((props.property as any)._collapsed || false)
+
+// Watch for changes to the property's collapsed state
+watch(() => (props.property as any)._collapsed, (newCollapsed) => {
+  if (newCollapsed !== undefined) {
+    collapsed.value = newCollapsed
+  }
+})
 
 
 
@@ -103,9 +117,9 @@ const toggleCollapsed = () => {
 
 const getAdditionalPropsIcon = (): string => {
   if (isObjectProperty(props.property)) {
-    return props.property.additional_properties ? 'mdi-checkbox-marked-circle' : 'mdi-checkbox-blank-circle-outline'
+    return props.property.additional_properties ? 'list_alt_check' : 'list_alt'
   }
-  return 'mdi-checkbox-blank-circle-outline'
+  return 'list_alt'
 }
 </script>
 
@@ -113,19 +127,19 @@ const getAdditionalPropsIcon = (): string => {
 .object-property-extension {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 2px;
   flex-shrink: 0;
 }
 
 .property-add-section {
-  margin-left: 8px;
+  margin-left: 2px;
 }
 
 .property-additional-props-section {
-  margin-left: 8px;
+  margin-left: 2px;
 }
 
 .property-collapse-section {
-  margin-left: 8px;
+  margin-left: 2px;
 }
 </style>

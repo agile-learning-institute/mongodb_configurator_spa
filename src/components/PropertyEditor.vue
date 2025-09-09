@@ -90,7 +90,7 @@
       <!-- Array of Array: Show nested array editor (only when not collapsed) -->
       <div v-else-if="isArrayProperty(property) && property.items && property.items.type === 'array' && !(property.items as any)._collapsed" class="array-property-body" data-test="array-of-array-body">
         <div class="array-item-editor">
-          <!-- Use PropertyEditor for the nested array with type selector hidden -->
+          <!-- Use PropertyEditor for the nested array with type selector and delete button hidden -->
           <PropertyEditor
             :property="property.items"
             :is-root="false"
@@ -98,6 +98,7 @@
             :is-type="isType"
             :disabled="disabled"
             :hideTypeSelector="true"
+            :hideDeleteButton="true"
             @change="handleItemsChange"
             data-test="nested-array-property"
           />
@@ -113,18 +114,42 @@
         </div>
         
         <div v-else class="properties-section" data-test="object-properties-section">
-          <PropertyEditor
-            v-for="(prop, index) in property.properties"
-            :key="prop.name || index"
-            :property="prop"
-            :is-root="false"
-            :is-dictionary="isDictionary"
-            :is-type="isType"
-            :disabled="disabled"
-            @change="(updatedProp) => handlePropertyChange(index, updatedProp)"
-            @delete="() => handlePropertyDelete(index)"
-            :data-test="`object-property-${prop.name || index}`"
-          />
+          <template v-for="(prop, index) in property.properties" :key="prop.name || index">
+            <!-- Each property is its own drop zone for dropping above it -->
+            <div 
+              class="property-drop-zone"
+              :class="{ 'drag-over': dragOverIndex === index }"
+              :data-test="`drop-zone-${index}`"
+              @dragover.prevent="handleDragOver(index)"
+              @dragenter.prevent="handleDragEnter(index)"
+              @dragleave="handleDragLeave(index)"
+              @drop="(event) => handleDrop(event, index)"
+            >
+              <PropertyEditor
+                :property="prop"
+                :is-root="false"
+                :is-dictionary="isDictionary"
+                :is-type="isType"
+                :disabled="disabled"
+                @change="(updatedProp) => handlePropertyChange(index, updatedProp)"
+                @delete="() => handlePropertyDelete(index)"
+                :data-test="`object-property-${prop.name || index}`"
+              />
+            </div>
+          </template>
+          
+          <!-- Drop zone after last property -->
+          <div 
+            class="drop-zone" 
+            :class="{ 'drag-over': dragOverIndex === (isObjectProperty(property) ? property.properties.length : 0) }"
+            :data-test="`drop-zone-${isObjectProperty(property) ? property.properties.length : 0}`"
+            @dragover.prevent="handleDragOver(isObjectProperty(property) ? property.properties.length : 0)"
+            @dragenter.prevent="handleDragEnter(isObjectProperty(property) ? property.properties.length : 0)"
+            @dragleave="handleDragLeave(isObjectProperty(property) ? property.properties.length : 0)"
+            @drop="(event) => handleDrop(event, isObjectProperty(property) ? property.properties.length : 0)"
+          >
+            <div class="drop-indicator"></div>
+          </div>
         </div>
       </div>
       
@@ -184,7 +209,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { 
   type Property,
   isArrayProperty,
@@ -194,6 +219,9 @@ import {
 } from '@/types/types'
 import BasePropertyEditor from './BasePropertyEditor.vue'
 import ArrayPropertyExtension from './ArrayPropertyExtension.vue'
+
+// Drag and drop state
+const dragOverIndex = ref<number | null>(null)
 import ArrayOfObjectExtension from './ArrayOfObjectExtension.vue'
 import ArrayOfArrayExtension from './ArrayOfArrayExtension.vue'
 import ObjectPropertyExtension from './ObjectPropertyExtension.vue'
@@ -307,10 +335,15 @@ const handleAddProperty = () => {
   }
 }
 
-const handleToggleCollapsed = () => {
-  // Handle collapse state if needed
-  // For now, we'll just emit the change
-  emit('change', props.property)
+const handleToggleCollapsed = (collapsed: boolean) => {
+  // Toggle the collapsed state for object properties
+  if (isObjectProperty(props.property)) {
+    const updatedProperty = {
+      ...props.property,
+      _collapsed: collapsed
+    }
+    emit('change', updatedProperty)
+  }
 }
 
 const handlePropertyChange = (index: number, updatedProp: Property) => {
@@ -348,6 +381,56 @@ const handleArrayObjectPropertyDelete = (index: number) => {
         ...props.property.items,
         properties: updatedProperties
       }
+    }
+    
+    emit('change', updatedProperty)
+  }
+}
+
+const handleDragOver = (index: number) => {
+  dragOverIndex.value = index
+}
+
+const handleDragEnter = (index: number) => {
+  dragOverIndex.value = index
+}
+
+const handleDragLeave = (index: number) => {
+  // Only clear if we're leaving this specific drop zone
+  if (dragOverIndex.value === index) {
+    dragOverIndex.value = null
+  }
+}
+
+const handleDrop = (event: DragEvent, dropIndex: number) => {
+  event.preventDefault()
+  dragOverIndex.value = null
+  
+  if (!event.dataTransfer) return
+  
+  const draggedPropertyName = event.dataTransfer.getData('text/plain')
+  if (!draggedPropertyName) return
+  
+  if (isObjectProperty(props.property) && props.property.properties) {
+    // Find the dragged property index
+    const draggedIndex = props.property.properties.findIndex(prop => prop.name === draggedPropertyName)
+    if (draggedIndex === -1) return
+    
+    // Don't do anything if dropping on itself
+    if (draggedIndex === dropIndex) return
+    
+    // Create new properties array with reordered items
+    const newProperties = [...props.property.properties]
+    const [draggedProperty] = newProperties.splice(draggedIndex, 1)
+    
+    // Adjust drop index if dragging from before the drop position
+    const adjustedDropIndex = draggedIndex < dropIndex ? dropIndex - 1 : dropIndex
+    newProperties.splice(adjustedDropIndex, 0, draggedProperty)
+    
+    // Update the property
+    const updatedProperty = {
+      ...props.property,
+      properties: newProperties
     }
     
     emit('change', updatedProperty)
@@ -526,5 +609,67 @@ const handleComplexPropertyBsonTypeChange = (value: string) => {
 
 .type-configuration {
   /* Add specific styles for type configuration if needed */
+}
+
+/* Drop zone styling */
+.drop-zone {
+  min-height: 8px;
+  margin: 4px 0;
+  transition: all 0.2s ease;
+  border-radius: 4px;
+}
+
+.drop-zone:hover {
+  background-color: rgba(25, 118, 210, 0.1);
+}
+
+.drop-zone.drag-over {
+  background-color: rgba(25, 118, 210, 0.2);
+  border: 2px dashed #1976d2;
+}
+
+.drop-indicator {
+  height: 2px;
+  background-color: transparent;
+  transition: background-color 0.2s ease;
+}
+
+.drop-zone:hover .drop-indicator {
+  background-color: #1976d2;
+}
+
+.drop-zone.drag-over .drop-indicator {
+  background-color: #1976d2;
+  height: 3px;
+}
+
+/* Property drop zone styling - each property is a drop zone */
+.property-drop-zone {
+  transition: all 0.2s ease;
+  border-radius: 8px;
+  margin: 2px 0;
+  position: relative;
+}
+
+.property-drop-zone:hover {
+  background-color: rgba(25, 118, 210, 0.05);
+}
+
+.property-drop-zone.drag-over {
+  background-color: rgba(25, 118, 210, 0.15);
+  border: 2px dashed #1976d2;
+  box-shadow: 0 0 0 1px rgba(25, 118, 210, 0.3);
+}
+
+.property-drop-zone.drag-over::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background-color: #1976d2;
+  border-radius: 2px;
+  z-index: 1;
 }
 </style> 
