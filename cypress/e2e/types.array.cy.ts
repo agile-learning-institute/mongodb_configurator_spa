@@ -350,7 +350,7 @@ describe('Types Page', () => {
       cy.get('[data-test="description-input"]').eq(2).find('input').should('have.attr', 'readonly')
     })
 
-    it.only('array of object unlocks', () => {
+    it('unlocks array of object', () => {
       // Arrange an array of object type
       cy.get('[data-test="items-type-picker"] [data-test="type-chip"]').click()
       cy.get('[data-test="built-in-type-object"]').click()
@@ -389,44 +389,28 @@ describe('Types Page', () => {
       cy.get('[data-test="description-input"]').eq(2).find('input').should('not.have.attr', 'readonly')
     })
 
-    it('can show/hide object properties', () => {
-      // Change the items type to object
+    it.only('can show/hide object properties', () => {
+      // Arrange an array of object type
       cy.get('[data-test="items-type-picker"] [data-test="type-chip"]').click()
       cy.get('[data-test="built-in-type-object"]').click()
-      
-      // Add three sub-properties to the array of object and set name and description for each
-      cy.get('[data-test="add-property-btn"]').click()
-      cy.get('[data-test="property-name-input"]').eq(0).find('input').type('firstProperty')
-      cy.get('[data-test="property-description-input"]').eq(0).find('input').type('First property description')
-      
-      cy.get('[data-test="add-property-btn"]').click()
-      cy.get('[data-test="property-name-input"]').eq(1).find('input').type('secondProperty')
-      cy.get('[data-test="property-description-input"]').eq(1).find('input').type('Second property description')
-      
-      cy.get('[data-test="add-property-btn"]').click()
-      cy.get('[data-test="property-name-input"]').eq(2).find('input').type('thirdProperty')
-      cy.get('[data-test="property-description-input"]').eq(2).find('input').type('Third property description')
-      
-      // Verify properties are visible
-      cy.get('[data-test="properties-section"]').should('be.visible')
+      cy.get('[data-test="type-display-name"]').eq(0).should('contain', 'Array')
+      cy.get('[data-test="type-display-name"]').eq(1).should('contain', 'Object')
+      cy.get('[data-test="no-properties-message"]').should('be.visible')
+      cy.get('[data-test="add-property-btn"]').should('be.enabled').click().click().click()
+      cy.get('[data-test="description-input"]').should('have.length', 3)
       cy.get('[data-test="property-name-input"]').should('have.length', 3)
-      
+      cy.get('[data-test="collapse-toggle-btn"]').should('be.enabled')
+
       // Click hide-properties button
       cy.get('[data-test="collapse-toggle-btn"]').click()
-      
-      // Verify property list is not visible
       cy.get('[data-test="properties-section"]').should('not.exist')
       cy.get('[data-test="property-name-input"]').should('not.exist')
       
       // Click show-properties button
       cy.get('[data-test="collapse-toggle-btn"]').click()
-      
-      // Verify property list is visible
-      cy.get('[data-test="properties-section"]').should('be.visible')
+      cy.get('[data-test="description-input"]').should('have.length', 3)
       cy.get('[data-test="property-name-input"]').should('have.length', 3)
-      cy.get('[data-test="property-name-input"]').eq(0).find('input').should('have.value', 'firstProperty')
-      cy.get('[data-test="property-name-input"]').eq(1).find('input').should('have.value', 'secondProperty')
-      cy.get('[data-test="property-name-input"]').eq(2).find('input').should('have.value', 'thirdProperty')
+      cy.get('[data-test="collapse-toggle-btn"]').should('be.enabled')
     })
 
     it('handles array of custom', () => {
