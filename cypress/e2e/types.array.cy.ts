@@ -413,7 +413,7 @@ describe('Types Page', () => {
       cy.get('[data-test="collapse-toggle-btn"]').should('be.enabled')
     })
 
-    it.only('handles array of custom', () => {
+    it('handles array of custom', () => {
       // Arrange an array of word
       cy.get('[data-test="items-type-picker"] [data-test="type-chip"]').click()
       cy.get('[data-test="custom-type-name-word.yaml"]').click()
@@ -428,27 +428,33 @@ describe('Types Page', () => {
       cy.get('[data-test="items-type-picker"] [data-test="type-chip"]').should('contain', 'word')
     })
     
-    it('array of custom locks', () => {
-      // Change the items type to custom (word) first
+    it.only('locks array of custom', () => {
+      // Arrange an array of word
       cy.get('[data-test="items-type-picker"] [data-test="type-chip"]').click()
-      cy.get('[data-test="custom-type-word"]').click()
-      
+      cy.get('[data-test="custom-type-name-word.yaml"]').click()
+      cy.get('[data-test="type-display-name"]').eq(0).should('contain', 'Array')
+      cy.get('[data-test="type-display-name"]').eq(1).should('contain', 'word')
+
       // Verify unlocked
-      cy.get('[data-test="lock-type-btn"]').should('be.visible')
-      cy.get('[data-test="unlock-type-btn"]').should('not.exist')
-      
-      // Click lock button
+      cy.get('[data-test="root-description-display"]').should('be.visible')
+      cy.get('[data-test="root-description-display"]').click()
+      cy.get('[data-test="root-description-input-edit"]').should('be.visible')
+      cy.get('[data-test="root-description-display"]').should('not.exist')
+      cy.get('[data-test="root-type-chip-picker"] [data-test="dropdown-icon"]').should('exist')
+      cy.get('[data-test="items-type-picker"]').eq(0).find('[data-test="dropdown-icon"]').should('exist')
+
+      // Lock Type
       cy.get('[data-test="lock-type-btn"]').click()
-      
-      // Verify lock button is replaced with unlock button
       cy.get('[data-test="lock-type-btn"]').should('not.exist')
       cy.get('[data-test="unlock-type-btn"]').should('be.visible')
       
       // Verify locked - inputs should be disabled
-      cy.get('[data-test="root-name-input"]').should('be.disabled')
-      cy.get('[data-test="root-description-input"]').should('be.disabled')
-      cy.get('[data-test="required-toggle-btn"]').should('not.exist')
-      cy.get('[data-test="items-type-picker"]').should('be.disabled')
+      cy.get('[data-test="root-description-display"]').should('be.visible')
+      cy.get('[data-test="root-description-display"]').click()
+      cy.get('[data-test="root-description-input-edit"]').should('not.exist')
+      cy.get('[data-test="root-description-display"]').should('be.visible')
+      cy.get('[data-test="root-type-chip-picker"] [data-test="dropdown-icon"]').should('not.exist')
+      cy.get('[data-test="items-type-picker"]').eq(0).find('[data-test="dropdown-icon"]').should('not.exist')
     })
 
     it('array of custom unlocks', () => {
