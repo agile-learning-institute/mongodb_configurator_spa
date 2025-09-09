@@ -295,7 +295,7 @@ describe('Types Page', () => {
       cy.get('[data-test="required-toggle-btn"]').should('not.exist')      
     })
 
-    it.only('locks array of object', () => {
+    it('locks array of object', () => {
       // Arrange an array of object type
       cy.get('[data-test="items-type-picker"] [data-test="type-chip"]').click()
       cy.get('[data-test="built-in-type-object"]').click()
@@ -350,7 +350,7 @@ describe('Types Page', () => {
       cy.get('[data-test="description-input"]').eq(2).find('input').should('have.attr', 'readonly')
     })
 
-    it('array of object unlocks', () => {
+    it.only('array of object unlocks', () => {
       // Arrange an array of object type
       cy.get('[data-test="items-type-picker"] [data-test="type-chip"]').click()
       cy.get('[data-test="built-in-type-object"]').click()
