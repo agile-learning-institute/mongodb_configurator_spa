@@ -99,7 +99,7 @@ describe('Types Page', () => {
     it('handles array of array', () => {     
       // Change the items type to array
       cy.get('[data-test="items-type-picker"] [data-test="type-chip"]').click()
-      cy.get('[data-test="built-in-type-array"]').click()
+      cy.get('[data-test="built-in-type-array"]').should('have.length', 1).click()
       cy.get('[data-test="type-picker-card"]').should('not.exist')
 
       cy.get('[data-test="type-display-name"]').eq(0).should('contain', 'Array')
@@ -129,7 +129,7 @@ describe('Types Page', () => {
         cy.get('[data-test^="custom-type-name-"]').should('have.length.greaterThan', 17)
 
         // Create another nested array property        
-        cy.get('[data-test="built-in-type-array"]').click()
+        cy.get('[data-test="built-in-type-array"]').should('have.length', 1).click()
       })
 
       // Set nested array property name and description
@@ -162,13 +162,13 @@ describe('Types Page', () => {
       cy.get('[data-test="type-display-name"]').eq(0).should('contain', 'Array')
       cy.get('[data-test="type-display-name"]').eq(1).click()
       cy.get('[data-test="type-picker-card"]').should('be.visible')
-      cy.get('[data-test="built-in-type-array"]').click()
+      cy.get('[data-test="built-in-type-array"]').should('have.length', 1).click()
       cy.get('[data-test="type-picker-card"]').should('not.exist')
 
       cy.get('[data-test="type-display-name"]').eq(1).should('contain', 'Array')
       cy.get('[data-test="type-display-name"]').eq(2).click()
       cy.get('[data-test="type-picker-card"]').should('be.visible')
-      cy.get('[data-test="built-in-type-array"]').click()
+      cy.get('[data-test="built-in-type-array"]').should('have.length', 1).click()
       cy.get('[data-test="type-picker-card"]').should('not.exist')
 
       cy.get('[data-test="type-display-name"]').eq(2).should('contain', 'Array')
@@ -177,7 +177,7 @@ describe('Types Page', () => {
       // Verify unlocked and Lock 
       cy.get('[data-test="lock-type-btn"]').should('be.visible')
       cy.get('[data-test="unlock-type-btn"]').should('not.exist')
-      cy.get('[data-test="lock-type-btn"]').click()
+      cy.get('[data-test="lock-type-btn"]').should('have.length', 1).click()
 
       // Verify locked
       cy.get('[data-test="lock-type-btn"]').should('not.exist')
@@ -194,13 +194,13 @@ describe('Types Page', () => {
       cy.get('[data-test="type-display-name"]').eq(0).should('contain', 'Array')
       cy.get('[data-test="type-display-name"]').eq(1).click()
       cy.get('[data-test="type-picker-card"]').should('be.visible')
-      cy.get('[data-test="built-in-type-array"]').click()
+      cy.get('[data-test="built-in-type-array"]').should('have.length', 1).click()
       cy.get('[data-test="type-picker-card"]').should('not.exist')
 
       cy.get('[data-test="type-display-name"]').eq(1).should('contain', 'Array')
       cy.get('[data-test="type-display-name"]').eq(2).click()
       cy.get('[data-test="type-picker-card"]').should('be.visible')
-      cy.get('[data-test="built-in-type-array"]').click()
+      cy.get('[data-test="built-in-type-array"]').should('have.length', 1).click()
       cy.get('[data-test="type-picker-card"]').should('not.exist')
 
       cy.get('[data-test="type-display-name"]').eq(2).should('contain', 'Array')
@@ -211,12 +211,12 @@ describe('Types Page', () => {
       // Lock and Unlock Type
       cy.get('[data-test="lock-type-btn"]').should('be.visible')
       cy.get('[data-test="unlock-type-btn"]').should('not.exist')
-      cy.get('[data-test="lock-type-btn"]').click()
+      cy.get('[data-test="lock-type-btn"]').should('have.length', 1).click()
       cy.get('[data-test="lock-type-btn"]').should('not.exist')
       cy.get('[data-test="unlock-type-btn"]').should('be.visible')
-      cy.get('[data-test="unlock-type-btn"]').click()
+      cy.get('[data-test="unlock-type-btn"]').should('have.length', 1).click()
       cy.get('[data-test="unlock-type-dialog"]').should('be.visible')
-      cy.get('[data-test="unlock-confirm-btn"]').click()
+      cy.get('[data-test="unlock-confirm-btn"]').should('have.length', 1).click()
       cy.get('[data-test="unlock-type-dialog"]').should('not.exist')
       cy.get('[data-test="unlock-type-btn"]').should('not.exist')
       cy.get('[data-test="lock-type-btn"]').should('be.visible')
@@ -225,7 +225,7 @@ describe('Types Page', () => {
       cy.get('[data-test="lock-type-btn"]').should('be.visible')
       cy.get('[data-test="unlock-type-btn"]').should('not.exist')
       cy.get('[data-test="root-description-display"]').should('be.visible')
-      cy.get('[data-test="root-description-display"]').click()
+      cy.get('[data-test="root-description-display"]').should('have.length', 1).click()
       cy.get('[data-test="root-description-input-edit"]').should('be.visible')
       cy.get('[data-test="root-description-display"]').should('not.exist')
       cy.get('[data-test="root-type-chip-picker"] [data-test="dropdown-icon"]').should('exist')
@@ -249,7 +249,7 @@ describe('Types Page', () => {
       // Arrange an array of object type
       cy.get('[data-test="items-type-picker"] [data-test="type-chip"]').click()
       cy.get('[data-test="type-picker-card"]').should('be.visible')
-      cy.get('[data-test="built-in-type-object"]').click()
+      cy.get('[data-test="built-in-type-object"]').should('have.length', 1).click()
       cy.get('[data-test="type-picker-card"]').should('not.exist')
 
       cy.get('[data-test="type-display-name"]').eq(0).should('contain', 'Array')
@@ -316,17 +316,17 @@ describe('Types Page', () => {
     it('locks array of object', () => {
       // Arrange an array of object type
       cy.get('[data-test="items-type-picker"] [data-test="type-chip"]').click()
-      cy.get('[data-test="built-in-type-object"]').click()
+      cy.get('[data-test="built-in-type-object"]').should('have.length', 1).click()
       cy.get('[data-test="type-display-name"]').eq(0).should('contain', 'Array')
       cy.get('[data-test="type-display-name"]').eq(1).should('contain', 'Object')
-      cy.get('[data-test="add-property-btn"]').click().click().click()
+      cy.get('[data-test="add-property-btn"]').should('have.length', 1).click().click().click()
 
       // Verify unlocked
       cy.get('[data-test="add-property-btn"]').should('be.enabled')
       cy.get('[data-test="additional-props-toggle-btn"]').should('be.enabled')
       cy.get('[data-test="collapse-toggle-btn"]').should('be.enabled')
       cy.get('[data-test="root-description-display"]').should('be.visible')
-      cy.get('[data-test="root-description-display"]').click()
+      cy.get('[data-test="root-description-display"]').should('have.length', 1).click()
       cy.get('[data-test="root-description-input-edit"]').should('be.visible')
       cy.get('[data-test="root-description-display"]').should('not.exist')
       cy.get('[data-test="root-type-chip-picker"] [data-test="dropdown-icon"]').should('exist')
@@ -341,7 +341,7 @@ describe('Types Page', () => {
       cy.get('[data-test="description-input"]').eq(2).find('input').should('not.have.attr', 'readonly')
       
       // Lock Type and verify locked
-      cy.get('[data-test="lock-type-btn"]').click()
+      cy.get('[data-test="lock-type-btn"]').should('have.length', 1).click()
       cy.get('[data-test="lock-type-btn"]').should('not.exist')
       cy.get('[data-test="unlock-type-btn"]').should('be.visible')
       
@@ -351,7 +351,7 @@ describe('Types Page', () => {
       cy.get('[data-test="collapse-toggle-btn"]').should('not.exist')
       cy.get('[data-test="root-name-input"]').should('not.exist')
       cy.get('[data-test="root-description-display"]').should('be.visible')
-      cy.get('[data-test="root-description-display"]').click()
+      cy.get('[data-test="root-description-display"]').should('have.length', 1).click()
       cy.get('[data-test="root-description-input-edit"]').should('not.exist')
       cy.get('[data-test="root-description-display"]').should('be.visible')
       cy.get('[data-test="required-toggle-btn"]').should('not.exist')
@@ -411,7 +411,7 @@ describe('Types Page', () => {
       // Arrange an array of object type
       cy.get('[data-test="items-type-picker"] [data-test="type-chip"]').click()
       cy.get('[data-test="type-picker-card"]').should('be.visible')
-      cy.get('[data-test="built-in-type-object"]').click()
+      cy.get('[data-test="built-in-type-object"]').should('have.length', 1).click()
       cy.get('[data-test="type-picker-card"]').should('not.exist')
 
       cy.get('[data-test="type-display-name"]').eq(0).should('contain', 'Array')

@@ -10,15 +10,17 @@ UI served at localhost:8082
 # Run all tests (headless)
 npm run cy:run
 
+# Run all tests (headless)
+npm run cy:run -- --spec "cypress/e2e/types.array.cy.ts"
+
 # Interactive test runner
 npm run cy:open
 
 # Reset test environment
 npm run api && npm run dev
 
-# Test status: 22/22 tests passing ✅
-# Coverage: All major pages and CRUD operations
-# Execution time: ~35 seconds
+# Test status: 8/20 cypress tests passing ✅
+# Execution time: ~4.5 minutes 
 ```
 
 ## Developer Commands
