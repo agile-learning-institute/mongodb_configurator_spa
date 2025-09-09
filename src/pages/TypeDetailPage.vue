@@ -116,7 +116,7 @@
             
             <!-- Array Items Type Picker (only for array types) -->
             <ArrayPropertyExtension
-              v-if="typeData.root && typeData.root.type === 'array' && (!typeData.root.items || typeData.root.items.type !== 'object')"
+              v-if="typeData.root && isArrayProperty(typeData.root) && (!typeData.root.items || typeData.root.items.type !== 'object')"
               :property="typeData.root as any"
               :is-type="true"
               :disabled="typeData._locked"
@@ -126,7 +126,7 @@
             
             <!-- Array of Object Extension (for array with object items) -->
             <ArrayOfObjectExtension
-              v-if="typeData.root && typeData.root.type === 'array' && typeData.root.items && typeData.root.items.type === 'object'"
+              v-if="typeData.root && isArrayProperty(typeData.root) && typeData.root.items && typeData.root.items.type === 'object'"
               :property="typeData.root as any"
               :is-type="true"
               :disabled="typeData._locked"
@@ -222,6 +222,7 @@ import ObjectPropertyExtension from '@/components/ObjectPropertyExtension.vue'
 import ArrayPropertyExtension from '@/components/ArrayPropertyExtension.vue'
 import ArrayOfObjectExtension from '@/components/ArrayOfObjectExtension.vue'
 import type { TypeProperty, TypeData } from '@/types/types'
+import { isArrayProperty } from '@/types/types'
 
 const route = useRoute()
 const router = useRouter()
@@ -385,7 +386,7 @@ const handleToggleCollapsed = (collapsed: boolean) => {
 }
 
 const handleAddArrayObjectProperty = () => {
-  if (typeData.value?.root && typeData.value.root.type === 'array' && typeData.value.root.items && typeData.value.root.items.type === 'object') {
+  if (typeData.value?.root && isArrayProperty(typeData.value.root) && typeData.value.root.items && typeData.value.root.items.type === 'object') {
     const items = typeData.value.root.items as any
     if (!items.properties) {
       items.properties = []
@@ -404,7 +405,7 @@ const handleAddArrayObjectProperty = () => {
 }
 
 const handleArrayObjectCollapsed = (collapsed: boolean) => {
-  if (typeData.value?.root && typeData.value.root.type === 'array' && typeData.value.root.items && typeData.value.root.items.type === 'object') {
+  if (typeData.value?.root && isArrayProperty(typeData.value.root) && typeData.value.root.items && typeData.value.root.items.type === 'object') {
     const items = typeData.value.root.items as any
     const updatedItems = {
       ...items,
