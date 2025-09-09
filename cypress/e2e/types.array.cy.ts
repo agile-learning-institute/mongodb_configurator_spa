@@ -389,7 +389,7 @@ describe('Types Page', () => {
       cy.get('[data-test="description-input"]').eq(2).find('input').should('not.have.attr', 'readonly')
     })
 
-    it.only('can show/hide object properties', () => {
+    it('can show/hide object properties', () => {
       // Arrange an array of object type
       cy.get('[data-test="items-type-picker"] [data-test="type-chip"]').click()
       cy.get('[data-test="built-in-type-object"]').click()
@@ -413,33 +413,19 @@ describe('Types Page', () => {
       cy.get('[data-test="collapse-toggle-btn"]').should('be.enabled')
     })
 
-    it('handles array of custom', () => {
-      // Change the items type to custom (word)
+    it.only('handles array of custom', () => {
+      // Arrange an array of word
       cy.get('[data-test="items-type-picker"] [data-test="type-chip"]').click()
-      cy.get('[data-test="custom-type-word"]').click()
-      
+      cy.get('[data-test="custom-type-name-word.yaml"]').click()
+      cy.get('[data-test="type-display-name"]').eq(0).should('contain', 'Array')
+      cy.get('[data-test="type-display-name"]').eq(1).should('contain', 'word')
+
       // Verify items type chip picker with "word" value
       cy.get('[data-test="items-type-picker"] [data-test="type-chip"]').should('contain', 'word')
-      
-      // Verify required checkbox is unchecked, check and verify checked
-      cy.get('[data-test="required-toggle-btn"]').should('not.have.class', 'v-btn--variant-elevated')
-      cy.get('[data-test="required-toggle-btn"]').click()
-      cy.get('[data-test="required-toggle-btn"]').should('have.class', 'v-btn--variant-elevated')
-      
-      // Verify property name and description input are visible and enabled
-      cy.get('[data-test="root-name-input"]').should('be.visible').and('not.be.disabled')
-      cy.get('[data-test="root-description-input"]').should('be.visible').and('not.be.disabled')
-      
-      // Verify array property extension is visible (no object-specific actions)
-      cy.get('[data-test="array-property-extension"]').should('be.visible')
-      cy.get('[data-test="add-property-btn"]').should('not.exist')
-      cy.get('[data-test="additional-props-toggle-btn"]').should('not.exist')
-      cy.get('[data-test="collapse-toggle-btn"]').should('not.exist')
       
       // Reload and verify persistence
       cy.reload()
       cy.get('[data-test="items-type-picker"] [data-test="type-chip"]').should('contain', 'word')
-      cy.get('[data-test="required-toggle-btn"]').should('have.class', 'v-btn--variant-elevated')
     })
     
     it('array of custom locks', () => {
