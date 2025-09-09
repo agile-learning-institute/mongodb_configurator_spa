@@ -93,7 +93,9 @@ describe('Types Page', () => {
       // Close the picker
       cy.get('header').first().click()
     })
+  })
 
+  describe('Array of Array Editor', () => {
     it('handles array of array', () => {     
       // Change the items type to array
       cy.get('[data-test="items-type-picker"] [data-test="type-chip"]').click()
@@ -159,35 +161,25 @@ describe('Types Page', () => {
       // Arrange array of array of array of word
       cy.get('[data-test="type-display-name"]').eq(0).should('contain', 'Array')
       cy.get('[data-test="type-display-name"]').eq(1).click()
+      cy.get('[data-test="type-picker-card"]').should('be.visible')
       cy.get('[data-test="built-in-type-array"]').click()
+      cy.get('[data-test="type-picker-card"]').should('not.exist')
+
       cy.get('[data-test="type-display-name"]').eq(1).should('contain', 'Array')
       cy.get('[data-test="type-display-name"]').eq(2).click()
+      cy.get('[data-test="type-picker-card"]').should('be.visible')
       cy.get('[data-test="built-in-type-array"]').click()
+      cy.get('[data-test="type-picker-card"]').should('not.exist')
+
       cy.get('[data-test="type-display-name"]').eq(2).should('contain', 'Array')
       cy.get('[data-test="type-display-name"]').eq(3).should('contain', 'word')      
       
-      // Verify unlocked
+      // Verify unlocked and Lock 
       cy.get('[data-test="lock-type-btn"]').should('be.visible')
       cy.get('[data-test="unlock-type-btn"]').should('not.exist')
-      cy.get('[data-test="root-description-display"]').should('be.visible')
-      cy.get('[data-test="root-description-display"]').click()
-      cy.get('[data-test="root-description-input-edit"]').should('be.visible')
-      cy.get('[data-test="root-description-display"]').should('not.exist')
-      cy.get('[data-test="root-type-chip-picker"] [data-test="dropdown-icon"]').should('exist')
-      cy.get('[data-test="root-type-chip-picker"]').eq(0).should('exist')
-      cy.get('[data-test="root-type-chip-picker"] [data-test="dropdown-icon"]').should('exist')
-      cy.get('[data-test="items-type-picker"]').eq(0).find('[data-test="dropdown-icon"]').should('exist')
-      cy.get('[data-test="items-type-picker"]').eq(1).find('[data-test="dropdown-icon"]').should('exist')
-      cy.get('[data-test="items-type-picker"]').eq(2).find('[data-test="dropdown-icon"]').should('exist')
-      cy.get('[data-test="property-name-input"]').eq(0).find('input').should('be.enabled')
-      cy.get('[data-test="description-input"]').eq(0).find('input').should('be.enabled')
-
-      cy.get('[data-test="required-toggle-btn"]').should('have.length', 2)
-      cy.get('[data-test="required-toggle-btn"]').eq(0).should('be.visible')
-      cy.get('[data-test="required-toggle-btn"]').eq(1).should('be.visible')
-            
-      // Can Lock
       cy.get('[data-test="lock-type-btn"]').click()
+
+      // Verify locked
       cy.get('[data-test="lock-type-btn"]').should('not.exist')
       cy.get('[data-test="unlock-type-btn"]').should('be.visible')
       cy.get('[data-test="root-type-chip-picker"] [data-test="dropdown-icon"]').should('not.exist')
@@ -195,17 +187,22 @@ describe('Types Page', () => {
       cy.get('[data-test="items-type-picker"]').eq(1).find('[data-test="dropdown-icon"]').should('not.exist')
       cy.get('[data-test="items-type-picker"]').eq(2).find('[data-test="dropdown-icon"]').should('not.exist')
       cy.get('[data-test="required-toggle-btn"]').should('have.length', 0)
-
     })
 
     it('unlocks array of array', () => {
       // Arrange array of array of array of word
       cy.get('[data-test="type-display-name"]').eq(0).should('contain', 'Array')
       cy.get('[data-test="type-display-name"]').eq(1).click()
+      cy.get('[data-test="type-picker-card"]').should('be.visible')
       cy.get('[data-test="built-in-type-array"]').click()
+      cy.get('[data-test="type-picker-card"]').should('not.exist')
+
       cy.get('[data-test="type-display-name"]').eq(1).should('contain', 'Array')
       cy.get('[data-test="type-display-name"]').eq(2).click()
+      cy.get('[data-test="type-picker-card"]').should('be.visible')
       cy.get('[data-test="built-in-type-array"]').click()
+      cy.get('[data-test="type-picker-card"]').should('not.exist')
+
       cy.get('[data-test="type-display-name"]').eq(2).should('contain', 'Array')
       cy.get('[data-test="type-display-name"]').eq(3).should('contain', 'word')      
       cy.get('[data-test="lock-type-btn"]').should('be.visible')
@@ -245,10 +242,16 @@ describe('Types Page', () => {
       cy.get('[data-test="required-toggle-btn"]').eq(1).should('be.visible')
     })
 
+  })
+
+  describe('Array of Object Editor', () => {
     it('handles array of object', () => {
       // Arrange an array of object type
       cy.get('[data-test="items-type-picker"] [data-test="type-chip"]').click()
+      cy.get('[data-test="type-picker-card"]').should('be.visible')
       cy.get('[data-test="built-in-type-object"]').click()
+      cy.get('[data-test="type-picker-card"]').should('not.exist')
+
       cy.get('[data-test="type-display-name"]').eq(0).should('contain', 'Array')
       cy.get('[data-test="type-display-name"]').eq(1).should('contain', 'Object')
       
@@ -259,7 +262,7 @@ describe('Types Page', () => {
       cy.get('[data-test="collapse-toggle-btn"]').should('be.enabled')
 
       // Add a few properties and set name and description for each
-      cy.get('[data-test="add-property-btn"]').click().click().click()
+      cy.get('[data-test="add-property-btn"]').should('have.length', 1).click().click().click()
 
       cy.get('[data-test="property-name-input"]').eq(0).click()
       cy.get('[data-test="property-name-input"]').eq(0).find('input').type('firstTestProperty')
@@ -407,7 +410,10 @@ describe('Types Page', () => {
     it('can show/hide object properties', () => {
       // Arrange an array of object type
       cy.get('[data-test="items-type-picker"] [data-test="type-chip"]').click()
+      cy.get('[data-test="type-picker-card"]').should('be.visible')
       cy.get('[data-test="built-in-type-object"]').click()
+      cy.get('[data-test="type-picker-card"]').should('not.exist')
+
       cy.get('[data-test="type-display-name"]').eq(0).should('contain', 'Array')
       cy.get('[data-test="type-display-name"]').eq(1).should('contain', 'Object')
       cy.get('[data-test="no-properties-message"]').should('be.visible')
@@ -417,17 +423,19 @@ describe('Types Page', () => {
       cy.get('[data-test="collapse-toggle-btn"]').should('be.enabled')
 
       // Click hide-properties button
-      cy.get('[data-test="collapse-toggle-btn"]').click()
+      cy.get('[data-test="collapse-toggle-btn"]').should('have.length', 1).click()
       cy.get('[data-test="properties-section"]').should('not.exist')
       cy.get('[data-test="property-name-input"]').should('not.exist')
       
       // Click show-properties button
-      cy.get('[data-test="collapse-toggle-btn"]').click()
+      cy.get('[data-test="collapse-toggle-btn"]').should('have.length', 1).click()
       cy.get('[data-test="description-input"]').should('have.length', 3)
       cy.get('[data-test="property-name-input"]').should('have.length', 3)
       cy.get('[data-test="collapse-toggle-btn"]').should('be.enabled')
     })
+  })
 
+  describe('Array of Custom Editor', () => {
     it('handles array of custom', () => {
       // Arrange an array of word
       cy.get('[data-test="items-type-picker"] [data-test="type-chip"]').click()
