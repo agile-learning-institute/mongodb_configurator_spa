@@ -68,11 +68,11 @@ describe('App Help Pages', () => {
 
     cy.visit('/dictionaries/sample.1.0.1.yaml')
     cy.wait(100)
-    cy.get('header').should('contain.text', 'sample.1.0.1.yaml')
+    cy.get('header').should('contain.text', 'sample.1.0.1')
     cy.get('[data-test="help-btn"]').click()
     cy.get('[data-test="carousel-title-text').should('contain.text', 'Dictionary')
     cy.get('[data-test="help-btn"]').click()
-    cy.get('header').should('contain.text', 'sample.1.0.1.yaml')
+    cy.get('header').should('contain.text', 'sample.1.0.1')
   })
 
   it('can navigate to the help page from type pages', () => {

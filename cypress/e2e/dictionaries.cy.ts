@@ -46,7 +46,7 @@ describe('Dictionaries basic page flow', () => {
     cy.get('[data-test^="file-card-"]').should('not.contain', dictionaryFileName)
   })
 
-  it.only('loads the default dictionary page', () => {
+  it('loads the default dictionary page', () => {
     // Visit dictionary detail page
     cy.visit(`/dictionaries/${dictionaryFileName}`)
 

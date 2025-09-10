@@ -7,17 +7,17 @@ UI served at localhost:8082
 
 ### 🧪 **Testing Quick Reference**
 ```bash
-# Run all tests (headless)
+# Run all cypress tests (headless)
 npm run cy:run
 
-# Run all tests (headless)
+# Run all a specific test (headless)
 npm run cy:run -- --spec "cypress/e2e/types.array.cy.ts"
 
 # Interactive test runner
 npm run cy:open
 
-# Reset test environment
-npm run api && npm run dev
+# Build a fresh container, and run all cypress tests (headless)
+npm run e2e
 
 # Test status: 8/20 cypress tests passing ✅
 # Execution time: ~4.5 minutes 
