@@ -40,10 +40,12 @@
             Lock
           </v-btn>
           <v-btn
+            v-if="!dictionary._locked"
             color="error"
             variant="elevated"
             @click="handleDelete"
             class="font-weight-bold"
+            data-test="delete-dictionary-btn"
           >
             <v-icon start>mdi-delete</v-icon>
             Delete
