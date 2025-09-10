@@ -108,7 +108,8 @@ const builtInTypes: BuiltInType[] = [
   { title: 'Array', value: 'array', icon: 'mdi-format-list-bulleted' },
   { title: 'Object', value: 'object', icon: 'mdi-shape' },
   { title: 'Simple', value: 'simple', icon: 'mdi-code-json' },
-  { title: 'Complex', value: 'complex', icon: 'mdi-code-braces' }
+  { title: 'Complex', value: 'complex', icon: 'mdi-code-braces' },
+  { title: 'One Of', value: 'one_of', icon: 'mdi-format-list-bulleted-square' }
 ]
 
 // Load custom types from API
@@ -135,8 +136,16 @@ const loadCustomTypes = async () => {
 // Get available built-in types for current context
 const availableBuiltInTypes = computed(() => {
   if (props.isRoot) {
-    // Root properties: show all built-in types
-    return builtInTypes
+    if (props.isDictionary) {
+      // Dictionary root properties: object, array, one_of
+      return builtInTypes.filter(type => ['array', 'object', 'one_of'].includes(type.value))
+    } else if (props.isType) {
+      // Type root properties: object, array, simple, complex
+      return builtInTypes.filter(type => ['array', 'object', 'simple', 'complex'].includes(type.value))
+    } else {
+      // Default root properties: show all built-in types
+      return builtInTypes
+    }
   }
   
   // Non-root properties: only show Array and Object
