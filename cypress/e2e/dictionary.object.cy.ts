@@ -1,76 +1,70 @@
 describe('Dictionary Object page flow', () => {
-  const name = `e2e-test-dictionary-${Date.now()}`
-  const fileName = `${name}.yaml`
-  const thingsToDelete: string[] = []
+  let dictionaryFileName: string
+  let dictionaryName: string
 
-  // Setup a type with an object root property
+  // Setup a dictionary to test with
   beforeEach(() => {
-    thingsToDelete.push(`/api/dictionaries/${fileName}/`)
+    dictionaryName = `TestDictionary-object-${Date.now()}`
+    dictionaryFileName = `${dictionaryName}.yaml`
 
     cy.visit('/dictionaries')
+    cy.get('h3').should('contain', 'Dictionaries')
+    cy.get('[data-test^="file-card-"]').should('exist')
+    cy.contains('button', 'New').should('be.visible').click()
+    cy.get('.v-dialog').should('be.visible')
+    cy.get('.v-dialog .v-card-title').should('contain', 'Create New Dictionary')
+    cy.get('.v-dialog input').type(dictionaryName)
+    cy.get('.v-dialog').contains('button', 'Create').click()
+    cy.get('.v-dialog').should('not.exist')
     cy.wait(200)
-    cy.get('[data-test="new-dictionary-btn"]').click()
-    cy.get('[data-test="new-dictionary-dialog"]').should('be.visible')
-    cy.get('[data-test="new-dictionary-name-input"]').type(name)
-    cy.get('[data-test="new-dictionary-create-btn"]').click()
-    cy.wait(200)
-    cy.url().should('include', `/dictionaries/${name}`)
-    // cy.get('[data-test="root-description-placeholder"]').should('be.visible').and('contain', 'Click to add description')
-    // cy.get('[data-test="root-type-chip-picker"] [data-test="type-chip"]').should('be.visible').and('contain', 'void')    
-    // cy.get('[data-test="root-type-chip-picker"] [data-test="type-chip"]').click()
-    // cy.get('[data-test="built-in-type-object"]').click()
+    cy.url().should('include', `/dictionaries/${dictionaryFileName}`)
+    cy.get('[data-test="root-type-chip-picker"] [data-test="type-chip"]').should('be.visible').click()
+    cy.get('[data-test="built-in-type-object"]').should('be.visible').click()
+    cy.get('[data-test="root-type-chip-picker"] [data-test="type-chip"]').should('be.visible').should('contain', 'Object')
+    cy.visit('/dictionaries')
+    cy.get(`[data-test="file-card-${dictionaryName}.yaml"]`).should('be.visible')
   })
 
-  // Clean up any types created during tests
+  // Clean up any dictionaries created during tests
   afterEach(() => {
-    thingsToDelete.forEach((thing) => {
-      cy.request({
-        method: 'PUT',    
-        url: thing,
-        headers: {"Content-Type": "application/json"},
-        body: {"_locked": false, "root":{"name":""}},
-        failOnStatusCode: false
-      }).then((response) => {
-        if (response.status === 200) {
-          cy.log(`Successfully unlocked ${thing}`)
-          cy.request({
-            method: 'DELETE',
-            url: thing,
-            failOnStatusCode: false
-          }).then((response) => {
-            if (response.status === 200) {
-              cy.log(`Successfully deleted ${thing}`)
-            } else {
-              cy.log(`Failed to delete ${thing}: ${response.status}`)
-            }
-          })
-        } else {
-          cy.log(`Failed to unlock ${thing}: ${response.status}`)
-        }
-      })
+    // Unlock the dictionary
+    cy.request({
+      method: 'PUT',    
+      url: `/api/dictionaries/${dictionaryFileName}/`,
+      headers: {"Content-Type": "application/json"},
+      body: {"_locked": false, "root":{"name":""}},
+      failOnStatusCode: false
     })
-    // cy.visit('/dictionaries')
-    // cy.get('[data-test^="file-card-"]').should('not.contain', fileName)
+    
+    // Delete the dictionary
+    cy.request({
+      method: 'DELETE',
+      url: `/api/dictionaries/${dictionaryFileName}/`,
+      failOnStatusCode: false
+    })
+
+    // Verify the dictionary is deleted
+    cy.visit('/dictionaries')
+    cy.url().should('include', '/dictionaries')
+    cy.get('[data-test^="file-card-"]').should('not.contain', dictionaryFileName)
   })
 
-  describe('Object Property Editor', () => {
+  describe('Object Property Basics', () => {
     it('can change root type from void to object', () => {
       expect(true, 'Not Yet Implemented').to.equal(false)
     })
+  })
 
-    it('displays root object action icons', () => {
+  describe('Root Object Property Editor', () => {
+    it('displays object action icons', () => {
       expect(true, 'Not Yet Implemented').to.equal(false)
     })
 
-    it('displays non-root object action icons', () => {
+    it('has the correct type picker', () => {
       expect(true, 'Not Yet Implemented').to.equal(false)
     })
 
-    it('has the correct non-root type picker', () => {
-      expect(true, 'Not Yet Implemented').to.equal(false)
-    })
-
-    it('adds properties to non-root object', () => {
+    it('adds properties to object', () => {
       expect(true, 'Not Yet Implemented').to.equal(false)
     })
     
@@ -85,7 +79,35 @@ describe('Dictionary Object page flow', () => {
     it('can delete properties', () => {
       expect(true, 'Not Yet Implemented').to.equal(false)
     })
+  })
 
+  describe('Non-Root Object Property Editor', () => {
+    it('displays object action icons', () => {
+      expect(true, 'Not Yet Implemented').to.equal(false)
+    })
+
+    it('has the correct type picker', () => {
+      expect(true, 'Not Yet Implemented').to.equal(false)
+    })
+
+    it('adds properties to object', () => {
+      expect(true, 'Not Yet Implemented').to.equal(false)
+    })
+    
+    it('can arrange properties', () => {
+      expect(true, 'Not Yet Implemented').to.equal(false)
+    })
+
+    it('can show/hide properties', () => {
+      expect(true, 'Not Yet Implemented').to.equal(false)
+    })
+
+    it('can delete properties', () => {
+      expect(true, 'Not Yet Implemented').to.equal(false)
+    })
+  })
+
+  describe('Lockable Object Property Editor', () => {
     it('locks', () => {
       expect(true, 'Not Yet Implemented').to.equal(false)
     })
