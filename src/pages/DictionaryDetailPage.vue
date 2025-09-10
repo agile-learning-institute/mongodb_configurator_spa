@@ -17,7 +17,7 @@
     <div v-else-if="dictionary">
       <!-- Page Header -->
       <header class="d-flex align-center justify-space-between mb-6">
-        <h2 class="text-h4 mb-0">{{ dictionary.file_name }}</h2>
+        <h2 class="text-h3 mb-0">Dictionary: {{ dictionary.file_name.replace('.yaml', '') }}</h2>
         <div class="d-flex gap-2">
           <v-btn
             v-if="dictionary._locked"
@@ -473,5 +473,41 @@ onMounted(() => {
 /* Dictionary content styling */
 .dictionary-content {
   margin-top: 24px;
+}
+
+/* Root property card title styling */
+.description-display {
+  cursor: pointer;
+  padding: 8px 12px;
+  border-radius: 4px;
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
+  font-size: 1.25rem;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.description-display:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.description-text {
+  color: white;
+}
+
+.description-placeholder {
+  color: rgba(255, 255, 255, 0.7);
+  font-style: italic;
+}
+
+/* Ensure the type picker in the card title has proper styling */
+.type-section {
+  flex-shrink: 0;
+}
+
+.description-section {
+  flex: 1;
+  min-width: 0;
 }
 </style> 

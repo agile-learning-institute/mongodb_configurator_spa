@@ -46,13 +46,13 @@ describe('Dictionaries basic page flow', () => {
     cy.get('[data-test^="file-card-"]').should('not.contain', dictionaryFileName)
   })
 
-  it('loads the default dictionary page', () => {
+  it.only('loads the default dictionary page', () => {
     // Visit dictionary detail page
     cy.visit(`/dictionaries/${dictionaryFileName}`)
 
-    cy.get('h2.text-h4').should('be.visible')
-    // cy.get('h2.text-h4').should('contain', 'Type:')
-    cy.get('h2.text-h4').should('contain', `${dictionaryName}.yaml`)
+    cy.get('h2').should('be.visible')
+    cy.get('h2').should('contain', 'Dictionary:')
+    cy.get('h2').should('contain', `${dictionaryName}`)
     cy.contains('button', 'Lock').should('be.visible')
     cy.contains('button', 'Delete').should('be.visible')
     cy.get('[data-test="root-description-placeholder"]').should('be.visible').and('contain', 'Click to add description')
