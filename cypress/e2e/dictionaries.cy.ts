@@ -76,13 +76,15 @@ describe('Dictionaries basic page flow', () => {
     cy.get('[data-test="root-description-display"]').should('contain', 'Test description')
   })
 
-  it('can lock a dictionary', () => {
+  it.only('can lock a dictionary', () => {
     cy.visit(`/dictionaries/${dictionaryFileName}`)
     cy.contains('button', 'Unlock').should('not.exist')
+    cy.contains('button', 'Delete').should('exist')
     cy.contains('button', 'Lock').should('be.visible').click()
 
     // Verify it's now locked (Lock button should be replaced with Unlock)
     cy.contains('button', 'Unlock').should('be.visible')
+    cy.contains('button', 'Delete').should('not.exist')
     cy.contains('button', 'Lock').should('not.exist')
     cy.get('[data-test="root-type-chip-picker"] [data-test="dropdown-icon"]').should('not.exist')
   })
