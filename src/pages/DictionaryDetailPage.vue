@@ -100,7 +100,7 @@
               />
             </div>
             
-            <!-- Object Action Icons (only for object types) -->
+            <!-- Object Action Icons (only for object types, not void) -->
             <ObjectPropertyExtension
               v-if="dictionary.root && dictionary.root.type === 'object'"
               :property="dictionary.root as any"
@@ -111,7 +111,7 @@
               data-test="root-object-extension"
             />
             
-            <!-- Array Items Type Picker (only for array types) -->
+            <!-- Array Items Type Picker (only for array types, not void) -->
             <ArrayPropertyExtension
               v-if="dictionary.root && isArrayProperty(dictionary.root) && (!dictionary.root.items || dictionary.root.items.type !== 'object')"
               :property="dictionary.root as any"
@@ -121,7 +121,7 @@
               data-test="root-array-extension"
             />
             
-            <!-- Array of Object Extension (for array with object items) -->
+            <!-- Array of Object Extension (for array with object items, not void) -->
             <ArrayOfObjectExtension
               v-if="dictionary.root && isArrayProperty(dictionary.root) && dictionary.root.items && dictionary.root.items.type === 'object'"
               :property="dictionary.root as any"
@@ -208,8 +208,8 @@ import ObjectPropertyExtension from '@/components/ObjectPropertyExtension.vue'
 import ArrayPropertyExtension from '@/components/ArrayPropertyExtension.vue'
 import ArrayOfObjectExtension from '@/components/ArrayOfObjectExtension.vue'
 import PropertyEditor from '@/components/PropertyEditor.vue'
-import type { DictionaryData, DictionaryProperty } from '@/types/types'
-import { isArrayProperty } from '@/types/types'
+import type { DictionaryData, TypeProperty } from '@/types/types'
+import { isArrayProperty, isObjectProperty } from '@/types/types'
 
 const route = useRoute()
 const loading = ref(false)
@@ -280,7 +280,7 @@ const handleTypeChange = (newType: string) => {
 }
 
 const handleAddProperty = () => {
-  if (dictionary.value?.root && dictionary.value.root.type === 'object') {
+  if (dictionary.value?.root && isObjectProperty(dictionary.value.root)) {
     const newProperty = {
       name: '',
       description: '',
@@ -398,7 +398,7 @@ const autoSave = async () => {
   }
 }
 
-const handleRootPropertyChange = (updatedProperty: DictionaryProperty) => {
+const handleRootPropertyChange = (updatedProperty: TypeProperty) => {
   if (dictionary.value) {
     dictionary.value.root = updatedProperty
     autoSave()

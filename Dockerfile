@@ -4,8 +4,8 @@ FROM node:20 AS build
 # Set working directory
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
+# Copy package files and npm configuration
+COPY package*.json .npmrc ./
 
 # Install all dependencies (including dev dependencies for build)
 RUN npm ci
