@@ -141,7 +141,7 @@ export interface TypeData {
 export interface DictionaryData {
   file_name: string
   _locked: boolean
-  root: DictionaryProperty
+  root: TypeProperty
 }
 
 // Enumerator data structure returned by the API
