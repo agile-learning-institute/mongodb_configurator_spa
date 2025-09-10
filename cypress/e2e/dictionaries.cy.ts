@@ -76,8 +76,10 @@ describe('Dictionaries basic page flow', () => {
     cy.get('[data-test="root-description-display"]').should('contain', 'Test description')
   })
 
-  it.only('can lock a dictionary', () => {
+  it('can lock a dictionary', () => {
     cy.visit(`/dictionaries/${dictionaryFileName}`)
+
+    // Verify the dictionary is unlocked and lock it
     cy.contains('button', 'Unlock').should('not.exist')
     cy.contains('button', 'Delete').should('exist')
     cy.contains('button', 'Lock').should('be.visible').click()
@@ -91,11 +93,11 @@ describe('Dictionaries basic page flow', () => {
 
   it('can unlock a dictionary', () => {
     cy.visit(`/dictionaries/${dictionaryFileName}`)
-    cy.contains('button', 'Unlock').should('not.exist')
     cy.contains('button', 'Lock').should('be.visible').click()
 
     // Unlock the dictionary
     cy.contains('button', 'Unlock').should('be.visible').click()
+    cy.contains('button', 'Delete').should('not.exist')
     cy.get('[data-test="unlock-type-dialog"]').should('be.visible')
     cy.get('[data-test="unlock-confirmation-message"]').should('contain', `Are you sure you want to unlock "${dictionaryName}"?`)
     cy.get('[data-test="unlock-warning-message"]').should('contain', 'This will allow the dictionary to be modified. Changes will be saved automatically.')
@@ -103,6 +105,7 @@ describe('Dictionaries basic page flow', () => {
     cy.get('[data-test="unlock-confirm-btn"]').should('be.visible').click()
 
     cy.contains('button', 'Lock').should('be.visible')
+    cy.contains('button', 'Delete').should('exist')
     cy.contains('button', 'Unlock').should('not.exist')
     cy.get('[data-test="root-type-chip-picker"] [data-test="dropdown-icon"]').should('be.visible')
   })
