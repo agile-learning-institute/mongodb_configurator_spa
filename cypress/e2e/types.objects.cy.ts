@@ -69,6 +69,18 @@ describe('Types Object page flow', () => {
         cy.get('[data-test="card-content"]').should('contain', 'No properties defined')
       })
 
+      it('has the correct root type picker', () => {
+        cy.get('[data-test="root-type-chip-picker"]').first().click()
+        
+        // verify type picker has Built-in Types section
+        cy.get('[data-test="built-in-types-category"]').should('be.visible')
+        cy.get('[data-test="built-in-types-category"] i').should('have.length', 4)
+        cy.get('[data-test="built-in-type-object"]').should('be.visible')
+        cy.get('[data-test="built-in-type-array"]').should('be.visible')
+        cy.get('[data-test="built-in-type-simple"]').should('be.visible')
+        cy.get('[data-test="built-in-type-complex"]').should('be.visible')
+      })
+    
       it('displays root object action icons', () => {
         // verify add property button is visible and enabled
         cy.get('[data-test="add-property-btn"]').should('be.visible').and('not.be.disabled')
@@ -304,7 +316,7 @@ describe('Types Object page flow', () => {
         cy.get('[data-test="built-in-types-category"] i').should('have.length', 2)
         cy.get('[data-test="built-in-type-object"]').should('be.visible')
         cy.get('[data-test="built-in-type-array"]').should('be.visible')
-        
+          
         // verify type picker has Custom Types section
         cy.get('[data-test="custom-types-category"]').should('be.visible')
         cy.get('[data-test="custom-types-category"] i').should('have.length.greaterThan', 10)
@@ -489,25 +501,25 @@ describe('Types Object page flow', () => {
 
         cy.get('[data-test="property-name-input"]').eq(0).click()
         cy.get('[data-test="property-name-input"]').eq(0).find('input').type('firstTestProperty')
-        cy.wait(200)
+        cy.wait(250)
         cy.reload()
         cy.get('[data-test="property-name-input"]').eq(0).find('input').should('have.value', 'firstTestProperty')
 
         cy.get('[data-test="description-input"]').eq(0).click()
         cy.get('[data-test="description-input"]').eq(0).find('input').type('One property for testing object properties')
-        cy.wait(200)
+        cy.wait(250)
         cy.reload()
         cy.get('[data-test="description-input"]').eq(0).find('input').should('have.value', 'One property for testing object properties')
 
         cy.get('[data-test="property-name-input"]').eq(1).click()
         cy.get('[data-test="property-name-input"]').eq(1).find('input').type('secondTestProperty')
-        cy.wait(200)
+        cy.wait(250)
         cy.reload()
         cy.get('[data-test="property-name-input"]').eq(1).find('input').should('have.value', 'secondTestProperty')
 
         cy.get('[data-test="description-input"]').eq(1).click()
         cy.get('[data-test="description-input"]').eq(1).find('input').type('Two property for testing object properties')
-        cy.wait(200)
+        cy.wait(250)
         cy.reload()
         cy.get('[data-test="description-input"]').eq(1).find('input').should('have.value', 'Two property for testing object properties')
       })
