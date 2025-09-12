@@ -48,7 +48,6 @@ describe('Dictionaries basic page flow', () => {
 
   describe('Dictionary Page Basics', () => {
     it('loads the default dictionary page', () => {
-      // Visit dictionary detail page
       cy.visit(`/dictionaries/${dictionaryFileName}`)
 
       cy.get('h2').should('be.visible')
@@ -58,8 +57,11 @@ describe('Dictionaries basic page flow', () => {
       cy.contains('button', 'Delete').should('be.visible')
       cy.get('[data-test="root-description-placeholder"]').should('be.visible').and('contain', 'Click to add description')
       cy.get('[data-test="root-type-chip-picker"] [data-test="type-chip"]').should('be.visible').and('contain', 'void')
+    })
 
-      // Verify type-picker dialog has only Array, Object, OneOf built-in types
+    it('has the correct root type picker', () => {
+      cy.visit(`/dictionaries/${dictionaryFileName}`)
+
       cy.get('[data-test="root-type-chip-picker"] [data-test="type-chip"]').click()
       cy.get('[data-test="type-picker-card"]').should('be.visible')
       cy.get('[data-test="built-in-types-category"]').should('be.visible')
@@ -68,8 +70,10 @@ describe('Dictionaries basic page flow', () => {
       cy.get('[data-test="built-in-type-one_of"]').should('be.visible')
       cy.get('[data-test="custom-types-category"]').should('not.exist')
       cy.get('header').first().click()
+    })
 
-      // Verify description persists
+    it('persists description edits', () => {
+      cy.visit(`/dictionaries/${dictionaryFileName}`)
       cy.get('[data-test="root-description-placeholder"]').click()
       cy.get('[data-test="root-description-input-edit"]').type('Test description')
       cy.reload()

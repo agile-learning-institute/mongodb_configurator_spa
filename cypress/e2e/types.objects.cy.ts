@@ -94,6 +94,18 @@ describe('Types Object page flow', () => {
       cy.get('[data-test="delete-property-btn"]').should('not.exist')
     })
 
+    it('persists root object additional properties', () => {
+      // verify allow-additional-properties button is visible and enabled
+      cy.get('[data-test="additional-props-toggle-btn"]').should('be.visible').and('not.be.disabled')
+      cy.get('[data-test="additional-props-toggle-btn"]').find('.material-symbols-outlined').should('contain', 'list_alt')
+      cy.get('[data-test="additional-props-toggle-btn"]').click()
+      cy.get('[data-test="additional-props-toggle-btn"]').should('be.visible').and('not.be.disabled')
+      cy.get('[data-test="additional-props-toggle-btn"]').find('.material-symbols-outlined').should('contain', 'list_alt_check')
+      cy.reload()
+      cy.get('[data-test="additional-props-toggle-btn"]').should('be.visible').and('not.be.disabled')
+      cy.get('[data-test="additional-props-toggle-btn"]').find('.material-symbols-outlined').should('contain', 'list_alt_check')
+    })
+
     it('displays non-root object action icons', () => {
       // Arrange - create a non-root object property
       cy.get('[data-test="add-property-btn"]').click()
@@ -136,6 +148,26 @@ describe('Types Object page flow', () => {
       // verify delete property button works
       cy.get('[data-test="delete-property-btn"]').first().should('exist').click()
       cy.get('[data-test="no-object-properties-text"]').should('exist')
+    })
+
+    it('persists non-root object additional properties', () => {
+      // Arrange - create a non-root object property
+      cy.get('[data-test="add-property-btn"]').click()
+      cy.get('[data-test="type-display-name"]').should('contain', 'void')
+      cy.get('[data-test="type-chip-picker"]').should('be.visible').wait(100)
+      cy.get('[data-test="type-chip-picker"]').click()
+      cy.get('[data-test="built-in-type-object"]').should('be.visible').click()
+      cy.get('[data-test="type-display-name"]').should('contain', 'Object')
+
+      // verify allow-additional-properties button is visible and enabled
+      cy.get('[data-test="additional-props-toggle-btn"]').eq(1).should('be.visible').and('not.be.disabled')
+      cy.get('[data-test="additional-props-toggle-btn"]').eq(1).find('.material-symbols-outlined').should('contain', 'list_alt')
+      cy.get('[data-test="additional-props-toggle-btn"]').eq(1).click()
+      cy.get('[data-test="additional-props-toggle-btn"]').eq(1).should('be.visible').and('not.be.disabled')
+      cy.get('[data-test="additional-props-toggle-btn"]').eq(1).find('.material-symbols-outlined').should('contain', 'list_alt_check')
+      cy.reload()
+      cy.get('[data-test="additional-props-toggle-btn"]').eq(1).should('be.visible').and('not.be.disabled')
+      cy.get('[data-test="additional-props-toggle-btn"]').eq(1).find('.material-symbols-outlined').should('contain', 'list_alt_check')
     })
 
     it('has the correct non-root type picker', () => {
