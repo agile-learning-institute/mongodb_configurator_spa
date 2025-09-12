@@ -254,7 +254,6 @@ describe('Types Object page flow', () => {
       // Wait for the object property to be fully rendered
       cy.wait(200)
 
-      // The action icons are in the ObjectPropertyExtension, not within the properties section
       // verify add property button is visible and enabled (second one for the non-root object)
       cy.get('[data-test="add-property-btn"]').eq(1).should('be.visible').and('not.be.disabled')
       cy.get('[data-test="add-property-btn"]').eq(1).find('.material-symbols-outlined').should('contain', 'list_alt_add')

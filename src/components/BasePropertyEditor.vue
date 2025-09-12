@@ -374,6 +374,35 @@ const handleTypeChange = (newType: string) => {
       
       // Emit the change with the new property object
       emit('change', newProperty)
+    } else if (newType === 'one_of' && !isCustomProperty(props.property)) {
+      // Create a new one_of property object to ensure proper reactivity
+      const newProperty = {
+        ...(props.property as any),
+        type: newType,
+        properties: []
+      }
+      
+      // Emit the change with the new property object
+      emit('change', newProperty)
+    } else if (newType === 'constant' && !isCustomProperty(props.property)) {
+      // Create a new constant property object to ensure proper reactivity
+      const newProperty = {
+        ...(props.property as any),
+        type: newType,
+        constant: ''
+      }
+      
+      // Emit the change with the new property object
+      emit('change', newProperty)
+    } else {
+      // Handle custom types - just change the type without modifying other properties
+      const newProperty = {
+        ...props.property,
+        type: newType
+      }
+      
+      // Emit the change with the new property object
+      emit('change', newProperty)
     }
   }
 }

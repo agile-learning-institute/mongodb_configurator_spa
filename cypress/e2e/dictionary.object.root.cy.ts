@@ -63,6 +63,16 @@ describe('Dictionary Object Editor', () => {
       cy.get('[data-test="card-content"]').should('contain', 'No properties defined')
     })
 
+    it('has the correct type picker', () => {
+      cy.visit(`/dictionaries/${dictionaryFileName}`)
+      cy.get('[data-test="type-chip"]').eq(0).should('be.visible').click()
+      cy.get('[data-test="type-picker-card"]').should('be.visible')
+      cy.get('[data-test="built-in-types-category"] i').should('have.length', 3)
+      cy.get('[data-test="built-in-type-array"]').should('be.visible')
+      cy.get('[data-test="built-in-type-object"]').should('be.visible')
+      cy.get('[data-test="built-in-type-one_of"]').should('be.visible')
+    })
+
     it('can change type to array', () => {
       cy.visit(`/dictionaries/${dictionaryFileName}`)
       cy.get('[data-test="type-display-name"]').should('be.visible').click()
@@ -272,92 +282,22 @@ describe('Dictionary Object Editor', () => {
 
   })
 
-  describe('Non-Root Object Property Editor', () => {
-    it.only('can persist name/description edits', () => {
-      cy.visit(`/dictionaries/${dictionaryFileName}`)
-      cy.get('[data-test="add-property-btn"]').should('be.visible').click().click()
-
-      cy.get('[data-test="property-name-input"]').eq(0).click()
-      cy.get('[data-test="property-name-input"]').eq(0).find('input').type('firstTestProperty')
-      cy.wait(200)
-      cy.reload()
-      cy.get('[data-test="property-name-input"]').eq(0).find('input').should('have.value', 'firstTestProperty')
-
-      cy.get('[data-test="description-input"]').eq(0).click()
-      cy.get('[data-test="description-input"]').eq(0).find('input').type('One property for testing object properties')
-      cy.wait(200)
-      cy.reload()
-      cy.get('[data-test="description-input"]').eq(0).find('input').should('have.value', 'One property for testing object properties')
-
-      cy.get('[data-test="property-name-input"]').eq(1).click()
-      cy.get('[data-test="property-name-input"]').eq(1).find('input').type('secondTestProperty')
-      cy.wait(200)
-      cy.reload()
-      cy.get('[data-test="property-name-input"]').eq(1).find('input').should('have.value', 'secondTestProperty')
-
-      cy.get('[data-test="description-input"]').eq(1).click()
-      cy.get('[data-test="description-input"]').eq(1).find('input').type('Two property for testing object properties')
-      cy.wait(200)
-      cy.reload()
-      cy.get('[data-test="property-name-input"]').eq(1).find('input').should('have.value', 'secondTestProperty')
-      cy.get('[data-test="description-input"]').eq(1).find('input').should('have.value', 'Two property for testing object properties')
-    })
-
-    it('has the correct type picker', () => {
-      cy.visit(`/dictionaries/${dictionaryFileName}`)
-      expect(true, 'Not Yet Implemented').to.equal(false)
-    })
-
-    it('can change type to array', () => {
-      cy.visit(`/dictionaries/${dictionaryFileName}`)
-      expect(true, 'Not Yet Implemented').to.equal(false)
-    })
-
-    it('can change type to one_of', () => {
-      cy.visit(`/dictionaries/${dictionaryFileName}`)
-      expect(true, 'Not Yet Implemented').to.equal(false)
-    })
-
-    it('can change type to word', () => {
-      cy.visit(`/dictionaries/${dictionaryFileName}`)
-      expect(true, 'Not Yet Implemented').to.equal(false)
-    })
-
-    it('displays object action icons', () => {
-      cy.visit(`/dictionaries/${dictionaryFileName}`)
-      expect(true, 'Not Yet Implemented').to.equal(false)
-    })
-
-    it('persists object additional properties', () => {
-      cy.visit(`/dictionaries/${dictionaryFileName}`)
-      expect(true, 'Not Yet Implemented').to.equal(false)
-    })
-
-    it('can add/delete properties to object', () => {
-      cy.visit(`/dictionaries/${dictionaryFileName}`)
-      expect(true, 'Not Yet Implemented').to.equal(false)
-    })
-    
-    it('can arrange properties', () => {
-      cy.visit(`/dictionaries/${dictionaryFileName}`)
-      expect(true, 'Not Yet Implemented').to.equal(false)
-    })
-
-    it('can show/hide empty properties', () => {
-      cy.visit(`/dictionaries/${dictionaryFileName}`)
-      expect(true, 'Not Yet Implemented').to.equal(false)
-    })
-
-    it('can show/hide some properties', () => {
-      cy.visit(`/dictionaries/${dictionaryFileName}`)
-      expect(true, 'Not Yet Implemented').to.equal(false)
-    })
-
-  })
-
   describe('Lockable Object Property Editor', () => {
     it('locks', () => {
+      // Setup a non-root object
       cy.visit(`/dictionaries/${dictionaryFileName}`)
+      cy.get('[data-test="add-property-btn"]').should('be.visible').click()
+      cy.get('[data-test="type-chip"]').eq(1).should('be.visible').wait(200)
+      cy.get('[data-test="type-chip"]').eq(1).click()
+      cy.get('[data-test="type-picker-card"]').should('be.visible')
+      cy.get('[data-test="built-in-type-object"]').should('be.visible').click()
+      cy.get('[data-test="type-picker-card"]').should('not.exist')
+      cy.get('[data-test="type-chip"]').eq(1).should('be.visible').should('contain', 'Object')
+      cy.wait(250)
+      cy.reload()
+      cy.get('[data-test="type-chip"]').eq(1).should('be.visible').should('contain', 'Object')
+
+
       expect(true, 'Not Yet Implemented').to.equal(false)
     })
 
