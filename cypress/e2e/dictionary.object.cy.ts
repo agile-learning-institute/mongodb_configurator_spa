@@ -104,28 +104,6 @@ describe('Dictionary Object Editor', () => {
       cy.get('[data-test="delete-property-btn"]').should('not.exist')
     })
 
-    it('can show/hide properties', () => {
-      cy.visit(`/dictionaries/${dictionaryFileName}`)
-      
-      // verify show-hide-properties button is visible and enabled
-      cy.get('[data-test="collapse-toggle-btn"]').should('be.visible').and('not.be.disabled')
-      cy.get('[data-test="collapse-toggle-btn"]').find('.material-symbols-outlined').should('contain', 'collapse_content')
-      cy.get('[data-test="collapse-toggle-btn"]').find('.material-symbols-outlined').should('not.contain', 'expand_content')
-      cy.get('[data-test="card-content"]').should('contain', 'No properties defined')
-
-      cy.get('[data-test="collapse-toggle-btn"]').click()
-      cy.get('[data-test="collapse-toggle-btn"]').should('be.visible').and('not.be.disabled')
-      cy.get('[data-test="collapse-toggle-btn"]').find('.material-symbols-outlined').should('contain', 'expand_content')
-      cy.get('[data-test="collapse-toggle-btn"]').find('.material-symbols-outlined').should('not.contain', 'collapse_content')
-      cy.get('[data-test="property-body"]').should('be.empty')
-
-      cy.get('[data-test="collapse-toggle-btn"]').click()
-      cy.get('[data-test="collapse-toggle-btn"]').should('be.visible').and('not.be.disabled')
-      cy.get('[data-test="collapse-toggle-btn"]').find('.material-symbols-outlined').should('contain', 'collapse_content')
-      cy.get('[data-test="collapse-toggle-btn"]').find('.material-symbols-outlined').should('not.contain', 'expand_content')
-      cy.get('[data-test="card-content"]').should('contain', 'No properties defined')      
-    })
-
     it('persists object additional properties', () => {
       cy.visit(`/dictionaries/${dictionaryFileName}`)
       cy.get('[data-test="additional-props-toggle-btn"]').should('be.visible').and('not.be.disabled')
@@ -245,7 +223,29 @@ describe('Dictionary Object Editor', () => {
       cy.get('[data-test="property-name-input"]').eq(2).find('input').should('have.value', 'thirdTestProperty')
     })
 
-    it('can show/hide properties', () => {
+    it('can show/hide empty properties', () => {
+      cy.visit(`/dictionaries/${dictionaryFileName}`)
+      
+      // verify show-hide-properties button is visible and enabled
+      cy.get('[data-test="collapse-toggle-btn"]').should('be.visible').and('not.be.disabled')
+      cy.get('[data-test="collapse-toggle-btn"]').find('.material-symbols-outlined').should('contain', 'collapse_content')
+      cy.get('[data-test="collapse-toggle-btn"]').find('.material-symbols-outlined').should('not.contain', 'expand_content')
+      cy.get('[data-test="card-content"]').should('contain', 'No properties defined')
+
+      cy.get('[data-test="collapse-toggle-btn"]').click()
+      cy.get('[data-test="collapse-toggle-btn"]').should('be.visible').and('not.be.disabled')
+      cy.get('[data-test="collapse-toggle-btn"]').find('.material-symbols-outlined').should('contain', 'expand_content')
+      cy.get('[data-test="collapse-toggle-btn"]').find('.material-symbols-outlined').should('not.contain', 'collapse_content')
+      cy.get('[data-test="property-body"]').should('be.empty')
+
+      cy.get('[data-test="collapse-toggle-btn"]').click()
+      cy.get('[data-test="collapse-toggle-btn"]').should('be.visible').and('not.be.disabled')
+      cy.get('[data-test="collapse-toggle-btn"]').find('.material-symbols-outlined').should('contain', 'collapse_content')
+      cy.get('[data-test="collapse-toggle-btn"]').find('.material-symbols-outlined').should('not.contain', 'expand_content')
+      cy.get('[data-test="card-content"]').should('contain', 'No properties defined')      
+    })
+
+    it('can show/hide some properties', () => {
       cy.visit(`/dictionaries/${dictionaryFileName}`)
       // Arrange root object with three properties
       cy.get('[data-test="add-property-btn"]').click().click().click()
@@ -273,7 +273,37 @@ describe('Dictionary Object Editor', () => {
   })
 
   describe('Non-Root Object Property Editor', () => {
-    it('can persist name/description/type edits', () => {
+    it.only('can persist name/description edits', () => {
+      cy.visit(`/dictionaries/${dictionaryFileName}`)
+      cy.get('[data-test="add-property-btn"]').should('be.visible').click().click()
+
+      cy.get('[data-test="property-name-input"]').eq(0).click()
+      cy.get('[data-test="property-name-input"]').eq(0).find('input').type('firstTestProperty')
+      cy.wait(200)
+      cy.reload()
+      cy.get('[data-test="property-name-input"]').eq(0).find('input').should('have.value', 'firstTestProperty')
+
+      cy.get('[data-test="description-input"]').eq(0).click()
+      cy.get('[data-test="description-input"]').eq(0).find('input').type('One property for testing object properties')
+      cy.wait(200)
+      cy.reload()
+      cy.get('[data-test="description-input"]').eq(0).find('input').should('have.value', 'One property for testing object properties')
+
+      cy.get('[data-test="property-name-input"]').eq(1).click()
+      cy.get('[data-test="property-name-input"]').eq(1).find('input').type('secondTestProperty')
+      cy.wait(200)
+      cy.reload()
+      cy.get('[data-test="property-name-input"]').eq(1).find('input').should('have.value', 'secondTestProperty')
+
+      cy.get('[data-test="description-input"]').eq(1).click()
+      cy.get('[data-test="description-input"]').eq(1).find('input').type('Two property for testing object properties')
+      cy.wait(200)
+      cy.reload()
+      cy.get('[data-test="property-name-input"]').eq(1).find('input').should('have.value', 'secondTestProperty')
+      cy.get('[data-test="description-input"]').eq(1).find('input').should('have.value', 'Two property for testing object properties')
+    })
+
+    it('has the correct type picker', () => {
       cy.visit(`/dictionaries/${dictionaryFileName}`)
       expect(true, 'Not Yet Implemented').to.equal(false)
     })
@@ -283,12 +313,12 @@ describe('Dictionary Object Editor', () => {
       expect(true, 'Not Yet Implemented').to.equal(false)
     })
 
-    it('can change type to word', () => {
+    it('can change type to one_of', () => {
       cy.visit(`/dictionaries/${dictionaryFileName}`)
       expect(true, 'Not Yet Implemented').to.equal(false)
     })
 
-    it('can persist name/description/type edits', () => {
+    it('can change type to word', () => {
       cy.visit(`/dictionaries/${dictionaryFileName}`)
       expect(true, 'Not Yet Implemented').to.equal(false)
     })
@@ -298,7 +328,7 @@ describe('Dictionary Object Editor', () => {
       expect(true, 'Not Yet Implemented').to.equal(false)
     })
 
-    it('has the correct type picker', () => {
+    it('persists object additional properties', () => {
       cy.visit(`/dictionaries/${dictionaryFileName}`)
       expect(true, 'Not Yet Implemented').to.equal(false)
     })
@@ -313,7 +343,12 @@ describe('Dictionary Object Editor', () => {
       expect(true, 'Not Yet Implemented').to.equal(false)
     })
 
-    it('can show/hide properties', () => {
+    it('can show/hide empty properties', () => {
+      cy.visit(`/dictionaries/${dictionaryFileName}`)
+      expect(true, 'Not Yet Implemented').to.equal(false)
+    })
+
+    it('can show/hide some properties', () => {
       cy.visit(`/dictionaries/${dictionaryFileName}`)
       expect(true, 'Not Yet Implemented').to.equal(false)
     })
