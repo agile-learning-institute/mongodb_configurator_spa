@@ -96,6 +96,8 @@ describe('Dictionary Details Page', () => {
     it('can delete', () => {
       cy.visit(`/dictionaries/${dictionaryFileName}`)
       cy.get('[data-test="delete-property-btn"]').should('be.visible').click()
+      cy.wait(250)
+      cy.reload()
       cy.get('[data-test="delete-property-btn"]').should('not.exist')
     })
 
@@ -141,11 +143,13 @@ describe('Dictionary Details Page', () => {
 
       cy.get('[data-test="enum-type-chip"]').should('be.visible').click()
       cy.get('[data-test="enum-type-picker-card"]').should('be.visible')
-      cy.get('[data-test="enum-type-option-"] i').should('have.length', 1)
+      cy.get('[data-test="enum-type-option-"] i').should('have.length', 2)
       cy.get('[data-test="enum-type-option-"] i').should('contain', 'default_status')
+      cy.get('[data-test="enum-type-option-"] i').should('contain', 'test_enum')
       cy.get('[data-test="enum-type-option-default_status"]').should('be.visible').click()
       cy.get('[data-test="enum-type-picker-card"]').should('not.exist')
       cy.get('[data-test="enum-type-chip"]').should('be.visible').should('contain', 'default_status')
+      cy.wait(250)
       cy.reload()
       cy.get('[data-test="enum-type-chip"]').should('be.visible').should('contain', 'default_status')
     })
