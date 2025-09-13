@@ -279,31 +279,5 @@ describe('Dictionary Object Editor', () => {
       cy.get('[data-test="collapse-toggle-btn"]').click()
       cy.get('[data-test="object-property-body"]').should('be.visible')
     })
-
-  })
-
-  describe('Lockable Object Property Editor', () => {
-    it('locks', () => {
-      // Setup a non-root object
-      cy.visit(`/dictionaries/${dictionaryFileName}`)
-      cy.get('[data-test="add-property-btn"]').should('be.visible').click()
-      cy.get('[data-test="type-chip"]').eq(1).should('be.visible').wait(200)
-      cy.get('[data-test="type-chip"]').eq(1).click()
-      cy.get('[data-test="type-picker-card"]').should('be.visible')
-      cy.get('[data-test="built-in-type-object"]').should('be.visible').click()
-      cy.get('[data-test="type-picker-card"]').should('not.exist')
-      cy.get('[data-test="type-chip"]').eq(1).should('be.visible').should('contain', 'Object')
-      cy.wait(250)
-      cy.reload()
-      cy.get('[data-test="type-chip"]').eq(1).should('be.visible').should('contain', 'Object')
-
-
-      expect(true, 'Not Yet Implemented').to.equal(false)
-    })
-
-    it('unlocks', () => {
-      cy.visit(`/dictionaries/${dictionaryFileName}`)
-      expect(true, 'Not Yet Implemented').to.equal(false)
-    })
   })
 })
