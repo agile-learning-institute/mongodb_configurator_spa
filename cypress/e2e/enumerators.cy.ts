@@ -17,6 +17,12 @@ describe('Enumerators detail page', () => {
     cy.get('[data-test="enum-description-input-0-1"]').find('input').should('have.value', 'Not Deleted')
     cy.get('[data-test="enum-value-input-0-2"]').find('input').should('have.value', 'archived')
     cy.get('[data-test="enum-description-input-0-2"]').find('input').should('have.value', 'Soft Delete Indicator')
+
+    cy.get('[data-test="enumerator-name-input-1"]').should('have.value', 'test_enum')
+    cy.get('[data-test="enum-value-input-1-0"]').find('input').should('have.value', 'foo')
+    cy.get('[data-test="enum-description-input-1-0"]').find('input').should('have.value', 'bar')
+    cy.get('[data-test="enum-value-input-1-1"]').find('input').should('have.value', 'bar')
+    cy.get('[data-test="enum-description-input-1-1"]').find('input').should('have.value', 'bat')
   }
 
   // Helper function to delete non-seed data
@@ -99,51 +105,54 @@ describe('Enumerators detail page', () => {
       // Verify starting state (should contain seed data from V2)
       cy.get('[data-test="enum-value-count-0"]').should('contain', '3 values')
       verifySeedData()
+      cy.get('[data-test^="enumerator-name-input-"]').should('have.length', 2)
              
       // Add new enumeration
       cy.get('[data-test="add-enumeration-btn"]').click()
-      cy.get('[data-test="enumerator-name-input-1"]').clear().type('TestEnum1')
+      cy.get('[data-test="enumerator-name-input-2"]').clear().type('TestEnum1')
       
       // Add first value to the new enumeration
-      cy.get('[data-test="add-enum-value-btn-1"]').click()
-      cy.get('[data-test="enum-value-input-1-0"]').type('TestValue1')
-      cy.get('[data-test="enum-description-input-1-0"]').type('Test Description One')
+      cy.get('[data-test="add-enum-value-btn-2"]').click()
+      cy.get('[data-test="enum-value-input-2-0"]').type('TestValue1')
+      cy.get('[data-test="enum-description-input-2-0"]').type('Test Description One')
       
       // Add second value to the new enumeration
-      cy.get('[data-test="add-enum-value-btn-1"]').click()
-      cy.get('[data-test="enum-value-input-1-1"]').type('TestValue2')
-      cy.get('[data-test="enum-description-input-1-1"]').type('Test Description Two')
+      cy.get('[data-test="add-enum-value-btn-2"]').click()
+      cy.get('[data-test="enum-value-input-2-1"]').type('TestValue2')
+      cy.get('[data-test="enum-description-input-2-1"]').type('Test Description Two')
 
       // Wait for the enumeration to be saved and reload the page
-      cy.get('[data-test^="enumerator-name-input-"]').should('have.length', 2)
       cy.wait(500)
       cy.reload()
-
-      // Verify all values on the page after reload
+      cy.get('[data-test^="enumerator-name-input-"]').should('have.length', 3)
       cy.get('[data-test="enum-value-count-0"]').should('contain', '3 values')
+      cy.get('[data-test="enum-value-count-1"]').should('contain', '2 values')
+      cy.get('[data-test="enum-value-count-2"]').should('contain', '2 values')
       verifySeedData()
+      cy.get('[data-test^="enumerator-name-input-"]').should('have.length', 3)
 
       // Verify new enumeration and its values
-      cy.get('[data-test="enumerator-name-input-1"]').should('have.value', 'TestEnum1')
-      cy.get('[data-test="enum-value-count-1"]').should('contain', '2 values')
-      cy.get('[data-test="toggle-enumerator-btn-1"]').should('exist').click()
-      cy.get('[data-test="enum-value-input-1-0"]').find('input').should('have.value', 'TestValue1')
-      cy.get('[data-test="enum-description-input-1-0"]').find('input').should('have.value', 'Test Description One')
-      cy.get('[data-test="enum-value-input-1-1"]').find('input').should('have.value', 'TestValue2')
-      cy.get('[data-test="enum-description-input-1-1"]').find('input').should('have.value', 'Test Description Two')
+      cy.get('[data-test="enumerator-name-input-2"]').should('have.value', 'TestEnum1')
+      cy.get('[data-test="enum-value-count-2"]').should('contain', '2 values')
+      cy.get('[data-test="toggle-enumerator-btn-2"]').should('exist').click()
+      cy.get('[data-test="enum-value-input-2-0"]').find('input').should('have.value', 'TestValue1')
+      cy.get('[data-test="enum-description-input-2-0"]').find('input').should('have.value', 'Test Description One')
+      cy.get('[data-test="enum-value-input-2-1"]').find('input').should('have.value', 'TestValue2')
+      cy.get('[data-test="enum-description-input-2-1"]').find('input').should('have.value', 'Test Description Two')
 
       // Delete the second value from the new enumeration
-      cy.get('[data-test="delete-enum-value-btn-1-1"]').click()
-      cy.get('[data-test="enum-value-count-1"]').should('contain', '1 values')
-      cy.get('[data-test="enum-value-input-1-1"]').should('not.exist')
+      cy.get('[data-test="delete-enum-value-btn-2-1"]').click()
+      cy.get('[data-test="enum-value-count-2"]').should('contain', '1 values')
+      cy.get('[data-test="enum-value-input-2-1"]').should('not.exist')
 
       // Delete the new enumeration
-      cy.get('[data-test="delete-enumeration-btn-1"]').click()
-      cy.get('[data-test="enumerator-name-input-1"]').should('not.exist')
+      cy.get('[data-test="delete-enumeration-btn-2"]').click()
+      cy.get('[data-test="enumerator-name-input-2"]').should('not.exist')
       
       // Verify original seed data still exists
       cy.get('[data-test="enum-value-count-0"]').should('contain', '3 values')
       verifySeedData()
+      cy.get('[data-test^="enumerator-name-input-"]').should('have.length', 2)
     })
   })
 
@@ -302,7 +311,7 @@ describe('Enumerators detail page', () => {
 
       // Add a value to the new default status enumeration
       cy.get('[data-test="add-enum-value-btn-0"]').click()
-      cy.get('[data-test="enum-value-input-0-3"]').type('TestNewValue1')
+      cy.get('[data-test="enum-value-input-0-3"]').type('NewValue')
       cy.get('[data-test="enum-description-input-0-3"]').type('Test New Description')
 
       // Create the new version
@@ -318,9 +327,8 @@ describe('Enumerators detail page', () => {
       cy.get('[data-test="enumerator-version"]').should('contain', 'Version: 4')
 
       // Verify the new data is present
-      cy.get('[data-test="enum-value-input-0-3"]').find('input').should('have.value', 'TestNewValue1')
+      cy.get('[data-test="enum-value-input-0-3"]').find('input').should('have.value', 'NewValue')
       cy.get('[data-test="enum-description-input-0-3"]').find('input').should('have.value', 'Test New Description')
-      cy.get('[data-test="enumerator-name-input-1"]').should('not.exist')
       cy.get('[data-test="enum-value-count-0"]').should('contain', '4 values')
       verifySeedData()      
 
