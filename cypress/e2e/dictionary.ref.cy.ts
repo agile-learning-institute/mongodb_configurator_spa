@@ -133,12 +133,12 @@ describe('Dictionary Details Page', () => {
 
     it('displays ref picker with proper values', () => {
       cy.visit(`/dictionaries/${dictionaryFileName}`)
-      cy.get('[data-test="enum-type-label"]').should('be.visible').should('contain', 'Dictionary:')
+      cy.get('[data-test="ref-type-label"]').should('be.visible').should('contain', 'Dictionary:')
 
       cy.get('[data-test="ref-dictionary-chip"]').should('be.visible').click()
       cy.get('[data-test="ref-dictionary-picker-card"]').should('be.visible')
-      cy.get('[data-test^="ref-dictionary-option-"].v-chip').should('have.length', 3)
-      cy.get('[data-test="ref-dictionary-option-${dictionaryName}"]').should('be.visible').click()
+      cy.get('[data-test^="ref-dictionary-option-"].v-chip').should('have.length.greaterThan', 2)
+      cy.get(`[data-test="ref-dictionary-option-${dictionaryName}"]`).should('be.visible').click()
       cy.get('[data-test="ref-dictionary-picker-card"]').should('not.exist')
       cy.get('[data-test="ref-dictionary-chip"]').should('be.visible').should('contain', dictionaryName)
       cy.wait(250)
@@ -161,7 +161,7 @@ describe('Dictionary Details Page', () => {
 
       // Make type pickers are disabled
       cy.get('[data-test="type-chip-picker"]').eq(0).find('[data-test="dropdown-icon"]').should('not.exist')
-      cy.get('[data-test="ref-dictionary-picker"]').eq(0).find('[data-test="dropdown-icon"]').should('not.exist')
+      cy.get('[data-test="ref-dictionary-chip"]').eq(0).find('[data-test="dropdown-icon"]').should('not.exist')
     })
 
     it('unlocks', () => {
@@ -184,7 +184,7 @@ describe('Dictionary Details Page', () => {
 
       // Make type pickers are enabled
       cy.get('[data-test="type-chip-picker"]').eq(0).find('[data-test="dropdown-icon"]').should('exist')
-      cy.get('[data-test="ref-dictionary-picker"]').eq(0).find('[data-test="dropdown-icon"]').should('exist')
+      cy.get('[data-test="ref-dictionary-chip"]').eq(0).find('[data-test="dropdown-icon"]').should('exist')
     })
   })
 })

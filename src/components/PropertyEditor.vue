@@ -77,6 +77,15 @@
         @change="handleChange"
         data-test="enum-property-extension"
       />
+      
+      <!-- Ref extension: Ref picker -->
+      <RefPropertyExtension
+        v-if="isRefProperty(property)"
+        :property="property"
+        :disabled="disabled"
+        @change="handleChange"
+        data-test="ref-property-extension"
+      />
     </template>
     
     <!-- Body slot for type-specific content -->
@@ -248,7 +257,8 @@ import {
   isComplexProperty,
   isOneOfProperty,
   isEnumProperty,
-  isEnumArrayProperty
+  isEnumArrayProperty,
+  isRefProperty
 } from '@/types/types'
 import BasePropertyEditor from './BasePropertyEditor.vue'
 import ArrayPropertyExtension from './ArrayPropertyExtension.vue'
@@ -260,6 +270,7 @@ import ArrayOfObjectExtension from './ArrayOfObjectExtension.vue'
 import ArrayOfArrayExtension from './ArrayOfArrayExtension.vue'
 import ObjectPropertyExtension from './ObjectPropertyExtension.vue'
 import EnumPropertyExtension from './EnumPropertyExtension.vue'
+import RefPropertyExtension from './RefPropertyExtension.vue'
 
 
 const props = defineProps<{
