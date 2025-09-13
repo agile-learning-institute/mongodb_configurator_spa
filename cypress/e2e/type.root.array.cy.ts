@@ -370,14 +370,14 @@ describe('Types Detail Page', () => {
 
     it('unlocks array of object', () => {
       // Arrange an array of object type
-      cy.get('[data-test="items-type-picker"] [data-test="type-chip"]').should('exist').click()
-      cy.get('[data-test="built-in-type-object"]').should('exist').click()
+      cy.get('[data-test="items-type-picker"] [data-test="type-chip"]').should('be.visible').click()
+      cy.get('[data-test="built-in-type-object"]').should('be.visible').click()
       cy.get('[data-test="type-display-name"]').eq(0).should('contain', 'Array')
       cy.get('[data-test="type-display-name"]').eq(1).should('contain', 'Object')
-      cy.get('[data-test="add-property-btn"]').should('exist').click().click().click()
+      cy.get('[data-test="add-property-btn"]').should('be.visible').click().click().click()
 
       // Lock Type and Unlock
-      cy.get('[data-test="lock-type-btn"]').should('exist').click()
+      cy.get('[data-test="lock-type-btn"]').should('be.visible').click()
       cy.get('[data-test="lock-type-btn"]').should('not.exist')
       cy.get('[data-test="unlock-type-btn"]').should('be.visible').click()
       cy.get('[data-test="unlock-type-dialog"]').should('be.visible')
