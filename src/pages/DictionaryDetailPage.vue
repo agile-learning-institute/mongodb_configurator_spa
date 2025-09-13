@@ -25,6 +25,7 @@
             variant="elevated"
             @click="unlockType"
             class="font-weight-bold"
+            data-test="unlock-dictionary-btn"
           >
             <v-icon start>mdi-lock-open</v-icon>
             Unlock
@@ -35,6 +36,7 @@
             variant="elevated"
             @click="lockDictionary"
             class="font-weight-bold"
+            data-test="lock-dictionary-btn"
           >
             <v-icon start>mdi-lock</v-icon>
             Lock
@@ -170,7 +172,7 @@
   </v-dialog>
 
   <!-- Unlock Confirmation Dialog -->
-  <v-dialog v-model="showUnlockDialog" max-width="500" data-test="unlock-type-dialog">
+  <v-dialog v-model="showUnlockDialog" max-width="500" data-test="unlock-dictionary-dialog">
     <v-card>
       <v-card-title class="text-h5 d-flex align-center">
         <v-icon color="warning" class="mr-3">mdi-alert-circle</v-icon>

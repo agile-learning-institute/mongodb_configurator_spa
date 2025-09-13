@@ -250,7 +250,7 @@ describe('Dictionary Object Editor - Non-Root', () => {
       cy.get('[data-test="object-property-body"]').eq(1).should('contain', 'No properties defined')
     })
     
-    it.only('can arrange properties', () => {
+    it('can arrange properties', () => {
       cy.visit(`/dictionaries/${dictionaryFileName}`)
       cy.get('[data-test="add-property-btn"]').eq(1).should('be.visible').click().click().click()
       cy.get('[data-test="property-name-input"]').eq(1).click()
@@ -267,19 +267,22 @@ describe('Dictionary Object Editor - Non-Root', () => {
 
       // Drag the 2nd property to before the 1st property and verify: secondTestProperty, firstTestProperty, thirdTestProperty
       cy.get('[data-test="property-drag-handle"]').eq(2).then(($dragHandle) => {
-        // Trigger dragstart and drag on the specific element
+        // Create a proper DataTransfer object
+        const dataTransfer = new DataTransfer()
+        dataTransfer.setData('text/plain', 'secondTestProperty')
+        
+        // Trigger dragstart with proper dataTransfer
         cy.wrap($dragHandle)
-          .trigger('dragstart')
-          .trigger('drag')
+          .trigger('dragstart', { dataTransfer })
         
         // Drop on the first drop zone within the non-root property context
         cy.get('[data-test="object-property-0"]').within(() => {
           cy.get('[data-test="drop-zone-0"]')
-            .trigger('dragover')
-            .trigger('drop')
+            .trigger('dragover', { dataTransfer })
+            .trigger('drop', { dataTransfer })
         })
         
-        // Trigger dragend on the same element we started with
+        // Trigger dragend
         cy.wrap($dragHandle)
           .trigger('dragend')
       })
@@ -291,7 +294,6 @@ describe('Dictionary Object Editor - Non-Root', () => {
       cy.get('[data-test="property-name-input"]').eq(1).find('input').should('have.value', 'secondTestProperty')
       cy.get('[data-test="property-name-input"]').eq(2).find('input').should('have.value', 'firstTestProperty')
       cy.get('[data-test="property-name-input"]').eq(3).find('input').should('have.value', 'thirdTestProperty')
-
     })
 
     it('can show/hide empty properties', () => {
@@ -347,24 +349,57 @@ describe('Dictionary Object Editor - Non-Root', () => {
   describe('Lockable Object Property Editor', () => {
     it('locks', () => {
       cy.visit(`/dictionaries/${dictionaryFileName}`)
-      // cy.get('[data-test="add-property-btn"]').should('be.visible').click()
-      // cy.get('[data-test="type-chip"]').eq(1).should('be.visible').wait(200)
-      // cy.get('[data-test="type-chip"]').eq(1).click()
-      // cy.get('[data-test="type-picker-card"]').should('be.visible')
-      // cy.get('[data-test="built-in-type-object"]').should('be.visible').click()
-      // cy.get('[data-test="type-picker-card"]').should('not.exist')
-      // cy.get('[data-test="type-chip"]').eq(1).should('be.visible').should('contain', 'Object')
-      // cy.wait(250)
-      // cy.reload()
-      // cy.get('[data-test="type-chip"]').eq(1).should('be.visible').should('contain', 'Object')
+      cy.get('[data-test="lock-dictionary-btn"]').should('not.be.disabled').click()
+      cy.get('[data-test="lock-dictionary-btn"]').should('not.exist')
+      cy.get('[data-test="unlock-dictionary-btn"]').should('exist')
+      cy.get('[data-test="delete-dictionary-btn"]').should('not.exist')
 
-      expect(true, 'Not Yet Implemented').to.equal(false)
+      // Make sure none of the action icons exist
+      cy.get('[data-test="required-toggle-btn"]').should('not.exist')
+      cy.get('[data-test="delete-property-btn"]').should('not.exist')
+      cy.get('[data-test="add-property-btn"]').should('not.exist')
+      cy.get('[data-test="additional-props-toggle-btn"]').should('not.exist')
+      
+      // verify root level show-hide-properties button is still visible and enabled (collapse should work even when locked)
+      cy.get('[data-test="collapse-toggle-btn"]').eq(0).should('be.visible').and('not.be.disabled')
+      cy.get('[data-test="collapse-toggle-btn"]').eq(0).find('.material-symbols-outlined').should('contain', 'collapse_content')
+      cy.get('[data-test="collapse-toggle-btn"]').eq(0).find('.material-symbols-outlined').should('not.contain', 'expand_content')
+
+      // verify non-root level show-hide-properties button is still visible and enabled (collapse should work even when locked)
+      cy.get('[data-test="collapse-toggle-btn"]').eq(1).should('be.visible').and('not.be.disabled')
+      cy.get('[data-test="collapse-toggle-btn"]').eq(1).find('.material-symbols-outlined').should('contain', 'collapse_content')
+      cy.get('[data-test="collapse-toggle-btn"]').eq(1).find('.material-symbols-outlined').should('not.contain', 'expand_content')
     })
 
     it('unlocks', () => {
       cy.visit(`/dictionaries/${dictionaryFileName}`)
+      // lock and unlock the dictionary
+      cy.get('[data-test="lock-dictionary-btn"]').should('not.be.disabled').click()
+      cy.get('[data-test="lock-dictionary-btn"]').should('not.exist')
+      cy.get('[data-test="unlock-dictionary-btn"]').should('exist')
+      cy.get('[data-test="unlock-dictionary-btn"]').click()
+      cy.get('[data-test="unlock-dictionary-dialog"]').should('be.visible')
+      cy.get('[data-test="unlock-cancel-btn"]').should('be.visible')
+      cy.get('[data-test="unlock-confirm-btn"]').should('be.visible').click()
+      cy.get('[data-test="unlock-dictionary-dialog"]').should('not.exist')
 
-      expect(true, 'Not Yet Implemented').to.equal(false)
+      // Make sure action icons exist
+      cy.get('[data-test="required-toggle-btn"]').should('be.visible')
+      cy.get('[data-test="delete-property-btn"]').should('be.visible')
+      cy.get('[data-test="add-property-btn"]').eq(0).should('be.visible')
+      cy.get('[data-test="add-property-btn"]').eq(1).should('be.visible')
+      cy.get('[data-test="additional-props-toggle-btn"]').eq(0).should('be.visible')
+      cy.get('[data-test="additional-props-toggle-btn"]').eq(1).should('be.visible')
+      
+      // verify root level show-hide-properties button is still visible and enabled (collapse should work even when locked)
+      cy.get('[data-test="collapse-toggle-btn"]').eq(0).should('be.visible').and('not.be.disabled')
+      cy.get('[data-test="collapse-toggle-btn"]').eq(0).find('.material-symbols-outlined').should('contain', 'collapse_content')
+      cy.get('[data-test="collapse-toggle-btn"]').eq(0).find('.material-symbols-outlined').should('not.contain', 'expand_content')
+
+      // verify non-root level show-hide-properties button is still visible and enabled (collapse should work even when locked)
+      cy.get('[data-test="collapse-toggle-btn"]').eq(1).should('be.visible').and('not.be.disabled')
+      cy.get('[data-test="collapse-toggle-btn"]').eq(1).find('.material-symbols-outlined').should('contain', 'collapse_content')
+      cy.get('[data-test="collapse-toggle-btn"]').eq(1).find('.material-symbols-outlined').should('not.contain', 'expand_content')
     })
   })
 })
