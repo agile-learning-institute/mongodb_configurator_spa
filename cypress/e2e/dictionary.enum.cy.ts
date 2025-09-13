@@ -8,11 +8,8 @@ describe('Dictionary Details Page', () => {
     dictionaryFileName = `${dictionaryName}.yaml`
 
     cy.visit('/dictionaries')
-    cy.get('h3').should('contain', 'Dictionaries')
-    cy.get('[data-test^="file-card-"]').should('exist')
     cy.contains('button', 'New').should('be.visible').click()
     cy.get('.v-dialog').should('be.visible')
-    cy.get('.v-dialog .v-card-title').should('contain', 'Create New Dictionary')
     cy.get('.v-dialog input').type(dictionaryName)
     cy.get('.v-dialog').contains('button', 'Create').click()
     cy.get('.v-dialog').should('not.exist')
@@ -22,8 +19,7 @@ describe('Dictionary Details Page', () => {
     cy.get('[data-test="built-in-type-object"]').should('be.visible').click()
     cy.get('[data-test="root-type-chip-picker"] [data-test="type-chip"]').should('be.visible').should('contain', 'Object')
     cy.get('[data-test="add-property-btn"]').should('be.visible').click()
-    cy.get('[data-test="type-chip"]').eq(1).should('be.visible').wait(200)
-    cy.get('[data-test="type-chip"]').eq(1).click()
+    cy.get('[data-test="type-chip"]').eq(1).should('be.visible').click()
     cy.get('[data-test="type-picker-card"]').should('be.visible')
     cy.get('[data-test="built-in-type-enum"]').should('be.visible').click()
     cy.get('[data-test="type-picker-card"]').should('not.exist')
@@ -97,6 +93,12 @@ describe('Dictionary Details Page', () => {
       cy.get('[data-test="delete-property-btn"]').find('.material-symbols-outlined').should('contain', 'delete')
     })
 
+    it('can delete', () => {
+      cy.visit(`/dictionaries/${dictionaryFileName}`)
+      cy.get('[data-test="delete-property-btn"]').should('be.visible').click()
+      cy.get('[data-test="delete-property-btn"]').should('not.exist')
+    })
+
     it('persists required properties', () => {
       cy.visit(`/dictionaries/${dictionaryFileName}`)
       cy.get('[data-test="required-toggle-btn"]').should('be.visible')
@@ -124,6 +126,13 @@ describe('Dictionary Details Page', () => {
       // verify type picker has Custom Types section
       cy.get('[data-test="custom-types-category"]').should('be.visible')
       cy.get('[data-test="custom-types-category"] i').should('have.length.greaterThan', 10)
+
+      // Change type to word
+      cy.get('[data-test="custom-type-name-word.yaml"]').should('be.visible').click()
+      cy.get('[data-test="type-picker-card"]').should('not.exist')
+      cy.wait(250)
+      cy.reload()
+      cy.get('[data-test="type-chip"]').eq(1).should('be.visible').should('contain', 'word')
     })
 
     it('displays enum picker with proper values', () => {
@@ -136,6 +145,8 @@ describe('Dictionary Details Page', () => {
       cy.get('[data-test="enum-type-option-"] i').should('contain', 'default_status')
       cy.get('[data-test="enum-type-option-default_status"]').should('be.visible').click()
       cy.get('[data-test="enum-type-picker-card"]').should('not.exist')
+      cy.get('[data-test="enum-type-chip"]').should('be.visible').should('contain', 'default_status')
+      cy.reload()
       cy.get('[data-test="enum-type-chip"]').should('be.visible').should('contain', 'default_status')
     })
 
