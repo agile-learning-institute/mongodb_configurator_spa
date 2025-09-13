@@ -347,7 +347,7 @@ const handleTypeChange = (newType: string) => {
     } else if (newType === 'enum' && !isCustomProperty(props.property)) {
       // Create a new enum property object to ensure proper reactivity
       const newProperty = {
-        ...props.property,
+        ...(props.property as any),
         type: newType,
         enums: ''
       }
@@ -357,7 +357,7 @@ const handleTypeChange = (newType: string) => {
     } else if (newType === 'enum_array' && !isCustomProperty(props.property)) {
       // Create a new enum array property object to ensure proper reactivity
       const newProperty = {
-        ...props.property,
+        ...(props.property as any),
         type: newType,
         enums: ''
       }

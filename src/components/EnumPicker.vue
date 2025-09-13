@@ -100,7 +100,7 @@ const loadEnumerators = async () => {
     
       // Get the most recent enumerator file (highest version number from filename)
       if (enumeratorFiles.length > 0) {
-        const mostRecentFile = enumeratorFiles.reduce((latest, current) => {
+        const mostRecentFile = enumeratorFiles.reduce((latest: EnumeratorFile, current: EnumeratorFile) => {
           // Extract version number from filename (e.g., "enumerations.2.yaml" -> 2)
           const latestVersion = parseInt(latest.file_name.match(/enumerations\.(\d+)\.yaml/)?.[1] || '0')
           const currentVersion = parseInt(current.file_name.match(/enumerations\.(\d+)\.yaml/)?.[1] || '0')
