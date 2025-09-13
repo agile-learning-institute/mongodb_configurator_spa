@@ -354,6 +354,10 @@ describe('Dictionary Details Page', () => {
       cy.get('[data-test="unlock-dictionary-btn"]').should('exist')
       cy.get('[data-test="delete-dictionary-btn"]').should('not.exist')
 
+      // Make sure the property name and description are locked
+      cy.get('[data-test="property-name-input"]').eq(0).find('input').should('have.attr', 'readonly')
+      cy.get('[data-test="description-input"]').eq(0).find('input').should('have.attr', 'readonly')
+
       // Make sure none of the action icons exist
       cy.get('[data-test="required-toggle-btn"]').should('not.exist')
       cy.get('[data-test="delete-property-btn"]').should('not.exist')
@@ -382,6 +386,12 @@ describe('Dictionary Details Page', () => {
       cy.get('[data-test="unlock-cancel-btn"]').should('be.visible')
       cy.get('[data-test="unlock-confirm-btn"]').should('be.visible').click()
       cy.get('[data-test="unlock-dictionary-dialog"]').should('not.exist')
+
+      // Make sure the property name and description are unlocked
+      cy.get('[data-test="property-name-input"]').eq(0).click()
+      cy.get('[data-test="property-name-input"]').eq(0).find('input').should('be.enabled')
+      cy.get('[data-test="description-input"]').eq(0).click()
+      cy.get('[data-test="description-input"]').eq(0).find('input').should('be.enabled')
 
       // Make sure action icons exist
       cy.get('[data-test="required-toggle-btn"]').should('be.visible')
