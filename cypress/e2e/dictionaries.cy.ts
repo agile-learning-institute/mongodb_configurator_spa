@@ -131,7 +131,7 @@ describe('Dictionary Details Page', () => {
       // Unlock the dictionary
       cy.contains('button', 'Unlock').should('be.visible').click()
       cy.contains('button', 'Delete').should('not.exist')
-      cy.get('[data-test="unlock-type-dialog"]').should('be.visible')
+      cy.get('[data-test="unlock-dictionary-dialog"]').should('be.visible')
       cy.get('[data-test="unlock-confirmation-message"]').should('contain', `Are you sure you want to unlock "${dictionaryName}"?`)
       cy.get('[data-test="unlock-warning-message"]').should('contain', 'This will allow the dictionary to be modified. Changes will be saved automatically.')
       cy.get('[data-test="unlock-cancel-btn"]').should('be.visible')

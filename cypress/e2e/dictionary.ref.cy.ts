@@ -15,10 +15,6 @@ describe('Dictionary Details Page', () => {
     cy.get('[data-test="new-dictionary-create-btn"]').click()
     cy.wait(200)
     cy.url().should('include', `/dictionaries/${name}`)
-    // cy.get('[data-test="root-description-placeholder"]').should('be.visible').and('contain', 'Click to add description')
-    // cy.get('[data-test="root-type-chip-picker"] [data-test="type-chip"]').should('be.visible').and('contain', 'void')    
-    // cy.get('[data-test="root-type-chip-picker"] [data-test="type-chip"]').click()
-    // cy.get('[data-test="built-in-type-object"]').click()
   })
 
   // Clean up any types created during tests
