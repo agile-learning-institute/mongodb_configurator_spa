@@ -86,6 +86,15 @@
         @change="handleChange"
         data-test="ref-property-extension"
       />
+      
+      <!-- Constant extension: Constant value input -->
+      <ConstantPropertyExtension
+        v-if="isConstantProperty(property)"
+        :property="property"
+        :disabled="disabled"
+        @change="handleChange"
+        data-test="constant-property-extension"
+      />
     </template>
     
     <!-- Body slot for type-specific content -->
@@ -258,7 +267,8 @@ import {
   isOneOfProperty,
   isEnumProperty,
   isEnumArrayProperty,
-  isRefProperty
+  isRefProperty,
+  isConstantProperty
 } from '@/types/types'
 import BasePropertyEditor from './BasePropertyEditor.vue'
 import ArrayPropertyExtension from './ArrayPropertyExtension.vue'
@@ -271,6 +281,7 @@ import ArrayOfArrayExtension from './ArrayOfArrayExtension.vue'
 import ObjectPropertyExtension from './ObjectPropertyExtension.vue'
 import EnumPropertyExtension from './EnumPropertyExtension.vue'
 import RefPropertyExtension from './RefPropertyExtension.vue'
+import ConstantPropertyExtension from './ConstantPropertyExtension.vue'
 
 
 const props = defineProps<{
