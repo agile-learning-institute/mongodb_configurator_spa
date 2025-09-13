@@ -1,4 +1,4 @@
-describe('Dictionary Object Editor - Non-Root', () => {
+describe('Dictionary Details Page', () => {
   let dictionaryFileName: string
   let dictionaryName: string
 

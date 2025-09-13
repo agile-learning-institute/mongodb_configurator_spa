@@ -185,8 +185,8 @@ const isEditingDescription = ref(false)
 const descriptionInput = ref<HTMLElement>()
 
 // Debounced save timers
-let nameSaveTimer: NodeJS.Timeout | null = null
-let descriptionSaveTimer: NodeJS.Timeout | null = null
+let nameSaveTimer: number | null = null
+let descriptionSaveTimer: number | null = null
 
 // Computed properties
 const isRoot = computed(() => props.isRoot || false)
@@ -419,7 +419,7 @@ const startEditDescription = () => {
       if (descriptionInput.value) {
         descriptionInput.value.focus()
         // Select all text for easy replacement
-        descriptionInput.value.select()
+        ;(descriptionInput.value as HTMLInputElement).select()
       }
     })
   }

@@ -1,4 +1,4 @@
-describe('Dictionary Array page flow', () => {
+describe('Dictionary Details Page', () => {
   const name = `e2e-test-dictionary-array-${Date.now()}`
   const fileName = `${name}.yaml`
   const thingsToDelete: string[] = []

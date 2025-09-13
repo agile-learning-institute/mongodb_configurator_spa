@@ -1,4 +1,4 @@
-describe('Dictionaries basic page flow', () => {
+describe('Dictionary Details Page', () => {
   let dictionaryFileName: string
   let dictionaryName: string
 
