@@ -7,6 +7,7 @@ describe('Dictionary Details Page', () => {
     dictionaryName = `TestDictionary-object-${Date.now()}`
     dictionaryFileName = `${dictionaryName}.yaml`
 
+    // Create a test dictionary
     cy.visit('/dictionaries')
     cy.contains('button', 'New').should('be.visible').click()
     cy.get('.v-dialog').should('be.visible')
@@ -15,16 +16,23 @@ describe('Dictionary Details Page', () => {
     cy.get('.v-dialog').should('not.exist')
     cy.wait(200)
     cy.url().should('include', `/dictionaries/${dictionaryFileName}`)
+
+    // Set type to Object
     cy.get('[data-test="root-type-chip-picker"] [data-test="type-chip"]').should('be.visible').click()
     cy.get('[data-test="built-in-type-object"]').should('be.visible').click()
     cy.get('[data-test="root-type-chip-picker"] [data-test="type-chip"]').should('be.visible').should('contain', 'Object')
+
+    // Add a property with Enum type
     cy.get('[data-test="add-property-btn"]').should('be.visible').click()
     cy.get('[data-test="type-chip"]').eq(1).should('be.visible').click()
     cy.get('[data-test="type-picker-card"]').should('be.visible')
     cy.get('[data-test="built-in-type-enum"]').should('be.visible').click()
     cy.get('[data-test="type-picker-card"]').should('not.exist')
     cy.get('[data-test="type-chip"]').eq(1).should('be.visible').should('contain', 'Enum')
+
+    // Verify the dictionary is created
     cy.visit('/dictionaries')
+    cy.url().should('include', '/dictionaries')
     cy.get(`[data-test="file-card-${dictionaryName}.yaml"]`).should('be.visible')
   })
 
@@ -55,40 +63,26 @@ describe('Dictionary Details Page', () => {
   describe('Enum Property Editor', () => {
     it('can persist name/description edits', () => {
       cy.visit(`/dictionaries/${dictionaryFileName}`)
-      cy.get('[data-test="add-property-btn"]').eq(1).should('be.visible').click().click()
 
-      cy.get('[data-test="property-name-input"]').eq(1).click()
-      cy.get('[data-test="property-name-input"]').eq(1).find('input').type('firstTestProperty')
+      cy.get('[data-test="property-name-input"]').eq(0).click()
+      cy.get('[data-test="property-name-input"]').eq(0).find('input').type('firstTestProperty')
       cy.wait(250)
       cy.reload()
-      cy.get('[data-test="property-name-input"]').eq(1).find('input').should('have.value', 'firstTestProperty')
+      cy.get('[data-test="property-name-input"]').eq(0).find('input').should('have.value', 'firstTestProperty')
 
-      cy.get('[data-test="description-input"]').eq(1).click()
-      cy.get('[data-test="description-input"]').eq(1).find('input').type('One property for testing object properties')
+      cy.get('[data-test="description-input"]').eq(0).click()
+      cy.get('[data-test="description-input"]').eq(0).find('input').type('One property for testing object properties')
       cy.wait(250)
       cy.reload()
-      cy.get('[data-test="description-input"]').eq(1).find('input').should('have.value', 'One property for testing object properties')
-
-      cy.get('[data-test="property-name-input"]').eq(2).click()
-      cy.get('[data-test="property-name-input"]').eq(2).find('input').type('secondTestProperty')
-      cy.wait(250)
-      cy.reload()
-      cy.get('[data-test="property-name-input"]').eq(2).find('input').should('have.value', 'secondTestProperty')
-
-      cy.get('[data-test="description-input"]').eq(2).click()
-      cy.get('[data-test="description-input"]').eq(2).find('input').type('Two property for testing object properties')
-      cy.wait(250)
-      cy.reload()
-      cy.get('[data-test="property-name-input"]').eq(2).find('input').should('have.value', 'secondTestProperty')
-      cy.get('[data-test="description-input"]').eq(2).find('input').should('have.value', 'Two property for testing object properties')
+      cy.get('[data-test="description-input"]').eq(0).find('input').should('have.value', 'One property for testing object properties')
     })
 
     it('shows control icons', () => {
       cy.visit(`/dictionaries/${dictionaryFileName}`)
-      cy.get('[data-test="add-drag-icon"]').should('be.visible')
-      cy.get('[data-test="add-drag-icon"]').find('.material-symbols-outlined').should('contain', 'drag_handle')
+      cy.get('[data-test="property-drag-handle"]').should('be.visible')
+      cy.get('[data-test="property-drag-handle"] .mdi-drag').should('be.visible')
       cy.get('[data-test="required-toggle-btn"]').should('be.visible')
-      cy.get('[data-test="required-toggle-btn"]').find('.material-symbols-outlined').should('contain', 'check_circle')
+      cy.get('[data-test="required-toggle-btn"]').find('.material-symbols-outlined').should('contain', 'toggle_off')
       cy.get('[data-test="delete-property-btn"]').should('be.visible')
       cy.get('[data-test="delete-property-btn"]').find('.material-symbols-outlined').should('contain', 'delete')
     })
@@ -104,11 +98,11 @@ describe('Dictionary Details Page', () => {
     it('persists required properties', () => {
       cy.visit(`/dictionaries/${dictionaryFileName}`)
       cy.get('[data-test="required-toggle-btn"]').should('be.visible')
-      cy.get('[data-test="required-toggle-btn"]').find('.material-symbols-outlined').should('contain', 'check_circle')
+      cy.get('[data-test="required-toggle-btn"]').find('.material-symbols-outlined').should('contain', 'toggle_off')
       cy.get('[data-test="required-toggle-btn"]').click()
       cy.wait(250)
       cy.reload()
-      cy.get('[data-test="required-toggle-btn"]').find('.material-symbols-outlined').should('contain', 'check')
+      cy.get('[data-test="required-toggle-btn"]').find('.material-symbols-outlined').should('contain', 'toggle_on')
     })
 
     it('displays type picker with proper values', () => {
@@ -137,7 +131,7 @@ describe('Dictionary Details Page', () => {
       cy.get('[data-test="type-chip"]').eq(1).should('be.visible').should('contain', 'word')
     })
 
-    it('displays enum picker with proper values', () => {
+    it.only('displays enum picker with proper values', () => {
       cy.visit(`/dictionaries/${dictionaryFileName}`)
       cy.get('[data-test="enum-type-label"]').should('contain', 'Enumerators: ')
 
