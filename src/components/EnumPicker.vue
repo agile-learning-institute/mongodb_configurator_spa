@@ -2,73 +2,51 @@
   <div data-test="enum-picker">
     <!-- Display chip that opens the picker -->
     <v-chip
-      color="purple"
-      variant="outlined"
+      :color="getChipColor()"
+      :variant="getChipVariant()"
       class="cursor-pointer"
       :disabled="disabled"
       @click="showPicker = true"
-      data-test="enum-picker-chip"
+      data-test="enum-type-chip"
     >
-      <v-icon start size="small" data-test="enum-picker-icon">mdi-format-list-checks</v-icon>
-      <span data-test="enum-picker-value">{{ modelValue || 'Pick an enum' }}</span>
+      <v-icon start size="small" data-test="enum-type-icon">mdi-format-list-checks</v-icon>
+      <span data-test="enum-type-value">{{ modelValue || 'Pick an enum' }}</span>
+      <v-icon end size="small" v-if="!disabled" data-test="dropdown-icon">mdi-chevron-down</v-icon>
     </v-chip>
 
     <!-- Enum Picker Dialog -->
-    <v-dialog v-model="showPicker" max-width="800" data-test="enum-picker-dialog">
-      <v-card>
-        <v-card-title class="d-flex justify-space-between align-center pa-4" data-test="enum-picker-dialog-title">
-          <span data-test="enum-picker-dialog-title-text">Pick an Enumerator</span>
-          <v-btn icon size="small" @click="showPicker = false" data-test="enum-picker-close-btn">
-            <v-icon data-test="enum-picker-close-icon">mdi-close</v-icon>
+    <v-dialog v-model="showPicker" max-width="600" data-test="enum-type-picker-dialog">
+      <v-card data-test="enum-type-picker-card">
+        <v-card-title class="d-flex justify-space-between align-center pa-4" data-test="enum-type-picker-title">
+          <span data-test="enum-type-picker-title-text">Pick an Enumerator</span>
+          <v-btn icon size="small" @click="showPicker = false" data-test="enum-type-picker-close-btn">
+            <v-icon data-test="enum-type-picker-close-icon">mdi-close</v-icon>
           </v-btn>
         </v-card-title>
         
         <v-card-text class="pa-4">
-          <v-text-field
-            v-model="searchQuery"
-            prepend-inner-icon="mdi-magnify"
-            label="Search enumerators..."
-            variant="outlined"
-            density="compact"
-            hide-details
-            class="mb-3"
-            data-test="enum-picker-search-input"
-          />
-          
-          <!-- Enumerator Files Tabs -->
-          <v-tabs v-model="selectedEnumeratorFile" class="mb-4" data-test="enum-picker-tabs">
-            <v-tab
-              v-for="enumeratorFile in filteredEnumeratorFiles"
-              :key="enumeratorFile.file_name"
-              :value="enumeratorFile.file_name"
-              :data-test="`enum-picker-tab-${enumeratorFile.file_name}`"
-            >
-              {{ enumeratorFile.name || enumeratorFile.file_name.replace('.yaml', '') }}
-            </v-tab>
-          </v-tabs>
-
-          <!-- Enum Values for Selected Version -->
-          <div v-if="selectedEnumeratorData && selectedEnumeratorData.enumerators" class="mb-4" data-test="enum-picker-values">
-            <h4 class="mb-3" data-test="enum-picker-values-title">Select Enumerator:</h4>
+          <!-- Enum Values from Most Recent Version -->
+          <div v-if="enumeratorNames.length > 0" class="mb-4" data-test="enum-type-picker-values">
+            <h4 class="mb-3" data-test="enum-type-picker-values-title">Select Enumerator:</h4>
             <div class="d-flex flex-wrap gap-2">
               <v-chip
-                v-for="(_, enumeratorName) in selectedEnumeratorData.enumerators"
+                v-for="enumeratorName in enumeratorNames"
                 :key="enumeratorName"
-                :color="modelValue === String(enumeratorName) ? 'primary' : undefined"
+                :color="modelValue === enumeratorName ? 'primary' : undefined"
                 variant="outlined"
                 size="default"
                 class="cursor-pointer pa-2"
-                @click="selectEnum(String(enumeratorName))"
-                :data-test="`enum-value-chip-${enumeratorName}`"
+                @click="selectEnum(enumeratorName)"
+                :data-test="`enum-type-option-${enumeratorName}`"
               >
-                <v-icon start size="18" :data-test="`enum-value-icon-${enumeratorName}`">mdi-format-list-checks</v-icon>
-                <span :data-test="`enum-value-name-${enumeratorName}`">{{ enumeratorName }}</span>
+                <v-icon start size="18" :data-test="`enum-type-option-icon-${enumeratorName}`">mdi-format-list-checks</v-icon>
+                <span :data-test="`enum-type-option-name-${enumeratorName}`">{{ enumeratorName }}</span>
               </v-chip>
             </div>
           </div>
 
           <!-- No enumerators message -->
-          <div v-else-if="filteredEnumeratorFiles.length === 0" class="text-center pa-4" data-test="enum-picker-no-enumerators">
+          <div v-else class="text-center pa-4" data-test="enum-picker-no-enumerators">
             <v-icon size="48" color="grey" data-test="enum-picker-no-enumerators-icon">mdi-format-list-checks</v-icon>
             <p class="text-grey mt-2" data-test="enum-picker-no-enumerators-message">No enumerators found</p>
           </div>
@@ -79,8 +57,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { apiService } from '@/utils/api'
+import type { EnumeratorFile, Enumerator } from '@/types/types'
 
 interface Props {
   modelValue?: string
@@ -90,7 +69,7 @@ interface Props {
   density?: 'default' | 'compact' | 'comfortable'
 }
 
-withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<Props>(), {
   label: 'Enum',
   disabled: false,
   error: '',
@@ -102,65 +81,61 @@ const emit = defineEmits<{
 }>()
 
 const showPicker = ref(false)
-const searchQuery = ref('')
-const availableEnumeratorFiles = ref<any[]>([])
-const selectedEnumeratorFile = ref<string>('')
-const selectedEnumeratorData = ref<any>(null)
+const availableEnumeratorFiles = ref<EnumeratorFile[]>([])
+const mostRecentEnumeratorData = ref<EnumeratorFile | null>(null)
 const loading = ref(false)
 
-// Load available enumerator files from API
-const loadEnumeratorFiles = async () => {
+// Get enumerator names from the most recent version
+const enumeratorNames = computed(() => {
+  if (!mostRecentEnumeratorData.value?.enumerators) return []
+  return mostRecentEnumeratorData.value.enumerators.map((enumerator: Enumerator) => enumerator.name)
+})
+
+// Load available enumerator files and get the most recent one
+const loadEnumerators = async () => {
   loading.value = true
   try {
     const enumeratorFiles = await apiService.getEnumerators()
     availableEnumeratorFiles.value = enumeratorFiles
-    // Set first enumerator file as selected if available
-    if (enumeratorFiles.length > 0 && !selectedEnumeratorFile.value) {
-      selectedEnumeratorFile.value = enumeratorFiles[0].file_name
-      await loadSelectedEnumeratorData()
+    
+      // Get the most recent enumerator file (highest version number from filename)
+      if (enumeratorFiles.length > 0) {
+        const mostRecentFile = enumeratorFiles.reduce((latest: EnumeratorFile, current: EnumeratorFile) => {
+          // Extract version number from filename (e.g., "enumerations.2.yaml" -> 2)
+          const latestVersion = parseInt(latest.file_name.match(/enumerations\.(\d+)\.yaml/)?.[1] || '0')
+          const currentVersion = parseInt(current.file_name.match(/enumerations\.(\d+)\.yaml/)?.[1] || '0')
+          return currentVersion > latestVersion ? current : latest
+        })
+      const data = await apiService.getEnumerator(mostRecentFile.file_name)
+      mostRecentEnumeratorData.value = data
     }
   } catch (err) {
-    console.error('Failed to load enumerator files:', err)
+    console.error('Failed to load enumerators:', err)
     availableEnumeratorFiles.value = []
+    mostRecentEnumeratorData.value = null
   } finally {
     loading.value = false
   }
 }
 
-// Load data for selected enumerator file
-const loadSelectedEnumeratorData = async () => {
-  if (!selectedEnumeratorFile.value) return
-  
-  try {
-    const data = await apiService.getEnumerator(selectedEnumeratorFile.value)
-    selectedEnumeratorData.value = data
-  } catch (err) {
-    console.error('Failed to load enumerator data:', err)
-    selectedEnumeratorData.value = null
-  }
-}
-
-// Filter enumerator files based on search query
-const filteredEnumeratorFiles = computed(() => {
-  return availableEnumeratorFiles.value.filter(enumeratorFile => 
-    (enumeratorFile.name || enumeratorFile.file_name).toLowerCase().includes(searchQuery.value.toLowerCase())
-  )
-})
-
 const selectEnum = (enumeratorName: string) => {
   emit('update:modelValue', enumeratorName)
   showPicker.value = false
-  searchQuery.value = ''
 }
 
-// Watch for changes in selected enumerator file
-watch(selectedEnumeratorFile, async () => {
-  await loadSelectedEnumeratorData()
-})
+// Get chip color based on whether a value is selected
+const getChipColor = (): string => {
+  return props.modelValue ? 'primary' : 'default'
+}
 
-// Load enumerator files on mount
+// Get chip variant
+const getChipVariant = (): "text" | "flat" | "elevated" | "tonal" | "outlined" | "plain" => {
+  return 'elevated'
+}
+
+// Load enumerators on mount
 onMounted(() => {
-  loadEnumeratorFiles()
+  loadEnumerators()
 })
 </script>
 
