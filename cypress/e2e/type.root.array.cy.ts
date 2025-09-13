@@ -370,19 +370,18 @@ describe('Types Detail Page', () => {
 
     it('unlocks array of object', () => {
       // Arrange an array of object type
-      cy.get('[data-test="items-type-picker"] [data-test="type-chip"]').should('exist').click()
-      cy.get('[data-test="built-in-type-object"]').should('exist').click()
+      cy.get('[data-test="items-type-picker"] [data-test="type-chip"]').should('be.visible').click()
+      cy.get('[data-test="built-in-type-object"]').should('be.visible').click()
       cy.get('[data-test="type-display-name"]').eq(0).should('contain', 'Array')
       cy.get('[data-test="type-display-name"]').eq(1).should('contain', 'Object')
-      cy.get('[data-test="add-property-btn"]').should('exist').click().click().click()
+      cy.get('[data-test="add-property-btn"]').should('be.visible').click().click().click()
 
       // Lock Type and Unlock
-      cy.get('[data-test="lock-type-btn"]').should('exist').click()
+      cy.get('[data-test="lock-type-btn"]').should('be.visible').click()
       cy.get('[data-test="lock-type-btn"]').should('not.exist')
-      cy.get('[data-test="unlock-type-btn"]').should('be.visible')
-      cy.get('[data-test="unlock-type-btn"]').click()
+      cy.get('[data-test="unlock-type-btn"]').should('be.visible').click()
       cy.get('[data-test="unlock-type-dialog"]').should('be.visible')
-      cy.get('[data-test="unlock-confirm-btn"]').click()
+      cy.get('[data-test="unlock-confirm-btn"]').should('be.visible').click()
       cy.get('[data-test="unlock-type-dialog"]').should('not.exist')
       cy.get('[data-test="unlock-type-btn"]').should('not.exist')
       cy.get('[data-test="lock-type-btn"]').should('be.visible')
@@ -392,7 +391,7 @@ describe('Types Detail Page', () => {
       cy.get('[data-test="additional-props-toggle-btn"]').should('be.enabled')
       cy.get('[data-test="collapse-toggle-btn"]').should('be.enabled')
       cy.get('[data-test="root-description-display"]').should('be.visible')
-      cy.get('[data-test="root-description-display"]').click()
+      cy.get('[data-test="root-description-display"]').should('be.visible').click()
       cy.get('[data-test="root-description-input-edit"]').should('be.visible')
       cy.get('[data-test="root-description-display"]').should('not.exist')
       cy.get('[data-test="root-type-chip-picker"] [data-test="dropdown-icon"]').should('exist')
@@ -467,13 +466,13 @@ describe('Types Detail Page', () => {
       cy.get('[data-test="items-type-picker"]').eq(0).find('[data-test="dropdown-icon"]').should('exist')
 
       // Lock Type
-      cy.get('[data-test="lock-type-btn"]').click()
+      cy.get('[data-test="lock-type-btn"]').should('be.visible').click()
       cy.get('[data-test="lock-type-btn"]').should('not.exist')
       cy.get('[data-test="unlock-type-btn"]').should('be.visible')
       
       // Verify locked - inputs should be disabled
       cy.get('[data-test="root-description-display"]').should('be.visible')
-      cy.get('[data-test="root-description-display"]').click()
+      cy.get('[data-test="root-description-display"]').should('be.visible').click()
       cy.get('[data-test="root-description-input-edit"]').should('not.exist')
       cy.get('[data-test="root-description-display"]').should('be.visible')
       cy.get('[data-test="root-type-chip-picker"] [data-test="dropdown-icon"]').should('not.exist')
@@ -491,16 +490,16 @@ describe('Types Detail Page', () => {
       cy.get('[data-test="lock-type-btn"]').should('be.visible').click()
       cy.get('[data-test="lock-type-btn"]').should('not.exist')
       cy.get('[data-test="unlock-type-btn"]').should('be.visible')
-      cy.get('[data-test="unlock-type-btn"]').click()
+      cy.get('[data-test="unlock-type-btn"]').should('be.visible').click()
       cy.get('[data-test="unlock-type-dialog"]').should('be.visible')
-      cy.get('[data-test="unlock-confirm-btn"]').click()
+      cy.get('[data-test="unlock-confirm-btn"]').should('be.visible').click()
       cy.get('[data-test="unlock-type-dialog"]').should('not.exist')
       cy.get('[data-test="unlock-type-btn"]').should('not.exist')
       cy.get('[data-test="lock-type-btn"]').should('be.visible')
       
       // Verify unlocked
       cy.get('[data-test="root-description-display"]').should('be.visible')
-      cy.get('[data-test="root-description-display"]').click()
+      cy.get('[data-test="root-description-display"]').should('be.visible').click()
       cy.get('[data-test="root-description-input-edit"]').should('be.visible')
       cy.get('[data-test="root-description-display"]').should('not.exist')
       cy.get('[data-test="root-type-chip-picker"] [data-test="dropdown-icon"]').should('exist')
