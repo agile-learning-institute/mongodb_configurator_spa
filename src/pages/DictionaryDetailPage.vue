@@ -25,6 +25,7 @@
             variant="elevated"
             @click="unlockType"
             class="font-weight-bold"
+            data-test="unlock-dictionary-btn"
           >
             <v-icon start>mdi-lock-open</v-icon>
             Unlock
@@ -35,6 +36,7 @@
             variant="elevated"
             @click="lockDictionary"
             class="font-weight-bold"
+            data-test="lock-dictionary-btn"
           >
             <v-icon start>mdi-lock</v-icon>
             Lock
@@ -170,7 +172,7 @@
   </v-dialog>
 
   <!-- Unlock Confirmation Dialog -->
-  <v-dialog v-model="showUnlockDialog" max-width="500" data-test="unlock-type-dialog">
+  <v-dialog v-model="showUnlockDialog" max-width="500" data-test="unlock-dictionary-dialog">
     <v-card>
       <v-card-title class="text-h5 d-flex align-center">
         <v-icon color="warning" class="mr-3">mdi-alert-circle</v-icon>
@@ -385,13 +387,8 @@ const autoSave = async () => {
   error.value = null
   
   try {
-    // Log the dictionary data before saving
-    console.log('Saving dictionary:', JSON.stringify(dictionary.value, null, 2))
-    // Save the dictionary
     await apiService.saveDictionary(dictionary.value.file_name, dictionary.value)
-    // Reload the fresh data from the API
-    const freshData = await apiService.getDictionary(dictionary.value.file_name)
-    dictionary.value = freshData
+    // No need to get after put with the new API
   } catch (err: any) {
     error.value = err.message || 'Failed to save dictionary'
     console.error('Failed to save dictionary:', err)

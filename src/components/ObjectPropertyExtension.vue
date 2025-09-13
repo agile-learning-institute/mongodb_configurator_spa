@@ -105,19 +105,28 @@ const handleAddProperty = () => {
 
 const toggleAdditionalProperties = () => {
   if (isObjectProperty(props.property)) {
-    props.property.additional_properties = !props.property.additional_properties
-    emit('change', props.property)
+    // Handle undefined additional_properties as false
+    const currentValue = props.property.additional_properties ?? false
+    const updatedProperty = {
+      ...props.property,
+      additional_properties: !currentValue
+    }
+    emit('change', updatedProperty)
   }
 }
 
 const toggleCollapsed = () => {
   collapsed.value = !collapsed.value
+  // Update the property's collapsed state
+  ;(props.property as any)._collapsed = collapsed.value
   emit('toggleCollapsed', collapsed.value)
 }
 
 const getAdditionalPropsIcon = (): string => {
   if (isObjectProperty(props.property)) {
-    return props.property.additional_properties ? 'list_alt_check' : 'list_alt'
+    // Handle undefined additional_properties as false
+    const currentValue = props.property.additional_properties ?? false
+    return currentValue ? 'list_alt_check' : 'list_alt'
   }
   return 'list_alt'
 }

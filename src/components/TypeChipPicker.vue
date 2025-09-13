@@ -109,7 +109,11 @@ const builtInTypes: BuiltInType[] = [
   { title: 'Object', value: 'object', icon: 'mdi-shape' },
   { title: 'Simple', value: 'simple', icon: 'mdi-code-json' },
   { title: 'Complex', value: 'complex', icon: 'mdi-code-braces' },
-  { title: 'One Of', value: 'one_of', icon: 'mdi-format-list-bulleted-square' }
+  { title: 'One Of', value: 'one_of', icon: 'mdi-format-list-bulleted-square' },
+  { title: 'Ref', value: 'ref', icon: 'mdi-link' },
+  { title: 'Constant', value: 'constant', icon: 'mdi-numeric' },
+  { title: 'Enum', value: 'enum', icon: 'mdi-format-list-checks' },
+  { title: 'Enum Array', value: 'enum_array', icon: 'mdi-format-list-numbered' }
 ]
 
 // Load custom types from API
@@ -148,8 +152,17 @@ const availableBuiltInTypes = computed(() => {
     }
   }
   
-  // Non-root properties: only show Array and Object
-  return builtInTypes.filter(type => ['array', 'object'].includes(type.value))
+  // Non-root properties
+  if (props.isDictionary) {
+    // Dictionary non-root properties: array, object, one_of, ref, constant, enum, enum_array
+    return builtInTypes.filter(type => ['array', 'object', 'one_of', 'ref', 'constant', 'enum', 'enum_array'].includes(type.value))
+  } else if (props.isType) {
+    // Type non-root properties: array, object, {custom}
+    return builtInTypes.filter(type => ['array', 'object'].includes(type.value))
+  } else {
+    // Default non-root properties: only show Array and Object
+    return builtInTypes.filter(type => ['array', 'object'].includes(type.value))
+  }
 })
 
 

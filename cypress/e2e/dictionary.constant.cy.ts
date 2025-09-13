@@ -1,4 +1,4 @@
-describe('Dictionary Constant page flow', () => {
+describe('Dictionary Details Page', () => {
   const name = `e2e-test-dictionary-constant-${Date.now()}`
   const fileName = `${name}.yaml`
   const thingsToDelete: string[] = []

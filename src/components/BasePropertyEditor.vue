@@ -23,6 +23,7 @@
           class="mr-2"
           :style="{ minWidth: '180px' }"
           placeholder="Name"
+          @input="handleNameInput"
           @blur="handleNameChange"
           @keyup.enter="handleNameChange"
           data-test="property-name-input"
@@ -35,7 +36,7 @@
              class="description-display mr-2" 
              :class="{ 'root-description': isRoot }"
              :style="{ minWidth: '200px', flex: '1' }"
-             @click="startEditDescription"
+             @click.stop="startEditDescription"
              data-test="description-display">
           <span v-if="editableDescription" class="description-text" data-test="description-text">{{ editableDescription }}</span>
           <span v-else class="description-placeholder" data-test="description-placeholder">Click to add description</span>
@@ -52,8 +53,10 @@
           class="mr-2"
           :style="{ minWidth: '200px', flex: '1' }"
           placeholder="Description"
+          @input="handleDescriptionInput"
           @blur="finishEditDescription"
           @keyup.enter="finishEditDescription"
+          @click.stop
           ref="descriptionInput"
           data-test="description-input-edit"
         />
@@ -69,6 +72,7 @@
           class="mr-2"
           :style="{ minWidth: '200px', flex: '1' }"
           placeholder="Description"
+          @input="handleDescriptionInput"
           @blur="handleDescriptionChange"
           @keyup.enter="handleDescriptionChange"
           data-test="description-input"
@@ -146,7 +150,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch, nextTick } from 'vue'
+import { computed, ref, watch, nextTick, onUnmounted } from 'vue'
 import { 
   type Property,
   isArrayProperty,
@@ -179,6 +183,10 @@ const editableType = ref(props.property.type)
 const editableRequired = ref(props.property.required)
 const isEditingDescription = ref(false)
 const descriptionInput = ref<HTMLElement>()
+
+// Debounced save timers
+let nameSaveTimer: number | null = null
+let descriptionSaveTimer: number | null = null
 
 // Computed properties
 const isRoot = computed(() => props.isRoot || false)
@@ -229,14 +237,56 @@ const showBody = computed(() => {
 })
 
 // Methods
+const handleNameInput = () => {
+  // Debounced auto-save - clear existing timer and set new one
+  if (nameSaveTimer) {
+    clearTimeout(nameSaveTimer)
+  }
+  
+  nameSaveTimer = setTimeout(() => {
+    if (editableName.value !== props.property.name) {
+      props.property.name = editableName.value
+      emit('change', props.property)
+    }
+  }, 300) // 300ms delay
+}
+
 const handleNameChange = () => {
+  // Immediate save on blur/enter - clear any pending timer
+  if (nameSaveTimer) {
+    clearTimeout(nameSaveTimer)
+    nameSaveTimer = null
+  }
+  
   if (editableName.value !== props.property.name) {
     props.property.name = editableName.value
     emit('change', props.property)
   }
 }
 
+const handleDescriptionInput = () => {
+  // Debounced auto-save for non-root properties
+  if (!isRoot.value) {
+    if (descriptionSaveTimer) {
+      clearTimeout(descriptionSaveTimer)
+    }
+    
+    descriptionSaveTimer = setTimeout(() => {
+      if (editableDescription.value !== props.property.description) {
+        props.property.description = editableDescription.value
+        emit('change', props.property)
+      }
+    }, 300) // 300ms delay
+  }
+}
+
 const handleDescriptionChange = () => {
+  // Immediate save on blur/enter - clear any pending timer
+  if (descriptionSaveTimer) {
+    clearTimeout(descriptionSaveTimer)
+    descriptionSaveTimer = null
+  }
+  
   if (editableDescription.value !== props.property.description) {
     props.property.description = editableDescription.value
     emit('change', props.property)
@@ -324,6 +374,35 @@ const handleTypeChange = (newType: string) => {
       
       // Emit the change with the new property object
       emit('change', newProperty)
+    } else if (newType === 'one_of' && !isCustomProperty(props.property)) {
+      // Create a new one_of property object to ensure proper reactivity
+      const newProperty = {
+        ...(props.property as any),
+        type: newType,
+        properties: []
+      }
+      
+      // Emit the change with the new property object
+      emit('change', newProperty)
+    } else if (newType === 'constant' && !isCustomProperty(props.property)) {
+      // Create a new constant property object to ensure proper reactivity
+      const newProperty = {
+        ...(props.property as any),
+        type: newType,
+        constant: ''
+      }
+      
+      // Emit the change with the new property object
+      emit('change', newProperty)
+    } else {
+      // Handle custom types - just change the type without modifying other properties
+      const newProperty = {
+        ...props.property,
+        type: newType
+      }
+      
+      // Emit the change with the new property object
+      emit('change', newProperty)
     }
   }
 }
@@ -333,12 +412,14 @@ const handleDelete = () => {
 }
 
 const startEditDescription = () => {
-  if (isRoot.value && !props.disabled) {
+  if (isRoot.value && !props.disabled && !isEditingDescription.value) {
     isEditingDescription.value = true
     // Focus the input after it's rendered
     nextTick(() => {
       if (descriptionInput.value) {
         descriptionInput.value.focus()
+        // Select all text for easy replacement
+        ;(descriptionInput.value as HTMLInputElement).select()
       }
     })
   }
@@ -391,6 +472,16 @@ watch(() => props.property, (newProperty) => {
   editableType.value = newProperty.type
   editableRequired.value = newProperty.required
 }, { deep: true })
+
+// Cleanup timers on component unmount
+onUnmounted(() => {
+  if (nameSaveTimer) {
+    clearTimeout(nameSaveTimer)
+  }
+  if (descriptionSaveTimer) {
+    clearTimeout(descriptionSaveTimer)
+  }
+})
 </script>
 
 <style scoped>

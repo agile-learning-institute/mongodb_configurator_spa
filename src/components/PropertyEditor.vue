@@ -57,6 +57,17 @@
         @toggle-collapsed="handleToggleCollapsed"
         data-test="object-property-extension"
       />
+      
+      <!-- OneOf extension: Action icons -->
+      <ObjectPropertyExtension
+        v-if="isOneOfProperty(property)"
+        :property="property as any"
+        :disabled="disabled"
+        @change="handleChange"
+        @add-property="handleAddProperty"
+        @toggle-collapsed="handleToggleCollapsed"
+        data-test="one-of-property-extension"
+      />
     </template>
     
     <!-- Body slot for type-specific content -->
@@ -204,6 +215,16 @@
           </v-row>
         </div>
       </div>
+      
+      <!-- OneOf property body -->
+      <OneOfPropertyEditor
+        v-else-if="isOneOfProperty(property)"
+        :property="property"
+        :is-dictionary="isDictionary"
+        :is-type="isType"
+        @change="handleChange"
+        data-test="one-of-property-body"
+      />
     </template>
   </BasePropertyEditor>
 </template>
@@ -215,10 +236,12 @@ import {
   isArrayProperty,
   isObjectProperty,
   isSimpleProperty,
-  isComplexProperty
+  isComplexProperty,
+  isOneOfProperty
 } from '@/types/types'
 import BasePropertyEditor from './BasePropertyEditor.vue'
 import ArrayPropertyExtension from './ArrayPropertyExtension.vue'
+import OneOfPropertyEditor from './property-types/OneOfPropertyEditor.vue'
 
 // Drag and drop state
 const dragOverIndex = ref<number | null>(null)
@@ -256,7 +279,8 @@ const shouldRenderPropertyEditor = computed(() => {
   return isObjectProperty(props.property) || 
          isArrayProperty(props.property) || 
          isSimpleProperty(props.property) || 
-         isComplexProperty(props.property)
+         isComplexProperty(props.property) ||
+         isOneOfProperty(props.property)
 })
 
 // Computed properties for Simple and Complex property editing
@@ -303,6 +327,21 @@ const handleItemsChange = (updatedItems: any) => {
 
 const handleAddProperty = () => {
   if (isObjectProperty(props.property)) {
+    if (!props.property.properties) {
+      props.property.properties = []
+    }
+    
+    const newProperty = {
+      name: '',
+      description: '',
+      type: 'word',
+      required: false
+    }
+    
+    props.property.properties.push(newProperty)
+    emit('change', props.property)
+  } else if (isOneOfProperty(props.property)) {
+    // Handle adding property to one_of properties
     if (!props.property.properties) {
       props.property.properties = []
     }
