@@ -68,6 +68,15 @@
         @toggle-collapsed="handleToggleCollapsed"
         data-test="one-of-property-extension"
       />
+      
+      <!-- Enum extension: Enum picker -->
+      <EnumPropertyExtension
+        v-if="isEnumProperty(property) || isEnumArrayProperty(property)"
+        :property="property"
+        :disabled="disabled"
+        @change="handleChange"
+        data-test="enum-property-extension"
+      />
     </template>
     
     <!-- Body slot for type-specific content -->
@@ -237,7 +246,9 @@ import {
   isObjectProperty,
   isSimpleProperty,
   isComplexProperty,
-  isOneOfProperty
+  isOneOfProperty,
+  isEnumProperty,
+  isEnumArrayProperty
 } from '@/types/types'
 import BasePropertyEditor from './BasePropertyEditor.vue'
 import ArrayPropertyExtension from './ArrayPropertyExtension.vue'
@@ -248,6 +259,7 @@ const dragOverIndex = ref<number | null>(null)
 import ArrayOfObjectExtension from './ArrayOfObjectExtension.vue'
 import ArrayOfArrayExtension from './ArrayOfArrayExtension.vue'
 import ObjectPropertyExtension from './ObjectPropertyExtension.vue'
+import EnumPropertyExtension from './EnumPropertyExtension.vue'
 
 
 const props = defineProps<{
