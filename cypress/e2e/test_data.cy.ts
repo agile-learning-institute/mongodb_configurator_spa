@@ -1,4 +1,4 @@
-describe('Test Data page flow', () => {
+describe('Test Data detail page', () => {
   const name = `e2e-test-data-${Date.now()}`
   const fileName = `${name}.json`
   it('can create a test data file', () => {

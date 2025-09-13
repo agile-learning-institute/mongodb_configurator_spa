@@ -1,6 +1,4 @@
-
-
-describe('Migrations page flow', () => {
+describe('Migrations detail page', () => {
   let name: string = `e2e-migration-${Date.now()}`
   let fileName: string = `${name}.json`
 

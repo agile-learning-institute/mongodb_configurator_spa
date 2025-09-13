@@ -1,4 +1,4 @@
-describe('Types Page', () => {
+describe('Types Detail Page', () => {
   const name = `e2e-test-type-array-${Date.now()}`
   const fileName = `${name}.yaml`
   const thingsToDelete: string[] = []

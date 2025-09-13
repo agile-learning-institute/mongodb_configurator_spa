@@ -1,4 +1,4 @@
-describe('Configurations page flow', () => {
+describe('Configurations detail page', () => {
   let createdConfigurationName: string
   let createdConfigurationVersion: string
   let createdEnumeratorsVersion: string

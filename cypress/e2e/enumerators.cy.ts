@@ -1,6 +1,4 @@
-
-
-describe('Enumerators page flow', () => {
+describe('Enumerators detail page', () => {
   let enumeratorFileName: string = 'enumerations.3.yaml'
 
   // Helper function to verify seed data

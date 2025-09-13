@@ -1,4 +1,4 @@
-describe('Event Viewer page flow', () => {
+describe('Event Viewer detail page', () => {
   it('displays events with correct show/hide icons', () => {
     // Navigate to the event viewer page via the Configure Database button
     cy.visit('/')
