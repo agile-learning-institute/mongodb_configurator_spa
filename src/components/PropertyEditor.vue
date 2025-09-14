@@ -47,6 +47,16 @@
         data-test="array-property-extension"
       />
       
+      <OneOfPropertyExtension
+        v-if="isArrayProperty(property) && property.items && property.items.type === 'one_of'"
+        :property="property.items as any"
+        :disabled="disabled"
+        @change="handleArrayOneOfItemsChange"
+        @add-property="handleArrayOneOfAddProperty"
+        @toggle-collapsed="handleArrayOneOfCollapsed"
+        data-test="array-of-oneof-extension"
+      />
+      
       <!-- Object extension: Action icons -->
       <ObjectPropertyExtension
         v-if="isObjectProperty(property)"
@@ -666,6 +676,51 @@ const handleArrayObjectCollapsed = (collapsed: boolean) => {
   if (isArrayProperty(props.property) && props.property.items && props.property.items.type === 'object') {
     // We'll use a WeakMap or similar to store the collapsed state, but for now
     // we'll just store it on the property itself as a temporary UI state
+    ;(props.property.items as any)._collapsed = collapsed
+  }
+}
+
+// Array of OneOf handlers
+const handleArrayOneOfItemsChange = (updatedItems: Property) => {
+  if (isArrayProperty(props.property) && props.property.items && props.property.items.type === 'one_of') {
+    const updatedProperty = {
+      ...props.property,
+      items: updatedItems
+    }
+    emit('change', updatedProperty)
+  }
+}
+
+const handleArrayOneOfAddProperty = () => {
+  if (isArrayProperty(props.property) && props.property.items && props.property.items.type === 'one_of') {
+    const items = props.property.items as any
+    if (!items.properties) {
+      items.properties = []
+    }
+    
+    // Add a new simple property
+    const newProperty = {
+      name: `property_${items.properties.length + 1}`,
+      type: 'string' as const,
+      description: ''
+    }
+    
+    items.properties.push(newProperty)
+    
+    const updatedProperty = {
+      ...props.property,
+      items: {
+        ...items,
+        properties: items.properties
+      }
+    }
+    
+    emit('change', updatedProperty)
+  }
+}
+
+const handleArrayOneOfCollapsed = (collapsed: boolean) => {
+  if (isArrayProperty(props.property) && props.property.items && props.property.items.type === 'one_of') {
     ;(props.property.items as any)._collapsed = collapsed
   }
 }
