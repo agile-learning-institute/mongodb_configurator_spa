@@ -2,7 +2,7 @@ describe('Dictionary Details Page', () => {
   let dictionaryFileName: string
   let dictionaryName: string
 
-  // Setup a dictionary Object with a Object property
+  // Setup a dictionary Object with a One Of property
   beforeEach(() => {
     dictionaryName = `TestDictionary-object-${Date.now()}`
     dictionaryFileName = `${dictionaryName}.yaml`
