@@ -59,9 +59,9 @@
       />
       
       <!-- OneOf extension: Action icons -->
-      <ObjectPropertyExtension
+      <OneOfPropertyExtension
         v-if="isOneOfProperty(property)"
-        :property="property as any"
+        :property="property"
         :disabled="disabled"
         @change="handleChange"
         @add-property="handleAddProperty"
@@ -191,6 +191,53 @@
         </div>
       </div>
       
+      <!-- OneOf property body -->
+      <div v-else-if="isOneOfProperty(property) && !(property as any)._collapsed" class="object-property-body" data-test="object-property-body">
+        <div v-if="!property.properties || property.properties.length === 0" class="text-center pa-4" data-test="no-object-properties-message">
+          <v-icon size="48" color="grey" data-test="no-object-properties-icon">mdi-format-list-bulleted</v-icon>
+          <p class="text-body-2 text-medium-emphasis mt-2" data-test="no-object-properties-text">No properties defined. Click the <v-icon icon="mdi-plus" size="small" class="mx-1" data-test="add-object-property-icon" /> icon to add your first property</p>
+        </div>
+        
+        <div v-else class="properties-section" data-test="object-properties-section">
+          <template v-for="(prop, index) in property.properties" :key="prop.name || index">
+            <!-- Each property is its own drop zone for dropping above it -->
+            <div 
+              class="property-drop-zone"
+              :class="{ 'drag-over': dragOverIndex === index }"
+              :data-test="`drop-zone-${index}`"
+              @dragover.prevent="handleDragOver(index)"
+              @dragenter.prevent="handleDragEnter(index)"
+              @dragleave="handleDragLeave(index)"
+              @drop="(event) => handleDrop(event, index)"
+            >
+              <PropertyEditor
+                :property="prop"
+                :is-root="false"
+                :is-dictionary="isDictionary"
+                :is-type="isType"
+                :disabled="disabled"
+                @change="(updatedProp) => handleOneOfPropertyChange(index, updatedProp)"
+                @delete="() => handleOneOfPropertyDelete(index)"
+                :data-test="`object-property-${prop.name || index}`"
+              />
+            </div>
+          </template>
+          
+          <!-- Drop zone after last property -->
+          <div 
+            class="drop-zone" 
+            :class="{ 'drag-over': dragOverIndex === (isOneOfProperty(property) ? property.properties.length : 0) }"
+            :data-test="`drop-zone-${isOneOfProperty(property) ? property.properties.length : 0}`"
+            @dragover.prevent="handleDragOver(isOneOfProperty(property) ? property.properties.length : 0)"
+            @dragenter.prevent="handleDragEnter(isOneOfProperty(property) ? property.properties.length : 0)"
+            @dragleave="handleDragLeave(isOneOfProperty(property) ? property.properties.length : 0)"
+            @drop="(event) => handleDrop(event, isOneOfProperty(property) ? property.properties.length : 0)"
+          >
+            <div class="drop-indicator"></div>
+          </div>
+        </div>
+      </div>
+      
       <!-- Simple property body - show schema configuration -->
       <div v-else-if="isSimpleProperty(property)" class="simple-property-body" data-test="simple-property-body">
         <div class="schema-configuration pa-4">
@@ -243,15 +290,6 @@
         </div>
       </div>
       
-      <!-- OneOf property body -->
-      <OneOfPropertyEditor
-        v-else-if="isOneOfProperty(property)"
-        :property="property"
-        :is-dictionary="isDictionary"
-        :is-type="isType"
-        @change="handleChange"
-        data-test="one-of-property-body"
-      />
     </template>
   </BasePropertyEditor>
 </template>
@@ -272,7 +310,6 @@ import {
 } from '@/types/types'
 import BasePropertyEditor from './BasePropertyEditor.vue'
 import ArrayPropertyExtension from './ArrayPropertyExtension.vue'
-import OneOfPropertyEditor from './property-types/OneOfPropertyEditor.vue'
 
 // Drag and drop state
 const dragOverIndex = ref<number | null>(null)
@@ -282,6 +319,7 @@ import ObjectPropertyExtension from './ObjectPropertyExtension.vue'
 import EnumPropertyExtension from './EnumPropertyExtension.vue'
 import RefPropertyExtension from './RefPropertyExtension.vue'
 import ConstantPropertyExtension from './ConstantPropertyExtension.vue'
+import OneOfPropertyExtension from './OneOfPropertyExtension.vue'
 
 
 const props = defineProps<{
@@ -380,6 +418,11 @@ const handleAddProperty = () => {
       props.property.properties = []
     }
     
+    // Ensure one_of property has _collapsed: false
+    if ((props.property as any)._collapsed === undefined) {
+      (props.property as any)._collapsed = false
+    }
+    
     const newProperty = {
       name: '',
       description: '',
@@ -409,8 +452,14 @@ const handleAddProperty = () => {
 }
 
 const handleToggleCollapsed = (collapsed: boolean) => {
-  // Toggle the collapsed state for object properties
+  // Toggle the collapsed state for object and one_of properties
   if (isObjectProperty(props.property)) {
+    const updatedProperty = {
+      ...props.property,
+      _collapsed: collapsed
+    }
+    emit('change', updatedProperty)
+  } else if (isOneOfProperty(props.property)) {
     const updatedProperty = {
       ...props.property,
       _collapsed: collapsed
@@ -428,6 +477,20 @@ const handlePropertyChange = (index: number, updatedProp: Property) => {
 
 const handlePropertyDelete = (index: number) => {
   if (isObjectProperty(props.property) && props.property.properties) {
+    props.property.properties.splice(index, 1)
+    emit('change', props.property)
+  }
+}
+
+const handleOneOfPropertyChange = (index: number, updatedProp: Property) => {
+  if (isOneOfProperty(props.property) && props.property.properties) {
+    props.property.properties[index] = updatedProp
+    emit('change', props.property)
+  }
+}
+
+const handleOneOfPropertyDelete = (index: number) => {
+  if (isOneOfProperty(props.property) && props.property.properties) {
     props.property.properties.splice(index, 1)
     emit('change', props.property)
   }
@@ -485,6 +548,29 @@ const handleDrop = (event: DragEvent, dropIndex: number) => {
   if (!draggedPropertyName) return
   
   if (isObjectProperty(props.property) && props.property.properties) {
+    // Find the dragged property index
+    const draggedIndex = props.property.properties.findIndex(prop => prop.name === draggedPropertyName)
+    if (draggedIndex === -1) return
+    
+    // Don't do anything if dropping on itself
+    if (draggedIndex === dropIndex) return
+    
+    // Create new properties array with reordered items
+    const newProperties = [...props.property.properties]
+    const [draggedProperty] = newProperties.splice(draggedIndex, 1)
+    
+    // Adjust drop index if dragging from before the drop position
+    const adjustedDropIndex = draggedIndex < dropIndex ? dropIndex - 1 : dropIndex
+    newProperties.splice(adjustedDropIndex, 0, draggedProperty)
+    
+    // Update the property
+    const updatedProperty = {
+      ...props.property,
+      properties: newProperties
+    }
+    
+    emit('change', updatedProperty)
+  } else if (isOneOfProperty(props.property) && props.property.properties) {
     // Find the dragged property index
     const draggedIndex = props.property.properties.findIndex(prop => prop.name === draggedPropertyName)
     if (draggedIndex === -1) return
