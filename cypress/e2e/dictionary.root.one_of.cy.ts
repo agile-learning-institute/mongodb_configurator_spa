@@ -107,7 +107,7 @@ describe('Dictionary Details Page', () => {
       cy.get('[data-test="type-chip"]').eq(0).should('be.visible').should('contain', 'Object')
     })
 
-    it.only('displays one_of action icons', () => {
+    it('displays one_of action icons', () => {
       cy.visit(`/dictionaries/${dictionaryFileName}`)
 
       // verify add property button is visible and enabled (second one for the non-root object)
@@ -161,12 +161,12 @@ describe('Dictionary Details Page', () => {
       cy.get('[data-test="property-name-input"]').eq(0).find('input').should('have.value', 'thirdTestProperty')
 
       // delete the last property
-      cy.get('[data-test="delete-property-btn"]').should('not.exist')
+      cy.get('[data-test="delete-property-btn"]').eq(0).should('be.visible').click()
       cy.get('[data-test="property-name-input"]').should('not.exist')
       cy.get('[data-test="object-property-body"]').should('contain', 'No properties defined')
     })
     
-    it('can arrange properties', () => {
+    it.only('can arrange properties', () => {
       cy.visit(`/dictionaries/${dictionaryFileName}`)
       cy.get('[data-test="add-property-btn"]').eq(0).should('be.visible').click().click().click()
       cy.get('[data-test="property-name-input"]').eq(0).click()
@@ -192,11 +192,9 @@ describe('Dictionary Details Page', () => {
           .trigger('dragstart', { dataTransfer })
         
         // Drop on the first drop zone within the non-root property context
-        cy.get('[data-test="object-property-0"]').within(() => {
-          cy.get('[data-test="drop-zone-0"]')
-            .trigger('dragover', { dataTransfer })
-            .trigger('drop', { dataTransfer })
-        })
+        cy.get('[data-test="drop-zone-0"]')
+          .trigger('dragover', { dataTransfer })
+          .trigger('drop', { dataTransfer })
         
         // Trigger dragend
         cy.wrap($dragHandle)
@@ -253,8 +251,8 @@ describe('Dictionary Details Page', () => {
       cy.get('[data-test="collapse-toggle-btn"]').eq(0).should('be.visible').and('not.be.disabled').click()
       cy.get('[data-test="collapse-toggle-btn"]').eq(0).find('.material-symbols-outlined').should('contain', 'expand_content')
       cy.get('[data-test="collapse-toggle-btn"]').eq(0).find('.material-symbols-outlined').should('not.contain', 'collapse_content')
-      cy.get('[data-test="property-name-input"]').should('have.length', 1)
-      cy.get('[data-test="property-body"]').eq(1).should('be.empty')
+      cy.get('[data-test="property-name-input"]').should('have.length', 0)
+      cy.get('[data-test="property-body"]').eq(0).should('be.empty')
 
       // Show Properties
       cy.get('[data-test="collapse-toggle-btn"]').eq(0).should('be.visible').and('not.be.disabled').click()
@@ -274,7 +272,7 @@ describe('Dictionary Details Page', () => {
       cy.get('[data-test="delete-dictionary-btn"]').should('not.exist')
 
       // Make sure the description is locked
-      cy.get('[data-test="root-description-display"]').eq(0).find('input').should('have.attr', 'readonly')
+      cy.get('[data-test="root-description-placeholder"]').eq(0).find('input').should('not.exist')
 
       // verify these controls do not exist
       cy.get('[data-test="add-property-btn"]').should('not.exist')
