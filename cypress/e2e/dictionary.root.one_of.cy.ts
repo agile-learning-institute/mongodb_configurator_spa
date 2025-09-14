@@ -64,14 +64,16 @@ describe('Dictionary Details Page', () => {
 
     it('has the correct type picker', () => {
       cy.visit(`/dictionaries/${dictionaryFileName}`)
+      cy.get('[data-test="type-chip"]').eq(0).should('be.visible').click()
 
-      cy.get('[data-test="type-chip"]').eq(1).should('be.visible').wait(200)
-      cy.get('[data-test="type-chip"]').eq(1).click()
+      // verify type picker has Built-in Types section
       cy.get('[data-test="type-picker-card"]').should('be.visible')
-      cy.get('[data-test="built-in-types-category"] i').should('have.length', 7)
+      cy.get('[data-test="built-in-types-category"] i').should('have.length', 3)
       cy.get('[data-test="built-in-type-array"]').should('be.visible')
       cy.get('[data-test="built-in-type-object"]').should('be.visible')
       cy.get('[data-test="built-in-type-one_of"]').should('be.visible')
+
+      // verify type picker does not have other built-in types
       cy.get('[data-test="built-in-type-ref"]').should('not.exist')
       cy.get('[data-test="built-in-type-constant"]').should('not.exist')
       cy.get('[data-test="built-in-type-enum"]').should('not.exist')
@@ -84,27 +86,25 @@ describe('Dictionary Details Page', () => {
     it('can change type to array', () => {
       cy.visit(`/dictionaries/${dictionaryFileName}`)
 
-      cy.get('[data-test="type-chip"]').eq(1).should('be.visible').wait(200)
-      cy.get('[data-test="type-chip"]').eq(1).click()
+      cy.get('[data-test="type-chip"]').eq(0).should('be.visible').click()
       cy.get('[data-test="type-picker-card"]').should('be.visible')
       cy.get('[data-test="built-in-type-array"]').should('be.visible').click()
       cy.get('[data-test="type-picker-card"]').should('not.exist')
       cy.wait(250)
       cy.reload()
-      cy.get('[data-test="type-chip"]').eq(1).should('be.visible').should('contain', 'Array')
+      cy.get('[data-test="type-chip"]').eq(0).should('be.visible').should('contain', 'Array')
     })
 
     it('can change type to object', () => {
       cy.visit(`/dictionaries/${dictionaryFileName}`)
 
-      cy.get('[data-test="type-chip"]').eq(1).should('be.visible').wait(200)
-      cy.get('[data-test="type-chip"]').eq(1).click()
+      cy.get('[data-test="type-chip"]').eq(0).should('be.visible').click()
       cy.get('[data-test="type-picker-card"]').should('be.visible')
       cy.get('[data-test="built-in-type-object"]').should('be.visible').click()
       cy.get('[data-test="type-picker-card"]').should('not.exist')
       cy.wait(250)
       cy.reload()
-      cy.get('[data-test="type-chip"]').eq(1).should('be.visible').should('contain', 'Object')
+      cy.get('[data-test="type-chip"]').eq(0).should('be.visible').should('contain', 'Object')
     })
 
     it('displays one_of action icons', () => {
