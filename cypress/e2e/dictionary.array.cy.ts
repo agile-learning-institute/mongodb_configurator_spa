@@ -294,7 +294,6 @@ describe('Dictionary Details Page', () => {
     
     it('can arrange properties', () => {
       cy.visit(`/dictionaries/${dictionaryFileName}`)
-      expect(true, 'Not Yet Implemented').to.equal(false)
       cy.get('[data-test="add-property-btn"]').eq(1).should('be.visible').click().click().click()
       cy.get('[data-test="property-name-input"]').eq(1).click()
       cy.get('[data-test="property-name-input"]').eq(1).find('input').type('firstTestProperty')
@@ -319,11 +318,9 @@ describe('Dictionary Details Page', () => {
           .trigger('dragstart', { dataTransfer })
         
         // Drop on the first drop zone within the non-root property context
-        cy.get('[data-test="object-property-0"]').within(() => {
-          cy.get('[data-test="drop-zone-0"]')
-            .trigger('dragover', { dataTransfer })
-            .trigger('drop', { dataTransfer })
-        })
+        cy.get('[data-test="drop-zone-0"]').eq(1)
+          .trigger('dragover', { dataTransfer })
+          .trigger('drop', { dataTransfer })
         
         // Trigger dragend
         cy.wrap($dragHandle)

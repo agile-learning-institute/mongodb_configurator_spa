@@ -109,18 +109,42 @@
           </div>
           
           <div v-else class="properties-section" data-test="properties-section">
-            <PropertyEditor
-              v-for="(prop, index) in (property.items as any).properties"
-              :key="prop.name || index"
-              :property="prop"
-              :is-root="false"
-              :is-dictionary="isDictionary"
-              :is-type="isType"
-              :disabled="disabled"
-              @change="(updatedProp) => handleArrayObjectPropertyChange(index, updatedProp)"
-              @delete="() => handleArrayObjectPropertyDelete(index)"
-              :data-test="`nested-property-${prop.name || index}`"
-            />
+            <template v-for="(prop, index) in (property.items as any).properties" :key="prop.name || index">
+              <!-- Each property is its own drop zone for dropping above it -->
+              <div 
+                class="property-drop-zone"
+                :class="{ 'drag-over': dragOverIndex === index }"
+                :data-test="`drop-zone-${index}`"
+                @dragover.prevent="handleDragOver(index)"
+                @dragenter.prevent="handleDragEnter(index)"
+                @dragleave="handleDragLeave(index)"
+                @drop="(event) => handleArrayObjectDrop(event, index)"
+              >
+                <PropertyEditor
+                  :property="prop"
+                  :is-root="false"
+                  :is-dictionary="isDictionary"
+                  :is-type="isType"
+                  :disabled="disabled"
+                  @change="(updatedProp) => handleArrayObjectPropertyChange(index, updatedProp)"
+                  @delete="() => handleArrayObjectPropertyDelete(index)"
+                  :data-test="`nested-property-${prop.name || index}`"
+                />
+              </div>
+            </template>
+            
+            <!-- Drop zone after last property -->
+            <div 
+              class="drop-zone" 
+              :class="{ 'drag-over': dragOverIndex === (isArrayProperty(property) && property.items && property.items.type === 'object' ? (property.items as any).properties?.length || 0 : 0) }"
+              :data-test="`drop-zone-${isArrayProperty(property) && property.items && property.items.type === 'object' ? (property.items as any).properties?.length || 0 : 0}`"
+              @dragover.prevent="handleDragOver(isArrayProperty(property) && property.items && property.items.type === 'object' ? (property.items as any).properties?.length || 0 : 0)"
+              @dragenter.prevent="handleDragEnter(isArrayProperty(property) && property.items && property.items.type === 'object' ? (property.items as any).properties?.length || 0 : 0)"
+              @dragleave="handleDragLeave(isArrayProperty(property) && property.items && property.items.type === 'object' ? (property.items as any).properties?.length || 0 : 0)"
+              @drop="(event) => handleArrayObjectDrop(event, isArrayProperty(property) && property.items && property.items.type === 'object' ? (property.items as any).properties?.length || 0 : 0)"
+            >
+              <div class="drop-indicator"></div>
+            </div>
           </div>
         </div>
       </div>
@@ -590,6 +614,47 @@ const handleDrop = (event: DragEvent, dropIndex: number) => {
     const updatedProperty = {
       ...props.property,
       properties: newProperties
+    }
+    
+    emit('change', updatedProperty)
+  }
+}
+
+const handleArrayObjectDrop = (event: DragEvent, dropIndex: number) => {
+  event.preventDefault()
+  dragOverIndex.value = null
+  
+  if (!event.dataTransfer) return
+  
+  const draggedPropertyName = event.dataTransfer.getData('text/plain')
+  if (!draggedPropertyName) return
+  
+  if (isArrayProperty(props.property) && props.property.items && props.property.items.type === 'object') {
+    const items = props.property.items as any
+    if (!items.properties) return
+    
+    // Find the dragged property index
+    const draggedIndex = items.properties.findIndex((prop: any) => prop.name === draggedPropertyName)
+    if (draggedIndex === -1) return
+    
+    // Don't do anything if dropping on itself
+    if (draggedIndex === dropIndex) return
+    
+    // Create new properties array with reordered items
+    const newProperties = [...items.properties]
+    const [draggedProperty] = newProperties.splice(draggedIndex, 1)
+    
+    // Adjust drop index if dragging from before the drop position
+    const adjustedDropIndex = draggedIndex < dropIndex ? dropIndex - 1 : dropIndex
+    newProperties.splice(adjustedDropIndex, 0, draggedProperty)
+    
+    // Update the property
+    const updatedProperty = {
+      ...props.property,
+      items: {
+        ...items,
+        properties: newProperties
+      }
     }
     
     emit('change', updatedProperty)
