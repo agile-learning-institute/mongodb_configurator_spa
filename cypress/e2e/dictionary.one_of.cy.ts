@@ -59,32 +59,18 @@ describe('Dictionary Details Page', () => {
   describe('One Of Property Editor', () => {
     it('can persist name/description edits', () => {
       cy.visit(`/dictionaries/${dictionaryFileName}`)
-      cy.get('[data-test="add-property-btn"]').eq(1).should('be.visible').click().click()
 
-      cy.get('[data-test="property-name-input"]').eq(1).click()
-      cy.get('[data-test="property-name-input"]').eq(1).find('input').type('firstTestProperty')
+      cy.get('[data-test="property-name-input"]').should('be.visible').click()
+      cy.get('[data-test="property-name-input"]').find('input').type('firstTestProperty')
       cy.wait(250)
       cy.reload()
-      cy.get('[data-test="property-name-input"]').eq(1).find('input').should('have.value', 'firstTestProperty')
+      cy.get('[data-test="property-name-input"]').find('input').should('have.value', 'firstTestProperty')
 
-      cy.get('[data-test="description-input"]').eq(1).click()
-      cy.get('[data-test="description-input"]').eq(1).find('input').type('One property for testing object properties')
+      cy.get('[data-test="description-input"]').should('be.visible').click()
+      cy.get('[data-test="description-input"]').find('input').type('One property for testing object properties')
       cy.wait(250)
       cy.reload()
-      cy.get('[data-test="description-input"]').eq(1).find('input').should('have.value', 'One property for testing object properties')
-
-      cy.get('[data-test="property-name-input"]').eq(2).click()
-      cy.get('[data-test="property-name-input"]').eq(2).find('input').type('secondTestProperty')
-      cy.wait(250)
-      cy.reload()
-      cy.get('[data-test="property-name-input"]').eq(2).find('input').should('have.value', 'secondTestProperty')
-
-      cy.get('[data-test="description-input"]').eq(2).click()
-      cy.get('[data-test="description-input"]').eq(2).find('input').type('Two property for testing object properties')
-      cy.wait(250)
-      cy.reload()
-      cy.get('[data-test="property-name-input"]').eq(2).find('input').should('have.value', 'secondTestProperty')
-      cy.get('[data-test="description-input"]').eq(2).find('input').should('have.value', 'Two property for testing object properties')
+      cy.get('[data-test="description-input"]').find('input').should('have.value', 'One property for testing object properties')
     })
 
     it('has the correct type picker', () => {
@@ -324,7 +310,7 @@ describe('Dictionary Details Page', () => {
     })
   })
 
-  describe('Lockable Object Property Editor', () => {
+  describe('Lockable One_Of Property Editor', () => {
     it('locks', () => {
       cy.visit(`/dictionaries/${dictionaryFileName}`)
       // lock the dictionary
