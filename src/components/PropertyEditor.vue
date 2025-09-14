@@ -192,7 +192,7 @@
       </div>
       
       <!-- OneOf property body -->
-      <div v-else-if="isOneOfProperty(property)" class="object-property-body" data-test="object-property-body">
+      <div v-else-if="isOneOfProperty(property) && !(property as any)._collapsed" class="object-property-body" data-test="object-property-body">
         <div v-if="!property.properties || property.properties.length === 0" class="text-center pa-4" data-test="no-object-properties-message">
           <v-icon size="48" color="grey" data-test="no-object-properties-icon">mdi-format-list-bulleted</v-icon>
           <p class="text-body-2 text-medium-emphasis mt-2" data-test="no-object-properties-text">No properties defined. Click the <v-icon icon="mdi-plus" size="small" class="mx-1" data-test="add-object-property-icon" /> icon to add your first property</p>
