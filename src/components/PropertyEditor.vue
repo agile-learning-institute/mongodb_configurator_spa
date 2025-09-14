@@ -192,7 +192,7 @@
       </div>
       
       <!-- OneOf property body -->
-      <div v-else-if="isOneOfProperty(property) && !(property as any)._collapsed" class="object-property-body" data-test="object-property-body">
+      <div v-else-if="isOneOfProperty(property)" class="object-property-body" data-test="object-property-body">
         <div v-if="!property.properties || property.properties.length === 0" class="text-center pa-4" data-test="no-object-properties-message">
           <v-icon size="48" color="grey" data-test="no-object-properties-icon">mdi-format-list-bulleted</v-icon>
           <p class="text-body-2 text-medium-emphasis mt-2" data-test="no-object-properties-text">No properties defined. Click the <v-icon icon="mdi-plus" size="small" class="mx-1" data-test="add-object-property-icon" /> icon to add your first property</p>
@@ -290,15 +290,6 @@
         </div>
       </div>
       
-      <!-- OneOf property body -->
-      <OneOfPropertyEditor
-        v-else-if="isOneOfProperty(property)"
-        :property="property"
-        :is-dictionary="isDictionary"
-        :is-type="isType"
-        @change="handleChange"
-        data-test="one-of-property-body"
-      />
     </template>
   </BasePropertyEditor>
 </template>
@@ -319,7 +310,6 @@ import {
 } from '@/types/types'
 import BasePropertyEditor from './BasePropertyEditor.vue'
 import ArrayPropertyExtension from './ArrayPropertyExtension.vue'
-import OneOfPropertyEditor from './property-types/OneOfPropertyEditor.vue'
 
 // Drag and drop state
 const dragOverIndex = ref<number | null>(null)
@@ -426,6 +416,11 @@ const handleAddProperty = () => {
     // Handle adding property to one_of properties
     if (!props.property.properties) {
       props.property.properties = []
+    }
+    
+    // Ensure one_of property has _collapsed: false
+    if ((props.property as any)._collapsed === undefined) {
+      (props.property as any)._collapsed = false
     }
     
     const newProperty = {

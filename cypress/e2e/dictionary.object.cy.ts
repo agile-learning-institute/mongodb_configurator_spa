@@ -219,6 +219,9 @@ describe('Dictionary Details Page', () => {
     it('can add/delete properties to object', () => {
       cy.visit(`/dictionaries/${dictionaryFileName}`)
 
+      // make sure the property list body exists.
+      cy.get('[data-test="property-body"]').eq(1).should('be.visible')
+
       // add three properties to the object
       cy.get('[data-test="add-property-btn"]').eq(1).click().click().click()
       cy.get('[data-test="property-name-input"]').eq(1).click()

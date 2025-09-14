@@ -132,7 +132,7 @@ describe('Dictionary Details Page', () => {
       cy.get('[data-test="type-chip"]').eq(1).should('be.visible').should('contain', 'word')
     })
 
-    it('displays object action icons', () => {
+    it('displays one_of action icons', () => {
       cy.visit(`/dictionaries/${dictionaryFileName}`)
 
       // verify add property button is visible and enabled (second one for the non-root object)
@@ -180,8 +180,11 @@ describe('Dictionary Details Page', () => {
       cy.get('[data-test="required-toggle-btn"]').first().find('.material-symbols-outlined').should('contain', 'toggle_off')
     })
 
-    it.only('can add/delete properties to one of', () => {
+    it('can add/delete properties to one of', () => {
       cy.visit(`/dictionaries/${dictionaryFileName}`)
+
+      // make sure the property list body exists.
+      cy.get('[data-test="property-body"]').eq(1).should('be.visible')
 
       // add three properties to the object
       cy.get('[data-test="add-property-btn"]').eq(1).click().click().click()
@@ -260,26 +263,28 @@ describe('Dictionary Details Page', () => {
       cy.get('[data-test="property-name-input"]').eq(3).find('input').should('have.value', 'thirdTestProperty')
     })
 
-    it('can show/hide empty properties', () => {
+    it.only('can show/hide empty properties', () => {
       cy.visit(`/dictionaries/${dictionaryFileName}`)
 
       // verify show-hide-properties button is visible and enabled
       cy.get('[data-test="collapse-toggle-btn"]').eq(1).should('be.visible').and('not.be.disabled')
       cy.get('[data-test="collapse-toggle-btn"]').eq(1).find('.material-symbols-outlined').should('contain', 'collapse_content')
       cy.get('[data-test="collapse-toggle-btn"]').eq(1).find('.material-symbols-outlined').should('not.contain', 'expand_content')
-      cy.get('[data-test="object-property-body"]').eq(1).should('contain', 'No properties defined')
+      cy.get('[data-test="property-body"]').eq(1).should('contain', 'No properties defined')
 
+      // Hide Properties
       cy.get('[data-test="collapse-toggle-btn"]').eq(1).click()
       cy.get('[data-test="collapse-toggle-btn"]').eq(1).should('be.visible').and('not.be.disabled')
       cy.get('[data-test="collapse-toggle-btn"]').eq(1).find('.material-symbols-outlined').should('contain', 'expand_content')
       cy.get('[data-test="collapse-toggle-btn"]').eq(1).find('.material-symbols-outlined').should('not.contain', 'collapse_content')
       cy.get('[data-test="property-body"]').eq(1).should('be.empty')
 
+      // Show Properties
       cy.get('[data-test="collapse-toggle-btn"]').eq(1).click()
       cy.get('[data-test="collapse-toggle-btn"]').eq(1).should('be.visible').and('not.be.disabled')
       cy.get('[data-test="collapse-toggle-btn"]').eq(1).find('.material-symbols-outlined').should('contain', 'collapse_content')
       cy.get('[data-test="collapse-toggle-btn"]').eq(1).find('.material-symbols-outlined').should('not.contain', 'expand_content')
-      cy.get('[data-test="object-property-body"]').eq(1).should('contain', 'No properties defined')
+      cy.get('[data-test="property-body"]').eq(1).should('contain', 'No properties defined')
     })
 
     it('can show/hide some properties', () => {
@@ -326,8 +331,8 @@ describe('Dictionary Details Page', () => {
       // Make sure none of the action icons exist
       cy.get('[data-test="required-toggle-btn"]').should('not.exist')
       cy.get('[data-test="delete-property-btn"]').should('not.exist')
-      cy.get('[data-test="add-property-btn"]').should('have.length', 1)
-      cy.get('[data-test="additional-props-toggle-btn"]').should('have.length', 1)
+      cy.get('[data-test="add-property-btn"]').should('not.exist')
+      cy.get('[data-test="additional-props-toggle-btn"]').should('not.exist')
       
       // verify root level show-hide-properties button is still visible and enabled (collapse should work even when locked)
       cy.get('[data-test="collapse-toggle-btn"]').eq(0).should('be.visible').and('not.be.disabled')

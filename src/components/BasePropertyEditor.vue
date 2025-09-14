@@ -155,6 +155,7 @@ import {
   type Property,
   isArrayProperty,
   isObjectProperty,
+  isOneOfProperty,
   isSimpleProperty,
   isComplexProperty,
   isCustomProperty
@@ -219,6 +220,10 @@ const canBeDeleted = computed(() => {
 const showBody = computed(() => {
   // Only show body for types that need it
   if (isObjectProperty(props.property)) {
+    return true
+  }
+  
+  if (isOneOfProperty(props.property)) {
     return true
   }
   
@@ -379,7 +384,8 @@ const handleTypeChange = (newType: string) => {
       const newProperty = {
         ...(props.property as any),
         type: newType,
-        properties: []
+        properties: [],
+        _collapsed: false
       }
       
       // Emit the change with the new property object
