@@ -166,7 +166,7 @@ describe('Dictionary Details Page', () => {
       cy.get('[data-test="object-property-body"]').should('contain', 'No properties defined')
     })
     
-    it.only('can arrange properties', () => {
+    it('can arrange properties', () => {
       cy.visit(`/dictionaries/${dictionaryFileName}`)
       cy.get('[data-test="add-property-btn"]').eq(0).should('be.visible').click().click().click()
       cy.get('[data-test="property-name-input"]').eq(0).click()
