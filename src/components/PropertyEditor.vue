@@ -570,6 +570,29 @@ const handleDrop = (event: DragEvent, dropIndex: number) => {
     }
     
     emit('change', updatedProperty)
+  } else if (isOneOfProperty(props.property) && props.property.properties) {
+    // Find the dragged property index
+    const draggedIndex = props.property.properties.findIndex(prop => prop.name === draggedPropertyName)
+    if (draggedIndex === -1) return
+    
+    // Don't do anything if dropping on itself
+    if (draggedIndex === dropIndex) return
+    
+    // Create new properties array with reordered items
+    const newProperties = [...props.property.properties]
+    const [draggedProperty] = newProperties.splice(draggedIndex, 1)
+    
+    // Adjust drop index if dragging from before the drop position
+    const adjustedDropIndex = draggedIndex < dropIndex ? dropIndex - 1 : dropIndex
+    newProperties.splice(adjustedDropIndex, 0, draggedProperty)
+    
+    // Update the property
+    const updatedProperty = {
+      ...props.property,
+      properties: newProperties
+    }
+    
+    emit('change', updatedProperty)
   }
 }
 
