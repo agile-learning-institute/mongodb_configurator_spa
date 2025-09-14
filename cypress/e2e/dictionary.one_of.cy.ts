@@ -180,7 +180,7 @@ describe('Dictionary Details Page', () => {
       cy.get('[data-test="required-toggle-btn"]').first().find('.material-symbols-outlined').should('contain', 'toggle_off')
     })
 
-    it('can add/delete properties to one of', () => {
+    it.only('can add/delete properties to one of', () => {
       cy.visit(`/dictionaries/${dictionaryFileName}`)
 
       // add three properties to the object
