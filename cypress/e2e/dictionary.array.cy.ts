@@ -489,9 +489,7 @@ describe('Dictionary Details Page', () => {
       cy.get('[data-test="no-object-properties-text"]').should('exist')
     })
 
-    it('can add/delete properties to one of', () => {
-      cy.visit(`/dictionaries/${dictionaryFileName}`)
-
+    it.only('can add/delete properties to one of', () => {
       // make sure the property list body exists.
       cy.get('[data-test="property-body"]').eq(1).should('be.visible')
 
