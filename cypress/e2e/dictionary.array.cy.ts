@@ -196,7 +196,8 @@ describe('Dictionary Details Page', () => {
       cy.get('[data-test="delete-dictionary-btn"]').should('not.exist')
 
       // verify that everything is locked
-      expect(true, 'Not Yet Implemented').to.equal(false)
+      cy.get('[data-test="required-toggle-btn"]').should('not.exist')
+      cy.get('[data-test="delete-property-btn"]').should('not.exist')
     })
 
     it('unlocks', () => {
@@ -211,7 +212,8 @@ describe('Dictionary Details Page', () => {
       cy.get('[data-test="unlock-dictionary-dialog"]').should('not.exist')
 
       // verify that everything is unlocked
-      expect(true, 'Not Yet Implemented').to.equal(false)
+      cy.get('[data-test="required-toggle-btn"]').should('be.visible')
+      cy.get('[data-test="delete-property-btn"]').should('be.visible')
     })
   })
 
@@ -224,8 +226,6 @@ describe('Dictionary Details Page', () => {
     })
 
     it('displays array of objects action icons', () => {
-      cy.visit(`/dictionaries/${dictionaryFileName}`)
-
       // verify add property button is visible and enabled (second one for the non-root object)
       cy.get('[data-test="add-property-btn"]').eq(1).should('be.visible').and('not.be.disabled')
       cy.get('[data-test="add-property-btn"]').eq(1).find('.material-symbols-outlined').should('contain', 'list_alt_add')
@@ -258,8 +258,6 @@ describe('Dictionary Details Page', () => {
     })
 
     it('can add/delete properties to objects', () => {
-      cy.visit(`/dictionaries/${dictionaryFileName}`)
-
       // make sure the property list body exists.
       cy.get('[data-test="property-body"]').eq(1).should('be.visible')
 
@@ -291,7 +289,7 @@ describe('Dictionary Details Page', () => {
       // delete the last property
       cy.get('[data-test="delete-property-btn"]').eq(1).click()
       cy.get('[data-test="property-name-input"]').should('have.length', 1)
-      cy.get('[data-test="object-property-body"]').eq(1).should('contain', 'No properties defined')
+      cy.get('[data-test="property-body"]').eq(1).should('be.visible').should('contain', 'No properties defined')
     })
     
     it('can arrange properties', () => {
@@ -399,7 +397,19 @@ describe('Dictionary Details Page', () => {
       cy.get('[data-test="delete-dictionary-btn"]').should('not.exist')
 
       // verify that everything is locked
-      expect(true, 'Not Yet Implemented').to.equal(false)
+      cy.get('[data-test="add-property-btn"]').should('not.exist')
+      cy.get('[data-test="additional-props-toggle-btn"]').should('not.exist')
+      cy.get('[data-test="required-toggle-btn"]').should('not.exist')
+      cy.get('[data-test="delete-property-btn"]').should('not.exist')
+      
+      // verify show-hide-properties button is visible and enabled even when locked
+      cy.get('[data-test="collapse-toggle-btn"]').eq(1).should('be.visible').and('not.be.disabled')
+      cy.get('[data-test="collapse-toggle-btn"]').eq(1).find('.material-symbols-outlined').should('contain', 'collapse_content')
+      cy.get('[data-test="collapse-toggle-btn"]').eq(1).find('.material-symbols-outlined').should('not.contain', 'expand_content')
+      cy.get('[data-test="collapse-toggle-btn"]').eq(1).click()
+      cy.get('[data-test="collapse-toggle-btn"]').eq(1).should('be.visible').and('not.be.disabled')
+      cy.get('[data-test="collapse-toggle-btn"]').eq(1).find('.material-symbols-outlined').should('contain', 'expand_content')
+      cy.get('[data-test="collapse-toggle-btn"]').eq(1).find('.material-symbols-outlined').should('not.contain', 'collapse_content')
     })
 
     it('unlocks', () => {
@@ -412,8 +422,35 @@ describe('Dictionary Details Page', () => {
       cy.get('[data-test="unlock-confirm-btn"]').should('be.visible').click()
       cy.get('[data-test="unlock-dictionary-dialog"]').should('not.exist')
 
-      // verify that everything is unlocked
-      expect(true, 'Not Yet Implemented').to.equal(false)
+      // verify add property button is visible and enabled (second one for the non-root object)
+      cy.get('[data-test="add-property-btn"]').eq(1).should('be.visible').and('not.be.disabled')
+      cy.get('[data-test="add-property-btn"]').eq(1).find('.material-symbols-outlined').should('contain', 'list_alt_add')
+      
+      // verify allow-additional-properties button is visible and enabled
+      cy.get('[data-test="additional-props-toggle-btn"]').eq(1).should('be.visible').and('not.be.disabled')
+      cy.get('[data-test="additional-props-toggle-btn"]').eq(1).find('.material-symbols-outlined').should('contain', 'list_alt')
+      cy.get('[data-test="additional-props-toggle-btn"]').eq(1).click()
+      cy.get('[data-test="additional-props-toggle-btn"]').eq(1).should('be.visible').and('not.be.disabled')
+      cy.get('[data-test="additional-props-toggle-btn"]').eq(1).find('.material-symbols-outlined').should('contain', 'list_alt_check')
+      
+      // verify show-hide-properties button is visible and enabled
+      cy.get('[data-test="collapse-toggle-btn"]').eq(1).should('be.visible').and('not.be.disabled')
+      cy.get('[data-test="collapse-toggle-btn"]').eq(1).find('.material-symbols-outlined').should('contain', 'collapse_content')
+      cy.get('[data-test="collapse-toggle-btn"]').eq(1).find('.material-symbols-outlined').should('not.contain', 'expand_content')
+      cy.get('[data-test="collapse-toggle-btn"]').eq(1).click()
+      cy.get('[data-test="collapse-toggle-btn"]').eq(1).should('be.visible').and('not.be.disabled')
+      cy.get('[data-test="collapse-toggle-btn"]').eq(1).find('.material-symbols-outlined').should('contain', 'expand_content')
+      cy.get('[data-test="collapse-toggle-btn"]').eq(1).find('.material-symbols-outlined').should('not.contain', 'collapse_content')
+      
+      // verify required toggle works
+      cy.get('[data-test="required-toggle-btn"]').first().should('exist')
+      cy.get('[data-test="required-toggle-btn"]').first().find('.material-symbols-outlined').should('contain', 'toggle_off')
+      cy.get('[data-test="required-toggle-btn"]').first().click()
+      cy.get('[data-test="required-toggle-btn"]').first().find('.material-symbols-outlined').should('contain', 'toggle_on')
+
+      // verify delete property button works
+      cy.get('[data-test="delete-property-btn"]').first().should('exist').click()
+      cy.get('[data-test="no-object-properties-text"]').should('exist')
     })
   })
 

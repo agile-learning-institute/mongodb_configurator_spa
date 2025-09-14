@@ -51,7 +51,7 @@
       </div>
       
       <!-- Show/Hide Properties chevron -->
-      <div v-if="!disabled" class="action-section" data-test="collapse-action-section">
+      <div class="action-section" data-test="collapse-action-section">
         <v-tooltip :text="collapsed ? 'Show Properties' : 'Hide Properties'" location="top">
           <template v-slot:activator="{ props }">
             <v-btn
