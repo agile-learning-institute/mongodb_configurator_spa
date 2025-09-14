@@ -92,6 +92,7 @@ const props = defineProps<{
   isRoot?: boolean
   isDictionary?: boolean
   isType?: boolean
+  isArrayItems?: boolean
   disabled?: boolean
 }>()
 
@@ -149,6 +150,20 @@ const availableBuiltInTypes = computed(() => {
     } else {
       // Default root properties: show all built-in types
       return builtInTypes
+    }
+  }
+  
+  // Array Items: different types based on context
+  if (props.isArrayItems) {
+    if (props.isDictionary) {
+      // Dictionary Array Items: array, object, one_of, ref
+      return builtInTypes.filter(type => ['array', 'object', 'one_of', 'ref'].includes(type.value))
+    } else if (props.isType) {
+      // Type Array Items: array, object only
+      return builtInTypes.filter(type => ['array', 'object'].includes(type.value))
+    } else {
+      // Default Array Items: array, object only
+      return builtInTypes.filter(type => ['array', 'object'].includes(type.value))
     }
   }
   

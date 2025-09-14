@@ -97,7 +97,7 @@ describe('Dictionary Details Page', () => {
     it('has the correct items type picker', () => {
       cy.visit(`/dictionaries/${dictionaryFileName}`)
 
-      cy.get('[data-test="items-type-picker"] [data-test="type-chip"]').eq(1).should('be.visible').click()
+      cy.get('[data-test="items-type-picker"] [data-test="type-chip"]').eq(0).should('be.visible').click()
       cy.get('[data-test="type-picker-card"]').should('be.visible')
 
       // verify items type picker has Built-in Types section

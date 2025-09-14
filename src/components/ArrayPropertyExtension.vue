@@ -7,6 +7,7 @@
         :is-root="false"
         :is-dictionary="isDictionary"
         :is-type="isType"
+        :is-array-items="true"
         :disabled="disabled"
         data-test="items-type-picker"
       />
