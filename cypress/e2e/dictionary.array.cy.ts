@@ -51,6 +51,7 @@ describe('Dictionary Details Page', () => {
     })
 
     // Verify the dictionary is deleted
+    cy.wait(200)
     cy.visit('/dictionaries')
     cy.url().should('include', '/dictionaries')
     cy.get('[data-test^="file-card-"]').should('not.contain', dictionaryFileName)
@@ -188,15 +189,18 @@ describe('Dictionary Details Page', () => {
     })
 
     it('locks', () => {
+      cy.visit(`/dictionaries/${dictionaryFileName}`)
       cy.get('[data-test="lock-dictionary-btn"]').should('be.visible').click()
       cy.get('[data-test="lock-dictionary-btn"]').should('not.exist')
       cy.get('[data-test="unlock-dictionary-btn"]').should('exist')
       cy.get('[data-test="delete-dictionary-btn"]').should('not.exist')
 
       // verify that everything is locked
+      expect(true, 'Not Yet Implemented').to.equal(false)
     })
 
     it('unlocks', () => {
+      cy.visit(`/dictionaries/${dictionaryFileName}`)
       cy.get('[data-test="lock-dictionary-btn"]').should('not.be.disabled').click()
       cy.get('[data-test="lock-dictionary-btn"]').should('not.exist')
       cy.get('[data-test="unlock-dictionary-btn"]').should('exist')
@@ -207,13 +211,14 @@ describe('Dictionary Details Page', () => {
       cy.get('[data-test="unlock-dictionary-dialog"]').should('not.exist')
 
       // verify that everything is unlocked
+      expect(true, 'Not Yet Implemented').to.equal(false)
     })
   })
 
   describe('Array of Objects Property Editor', () => {
     beforeEach(() => {
       cy.visit(`/dictionaries/${dictionaryFileName}`)
-      cy.get('[data-test="items-type-picker"] [data-test="type-chip"]').eq(1).should('be.visible').click()
+      cy.get('[data-test="items-type-picker"] [data-test="type-chip"]').eq(0).should('be.visible').click()
       cy.get('[data-test="built-in-type-object"]').should('be.visible').click()
       cy.get('[data-test="type-picker-card"]').should('not.exist')
     })
@@ -291,6 +296,7 @@ describe('Dictionary Details Page', () => {
     
     it('can arrange properties', () => {
       cy.visit(`/dictionaries/${dictionaryFileName}`)
+      expect(true, 'Not Yet Implemented').to.equal(false)
       cy.get('[data-test="add-property-btn"]').eq(1).should('be.visible').click().click().click()
       cy.get('[data-test="property-name-input"]').eq(1).click()
       cy.get('[data-test="property-name-input"]').eq(1).find('input').type('firstTestProperty')
@@ -393,6 +399,7 @@ describe('Dictionary Details Page', () => {
       cy.get('[data-test="delete-dictionary-btn"]').should('not.exist')
 
       // verify that everything is locked
+      expect(true, 'Not Yet Implemented').to.equal(false)
     })
 
     it('unlocks', () => {
@@ -406,13 +413,14 @@ describe('Dictionary Details Page', () => {
       cy.get('[data-test="unlock-dictionary-dialog"]').should('not.exist')
 
       // verify that everything is unlocked
+      expect(true, 'Not Yet Implemented').to.equal(false)
     })
   })
 
   describe('Array of One Of Property Editor', () => {
     beforeEach(() => {
       cy.visit(`/dictionaries/${dictionaryFileName}`)
-      cy.get('[data-test="items-type-picker"] [data-test="type-chip"]').eq(1).should('be.visible').click()
+      cy.get('[data-test="items-type-picker"] [data-test="type-chip"]').eq(0).should('be.visible').click()
       cy.get('[data-test="built-in-type-one_of"]').should('be.visible').click()
       cy.get('[data-test="type-picker-card"]').should('not.exist')
     })
@@ -588,6 +596,7 @@ describe('Dictionary Details Page', () => {
       cy.get('[data-test="delete-dictionary-btn"]').should('not.exist')
 
       // verify that everything is locked
+      expect(true, 'Not Yet Implemented').to.equal(false)
     })
 
     it('unlocks', () => {
@@ -601,13 +610,14 @@ describe('Dictionary Details Page', () => {
       cy.get('[data-test="unlock-dictionary-dialog"]').should('not.exist')
 
       // verify that everything is unlocked
+      expect(true, 'Not Yet Implemented').to.equal(false)
     })
   })
 
   describe('Array of Ref Property Editor', () => {  
     beforeEach(() => {
       cy.visit(`/dictionaries/${dictionaryFileName}`)
-      cy.get('[data-test="items-type-picker"] [data-test="type-chip"]').eq(1).should('be.visible').click()
+      cy.get('[data-test="items-type-picker"] [data-test="type-chip"]').eq(0).should('be.visible').click()
       cy.get('[data-test="built-in-type-ref"]').should('be.visible').click()
       cy.get('[data-test="type-picker-card"]').should('not.exist')
     })
@@ -643,6 +653,7 @@ describe('Dictionary Details Page', () => {
       cy.get('[data-test="delete-dictionary-btn"]').should('not.exist')
 
       // verify that everything is locked
+      expect(true, 'Not Yet Implemented').to.equal(false)
     })
 
     it('unlocks', () => {
@@ -656,13 +667,14 @@ describe('Dictionary Details Page', () => {
       cy.get('[data-test="unlock-dictionary-dialog"]').should('not.exist')
 
       // verify that everything is unlocked
+      expect(true, 'Not Yet Implemented').to.equal(false)
     })
   })
 
   describe('Array of Array Property Editor', () => {
     beforeEach(() => {
       cy.visit(`/dictionaries/${dictionaryFileName}`)
-      cy.get('[data-test="items-type-picker"] [data-test="type-chip"]').eq(1).should('be.visible').click()
+      cy.get('[data-test="items-type-picker"] [data-test="type-chip"]').eq(0).should('be.visible').click()
       cy.get('[data-test="built-in-type-array"]').should('be.visible').click()
       cy.get('[data-test="type-picker-card"]').should('not.exist')
     })
@@ -687,7 +699,27 @@ describe('Dictionary Details Page', () => {
 
     it('can change items type to ref', () => {
     })
-    
+
+    it('can show/hide nested array details', () => {
+      // verify show-hide-properties button is visible and enabled
+      cy.get('[data-test="collapse-toggle-btn"]').eq(1).should('be.visible').and('not.be.disabled')
+      cy.get('[data-test="collapse-toggle-btn"]').eq(1).find('.material-symbols-outlined').should('contain', 'collapse_content')
+      cy.get('[data-test="collapse-toggle-btn"]').eq(1).find('.material-symbols-outlined').should('not.contain', 'expand_content')
+      cy.get('[data-test="property-body"]').eq(1).should('have.length', 1) // should have 1 nested array property
+
+      cy.get('[data-test="collapse-toggle-btn"]').eq(1).click()
+      cy.get('[data-test="collapse-toggle-btn"]').eq(1).should('be.visible').and('not.be.disabled')
+      cy.get('[data-test="collapse-toggle-btn"]').eq(1).find('.material-symbols-outlined').should('contain', 'expand_content')
+      cy.get('[data-test="collapse-toggle-btn"]').eq(1).find('.material-symbols-outlined').should('not.contain', 'collapse_content')
+      cy.get('[data-test="property-body"]').eq(1).should('be.empty')
+
+      cy.get('[data-test="collapse-toggle-btn"]').eq(1).click()
+      cy.get('[data-test="collapse-toggle-btn"]').eq(1).should('be.visible').and('not.be.disabled')
+      cy.get('[data-test="collapse-toggle-btn"]').eq(1).find('.material-symbols-outlined').should('contain', 'collapse_content')
+      cy.get('[data-test="collapse-toggle-btn"]').eq(1).find('.material-symbols-outlined').should('not.contain', 'expand_content')
+      cy.get('[data-test="property-body"]').eq(1).should('have.length', 1) // should have 1 nested array property
+    })
+
     it('locks', () => {
       cy.get('[data-test="lock-dictionary-btn"]').should('be.visible').click()
       cy.get('[data-test="lock-dictionary-btn"]').should('not.exist')
@@ -695,6 +727,7 @@ describe('Dictionary Details Page', () => {
       cy.get('[data-test="delete-dictionary-btn"]').should('not.exist')
 
       // verify that everything is locked
+      expect(true, 'Not Yet Implemented').to.equal(false)
     })
 
     it('unlocks', () => {
@@ -708,6 +741,7 @@ describe('Dictionary Details Page', () => {
       cy.get('[data-test="unlock-dictionary-dialog"]').should('not.exist')
 
       // verify that everything is unlocked
+      expect(true, 'Not Yet Implemented').to.equal(false)
     })
   })
 })
