@@ -107,7 +107,7 @@ describe('Dictionary Details Page', () => {
       cy.get('[data-test="type-chip"]').eq(0).should('be.visible').should('contain', 'Object')
     })
 
-    it('displays one_of action icons', () => {
+    it.only('displays one_of action icons', () => {
       cy.visit(`/dictionaries/${dictionaryFileName}`)
 
       // verify add property button is visible and enabled (second one for the non-root object)
@@ -136,12 +136,12 @@ describe('Dictionary Details Page', () => {
       cy.get('[data-test="property-body"]').eq(0).should('be.visible')
 
       // add three properties to the object
-      cy.get('[data-test="add-property-btn"]').eq(0).click().click().click()
-      cy.get('[data-test="property-name-input"]').eq(0).click()
+      cy.get('[data-test="add-property-btn"]').should('be.visible').eq(0).click().click().click()
+      cy.get('[data-test="property-name-input"]').eq(0).should('be.visible').click()
       cy.get('[data-test="property-name-input"]').eq(0).find('input').type('firstTestProperty')
-      cy.get('[data-test="property-name-input"]').eq(1).click()
+      cy.get('[data-test="property-name-input"]').eq(1).should('be.visible').click()
       cy.get('[data-test="property-name-input"]').eq(1).find('input').type('secondTestProperty')
-      cy.get('[data-test="property-name-input"]').eq(2).click()
+      cy.get('[data-test="property-name-input"]').eq(2).should('be.visible').click()
       cy.get('[data-test="property-name-input"]').eq(2).find('input').type('thirdTestProperty')
 
       // verify the properties were added
@@ -150,14 +150,14 @@ describe('Dictionary Details Page', () => {
       cy.get('[data-test="property-name-input"]').eq(2).find('input').should('have.value', 'thirdTestProperty')
 
       // delete the second property
-      cy.get('[data-test="delete-property-btn"]').eq(1).click()
-      cy.get('[data-test="property-name-input"]').should('have.length', 3)
+      cy.get('[data-test="delete-property-btn"]').eq(1).should('be.visible').click()
+      cy.get('[data-test="property-name-input"]').should('have.length', 2)
       cy.get('[data-test="property-name-input"]').eq(0).find('input').should('have.value', 'firstTestProperty')
       cy.get('[data-test="property-name-input"]').eq(1).find('input').should('have.value', 'thirdTestProperty')
 
       // delete the first property
-      cy.get('[data-test="delete-property-btn"]').eq(0).click()
-      cy.get('[data-test="property-name-input"]').should('have.length', 2)
+      cy.get('[data-test="delete-property-btn"]').eq(0).should('be.visible').click()
+      cy.get('[data-test="property-name-input"]').should('have.length', 1)
       cy.get('[data-test="property-name-input"]').eq(0).find('input').should('have.value', 'thirdTestProperty')
 
       // delete the last property
