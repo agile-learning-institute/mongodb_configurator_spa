@@ -218,7 +218,7 @@
                 :disabled="disabled"
                 @change="(updatedProp) => handleOneOfPropertyChange(index, updatedProp)"
                 @delete="() => handleOneOfPropertyDelete(index)"
-                :data-test="`object-property-${prop.name || index}`"
+                :data-test="`oneof-property-${prop.name || index}`"
               />
             </div>
           </template>

@@ -115,6 +115,17 @@
               data-test="root-object-extension"
             />
             
+            <!-- OneOf Action Icons (only for one_of types, not void) -->
+            <OneOfPropertyExtension
+              v-if="dictionary.root && isOneOfProperty(dictionary.root)"
+              :property="dictionary.root as any"
+              :disabled="dictionary._locked"
+              @change="handleRootPropertyChange"
+              @addProperty="handleAddProperty"
+              @toggleCollapsed="handleToggleCollapsed"
+              data-test="root-oneof-extension"
+            />
+            
             <!-- Array Items Type Picker (only for array types, not void) -->
             <ArrayPropertyExtension
               v-if="dictionary.root && isArrayProperty(dictionary.root) && (!dictionary.root.items || dictionary.root.items.type !== 'object')"
@@ -209,11 +220,12 @@ import { apiService } from '@/utils/api'
 import BaseCard from '@/components/BaseCard.vue'
 import TypeChipPicker from '@/components/TypeChipPicker.vue'
 import ObjectPropertyExtension from '@/components/ObjectPropertyExtension.vue'
+import OneOfPropertyExtension from '@/components/OneOfPropertyExtension.vue'
 import ArrayPropertyExtension from '@/components/ArrayPropertyExtension.vue'
 import ArrayOfObjectExtension from '@/components/ArrayOfObjectExtension.vue'
 import PropertyEditor from '@/components/PropertyEditor.vue'
 import type { DictionaryData, TypeProperty } from '@/types/types'
-import { isArrayProperty, isObjectProperty } from '@/types/types'
+import { isArrayProperty, isObjectProperty, isOneOfProperty } from '@/types/types'
 
 const route = useRoute()
 const loading = ref(false)
@@ -269,6 +281,9 @@ const handleTypeChange = (newType: string) => {
     if (newType === 'object') {
       updatedProperty.properties = []
       updatedProperty.additional_properties = false
+    } else if (newType === 'one_of') {
+      updatedProperty.properties = []
+      updatedProperty._collapsed = false
     } else if (newType === 'array') {
       updatedProperty.name = updatedProperty.name || 'root'
       updatedProperty.items = {
@@ -284,7 +299,7 @@ const handleTypeChange = (newType: string) => {
 }
 
 const handleAddProperty = () => {
-  if (dictionary.value?.root && isObjectProperty(dictionary.value.root)) {
+  if (dictionary.value?.root && (isObjectProperty(dictionary.value.root) || isOneOfProperty(dictionary.value.root))) {
     const newProperty = {
       name: '',
       description: '',

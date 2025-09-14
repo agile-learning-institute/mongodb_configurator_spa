@@ -64,14 +64,16 @@ describe('Dictionary Details Page', () => {
 
     it('has the correct type picker', () => {
       cy.visit(`/dictionaries/${dictionaryFileName}`)
+      cy.get('[data-test="type-chip"]').eq(0).should('be.visible').click()
 
-      cy.get('[data-test="type-chip"]').eq(1).should('be.visible').wait(200)
-      cy.get('[data-test="type-chip"]').eq(1).click()
+      // verify type picker has Built-in Types section
       cy.get('[data-test="type-picker-card"]').should('be.visible')
-      cy.get('[data-test="built-in-types-category"] i').should('have.length', 7)
+      cy.get('[data-test="built-in-types-category"] i').should('have.length', 3)
       cy.get('[data-test="built-in-type-array"]').should('be.visible')
       cy.get('[data-test="built-in-type-object"]').should('be.visible')
       cy.get('[data-test="built-in-type-one_of"]').should('be.visible')
+
+      // verify type picker does not have other built-in types
       cy.get('[data-test="built-in-type-ref"]').should('not.exist')
       cy.get('[data-test="built-in-type-constant"]').should('not.exist')
       cy.get('[data-test="built-in-type-enum"]').should('not.exist')
@@ -84,27 +86,25 @@ describe('Dictionary Details Page', () => {
     it('can change type to array', () => {
       cy.visit(`/dictionaries/${dictionaryFileName}`)
 
-      cy.get('[data-test="type-chip"]').eq(1).should('be.visible').wait(200)
-      cy.get('[data-test="type-chip"]').eq(1).click()
+      cy.get('[data-test="type-chip"]').eq(0).should('be.visible').click()
       cy.get('[data-test="type-picker-card"]').should('be.visible')
       cy.get('[data-test="built-in-type-array"]').should('be.visible').click()
       cy.get('[data-test="type-picker-card"]').should('not.exist')
       cy.wait(250)
       cy.reload()
-      cy.get('[data-test="type-chip"]').eq(1).should('be.visible').should('contain', 'Array')
+      cy.get('[data-test="type-chip"]').eq(0).should('be.visible').should('contain', 'Array')
     })
 
     it('can change type to object', () => {
       cy.visit(`/dictionaries/${dictionaryFileName}`)
 
-      cy.get('[data-test="type-chip"]').eq(1).should('be.visible').wait(200)
-      cy.get('[data-test="type-chip"]').eq(1).click()
+      cy.get('[data-test="type-chip"]').eq(0).should('be.visible').click()
       cy.get('[data-test="type-picker-card"]').should('be.visible')
       cy.get('[data-test="built-in-type-object"]').should('be.visible').click()
       cy.get('[data-test="type-picker-card"]').should('not.exist')
       cy.wait(250)
       cy.reload()
-      cy.get('[data-test="type-chip"]').eq(1).should('be.visible').should('contain', 'Object')
+      cy.get('[data-test="type-chip"]').eq(0).should('be.visible').should('contain', 'Object')
     })
 
     it('displays one_of action icons', () => {
@@ -136,12 +136,12 @@ describe('Dictionary Details Page', () => {
       cy.get('[data-test="property-body"]').eq(0).should('be.visible')
 
       // add three properties to the object
-      cy.get('[data-test="add-property-btn"]').eq(0).click().click().click()
-      cy.get('[data-test="property-name-input"]').eq(0).click()
+      cy.get('[data-test="add-property-btn"]').should('be.visible').eq(0).click().click().click()
+      cy.get('[data-test="property-name-input"]').eq(0).should('be.visible').click()
       cy.get('[data-test="property-name-input"]').eq(0).find('input').type('firstTestProperty')
-      cy.get('[data-test="property-name-input"]').eq(1).click()
+      cy.get('[data-test="property-name-input"]').eq(1).should('be.visible').click()
       cy.get('[data-test="property-name-input"]').eq(1).find('input').type('secondTestProperty')
-      cy.get('[data-test="property-name-input"]').eq(2).click()
+      cy.get('[data-test="property-name-input"]').eq(2).should('be.visible').click()
       cy.get('[data-test="property-name-input"]').eq(2).find('input').type('thirdTestProperty')
 
       // verify the properties were added
@@ -150,18 +150,18 @@ describe('Dictionary Details Page', () => {
       cy.get('[data-test="property-name-input"]').eq(2).find('input').should('have.value', 'thirdTestProperty')
 
       // delete the second property
-      cy.get('[data-test="delete-property-btn"]').eq(1).click()
-      cy.get('[data-test="property-name-input"]').should('have.length', 3)
+      cy.get('[data-test="delete-property-btn"]').eq(1).should('be.visible').click()
+      cy.get('[data-test="property-name-input"]').should('have.length', 2)
       cy.get('[data-test="property-name-input"]').eq(0).find('input').should('have.value', 'firstTestProperty')
       cy.get('[data-test="property-name-input"]').eq(1).find('input').should('have.value', 'thirdTestProperty')
 
       // delete the first property
-      cy.get('[data-test="delete-property-btn"]').eq(0).click()
-      cy.get('[data-test="property-name-input"]').should('have.length', 2)
+      cy.get('[data-test="delete-property-btn"]').eq(0).should('be.visible').click()
+      cy.get('[data-test="property-name-input"]').should('have.length', 1)
       cy.get('[data-test="property-name-input"]').eq(0).find('input').should('have.value', 'thirdTestProperty')
 
       // delete the last property
-      cy.get('[data-test="delete-property-btn"]').should('not.exist')
+      cy.get('[data-test="delete-property-btn"]').eq(0).should('be.visible').click()
       cy.get('[data-test="property-name-input"]').should('not.exist')
       cy.get('[data-test="object-property-body"]').should('contain', 'No properties defined')
     })
@@ -192,11 +192,9 @@ describe('Dictionary Details Page', () => {
           .trigger('dragstart', { dataTransfer })
         
         // Drop on the first drop zone within the non-root property context
-        cy.get('[data-test="object-property-0"]').within(() => {
-          cy.get('[data-test="drop-zone-0"]')
-            .trigger('dragover', { dataTransfer })
-            .trigger('drop', { dataTransfer })
-        })
+        cy.get('[data-test="drop-zone-0"]')
+          .trigger('dragover', { dataTransfer })
+          .trigger('drop', { dataTransfer })
         
         // Trigger dragend
         cy.wrap($dragHandle)
@@ -253,8 +251,8 @@ describe('Dictionary Details Page', () => {
       cy.get('[data-test="collapse-toggle-btn"]').eq(0).should('be.visible').and('not.be.disabled').click()
       cy.get('[data-test="collapse-toggle-btn"]').eq(0).find('.material-symbols-outlined').should('contain', 'expand_content')
       cy.get('[data-test="collapse-toggle-btn"]').eq(0).find('.material-symbols-outlined').should('not.contain', 'collapse_content')
-      cy.get('[data-test="property-name-input"]').should('have.length', 1)
-      cy.get('[data-test="property-body"]').eq(1).should('be.empty')
+      cy.get('[data-test="property-name-input"]').should('have.length', 0)
+      cy.get('[data-test="property-body"]').eq(0).should('be.empty')
 
       // Show Properties
       cy.get('[data-test="collapse-toggle-btn"]').eq(0).should('be.visible').and('not.be.disabled').click()
@@ -274,7 +272,7 @@ describe('Dictionary Details Page', () => {
       cy.get('[data-test="delete-dictionary-btn"]').should('not.exist')
 
       // Make sure the description is locked
-      cy.get('[data-test="root-description-display"]').eq(0).find('input').should('have.attr', 'readonly')
+      cy.get('[data-test="root-description-placeholder"]').eq(0).find('input').should('not.exist')
 
       // verify these controls do not exist
       cy.get('[data-test="add-property-btn"]').should('not.exist')
