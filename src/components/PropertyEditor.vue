@@ -161,11 +161,11 @@
             <div 
               class="drop-zone" 
               :class="{ 'drag-over': dragOverIndex === (isArrayProperty(property) && property.items && property.items.type === 'one_of' ? (property.items as any).properties?.length || 0 : 0) }"
-              :data-test="`drop-zone-${(property.items as any).properties?.length || 0}`"
-              @dragover.prevent="handleDragOver((property.items as any).properties?.length || 0)"
-              @dragenter.prevent="handleDragEnter((property.items as any).properties?.length || 0)"
-              @dragleave="handleDragLeave((property.items as any).properties?.length || 0)"
-              @drop="(event) => handleArrayOneOfDrop(event, (property.items as any).properties?.length || 0)"
+              :data-test="`drop-zone-${isArrayProperty(property) && property.items && property.items.type === 'one_of' ? (property.items as any).properties?.length || 0 : 0}`"
+              @dragover.prevent="handleDragOver(isArrayProperty(property) && property.items && property.items.type === 'one_of' ? (property.items as any).properties?.length || 0 : 0)"
+              @dragenter.prevent="handleDragEnter(isArrayProperty(property) && property.items && property.items.type === 'one_of' ? (property.items as any).properties?.length || 0 : 0)"
+              @dragleave="handleDragLeave(isArrayProperty(property) && property.items && property.items.type === 'one_of' ? (property.items as any).properties?.length || 0 : 0)"
+              @drop="(event) => handleArrayOneOfDrop(event, isArrayProperty(property) && property.items && property.items.type === 'one_of' ? (property.items as any).properties?.length || 0 : 0)"
             >
               <div class="drop-indicator"></div>
             </div>
