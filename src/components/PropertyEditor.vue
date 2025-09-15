@@ -21,7 +21,7 @@
         :is-type="isType"
         :disabled="disabled"
         @change="handleChange"
-        @add-property="handleAddProperty"
+        @addProperty="handleAddProperty"
         @collapsed="handleArrayObjectCollapsed"
         data-test="array-of-object-extension"
       />
@@ -36,9 +36,22 @@
         @collapsed="handleArrayArrayCollapsed"
         data-test="array-of-array-extension"
       />
-      
+
+      <ArrayOfOneOfExtension
+        v-else-if="isArrayProperty(property) && property.items && property.items.type === 'one_of'"
+        :property="property"
+        :is-dictionary="isDictionary"
+        :is-type="isType"
+        :disabled="disabled"
+        @change="handleChange"
+        @addProperty="handleAddProperty"
+        @collapsed="handleArrayOneOfCollapsed"
+        data-test="array-of-oneof-extension"
+      />
+
+      <!-- Fallback ArrayPropertyExtension for arrays without specific item types -->
       <ArrayPropertyExtension
-        v-else-if="isArrayProperty(property)"
+        v-else-if="isArrayProperty(property) && property.items && !['object', 'array', 'one_of'].includes(property.items.type)"
         :property="property"
         :is-dictionary="isDictionary"
         :is-type="isType"
@@ -46,17 +59,7 @@
         @change="handleChange"
         data-test="array-property-extension"
       />
-      
-      <OneOfPropertyExtension
-        v-if="isArrayProperty(property) && property.items && property.items.type === 'one_of'"
-        :property="property.items as any"
-        :disabled="disabled"
-        @change="handleArrayOneOfItemsChange"
-        @add-property="handleArrayOneOfAddProperty"
-        @toggle-collapsed="handleArrayOneOfCollapsed"
-        data-test="array-of-oneof-extension"
-      />
-      
+
       <!-- Object extension: Action icons -->
       <ObjectPropertyExtension
         v-if="isObjectProperty(property)"
@@ -109,9 +112,59 @@
     
     <!-- Body slot for type-specific content -->
     <template #body>
+      
       <!-- Array property body - handle different items types -->
+      <!-- Array of OneOf: Show oneof properties directly (only when not collapsed) -->
+      <div v-if="isArrayProperty(property) && property.items && property.items.type === 'one_of' && !(property.items as any)._collapsed" class="array-property-body" data-test="array-of-oneof-body">
+        <div class="object-properties">
+          <div v-if="!(property.items as any).properties || (property.items as any).properties.length === 0" class="text-center pa-4" data-test="no-properties-message">
+            <v-icon size="48" color="grey" data-test="no-properties-icon">mdi-format-list-bulleted</v-icon>
+            <p class="text-body-2 text-medium-emphasis mt-2" data-test="no-properties-text">No properties defined. Click the <v-icon icon="mdi-plus" size="small" class="mx-1" data-test="add-property-icon" /> icon to add your first property</p>
+          </div>
+          
+          <div v-else class="properties-section" data-test="properties-section">
+            <template v-for="(prop, index) in (property.items as any).properties" :key="prop.name || index">
+              <!-- Each property is its own drop zone for dropping above it -->
+              <div 
+                class="property-drop-zone"
+                :class="{ 'drag-over': dragOverIndex === index }"
+                :data-test="`drop-zone-${index}`"
+                @dragover.prevent="handleDragOver(index)"
+                @dragenter.prevent="handleDragEnter(index)"
+                @dragleave="handleDragLeave(index)"
+                @drop="(event) => handleArrayOneOfDrop(event, index)"
+              >
+                <PropertyEditor
+                  :property="prop"
+                  :is-root="false"
+                  :is-dictionary="isDictionary"
+                  :is-type="isType"
+                  :disabled="disabled"
+                  @change="(updatedProp) => handleArrayOneOfPropertyChange(index, updatedProp)"
+                  @delete="() => handleArrayOneOfPropertyDelete(index)"
+                  :data-test="`nested-property-${prop.name || index}`"
+                />
+              </div>
+            </template>
+            
+            <!-- Drop zone after last property -->
+            <div 
+              class="drop-zone" 
+              :class="{ 'drag-over': dragOverIndex === (isArrayProperty(property) && property.items && property.items.type === 'one_of' ? (property.items as any).properties?.length || 0 : 0) }"
+              :data-test="`drop-zone-${(property.items as any).properties?.length || 0}`"
+              @dragover.prevent="handleDragOver((property.items as any).properties?.length || 0)"
+              @dragenter.prevent="handleDragEnter((property.items as any).properties?.length || 0)"
+              @dragleave="handleDragLeave((property.items as any).properties?.length || 0)"
+              @drop="(event) => handleArrayOneOfDrop(event, isArrayProperty(property) && property.items ? (property.items as any).properties?.length || 0 : 0)"
+            >
+              <div class="drop-indicator"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
       <!-- Array of Object: Show object properties directly (only when not collapsed) -->
-      <div v-if="isArrayProperty(property) && property.items && property.items.type === 'object' && !(property.items as any)._collapsed" class="array-property-body" data-test="array-of-object-body">
+      <div v-else-if="isArrayProperty(property) && property.items && property.items.type === 'object' && !(property.items as any)._collapsed" class="array-property-body" data-test="array-of-object-body">
         <div class="object-properties">
           <div v-if="!(property.items as any).properties || (property.items as any).properties.length === 0" class="text-center pa-4" data-test="no-properties-message">
             <v-icon size="48" color="grey" data-test="no-properties-icon">mdi-format-list-bulleted</v-icon>
@@ -158,6 +211,7 @@
           </div>
         </div>
       </div>
+      
       
       <!-- Array of Array: Show nested array editor (only when not collapsed) -->
       <div v-else-if="isArrayProperty(property) && property.items && property.items.type === 'array' && !(property.items as any)._collapsed" class="array-property-body" data-test="array-of-array-body">
@@ -343,12 +397,13 @@ import {
   isConstantProperty
 } from '@/types/types'
 import BasePropertyEditor from './BasePropertyEditor.vue'
-import ArrayPropertyExtension from './ArrayPropertyExtension.vue'
 
 // Drag and drop state
 const dragOverIndex = ref<number | null>(null)
 import ArrayOfObjectExtension from './ArrayOfObjectExtension.vue'
 import ArrayOfArrayExtension from './ArrayOfArrayExtension.vue'
+import ArrayOfOneOfExtension from './ArrayOfOneOfExtension.vue'
+import ArrayPropertyExtension from './ArrayPropertyExtension.vue'
 import ObjectPropertyExtension from './ObjectPropertyExtension.vue'
 import EnumPropertyExtension from './EnumPropertyExtension.vue'
 import RefPropertyExtension from './RefPropertyExtension.vue'
@@ -471,6 +526,27 @@ const handleAddProperty = () => {
     const items = props.property.items as any // Type assertion for object properties
     if (!items.properties) {
       items.properties = []
+    }
+    
+    const newProperty = {
+      name: '',
+      description: '',
+      type: 'word',
+      required: false
+    }
+    
+    items.properties.push(newProperty)
+    emit('change', props.property)
+  } else if (isArrayProperty(props.property) && props.property.items && props.property.items.type === 'one_of') {
+    // Handle adding property to array of one_of items
+    const items = props.property.items as any
+    if (!items.properties) {
+      items.properties = []
+    }
+    
+    // Ensure one_of property has _collapsed: false
+    if (items._collapsed === undefined) {
+      items._collapsed = false
     }
     
     const newProperty = {
@@ -680,48 +756,59 @@ const handleArrayObjectCollapsed = (collapsed: boolean) => {
   }
 }
 
-// Array of OneOf handlers
-const handleArrayOneOfItemsChange = (updatedItems: Property) => {
-  if (isArrayProperty(props.property) && props.property.items && props.property.items.type === 'one_of') {
-    const updatedProperty = {
-      ...props.property,
-      items: updatedItems
-    }
-    emit('change', updatedProperty)
-  }
-}
-
-const handleArrayOneOfAddProperty = () => {
-  if (isArrayProperty(props.property) && props.property.items && props.property.items.type === 'one_of') {
-    const items = props.property.items as any
-    if (!items.properties) {
-      items.properties = []
-    }
-    
-    // Add a new simple property
-    const newProperty = {
-      name: `property_${items.properties.length + 1}`,
-      type: 'string' as const,
-      description: ''
-    }
-    
-    items.properties.push(newProperty)
-    
-    const updatedProperty = {
-      ...props.property,
-      items: {
-        ...items,
-        properties: items.properties
-      }
-    }
-    
-    emit('change', updatedProperty)
-  }
-}
 
 const handleArrayOneOfCollapsed = (collapsed: boolean) => {
   if (isArrayProperty(props.property) && props.property.items && props.property.items.type === 'one_of') {
     ;(props.property.items as any)._collapsed = collapsed
+  }
+}
+
+const handleArrayOneOfPropertyChange = (index: number, updatedProp: Property) => {
+  if (isArrayProperty(props.property) && props.property.items && props.property.items.type === 'one_of') {
+    const items = props.property.items as any
+    if (items.properties && items.properties[index]) {
+      items.properties[index] = updatedProp
+      emit('change', props.property)
+    }
+  }
+}
+
+const handleArrayOneOfPropertyDelete = (index: number) => {
+  if (isArrayProperty(props.property) && props.property.items && props.property.items.type === 'one_of') {
+    const items = props.property.items as any
+    if (items.properties && items.properties.length > index) {
+      items.properties.splice(index, 1)
+      emit('change', props.property)
+    }
+  }
+}
+
+const handleArrayOneOfDrop = (event: DragEvent, dropIndex: number) => {
+  event.preventDefault()
+  dragOverIndex.value = null
+  
+  if (!event.dataTransfer) return
+  
+  const draggedPropertyName = event.dataTransfer.getData('text/plain')
+  if (!draggedPropertyName) return
+  
+  if (isArrayProperty(props.property) && props.property.items && props.property.items.type === 'one_of') {
+    const items = props.property.items as any
+    if (!items.properties) return
+    
+    const draggedIndex = items.properties.findIndex((prop: any) => prop.name === draggedPropertyName)
+    if (draggedIndex === -1) return
+    
+    // Remove the dragged property from its original position
+    const draggedProperty = items.properties.splice(draggedIndex, 1)[0]
+    
+    // Adjust drop index if we removed an item before the drop position
+    const adjustedDropIndex = draggedIndex < dropIndex ? dropIndex - 1 : dropIndex
+    
+    // Insert the property at the new position
+    items.properties.splice(adjustedDropIndex, 0, draggedProperty)
+    
+    emit('change', props.property)
   }
 }
 

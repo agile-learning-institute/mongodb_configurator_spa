@@ -147,6 +147,19 @@
               @collapsed="handleArrayObjectCollapsed"
               data-test="root-array-of-object-extension"
             />
+            
+            <!-- Array of OneOf Extension (for array with one_of items, not void) -->
+            <ArrayOfOneOfExtension
+              v-if="dictionary.root && isArrayProperty(dictionary.root) && dictionary.root.items && dictionary.root.items.type === 'one_of'"
+              :property="dictionary.root as any"
+              :is-dictionary="true"
+              :disabled="dictionary._locked"
+              @change="handleRootPropertyChange"
+              @addProperty="handleAddArrayOneOfProperty"
+              @collapsed="handleArrayOneOfCollapsed"
+              data-test="root-array-of-oneof-extension"
+            />
+            
           </div>
         </template>
         
@@ -223,6 +236,7 @@ import ObjectPropertyExtension from '@/components/ObjectPropertyExtension.vue'
 import OneOfPropertyExtension from '@/components/OneOfPropertyExtension.vue'
 import ArrayPropertyExtension from '@/components/ArrayPropertyExtension.vue'
 import ArrayOfObjectExtension from '@/components/ArrayOfObjectExtension.vue'
+import ArrayOfOneOfExtension from '@/components/ArrayOfOneOfExtension.vue'
 import PropertyEditor from '@/components/PropertyEditor.vue'
 import type { DictionaryData, TypeProperty } from '@/types/types'
 import { isArrayProperty, isObjectProperty, isOneOfProperty } from '@/types/types'
@@ -347,6 +361,42 @@ const handleAddArrayObjectProperty = () => {
 
 const handleArrayObjectCollapsed = (collapsed: boolean) => {
   if (dictionary.value?.root && isArrayProperty(dictionary.value.root) && dictionary.value.root.items && dictionary.value.root.items.type === 'object') {
+    const items = dictionary.value.root.items as any
+    const updatedItems = {
+      ...items,
+      _collapsed: collapsed
+    }
+    
+    const updatedRoot = {
+      ...dictionary.value.root,
+      items: updatedItems
+    }
+    
+    handleRootPropertyChange(updatedRoot)
+  }
+}
+
+const handleAddArrayOneOfProperty = () => {
+  if (dictionary.value?.root && isArrayProperty(dictionary.value.root) && dictionary.value.root.items && dictionary.value.root.items.type === 'one_of') {
+    const items = dictionary.value.root.items as any
+    if (!items.properties) {
+      items.properties = []
+    }
+    
+    const newProperty = {
+      name: '',
+      description: '',
+      type: 'void',
+      required: false
+    }
+    
+    items.properties.push(newProperty)
+    handleRootPropertyChange(dictionary.value.root)
+  }
+}
+
+const handleArrayOneOfCollapsed = (collapsed: boolean) => {
+  if (dictionary.value?.root && isArrayProperty(dictionary.value.root) && dictionary.value.root.items && dictionary.value.root.items.type === 'one_of') {
     const items = dictionary.value.root.items as any
     const updatedItems = {
       ...items,

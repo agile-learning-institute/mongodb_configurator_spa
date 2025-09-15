@@ -228,9 +228,9 @@ const showBody = computed(() => {
   }
   
   if (isArrayProperty(props.property)) {
-    // Only show body for array of object or array of array
+    // Show body for array of object, array of array, or array of one_of
     const items = props.property.items
-    return items && (items.type === 'object' || items.type === 'array')
+    return items && (items.type === 'object' || items.type === 'array' || items.type === 'one_of')
   }
   
   // Show body for Simple and Complex properties to display their schema/type configuration
