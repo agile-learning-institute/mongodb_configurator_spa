@@ -7,6 +7,7 @@
         :is-root="false"
         :is-dictionary="isDictionary"
         :is-type="isType"
+        :is-array-items="true"
         :disabled="disabled"
         data-test="items-type-picker"
       />
@@ -70,6 +71,13 @@ watch(editableItemsType, (newType) => {
         type: 'word',
         required: false
       }
+    } else if (newType === 'one_of') {
+      // Initialize new one_of properties
+      newItems.properties = []
+      newItems._collapsed = false
+    } else if (newType === 'ref') {
+      // Initialize new ref
+      newItems.ref = ''
     }
     
     // Create a new property object to ensure proper reactivity
