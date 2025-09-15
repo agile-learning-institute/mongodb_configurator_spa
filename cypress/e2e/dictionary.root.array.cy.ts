@@ -501,51 +501,51 @@ describe('Dictionary Details Page', () => {
       cy.visit(`/dictionaries/${dictionaryFileName}`)
 
       // verify show-hide-properties button is visible and enabled
-      cy.get('[data-test="collapse-toggle-btn"]').eq(1).should('be.visible').and('not.be.disabled')
-      cy.get('[data-test="collapse-toggle-btn"]').eq(1).find('.material-symbols-outlined').should('contain', 'collapse_content')
-      cy.get('[data-test="collapse-toggle-btn"]').eq(1).find('.material-symbols-outlined').should('not.contain', 'expand_content')
-      cy.get('[data-test="property-body"]').eq(1).should('contain', 'No properties defined')
+      cy.get('[data-test="collapse-toggle-btn"]').eq(0).should('be.visible').and('not.be.disabled')
+      cy.get('[data-test="collapse-toggle-btn"]').eq(0).find('.material-symbols-outlined').should('contain', 'collapse_content')
+      cy.get('[data-test="collapse-toggle-btn"]').eq(0).find('.material-symbols-outlined').should('not.contain', 'expand_content')
+      cy.get('[data-test="property-body"]').eq(0).should('contain', 'No properties defined')
 
       // Hide Properties
-      cy.get('[data-test="collapse-toggle-btn"]').eq(1).should('be.visible').and('not.be.disabled').click()
-      cy.get('[data-test="collapse-toggle-btn"]').eq(1).should('be.visible').and('not.be.disabled')
-      cy.get('[data-test="collapse-toggle-btn"]').eq(1).find('.material-symbols-outlined').should('contain', 'expand_content')
-      cy.get('[data-test="collapse-toggle-btn"]').eq(1).find('.material-symbols-outlined').should('not.contain', 'collapse_content')
-      cy.get('[data-test="property-body"]').eq(1).should('be.empty')
+      cy.get('[data-test="collapse-toggle-btn"]').eq(0).should('be.visible').and('not.be.disabled').click()
+      cy.get('[data-test="collapse-toggle-btn"]').eq(0).should('be.visible').and('not.be.disabled')
+      cy.get('[data-test="collapse-toggle-btn"]').eq(0).find('.material-symbols-outlined').should('contain', 'expand_content')
+      cy.get('[data-test="collapse-toggle-btn"]').eq(0).find('.material-symbols-outlined').should('not.contain', 'collapse_content')
+      cy.get('[data-test="property-body"]').eq(0).should('be.empty')
 
       // Show Properties
-      cy.get('[data-test="collapse-toggle-btn"]').eq(1).click()
-      cy.get('[data-test="collapse-toggle-btn"]').eq(1).should('be.visible').and('not.be.disabled')
-      cy.get('[data-test="collapse-toggle-btn"]').eq(1).find('.material-symbols-outlined').should('contain', 'collapse_content')
-      cy.get('[data-test="collapse-toggle-btn"]').eq(1).find('.material-symbols-outlined').should('not.contain', 'expand_content')
-      cy.get('[data-test="property-body"]').eq(1).should('contain', 'No properties defined')
+      cy.get('[data-test="collapse-toggle-btn"]').eq(0).click()
+      cy.get('[data-test="collapse-toggle-btn"]').eq(0).should('be.visible').and('not.be.disabled')
+      cy.get('[data-test="collapse-toggle-btn"]').eq(0).find('.material-symbols-outlined').should('contain', 'collapse_content')
+      cy.get('[data-test="collapse-toggle-btn"]').eq(0).find('.material-symbols-outlined').should('not.contain', 'expand_content')
+      cy.get('[data-test="property-body"]').eq(0).should('contain', 'No properties defined')
     })
 
     it('can show/hide some properties', () => {
       cy.visit(`/dictionaries/${dictionaryFileName}`)
 
       // Create some properties
-      cy.get('[data-test="add-property-btn"]').eq(1).should('be.visible').click().click()
-      cy.get('[data-test="property-name-input"]').should('have.length', 3)
+      cy.get('[data-test="add-property-btn"]').eq(0).should('be.visible').click().click()
+      cy.get('[data-test="property-name-input"]').should('have.length', 2)
 
       // verify show-hide-properties button is visible and enabled
-      cy.get('[data-test="collapse-toggle-btn"]').eq(1).should('be.visible').and('not.be.disabled')
-      cy.get('[data-test="collapse-toggle-btn"]').eq(1).find('.material-symbols-outlined').should('contain', 'collapse_content')
-      cy.get('[data-test="collapse-toggle-btn"]').eq(1).find('.material-symbols-outlined').should('not.contain', 'expand_content')
-      cy.get('[data-test="property-name-input"]').should('have.length', 3)
+      cy.get('[data-test="collapse-toggle-btn"]').eq(0).should('be.visible').and('not.be.disabled')
+      cy.get('[data-test="collapse-toggle-btn"]').eq(0).find('.material-symbols-outlined').should('contain', 'collapse_content')
+      cy.get('[data-test="collapse-toggle-btn"]').eq(0).find('.material-symbols-outlined').should('not.contain', 'expand_content')
+      cy.get('[data-test="property-name-input"]').should('have.length', 2)
 
-      cy.get('[data-test="collapse-toggle-btn"]').eq(1).click()
-      cy.get('[data-test="collapse-toggle-btn"]').eq(1).should('be.visible').and('not.be.disabled')
-      cy.get('[data-test="collapse-toggle-btn"]').eq(1).find('.material-symbols-outlined').should('contain', 'expand_content')
-      cy.get('[data-test="collapse-toggle-btn"]').eq(1).find('.material-symbols-outlined').should('not.contain', 'collapse_content')
-      cy.get('[data-test="property-name-input"]').should('have.length', 1)
-      cy.get('[data-test="property-body"]').eq(1).should('be.empty')
+      cy.get('[data-test="collapse-toggle-btn"]').eq(0).click()
+      cy.get('[data-test="collapse-toggle-btn"]').eq(0).should('be.visible').and('not.be.disabled')
+      cy.get('[data-test="collapse-toggle-btn"]').eq(0).find('.material-symbols-outlined').should('contain', 'expand_content')
+      cy.get('[data-test="collapse-toggle-btn"]').eq(0).find('.material-symbols-outlined').should('not.contain', 'collapse_content')
+      cy.get('[data-test="property-name-input"]').should('not.exist')
+      cy.get('[data-test="property-body"]').eq(0).should('be.empty')
 
-      cy.get('[data-test="collapse-toggle-btn"]').eq(1).click()
-      cy.get('[data-test="collapse-toggle-btn"]').eq(1).should('be.visible').and('not.be.disabled')
-      cy.get('[data-test="collapse-toggle-btn"]').eq(1).find('.material-symbols-outlined').should('contain', 'collapse_content')
-      cy.get('[data-test="collapse-toggle-btn"]').eq(1).find('.material-symbols-outlined').should('not.contain', 'expand_content')
-      cy.get('[data-test="property-name-input"]').should('have.length', 3)
+      cy.get('[data-test="collapse-toggle-btn"]').eq(0).click()
+      cy.get('[data-test="collapse-toggle-btn"]').eq(0).should('be.visible').and('not.be.disabled')
+      cy.get('[data-test="collapse-toggle-btn"]').eq(0).find('.material-symbols-outlined').should('contain', 'collapse_content')
+      cy.get('[data-test="collapse-toggle-btn"]').eq(0).find('.material-symbols-outlined').should('not.contain', 'expand_content')
+      cy.get('[data-test="property-name-input"]').should('have.length', 2)
     })
 
     it('locks', () => {
