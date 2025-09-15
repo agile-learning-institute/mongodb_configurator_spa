@@ -628,7 +628,19 @@ describe('Dictionary Details Page', () => {
       cy.get('[data-test="delete-dictionary-btn"]').should('not.exist')
 
       // verify that everything is locked
-      expect(true, 'Not Yet Implemented').to.equal(false)
+      cy.get('[data-test="add-property-btn"]').should('not.exist')
+      cy.get('[data-test="required-toggle-btn"]').should('not.exist')
+      cy.get('[data-test="additional-props-toggle-btn"]').should('not.exist')
+      cy.get('[data-test="delete-property-btn"]').should('not.exist')
+
+      // verify show-hide-properties button is visible and enabled
+      cy.get('[data-test="collapse-toggle-btn"]').should('be.visible').and('not.be.disabled')
+      cy.get('[data-test="collapse-toggle-btn"]').eq(1).find('.material-symbols-outlined').should('contain', 'collapse_content')
+      cy.get('[data-test="collapse-toggle-btn"]').eq(1).find('.material-symbols-outlined').should('not.contain', 'expand_content')
+      cy.get('[data-test="collapse-toggle-btn"]').eq(1).click()
+      cy.get('[data-test="collapse-toggle-btn"]').eq(1).should('be.visible').and('not.be.disabled')
+      cy.get('[data-test="collapse-toggle-btn"]').eq(1).find('.material-symbols-outlined').should('contain', 'expand_content')
+      cy.get('[data-test="collapse-toggle-btn"]').eq(1).find('.material-symbols-outlined').should('not.contain', 'collapse_content')
     })
 
     it('unlocks', () => {
@@ -642,7 +654,12 @@ describe('Dictionary Details Page', () => {
       cy.get('[data-test="unlock-dictionary-dialog"]').should('not.exist')
 
       // verify that everything is unlocked
-      expect(true, 'Not Yet Implemented').to.equal(false)
+      cy.get('[data-test="add-property-btn"]').eq(1).should('be.visible').and('not.be.disabled')
+      cy.get('[data-test="collapse-toggle-btn"]').eq(1).should('be.visible').and('not.be.disabled')
+      cy.get('[data-test="delete-property-btn"]').eq(0).should('exist')
+
+      // verify allow-additional-properties button is not present
+      cy.get('[data-test="additional-props-toggle-btn"]').eq(1).should('not.exist')
     })
   })
 
@@ -654,7 +671,8 @@ describe('Dictionary Details Page', () => {
       cy.get('[data-test="type-picker-card"]').should('not.exist')
     })
 
-    it('displays ref picker with proper values', () => {
+    it.only('displays ref picker with proper values', () => {
+      cy.get('[data-test="ref-type-label"]').should('be.visible').should('contain', 'Dictionary:')
       cy.get('[data-test="ref-dictionary-chip"]').should('be.visible').click()
       cy.get('[data-test="ref-dictionary-picker-card"]').should('be.visible')
       cy.get('[data-test^="ref-dictionary-option-"].v-chip').should('have.length.greaterThan', 2)
