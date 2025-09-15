@@ -489,7 +489,7 @@ describe('Dictionary Details Page', () => {
       cy.get('[data-test="no-object-properties-text"]').should('exist')
     })
 
-    it.only('can add/delete properties to one of', () => {
+    it('can add/delete properties to one of', () => {
       // make sure the property list body exists.
       cy.get('[data-test="property-body"]').eq(1).should('be.visible')
 
@@ -521,7 +521,7 @@ describe('Dictionary Details Page', () => {
       // delete the last property
       cy.get('[data-test="delete-property-btn"]').eq(1).click()
       cy.get('[data-test="property-name-input"]').should('have.length', 1)
-      cy.get('[data-test="object-property-body"]').eq(1).should('contain', 'No properties defined')
+      cy.get('[data-test="property-body"]').eq(1).should('contain', 'No properties defined')
     })
     
     it('can arrange properties', () => {
