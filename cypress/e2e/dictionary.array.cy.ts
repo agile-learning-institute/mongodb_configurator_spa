@@ -22,8 +22,7 @@ describe('Dictionary Details Page', () => {
 
     // Add a property with Array type
     cy.get('[data-test="add-property-btn"]').should('be.visible').click()
-    cy.get('[data-test="type-chip"]').eq(1).should('be.visible').wait(200)
-    cy.get('[data-test="type-chip"]').eq(1).click()
+    cy.get('[data-test="type-chip"]').eq(1).should('be.visible').click()
     cy.get('[data-test="type-picker-card"]').should('be.visible')
     cy.get('[data-test="built-in-type-array"]').should('be.visible').click()
     cy.get('[data-test="type-picker-card"]').should('not.exist')
@@ -77,8 +76,7 @@ describe('Dictionary Details Page', () => {
     it('has the correct type picker', () => {
       cy.visit(`/dictionaries/${dictionaryFileName}`)
 
-      cy.get('[data-test="type-chip"]').eq(1).should('be.visible').wait(200)
-      cy.get('[data-test="type-chip"]').eq(1).click()
+      cy.get('[data-test="type-chip"]').eq(1).should('be.visible').click()
       cy.get('[data-test="type-picker-card"]').should('be.visible')
       cy.get('[data-test="built-in-types-category"] i').should('have.length', 7)
       cy.get('[data-test="built-in-type-array"]').should('be.visible')
@@ -97,10 +95,10 @@ describe('Dictionary Details Page', () => {
     it('has the correct items type picker', () => {
       cy.visit(`/dictionaries/${dictionaryFileName}`)
 
-      cy.get('[data-test="items-type-picker"] [data-test="type-chip"]').eq(0).should('be.visible').click()
-      cy.get('[data-test="type-picker-card"]').should('be.visible')
-
+      cy.get('[data-test="type-chip"]').eq(2).should('be.visible').click()
+      
       // verify items type picker has Built-in Types section
+      cy.get('[data-test="type-picker-card"]').should('be.visible')
       cy.get('[data-test="built-in-types-category"] i').should('have.length', 4)
       cy.get('[data-test="built-in-type-array"]').should('be.visible')
       cy.get('[data-test="built-in-type-object"]').should('be.visible')
@@ -120,8 +118,7 @@ describe('Dictionary Details Page', () => {
     it('can change type to one_of', () => {
       cy.visit(`/dictionaries/${dictionaryFileName}`)
 
-      cy.get('[data-test="type-chip"]').eq(1).should('be.visible').wait(200)
-      cy.get('[data-test="type-chip"]').eq(1).click()
+      cy.get('[data-test="type-chip"]').eq(1).should('be.visible').click()
       cy.get('[data-test="type-picker-card"]').should('be.visible')
       cy.get('[data-test="built-in-type-one_of"]').should('be.visible').click()
       cy.get('[data-test="type-picker-card"]').should('not.exist')
@@ -133,8 +130,7 @@ describe('Dictionary Details Page', () => {
     it('can change type to object', () => {
       cy.visit(`/dictionaries/${dictionaryFileName}`)
 
-      cy.get('[data-test="type-chip"]').eq(1).should('be.visible').wait(200)
-      cy.get('[data-test="type-chip"]').eq(1).click()
+      cy.get('[data-test="type-chip"]').eq(1).should('be.visible').click()
       cy.get('[data-test="type-picker-card"]').should('be.visible')
       cy.get('[data-test="built-in-type-object"]').should('be.visible').click()
       cy.get('[data-test="type-picker-card"]').should('not.exist')
@@ -146,8 +142,7 @@ describe('Dictionary Details Page', () => {
     it('can change type to word', () => {
       cy.visit(`/dictionaries/${dictionaryFileName}`)
 
-      cy.get('[data-test="type-chip"]').eq(1).should('be.visible').wait(200)
-      cy.get('[data-test="type-chip"]').eq(1).click()
+      cy.get('[data-test="type-chip"]').eq(1).should('be.visible').click()
       cy.get('[data-test="type-picker-card"]').should('be.visible')
       cy.get('[data-test="custom-type-name-word.yaml"]').should('be.visible').click()
       cy.get('[data-test="type-picker-card"]').should('not.exist')
@@ -198,6 +193,9 @@ describe('Dictionary Details Page', () => {
       // verify that everything is locked
       cy.get('[data-test="required-toggle-btn"]').should('not.exist')
       cy.get('[data-test="delete-property-btn"]').should('not.exist')
+      cy.get('[data-test="type-chip"]').eq(0).find('[data-test="dropdown-icon"]').should('not.exist')
+      cy.get('[data-test="type-chip"]').eq(1).find('[data-test="dropdown-icon"]').should('not.exist')
+      cy.get('[data-test="type-chip"]').eq(2).find('[data-test="dropdown-icon"]').should('not.exist')
     })
 
     it('unlocks', () => {
@@ -214,6 +212,9 @@ describe('Dictionary Details Page', () => {
       // verify that everything is unlocked
       cy.get('[data-test="required-toggle-btn"]').should('be.visible')
       cy.get('[data-test="delete-property-btn"]').should('be.visible')
+      cy.get('[data-test="type-chip"]').eq(0).find('[data-test="dropdown-icon"]').should('exist')
+      cy.get('[data-test="type-chip"]').eq(1).find('[data-test="dropdown-icon"]').should('exist')
+      cy.get('[data-test="type-chip"]').eq(2).find('[data-test="dropdown-icon"]').should('exist')
     })
   })
 
@@ -398,6 +399,9 @@ describe('Dictionary Details Page', () => {
       cy.get('[data-test="additional-props-toggle-btn"]').should('not.exist')
       cy.get('[data-test="required-toggle-btn"]').should('not.exist')
       cy.get('[data-test="delete-property-btn"]').should('not.exist')
+      cy.get('[data-test="type-chip"]').eq(0).find('[data-test="dropdown-icon"]').should('not.exist')
+      cy.get('[data-test="type-chip"]').eq(1).find('[data-test="dropdown-icon"]').should('not.exist')
+      cy.get('[data-test="type-chip"]').eq(2).find('[data-test="dropdown-icon"]').should('not.exist')
       
       // verify show-hide-properties button is visible and enabled even when locked
       cy.get('[data-test="collapse-toggle-btn"]').eq(1).should('be.visible').and('not.be.disabled')
@@ -438,6 +442,11 @@ describe('Dictionary Details Page', () => {
       cy.get('[data-test="collapse-toggle-btn"]').eq(1).should('be.visible').and('not.be.disabled')
       cy.get('[data-test="collapse-toggle-btn"]').eq(1).find('.material-symbols-outlined').should('contain', 'expand_content')
       cy.get('[data-test="collapse-toggle-btn"]').eq(1).find('.material-symbols-outlined').should('not.contain', 'collapse_content')
+      
+      // verify type chip pickers are enabled
+      cy.get('[data-test="type-chip"]').eq(0).find('[data-test="dropdown-icon"]').should('exist')
+      cy.get('[data-test="type-chip"]').eq(1).find('[data-test="dropdown-icon"]').should('exist')
+      cy.get('[data-test="type-chip"]').eq(2).find('[data-test="dropdown-icon"]').should('exist')
       
       // verify required toggle works
       cy.get('[data-test="required-toggle-btn"]').first().should('exist')
@@ -632,6 +641,9 @@ describe('Dictionary Details Page', () => {
       cy.get('[data-test="required-toggle-btn"]').should('not.exist')
       cy.get('[data-test="additional-props-toggle-btn"]').should('not.exist')
       cy.get('[data-test="delete-property-btn"]').should('not.exist')
+      cy.get('[data-test="type-chip"]').eq(0).find('[data-test="dropdown-icon"]').should('not.exist')
+      cy.get('[data-test="type-chip"]').eq(1).find('[data-test="dropdown-icon"]').should('not.exist')
+      cy.get('[data-test="type-chip"]').eq(2).find('[data-test="dropdown-icon"]').should('not.exist')
 
       // verify show-hide-properties button is visible and enabled
       cy.get('[data-test="collapse-toggle-btn"]').should('be.visible').and('not.be.disabled')
@@ -657,6 +669,9 @@ describe('Dictionary Details Page', () => {
       cy.get('[data-test="add-property-btn"]').eq(1).should('be.visible').and('not.be.disabled')
       cy.get('[data-test="collapse-toggle-btn"]').eq(1).should('be.visible').and('not.be.disabled')
       cy.get('[data-test="delete-property-btn"]').eq(0).should('exist')
+      cy.get('[data-test="type-chip"]').eq(0).find('[data-test="dropdown-icon"]').should('exist')
+      cy.get('[data-test="type-chip"]').eq(1).find('[data-test="dropdown-icon"]').should('exist')
+      cy.get('[data-test="type-chip"]').eq(2).find('[data-test="dropdown-icon"]').should('exist')
 
       // verify allow-additional-properties button is not present
       cy.get('[data-test="additional-props-toggle-btn"]').eq(1).should('not.exist')
@@ -671,7 +686,7 @@ describe('Dictionary Details Page', () => {
       cy.get('[data-test="type-picker-card"]').should('not.exist')
     })
 
-    it.only('displays ref picker with proper values', () => {
+    it('displays ref picker with proper values', () => {
       cy.get('[data-test="ref-type-label"]').should('be.visible').should('contain', 'Dictionary:')
       cy.get('[data-test="ref-dictionary-chip"]').should('be.visible').click()
       cy.get('[data-test="ref-dictionary-picker-card"]').should('be.visible')
@@ -703,7 +718,12 @@ describe('Dictionary Details Page', () => {
       cy.get('[data-test="delete-dictionary-btn"]').should('not.exist')
 
       // verify that everything is locked
-      expect(true, 'Not Yet Implemented').to.equal(false)
+      cy.get('[data-test="required-toggle-btn"]').should('not.exist')
+      cy.get('[data-test="delete-property-btn"]').should('not.exist')
+      cy.get('[data-test="type-chip"]').eq(0).find('[data-test="dropdown-icon"]').should('not.exist')
+      cy.get('[data-test="type-chip"]').eq(1).find('[data-test="dropdown-icon"]').should('not.exist')
+      cy.get('[data-test="type-chip"]').eq(2).find('[data-test="dropdown-icon"]').should('not.exist')
+      cy.get('[data-test="ref-dictionary-chip"]').eq(0).find('[data-test="dropdown-icon"]').should('not.exist')
     })
 
     it('unlocks', () => {
@@ -717,7 +737,12 @@ describe('Dictionary Details Page', () => {
       cy.get('[data-test="unlock-dictionary-dialog"]').should('not.exist')
 
       // verify that everything is unlocked
-      expect(true, 'Not Yet Implemented').to.equal(false)
+      cy.get('[data-test="required-toggle-btn"]').should('be.visible')
+      cy.get('[data-test="delete-property-btn"]').should('be.visible')
+      cy.get('[data-test="type-chip"]').eq(0).find('[data-test="dropdown-icon"]').should('exist')
+      cy.get('[data-test="type-chip"]').eq(1).find('[data-test="dropdown-icon"]').should('exist')
+      cy.get('[data-test="type-chip"]').eq(2).find('[data-test="dropdown-icon"]').should('exist')
+      cy.get('[data-test="ref-dictionary-chip"]').eq(0).find('[data-test="dropdown-icon"]').should('exist')
     })
   })
 

@@ -49,9 +49,19 @@
         data-test="array-of-oneof-extension"
       />
 
+      <ArrayOfRefExtension
+        v-else-if="isArrayProperty(property) && property.items && property.items.type === 'ref'"
+        :property="property"
+        :is-dictionary="isDictionary"
+        :is-type="isType"
+        :disabled="disabled"
+        @change="handleChange"
+        data-test="array-of-ref-extension"
+      />
+
       <!-- Fallback ArrayPropertyExtension for arrays without specific item types -->
       <ArrayPropertyExtension
-        v-else-if="isArrayProperty(property) && property.items && !['object', 'array', 'one_of'].includes(property.items.type)"
+        v-else-if="isArrayProperty(property) && property.items && !['object', 'array', 'one_of', 'ref'].includes(property.items.type)"
         :property="property"
         :is-dictionary="isDictionary"
         :is-type="isType"
@@ -403,6 +413,7 @@ const dragOverIndex = ref<number | null>(null)
 import ArrayOfObjectExtension from './ArrayOfObjectExtension.vue'
 import ArrayOfArrayExtension from './ArrayOfArrayExtension.vue'
 import ArrayOfOneOfExtension from './ArrayOfOneOfExtension.vue'
+import ArrayOfRefExtension from './ArrayOfRefExtension.vue'
 import ArrayPropertyExtension from './ArrayPropertyExtension.vue'
 import ObjectPropertyExtension from './ObjectPropertyExtension.vue'
 import EnumPropertyExtension from './EnumPropertyExtension.vue'
