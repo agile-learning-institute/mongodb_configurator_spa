@@ -155,7 +155,7 @@
               @dragover.prevent="handleDragOver((property.items as any).properties?.length || 0)"
               @dragenter.prevent="handleDragEnter((property.items as any).properties?.length || 0)"
               @dragleave="handleDragLeave((property.items as any).properties?.length || 0)"
-              @drop="(event) => handleArrayOneOfDrop(event, isArrayProperty(property) && property.items ? (property.items as any).properties?.length || 0 : 0)"
+              @drop="(event) => handleArrayOneOfDrop(event, (property.items as any).properties?.length || 0)"
             >
               <div class="drop-indicator"></div>
             </div>
