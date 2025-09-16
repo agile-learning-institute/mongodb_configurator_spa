@@ -348,7 +348,6 @@
 <script setup lang="ts">
 import { ref, onMounted, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useEvents } from '@/composables/useEvents'
 import { useEventState } from '@/composables/useEventState'
 import { useNewVersion } from '@/composables/useNewVersion'
 import { apiService } from '@/utils/api'
@@ -538,9 +537,8 @@ const processAllVersions = async () => {
       setEventViewerState(result, 'Configuration Processed', 'Configuration processing completed')
       router.push('/event-viewer')
     } else {
-      // No event data, show simple success message
-      const { showError } = useEvents()
-      showError('Configuration processed successfully', 'Success', 'Configuration Processing Complete')
+      // No event data, navigate to event viewer anyway
+      router.push('/event-viewer')
     }
     
     // Reload configuration to get updated status
@@ -548,18 +546,21 @@ const processAllVersions = async () => {
   } catch (err: any) {
     console.error('Failed to process configuration:', err)
     
-    // Handle API errors with event data - show dialog for errors
+    // Handle API errors with event data - navigate to event viewer for errors
     if (err.type === 'API_ERROR' && err.data) {
       if (err.data.id && err.data.type && err.data.status) {
-        const { showEvent } = useEvents()
-        showEvent(err.data, 'Process Configuration Error', 'Failed to process configuration')
+        // Clear any existing event state and set error event data in global state
+        const { clearEventViewerState, setEventViewerState } = useEventState()
+        clearEventViewerState() // Clear old state before setting new
+        setEventViewerState(err.data, 'Process Configuration Error', 'Failed to process configuration')
+        router.push('/event-viewer')
       } else {
-        const { showError } = useEvents()
-        showError(err.message || 'Failed to process configuration', 'Process Configuration Error', 'Failed to process configuration')
+        // No event data in error, just navigate to event viewer
+        router.push('/event-viewer')
       }
     } else {
-      const { showError } = useEvents()
-      showError(err.message || 'Failed to process configuration', 'Process Configuration Error', 'Failed to process configuration')
+      // Generic error, navigate to event viewer
+      router.push('/event-viewer')
     }
   } finally {
     processing.value = false
