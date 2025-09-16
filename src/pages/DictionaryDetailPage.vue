@@ -126,9 +126,9 @@
               data-test="root-oneof-extension"
             />
             
-            <!-- Array Items Type Picker (only for array types, not void) -->
+            <!-- Array Items Type Picker (only for array types, not object/one_of/ref/array) -->
             <ArrayPropertyExtension
-              v-if="dictionary.root && isArrayProperty(dictionary.root) && (!dictionary.root.items || dictionary.root.items.type !== 'object')"
+              v-if="dictionary.root && isArrayProperty(dictionary.root) && (!dictionary.root.items || !['object','one_of','ref','array'].includes(dictionary.root.items.type))"
               :property="dictionary.root as any"
               :is-dictionary="true"
               :disabled="dictionary._locked"
@@ -158,6 +158,27 @@
               @addProperty="handleAddArrayOneOfProperty"
               @collapsed="handleArrayOneOfCollapsed"
               data-test="root-array-of-oneof-extension"
+            />
+
+            <!-- Array of Array Extension (for array with array items, not void) -->
+            <ArrayOfArrayExtension
+              v-if="dictionary.root && isArrayProperty(dictionary.root) && dictionary.root.items && dictionary.root.items.type === 'array'"
+              :property="dictionary.root as any"
+              :is-dictionary="true"
+              :disabled="dictionary._locked"
+              @change="handleRootPropertyChange"
+              @collapsed="handleArrayArrayCollapsed"
+              data-test="root-array-of-array-extension"
+            />
+
+            <!-- Array of Ref Extension (for array with ref items, not void) -->
+            <ArrayOfRefExtension
+              v-if="dictionary.root && isArrayProperty(dictionary.root) && dictionary.root.items && dictionary.root.items.type === 'ref'"
+              :property="dictionary.root as any"
+              :is-dictionary="true"
+              :disabled="dictionary._locked"
+              @change="handleRootPropertyChange"
+              data-test="root-array-of-ref-extension"
             />
             
           </div>
@@ -238,8 +259,10 @@ import ArrayPropertyExtension from '@/components/ArrayPropertyExtension.vue'
 import ArrayOfObjectExtension from '@/components/ArrayOfObjectExtension.vue'
 import ArrayOfOneOfExtension from '@/components/ArrayOfOneOfExtension.vue'
 import PropertyEditor from '@/components/PropertyEditor.vue'
+import ArrayOfRefExtension from '@/components/ArrayOfRefExtension.vue'
 import type { DictionaryData, TypeProperty } from '@/types/types'
 import { isArrayProperty, isObjectProperty, isOneOfProperty } from '@/types/types'
+import ArrayOfArrayExtension from '@/components/ArrayOfArrayExtension.vue'
 
 const route = useRoute()
 const loading = ref(false)
@@ -408,6 +431,21 @@ const handleArrayOneOfCollapsed = (collapsed: boolean) => {
       items: updatedItems
     }
     
+    handleRootPropertyChange(updatedRoot)
+  }
+}
+
+const handleArrayArrayCollapsed = (collapsed: boolean) => {
+  if (dictionary.value?.root && isArrayProperty(dictionary.value.root) && dictionary.value.root.items && dictionary.value.root.items.type === 'array') {
+    const items = dictionary.value.root.items as any
+    const updatedItems = {
+      ...items,
+      _collapsed: collapsed
+    }
+    const updatedRoot = {
+      ...dictionary.value.root,
+      items: updatedItems
+    }
     handleRootPropertyChange(updatedRoot)
   }
 }

@@ -598,7 +598,7 @@ describe('Dictionary Details Page', () => {
   describe('Array of Ref Property Editor', () => {  
     beforeEach(() => {
       cy.visit(`/dictionaries/${dictionaryFileName}`)
-      cy.get('[data-test="items-type-picker"] [data-test="type-chip"]').eq(0).should('be.visible').click()
+      cy.get('[data-test="type-chip"]').eq(1).should('be.visible').click()
       cy.get('[data-test="built-in-type-ref"]').should('be.visible').click()
       cy.get('[data-test="type-picker-card"]').should('not.exist')
     })
@@ -618,14 +618,8 @@ describe('Dictionary Details Page', () => {
 
     it('displays array of ref action icons', () => {
       // verify required toggle works
-      cy.get('[data-test="required-toggle-btn"]').first().should('exist')
-      cy.get('[data-test="required-toggle-btn"]').first().find('.material-symbols-outlined').should('contain', 'toggle_off')
-      cy.get('[data-test="required-toggle-btn"]').first().click()
-      cy.get('[data-test="required-toggle-btn"]').first().find('.material-symbols-outlined').should('contain', 'toggle_on')
-
-      // verify delete property button works
-      cy.get('[data-test="delete-property-btn"]').first().should('exist').click()
-      cy.get('[data-test="no-object-properties-text"]').should('exist')
+      cy.get('[data-test="required-toggle-btn"]').should('not.exist')
+      cy.get('[data-test="delete-property-btn"]').should('not.exist')
     })
 
     it('locks', () => {
@@ -639,7 +633,6 @@ describe('Dictionary Details Page', () => {
       cy.get('[data-test="delete-property-btn"]').should('not.exist')
       cy.get('[data-test="type-chip"]').eq(0).find('[data-test="dropdown-icon"]').should('not.exist')
       cy.get('[data-test="type-chip"]').eq(1).find('[data-test="dropdown-icon"]').should('not.exist')
-      cy.get('[data-test="type-chip"]').eq(2).find('[data-test="dropdown-icon"]').should('not.exist')
       cy.get('[data-test="ref-dictionary-chip"]').eq(0).find('[data-test="dropdown-icon"]').should('not.exist')
     })
 
@@ -654,11 +647,8 @@ describe('Dictionary Details Page', () => {
       cy.get('[data-test="unlock-dictionary-dialog"]').should('not.exist')
 
       // verify that everything is unlocked
-      cy.get('[data-test="required-toggle-btn"]').should('be.visible')
-      cy.get('[data-test="delete-property-btn"]').should('be.visible')
       cy.get('[data-test="type-chip"]').eq(0).find('[data-test="dropdown-icon"]').should('exist')
       cy.get('[data-test="type-chip"]').eq(1).find('[data-test="dropdown-icon"]').should('exist')
-      cy.get('[data-test="type-chip"]').eq(2).find('[data-test="dropdown-icon"]').should('exist')
       cy.get('[data-test="ref-dictionary-chip"]').eq(0).find('[data-test="dropdown-icon"]').should('exist')
     })
   })
@@ -666,34 +656,24 @@ describe('Dictionary Details Page', () => {
   describe('Array of Array Property Editor', () => {
     beforeEach(() => {
       cy.visit(`/dictionaries/${dictionaryFileName}`)
-      cy.get('[data-test="type-chip"]').eq(2).should('be.visible').click()
+      cy.get('[data-test="type-chip"]').eq(1).should('be.visible').click()
       cy.get('[data-test="built-in-type-array"]').should('be.visible').click()
       cy.get('[data-test="type-picker-card"]').should('not.exist')
     })
 
     it('displays array of array action icons', () => {
       // verify expand-collapse button works
-      cy.get('[data-test="collapse-toggle-btn"]').eq(1).should('exist')
-      cy.get('[data-test="collapse-toggle-btn"]').eq(1).find('.material-symbols-outlined').should('contain', 'collapse_content')
-      cy.get('[data-test="collapse-toggle-btn"]').eq(1).click()
-      cy.get('[data-test="collapse-toggle-btn"]').eq(1).find('.material-symbols-outlined').should('contain', 'expand_content')
-
-      // verify required toggle works
-      cy.get('[data-test="required-toggle-btn"]').first().should('exist')
-      cy.get('[data-test="required-toggle-btn"]').first().find('.material-symbols-outlined').should('contain', 'toggle_off')
-      cy.get('[data-test="required-toggle-btn"]').first().click()
-      cy.get('[data-test="required-toggle-btn"]').first().find('.material-symbols-outlined').should('contain', 'toggle_on')
-
-      // verify delete property button works
-      cy.get('[data-test="delete-property-btn"]').first().should('exist').click()
-      cy.get('[data-test="no-object-properties-text"]').should('exist')
+      cy.get('[data-test="collapse-toggle-btn"]').eq(0).should('exist')
+      cy.get('[data-test="collapse-toggle-btn"]').eq(0).find('.material-symbols-outlined').should('contain', 'collapse_content')
+      cy.get('[data-test="collapse-toggle-btn"]').eq(0).click()
+      cy.get('[data-test="collapse-toggle-btn"]').eq(0).find('.material-symbols-outlined').should('contain', 'expand_content')
     })
 
     it('displays the nested array property', () => {
-      cy.get('[data-test="type-chip"]').eq(3).should('be.visible').should('contain', 'word')
+      cy.get('[data-test="type-chip"]').eq(2).should('be.visible').should('contain', 'word')
       cy.get('[data-test="array-of-array-body"]').should('have.length', 1) 
-      cy.get('[data-test="property-name-input"]').eq(1).find('input').should('have.attr', 'value', 'item')
-      cy.get('[data-test="description-input"]').eq(1).find('input').should('have.attr', 'value', 'Array item')
+      cy.get('[data-test="property-name-input"]').eq(0).find('input').should('have.attr', 'value', 'item')
+      cy.get('[data-test="description-input"]').eq(0).find('input').should('have.attr', 'value', 'Array item')
 
       // verify required toggle works
       cy.get('[data-test="required-toggle-btn"]').eq(0).should('exist')
@@ -704,70 +684,72 @@ describe('Dictionary Details Page', () => {
     })
   
     it('persists name/description edits', () => {
-      cy.get('[data-test="property-name-input"]').eq(1).should('be.visible').click()
-      cy.get('[data-test="property-name-input"]').eq(1).find('input').clear().type('firstTestProperty')
-      cy.get('[data-test="description-input"]').eq(1).find('input').clear().type('One property for testing array of array properties')
+      cy.get('[data-test="property-name-input"]').eq(0).should('be.visible').click()
+      cy.get('[data-test="property-name-input"]').eq(0).find('input').clear().type('firstTestProperty')
+      cy.get('[data-test="description-input"]').eq(0).find('input').clear().type('One property for testing array of array properties')
       cy.wait(250)
       cy.reload()
-      cy.get('[data-test="property-name-input"]').eq(1).find('input').should('have.value', 'firstTestProperty')
-      cy.get('[data-test="description-input"]').eq(1).find('input').should('have.value', 'One property for testing array of array properties')
+      cy.get('[data-test="property-name-input"]').eq(0).find('input').should('have.value', 'firstTestProperty')
+      cy.get('[data-test="description-input"]').eq(0).find('input').should('have.value', 'One property for testing array of array properties')
     })
   
     it('can change items type to array', () => {
-      cy.get('[data-test="type-chip"]').eq(3).should('be.visible').click()
+      cy.get('[data-test="type-chip"]').eq(2).should('be.visible').click()
       cy.get('[data-test="built-in-type-array"]').should('be.visible').click()
       cy.get('[data-test="type-picker-card"]').should('not.exist')
+      cy.get('[data-test="type-display-name"]').eq(0).should('contain', 'Array')
       cy.get('[data-test="type-display-name"]').eq(1).should('contain', 'Array')
       cy.get('[data-test="type-display-name"]').eq(2).should('contain', 'Array')
+      cy.get('[data-test="type-display-name"]').eq(3).should('contain', 'word')
     })
 
     it('can change items type to object', () => {
-      cy.get('[data-test="type-chip"]').eq(3).should('be.visible').click()
+      cy.get('[data-test="type-chip"]').eq(2).should('be.visible').click()
       cy.get('[data-test="built-in-type-object"]').should('be.visible').click()
       cy.get('[data-test="type-picker-card"]').should('not.exist')
+      cy.get('[data-test="type-display-name"]').eq(0).should('contain', 'Array')
       cy.get('[data-test="type-display-name"]').eq(1).should('contain', 'Array')
-      cy.get('[data-test="type-display-name"]').eq(2).should('contain', 'Array')
-      cy.get('[data-test="type-display-name"]').eq(3).should('contain', 'Object')
+      cy.get('[data-test="type-display-name"]').eq(2).should('contain', 'Object')
     })
 
     it('can change items type to one_of', () => {
-      cy.get('[data-test="type-chip"]').eq(3).should('be.visible').click()
+      cy.get('[data-test="type-chip"]').eq(2).should('be.visible').click()
       cy.get('[data-test="built-in-type-one_of"]').should('be.visible').click()
       cy.get('[data-test="type-picker-card"]').should('not.exist')
+      cy.get('[data-test="type-display-name"]').eq(0).should('contain', 'Array')
       cy.get('[data-test="type-display-name"]').eq(1).should('contain', 'Array')
-      cy.get('[data-test="type-display-name"]').eq(2).should('contain', 'Array')
-      cy.get('[data-test="type-display-name"]').eq(3).should('contain', 'One Of')
+      cy.get('[data-test="type-display-name"]').eq(2).should('contain', 'One Of')
     })
 
     it('can change items type to ref', () => {
-      cy.get('[data-test="type-chip"]').eq(3).should('be.visible').click()
+      cy.get('[data-test="type-chip"]').eq(2).should('be.visible').click()
       cy.get('[data-test="built-in-type-ref"]').should('be.visible').click()
       cy.get('[data-test="type-picker-card"]').should('not.exist')
+      cy.get('[data-test="type-display-name"]').eq(0).should('contain', 'Array')
       cy.get('[data-test="type-display-name"]').eq(1).should('contain', 'Array')
-      cy.get('[data-test="type-display-name"]').eq(2).should('contain', 'Array')
-      cy.get('[data-test="type-display-name"]').eq(3).should('contain', 'Ref')
+      cy.get('[data-test="type-display-name"]').eq(2).should('contain', 'Ref')
     })
 
     it('can show/hide nested array details', () => {
       // verify show-hide-properties button is visible and enabled
-      cy.get('[data-test="collapse-toggle-btn"]').eq(1).should('be.visible').and('not.be.disabled')
-      cy.get('[data-test="collapse-toggle-btn"]').eq(1).find('.material-symbols-outlined').should('contain', 'collapse_content')
-      cy.get('[data-test="collapse-toggle-btn"]').eq(1).find('.material-symbols-outlined').should('not.contain', 'expand_content')
-      cy.get('[data-test="property-body"]').eq(1).should('have.length', 1) 
+      cy.get('[data-test="collapse-toggle-btn"]').eq(0).should('be.visible').and('not.be.disabled')
+      cy.get('[data-test="collapse-toggle-btn"]').eq(0).find('.material-symbols-outlined').should('contain', 'collapse_content')
+      cy.get('[data-test="collapse-toggle-btn"]').eq(0).find('.material-symbols-outlined').should('not.contain', 'expand_content')
+      cy.get('[data-test="property-body"]').eq(0).should('have.length', 1) 
 
       // Hide nested array details
-      cy.get('[data-test="collapse-toggle-btn"]').eq(1).click()
-      cy.get('[data-test="collapse-toggle-btn"]').eq(1).should('be.visible').and('not.be.disabled')
-      cy.get('[data-test="collapse-toggle-btn"]').eq(1).find('.material-symbols-outlined').should('contain', 'expand_content')
-      cy.get('[data-test="collapse-toggle-btn"]').eq(1).find('.material-symbols-outlined').should('not.contain', 'collapse_content')
-      cy.get('[data-test="property-body"]').eq(1).should('be.empty')
+      cy.get('[data-test="collapse-toggle-btn"]').eq(0).click()
+      cy.get('[data-test="collapse-toggle-btn"]').eq(0).should('be.visible').and('not.be.disabled')
+      cy.get('[data-test="collapse-toggle-btn"]').eq(0).find('.material-symbols-outlined').should('contain', 'expand_content')
+      cy.get('[data-test="collapse-toggle-btn"]').eq(0).find('.material-symbols-outlined').should('not.contain', 'collapse_content')
+      cy.get('[data-test="property-body"]').eq(0).should('be.empty')
 
       // Show nested array details
-      cy.get('[data-test="collapse-toggle-btn"]').eq(1).click()
-      cy.get('[data-test="collapse-toggle-btn"]').eq(1).should('be.visible').and('not.be.disabled')
-      cy.get('[data-test="collapse-toggle-btn"]').eq(1).find('.material-symbols-outlined').should('contain', 'collapse_content')
-      cy.get('[data-test="collapse-toggle-btn"]').eq(1).find('.material-symbols-outlined').should('not.contain', 'expand_content')
-      cy.get('[data-test="property-body"]').eq(1).should('have.length', 1) 
+      cy.get('[data-test="collapse-toggle-btn"]').eq(0).click()
+      cy.get('[data-test="collapse-toggle-btn"]').eq(0).should('be.visible').and('not.be.disabled')
+      cy.get('[data-test="collapse-toggle-btn"]').eq(0).find('.material-symbols-outlined').should('contain', 'collapse_content')
+      cy.get('[data-test="collapse-toggle-btn"]').eq(0).find('.material-symbols-outlined').should('not.contain', 'expand_content')
+      cy.get('[data-test="property-body"]').eq(0).should('have.length', 1) 
     })
 
     it('locks', () => {
@@ -782,7 +764,6 @@ describe('Dictionary Details Page', () => {
       cy.get('[data-test="type-chip"]').eq(0).find('[data-test="dropdown-icon"]').should('not.exist')
       cy.get('[data-test="type-chip"]').eq(1).find('[data-test="dropdown-icon"]').should('not.exist')
       cy.get('[data-test="type-chip"]').eq(2).find('[data-test="dropdown-icon"]').should('not.exist')
-      cy.get('[data-test="type-chip"]').eq(3).find('[data-test="dropdown-icon"]').should('not.exist')
     })
 
     it('unlocks', () => {
@@ -796,12 +777,13 @@ describe('Dictionary Details Page', () => {
       cy.get('[data-test="unlock-dictionary-dialog"]').should('not.exist')
 
       // verify that everything is unlocked
-      cy.get('[data-test="required-toggle-btn"]').should('be.visible')
-      cy.get('[data-test="delete-property-btn"]').should('be.visible')
       cy.get('[data-test="type-chip"]').eq(0).find('[data-test="dropdown-icon"]').should('exist')
       cy.get('[data-test="type-chip"]').eq(1).find('[data-test="dropdown-icon"]').should('exist')
       cy.get('[data-test="type-chip"]').eq(2).find('[data-test="dropdown-icon"]').should('exist')
-      cy.get('[data-test="type-chip"]').eq(3).find('[data-test="dropdown-icon"]').should('exist')
+
+      // verify required toggle and delete property button are not present (for root objects)
+      cy.get('[data-test="required-toggle-btn"]').should('have.length', 1)
+      cy.get('[data-test="delete-property-btn"]').should('not.exist')
     })
   })
 })
