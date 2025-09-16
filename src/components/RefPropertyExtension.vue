@@ -34,7 +34,7 @@ if (props.property.type === 'ref' && 'ref' in props.property) {
 
 // Watch for changes in editableRefType and emit the change
 watch(editableRefType, (newRefType) => {
-  if (props.property.type === 'ref' && 'ref' in props.property && newRefType !== props.property.ref) {
+  if (props.property.type === 'ref' && 'ref' in props.property) {
     const updatedProperty = {
       ...props.property,
       ref: newRefType
@@ -48,6 +48,13 @@ watch(editableRefType, (newRefType) => {
 watch(() => (props.property as any).ref, (newRefType) => {
   if (newRefType !== editableRefType.value) {
     editableRefType.value = newRefType || ''
+  }
+}, { deep: true })
+
+// Watch for property object changes to re-initialize when type changes
+watch(() => props.property, (newProperty) => {
+  if (newProperty.type === 'ref' && 'ref' in newProperty) {
+    editableRefType.value = newProperty.ref || ''
   }
 }, { deep: true })
 </script>

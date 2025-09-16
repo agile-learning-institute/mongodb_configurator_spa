@@ -329,6 +329,14 @@ const handleTypeChange = (newType: string) => {
         type: 'word',
         required: false
       }
+    } else if (newType === 'enum') {
+      updatedProperty.enums = ''
+    } else if (newType === 'enum_array') {
+      updatedProperty.enums = ''
+    } else if (newType === 'ref') {
+      updatedProperty.ref = ''
+    } else if (newType === 'constant') {
+      updatedProperty.constant = ''
     }
     
     handleRootPropertyChange(updatedProperty)

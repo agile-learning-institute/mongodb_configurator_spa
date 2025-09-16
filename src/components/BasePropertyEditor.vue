@@ -349,32 +349,32 @@ const handleTypeChange = (newType: string) => {
       
       // Emit the change with the new property object
       emit('change', newProperty)
-    } else if (newType === 'enum' && !isCustomProperty(props.property)) {
+    } else if (newType === 'enum') {
       // Create a new enum property object to ensure proper reactivity
       const newProperty = {
         ...(props.property as any),
         type: newType,
-        enums: ''
+        enums: props.property.enums || ''
       }
       
       // Emit the change with the new property object
       emit('change', newProperty)
-    } else if (newType === 'enum_array' && !isCustomProperty(props.property)) {
+    } else if (newType === 'enum_array') {
       // Create a new enum array property object to ensure proper reactivity
       const newProperty = {
         ...(props.property as any),
         type: newType,
-        enums: ''
+        enums: props.property.enums || ''
       }
       
       // Emit the change with the new property object
       emit('change', newProperty)
-    } else if (newType === 'ref' && !isCustomProperty(props.property)) {
+    } else if (newType === 'ref') {
       // Create a new ref property object to ensure proper reactivity
       const newProperty = {
         ...(props.property as any),
         type: newType,
-        ref: ''
+        ref: props.property.ref || ''
       }
       
       // Emit the change with the new property object
@@ -390,12 +390,12 @@ const handleTypeChange = (newType: string) => {
       
       // Emit the change with the new property object
       emit('change', newProperty)
-    } else if (newType === 'constant' && !isCustomProperty(props.property)) {
+    } else if (newType === 'constant') {
       // Create a new constant property object to ensure proper reactivity
       const newProperty = {
         ...(props.property as any),
         type: newType,
-        constant: ''
+        constant: props.property.constant || ''
       }
       
       // Emit the change with the new property object

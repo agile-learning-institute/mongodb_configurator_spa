@@ -146,6 +146,24 @@ describe('Dictionary Details Page', () => {
       cy.get('[data-test="ref-dictionary-chip"]').should('be.visible').should('contain', dictionaryName)
     })
 
+    it('persists ref changes', () => {
+      cy.visit(`/dictionaries/${dictionaryFileName}`)
+
+      // Add a new property with Ref type
+      cy.get('[data-test="add-property-btn"]').should('be.visible').click()
+      cy.get('[data-test="type-chip"]').eq(2).should('be.visible').click()
+      cy.get('[data-test="built-in-type-ref"]').should('be.visible').click()
+      cy.get('[data-test="type-picker-card"]').should('not.exist')
+      cy.get('[data-test="type-chip"]').eq(2).should('be.visible').should('contain', 'Ref')
+      cy.get('[data-test="ref-dictionary-chip"]').eq(1).should('be.visible').click()
+      cy.get(`[data-test="ref-dictionary-option-name-${dictionaryName}"]`).should('be.visible').click()
+      cy.get('[data-test="ref-dictionary-picker-card"]').should('not.exist')
+      cy.get('[data-test="ref-dictionary-chip"]').eq(1).should('contain', dictionaryName)
+      cy.wait(250)
+      cy.reload()
+      cy.get('[data-test="ref-dictionary-chip"]').should('be.visible').should('contain', dictionaryName)
+    })
+
     it('locks', () => {
       cy.visit(`/dictionaries/${dictionaryFileName}`)
       // lock the dictionary

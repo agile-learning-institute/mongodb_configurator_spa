@@ -147,6 +147,23 @@ describe('Dictionary Details Page', () => {
       cy.get('[data-test="enum-type-chip"]').should('be.visible').should('contain', 'default_status')
     })
 
+    it.only('persists enum changes', () => {
+      cy.visit(`/dictionaries/${dictionaryFileName}`)
+
+      // Add a new property with Enum type
+      cy.get('[data-test="add-property-btn"]').should('be.visible').click()
+      cy.get('[data-test="type-chip"]').eq(2).should('be.visible').click()
+      cy.get('[data-test="built-in-type-enum"]').should('be.visible').click()
+      cy.get('[data-test="type-picker-card"]').should('not.exist')
+      cy.get('[data-test="type-chip"]').eq(2).should('be.visible').should('contain', 'Enum')
+      cy.get('[data-test="enum-type-chip"]').eq(1).should('be.visible').click()
+      cy.get('[data-test="enum-type-option-name-default_status"]').should('be.visible').click()
+      cy.get('[data-test="enum-type-chip"]').eq(1).should('be.visible').should('contain', 'default_status')
+      cy.wait(250)
+      cy.reload()
+      cy.get('[data-test="enum-type-chip"]').should('be.visible').should('contain', 'default_status')
+    })
+
     it('locks', () => {
       cy.visit(`/dictionaries/${dictionaryFileName}`)
       // lock the dictionary

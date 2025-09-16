@@ -34,9 +34,10 @@ if (props.property.type === 'enum' && 'enums' in props.property) {
   editableEnumType.value = props.property.enums || ''
 }
 
+
 // Watch for changes in editableEnumType and emit the change
 watch(editableEnumType, (newEnumType) => {
-  if ((props.property.type === 'enum' || props.property.type === 'enum_array') && 'enums' in props.property && newEnumType !== props.property.enums) {
+  if ((props.property.type === 'enum' || props.property.type === 'enum_array') && 'enums' in props.property) {
     const updatedProperty = {
       ...props.property,
       enums: newEnumType
@@ -52,6 +53,16 @@ watch(() => (props.property as any).enums, (newEnumType) => {
     editableEnumType.value = newEnumType || ''
   }
 }, { deep: true })
+
+// Watch for property object changes to re-initialize when type changes
+watch(() => props.property, (newProperty) => {
+  if (newProperty.type === 'enum' && 'enums' in newProperty) {
+    editableEnumType.value = newProperty.enums || ''
+  } else if (newProperty.type === 'enum_array' && 'enums' in newProperty) {
+    editableEnumType.value = newProperty.enums || ''
+  }
+}, { deep: true })
+
 </script>
 
 <style scoped>
