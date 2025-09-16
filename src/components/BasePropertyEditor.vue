@@ -354,7 +354,7 @@ const handleTypeChange = (newType: string) => {
       const newProperty = {
         ...(props.property as any),
         type: newType,
-        enums: props.property.enums || ''
+        enums: (props.property as any).enums || ''
       }
       
       // Emit the change with the new property object
@@ -364,7 +364,7 @@ const handleTypeChange = (newType: string) => {
       const newProperty = {
         ...(props.property as any),
         type: newType,
-        enums: props.property.enums || ''
+        enums: (props.property as any).enums || ''
       }
       
       // Emit the change with the new property object
@@ -374,7 +374,7 @@ const handleTypeChange = (newType: string) => {
       const newProperty = {
         ...(props.property as any),
         type: newType,
-        ref: props.property.ref || ''
+        ref: (props.property as any).ref || ''
       }
       
       // Emit the change with the new property object
@@ -395,7 +395,7 @@ const handleTypeChange = (newType: string) => {
       const newProperty = {
         ...(props.property as any),
         type: newType,
-        constant: props.property.constant || ''
+        constant: (props.property as any).constant || ''
       }
       
       // Emit the change with the new property object
