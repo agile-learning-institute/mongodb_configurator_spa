@@ -147,7 +147,7 @@ describe('Dictionary Details Page', () => {
       cy.get('[data-test="enum-type-chip"]').should('be.visible').should('contain', 'default_status')
     })
 
-    it.only('persists enum changes', () => {
+    it('persists enum changes', () => {
       cy.visit(`/dictionaries/${dictionaryFileName}`)
 
       // Add a new property with Enum type
