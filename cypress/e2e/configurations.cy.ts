@@ -55,7 +55,7 @@ describe('Configurations detail page', () => {
       cy.wait(500)
 
       // Verify default values
-      // cy.get('[data-test="card-header"]').contains('Version:')
+      cy.get('[data-test="page-header"]').should('contain', 'Test configuration for E2E testing')
       cy.get('[data-test="active-version"]').should('contain', '0.1.0.2')
       cy.get('[data-test="dictionary-file-chip"]').should('contain', `${createdConfigurationName}.${createdConfigurationVersion}.yaml`)
       cy.get('[data-test="enumerators-file-chip"]').should('contain', 'enumerations.2.yaml')

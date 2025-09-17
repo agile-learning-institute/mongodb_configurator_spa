@@ -281,8 +281,7 @@ const createCollection = async () => {
     // Create configuration file
     const configuration = {
       file_name: configFileName,
-      title: name,
-      description: newCollectionDescription.value || `Configuration for ${name} collection`,
+      description: newCollectionDescription.value,
       versions: [{
         version: version,
         dictionary: `${name}.${newVersion.value.major}.${newVersion.value.minor}.${newVersion.value.patch}.yaml`,
