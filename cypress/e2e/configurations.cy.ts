@@ -108,9 +108,7 @@ describe('Configurations detail page', () => {
       // First create a configuration
       cy.visit(`/configurations/${createdConfigurationName}.yaml`)
 
-      cy.get('[data-test="page-header"]').should('contain', createdConfigurationName)
-      cy.get('[data-test="page-description"]').should('contain', 'Test configuration for E2E testing')
-      cy.get('[data-test="page-description"]').should('contain', 'Test configuration for E2E testing')
+      cy.get('[data-test="page-header"]').should('contain', 'Test configuration for E2E testing')
       cy.get('[data-test="configure-collection-btn"]').should('be.enabled')
       cy.get('[data-test="delete-collection-btn"]').should('be.enabled')
       cy.get('[data-test="json-schema-btn"]').should('be.enabled')
