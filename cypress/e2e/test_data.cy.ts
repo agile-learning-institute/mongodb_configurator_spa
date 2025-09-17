@@ -55,6 +55,23 @@ describe('Test Data detail page', () => {
       .invoke('val').should('contain', '"name"').and('contain', '"Jane"').and('contain', '"age"').and('contain', '25')
   })
 
+  it('can persist test data with ejson', () => {
+    cy.visit(`/test_data/${fileName}`)
+
+    // Add first test data document
+    cy.get('[data-test="add-item-btn"]').click()
+    cy.get('[data-test="array-panel-0"]').should('be.visible')
+    cy.get('[data-test="array-item-label"]').eq(0).should('contain', 'Document 1')
+    cy.get('[data-test="array-item-textarea-0"]').should('be.visible')
+    cy.get('[data-test="array-item-textarea-0"]').find('textarea').first().clear()
+    cy.get('[data-test="array-item-textarea-0"]').find('textarea').first().type('{"_id":{"$oid":"000000000000000000000001"}}', { parseSpecialCharSequences: false }).blur()
+
+    cy.reload()
+    cy.wait(250)
+    cy.get('[data-test="array-item-textarea-0"]').find('textarea').first()
+      .invoke('val').should('contain', '"_id"').and('contain', '"$oid"').and('contain', '"000000000000000000000001"')
+  })
+  
   it('can show/hide test data', () => {
     cy.visit(`/test_data/${fileName}`)
     cy.wait(500)

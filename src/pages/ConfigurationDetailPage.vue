@@ -17,24 +17,25 @@
     <div v-else-if="configuration">
       <!-- File Header -->
       <div class="mb-6">
-        <!-- File name, title, and process button row -->
+        <!-- File name, description, and process button row -->
         <div class="d-flex align-center justify-space-between mb-2">
           <div class="d-flex align-center">
             <h3 class="text-h5 text-medium-emphasis mr-2 mb-0">{{ configuration.file_name.replace('.yaml', '') }}:</h3>
-            <div v-if="!editingTitle" @click="startEditTitle" class="title-display">
-              <h3 class="title-text mb-0 cursor-pointer" data-test="page-header">{{ configuration.title || 'Enter configuration title...' }}</h3>
+            <div v-if="!editingDescription" @click="startEditDescription" class="title-display">
+              <h3 class="title-text mb-0 cursor-pointer" data-test="page-header">{{ configuration.description || 'Enter configuration description...' }}</h3>
             </div>
             <v-text-field
               v-else
-              v-model="configuration.title"
+              v-model="configuration.description"
+              placeholder="Enter configuration description..."
               variant="plain"
               density="compact"
               class="title-edit-field h1-style"
               hide-details
               @update:model-value="autoSave"
-              @blur="finishEditTitle"
-              @keyup.enter="finishEditTitle"
-              ref="titleInput"
+              @blur="finishEditDescription"
+              @keyup.enter="finishEditDescription"
+              ref="descriptionInput"
             />
           </div>
           
@@ -83,24 +84,6 @@
             </div>
           </div>
         </div>
-        
-        <!-- Description row -->
-        <div v-if="!editingDescription" @click="startEditDescription" class="description-display">
-          <p class="description-text mb-0 cursor-pointer" data-test="page-description">{{ configuration.description || 'Enter configuration description...' }}</p>
-        </div>
-        <v-text-field
-          v-else
-          v-model="configuration.description"
-          placeholder="Enter configuration description..."
-          variant="plain"
-          density="compact"
-          class="description-edit-field"
-          hide-details
-          @update:model-value="autoSave"
-          @blur="finishEditDescription"
-          @keyup.enter="finishEditDescription"
-          ref="descriptionInput"
-        />
       </div>
 
       <!-- Configuration Content -->
@@ -331,7 +314,7 @@
         Delete Collection?
       </v-card-title>
       <v-card-text>
-        <p>Are you sure you want to delete the collection "{{ configuration?.title || configuration?.file_name }}"?</p>
+        <p>Are you sure you want to delete the collection "{{ configuration?.file_name }}"?</p>
         <p class="text-caption text-medium-emphasis">
           This will permanently delete the configuration and all its versions. This action cannot be undone.
         </p>
@@ -348,7 +331,6 @@
 <script setup lang="ts">
 import { ref, onMounted, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useEvents } from '@/composables/useEvents'
 import { useEventState } from '@/composables/useEventState'
 import { useNewVersion } from '@/composables/useNewVersion'
 import { apiService } from '@/utils/api'
@@ -366,7 +348,6 @@ interface ConfigurationVersion {
 
 interface Configuration {
   file_name: string
-  title: string
   description: string
   versions: ConfigurationVersion[]
 }
@@ -385,8 +366,6 @@ const configuration = ref<Configuration | null>(null)
 const activeVersion = ref<string>('')
 const editingDescription = ref(false)
 const descriptionInput = ref<HTMLElement | null>(null)
-const editingTitle = ref(false)
-const titleInput = ref<HTMLElement | null>(null)
 const showNewVersionDialog = ref(false)
 const showDeleteCollectionDialog = ref(false)
 const newVersion = ref({
@@ -497,19 +476,6 @@ const finishEditDescription = () => {
   editingDescription.value = false
 }
 
-const startEditTitle = () => {
-  editingTitle.value = true
-  // Focus the input after it's rendered
-  setTimeout(() => {
-    if (titleInput.value) {
-      titleInput.value.focus()
-    }
-  }, 0)
-}
-
-const finishEditTitle = () => {
-  editingTitle.value = false
-}
 
 
 
@@ -538,9 +504,8 @@ const processAllVersions = async () => {
       setEventViewerState(result, 'Configuration Processed', 'Configuration processing completed')
       router.push('/event-viewer')
     } else {
-      // No event data, show simple success message
-      const { showError } = useEvents()
-      showError('Configuration processed successfully', 'Success', 'Configuration Processing Complete')
+      // No event data, navigate to event viewer anyway
+      router.push('/event-viewer')
     }
     
     // Reload configuration to get updated status
@@ -548,18 +513,21 @@ const processAllVersions = async () => {
   } catch (err: any) {
     console.error('Failed to process configuration:', err)
     
-    // Handle API errors with event data - show dialog for errors
+    // Handle API errors with event data - navigate to event viewer for errors
     if (err.type === 'API_ERROR' && err.data) {
       if (err.data.id && err.data.type && err.data.status) {
-        const { showEvent } = useEvents()
-        showEvent(err.data, 'Process Configuration Error', 'Failed to process configuration')
+        // Clear any existing event state and set error event data in global state
+        const { clearEventViewerState, setEventViewerState } = useEventState()
+        clearEventViewerState() // Clear old state before setting new
+        setEventViewerState(err.data, 'Process Configuration Error', 'Failed to process configuration')
+        router.push('/event-viewer')
       } else {
-        const { showError } = useEvents()
-        showError(err.message || 'Failed to process configuration', 'Process Configuration Error', 'Failed to process configuration')
+        // No event data in error, just navigate to event viewer
+        router.push('/event-viewer')
       }
     } else {
-      const { showError } = useEvents()
-      showError(err.message || 'Failed to process configuration', 'Process Configuration Error', 'Failed to process configuration')
+      // Generic error, navigate to event viewer
+      router.push('/event-viewer')
     }
   } finally {
     processing.value = false
