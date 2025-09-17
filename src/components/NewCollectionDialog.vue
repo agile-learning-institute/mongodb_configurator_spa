@@ -286,6 +286,7 @@ const createCollection = async () => {
         version: version,
         dictionary: `${name}.${newVersion.value.major}.${newVersion.value.minor}.${newVersion.value.patch}.yaml`,
         enumerators: `enumerations.${newestEnumeratorVersion.value}.yaml`,
+        test_data: `${name}.${newVersion.value.major}.${newVersion.value.minor}.${newVersion.value.patch}.${newestEnumeratorVersion.value}.json`,
         indexes: [],
         migrations: []
       }]

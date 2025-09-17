@@ -22,13 +22,13 @@ describe('User Journey - Create, configure, revise, and re-configure a new colle
       `test_data/${collectionName}.${Version2}.${EnumeratorsVersion2}.json`
     ]
     filesToDelete.forEach((file) => {
-      cy.request({method: 'PUT', url: `/api/${file}/`, body: {"_locked": false, "root": {"name":""}}, failOnStatusCode: false})
-      cy.request({method: 'DELETE', url: `/api/${file}/`, failOnStatusCode: false})
+      // cy.request({method: 'PUT', url: `/api/${file}/`, body: {"_locked": false, "root": {"name":""}}, failOnStatusCode: false})
+      // cy.request({method: 'DELETE', url: `/api/${file}/`, failOnStatusCode: false})
     })
-})
+  })
 
   describe('User Journey Part 1 - Create and configure a new collection', () => {
-    it.only('sets up empty enumerators', () => {
+    it('sets up empty enumerators', () => {
       const filesToDelete = ["enumerations.1.yaml", "enumerations.2.yaml", "enumerations.3.yaml", "enumerations.4.yaml"]
       filesToDelete.forEach((file) => {
         cy.request({method: 'PUT', url: `/api/enumerators/${file}/`, body: {"_locked": false}, failOnStatusCode: false})
@@ -36,8 +36,8 @@ describe('User Journey - Create, configure, revise, and re-configure a new colle
       })
     })
 
-    it.only('creates a new configuration', () => {
-      collectionName = `Journey1_${Date.now()}`
+    it('creates a new configuration', () => {
+      collectionName = 'Journey1'
       Version1 = '0.1.0'
       EnumeratorsVersion1 = '0'
       Version2 = '0.1.1'
@@ -50,9 +50,10 @@ describe('User Journey - Create, configure, revise, and re-configure a new colle
       cy.get('[data-test="version-minor-plus-btn"]').click()
       cy.get('[data-test="new-collection-create-btn"]').click()
       cy.url().should('include', `/configurations/${collectionName}.yaml`)
+      cy.get('[data-test="page-header"]').should('be.visible').should('contain', 'User Journey 1 Collection')
     })
     
-    it.only('updates the dictionary', () => {
+    it('updates the dictionary', () => {
       // Follow the dictionary link
       cy.visit(`/configurations/${collectionName}.yaml`)
       cy.url().should('include', `/configurations/${collectionName}.yaml`)
@@ -67,38 +68,40 @@ describe('User Journey - Create, configure, revise, and re-configure a new colle
       cy.get('[data-test="property-name-input"]').should('have.length', 5)
 
       // Add the ID property
-      cy.get('[data-test="property-name-input"]').eq(0).click()
+      cy.get('[data-test="property-name-input"]').eq(0).should('be.visible').click()
       cy.get('[data-test="property-name-input"]').eq(0).find('input').clear().type('_id')
-      cy.get('[data-test="description-input"]').eq(0).click()
+      cy.get('[data-test="description-input"]').eq(0).should('be.visible').click()
       cy.get('[data-test="description-input"]').eq(0).find('input').clear().type('Unique identifier for the document')
-      cy.get('[data-test="type-chip"]').eq(1).should('be.visible').click()
+      cy.get('[data-test="type-chip"]').eq(1).should('be.visible').should('be.visible').click()
       cy.get('[data-test="custom-type-name-identifier.yaml"]').should('be.visible').click()
       cy.get('[data-test="type-chip"]').eq(1).should('be.visible').should('contain', 'identifier')
+      cy.get('[data-test="required-toggle-btn"]').eq(0).should('be.visible').click()
+      cy.get('[data-test="required-toggle-btn"]').eq(0).should('be.visible').should('contain', 'toggle_on')
 
       // Add the First Name property
-      cy.get('[data-test="property-name-input"]').eq(1).click()
+      cy.get('[data-test="property-name-input"]').eq(1).should('be.visible').click()
       cy.get('[data-test="property-name-input"]').eq(1).find('input').clear().type('first_name')
-      cy.get('[data-test="description-input"]').eq(1).click()
+      cy.get('[data-test="description-input"]').eq(1).should('be.visible').click()
       cy.get('[data-test="description-input"]').eq(1).find('input').clear().type('First Name of the person')    
-      cy.get('[data-test="type-chip"]').eq(2).should('be.visible').click()
+      cy.get('[data-test="type-chip"]').eq(2).should('be.visible').should('be.visible').click()
       cy.get('[data-test="custom-type-name-word.yaml"]').should('be.visible').click()
       cy.get('[data-test="type-chip"]').eq(2).should('be.visible').should('contain', 'word')
 
       // Add the Last Name property
-      cy.get('[data-test="property-name-input"]').eq(2).click()
+      cy.get('[data-test="property-name-input"]').eq(2).should('be.visible').click()
       cy.get('[data-test="property-name-input"]').eq(2).find('input').clear().type('last_name')
-      cy.get('[data-test="description-input"]').eq(2).click()
+      cy.get('[data-test="description-input"]').eq(2).should('be.visible').click()
       cy.get('[data-test="description-input"]').eq(2).find('input').clear().type('Last Name of the person')
-      cy.get('[data-test="type-chip"]').eq(3).should('be.visible').click()
+      cy.get('[data-test="type-chip"]').eq(3).should('be.visible').should('be.visible').click()
       cy.get('[data-test="custom-type-name-word.yaml"]').should('be.visible').click()
       cy.get('[data-test="type-chip"]').eq(3).should('be.visible').should('contain', 'word')
 
       // Add the Status property
-      cy.get('[data-test="property-name-input"]').eq(3).click()
+      cy.get('[data-test="property-name-input"]').eq(3).should('be.visible').click()
       cy.get('[data-test="property-name-input"]').eq(3).find('input').clear().type('status')
-      cy.get('[data-test="description-input"]').eq(3).click()
+      cy.get('[data-test="description-input"]').eq(3).should('be.visible').click()
       cy.get('[data-test="description-input"]').eq(3).find('input').clear().type('Status of the person')
-      cy.get('[data-test="type-chip"]').eq(4).should('be.visible').click()
+      cy.get('[data-test="type-chip"]').eq(4).should('be.visible').should('be.visible').click()
       cy.get('[data-test="built-in-type-enum"]').should('be.visible').click()
       cy.get('[data-test="type-chip"]').eq(4).should('be.visible').should('contain', 'Enum')
       cy.get('[data-test="enum-type-chip"]').should('be.visible').click()
@@ -106,11 +109,11 @@ describe('User Journey - Create, configure, revise, and re-configure a new colle
       cy.get('[data-test="enum-type-chip"]').should('be.visible').should('contain', 'default_status')
 
       // Add the Last Saved property
-      cy.get('[data-test="property-name-input"]').eq(4).click()
+      cy.get('[data-test="property-name-input"]').eq(4).should('be.visible').click()
       cy.get('[data-test="property-name-input"]').eq(4).find('input').clear().type('last_saved')
-      cy.get('[data-test="description-input"]').eq(4).click()
+      cy.get('[data-test="description-input"]').eq(4).should('be.visible').click()
       cy.get('[data-test="description-input"]').eq(4).find('input').clear().type('Last Saved Breadcrumb')
-      cy.get('[data-test="type-chip"]').eq(5).should('be.visible').click()
+      cy.get('[data-test="type-chip"]').eq(5).should('be.visible').should('be.visible').click()
       cy.get('[data-test="custom-type-name-breadcrumb.yaml"]').should('be.visible').click()
       cy.get('[data-test="type-picker-card"]').should('not.exist')
       cy.get('[data-test="type-chip"]').eq(5).should('be.visible').should('contain', 'breadcrumb')
@@ -122,7 +125,7 @@ describe('User Journey - Create, configure, revise, and re-configure a new colle
       cy.get('[data-test="type-chip"]').eq(2).should('be.visible').should('contain', 'word')
       cy.get('[data-test="type-chip"]').eq(3).should('be.visible').should('contain', 'word')
       cy.get('[data-test="type-chip"]').eq(4).should('be.visible').should('contain', 'Enum')
-      cy.get('[data-test="enum-type-value"]').eq(0).should('be.visible').should('contain', 'default_status')
+      cy.get('[data-test="enum-type-value"]').eq(0).should('contain', 'default_status')
       cy.get('[data-test="type-chip"]').eq(5).should('be.visible').should('contain', 'breadcrumb')
       cy.get('[data-test="property-name-input"]').eq(0).find('input').should('have.value', '_id')
       cy.get('[data-test="property-name-input"]').eq(1).find('input').should('have.value', 'first_name')
@@ -136,7 +139,7 @@ describe('User Journey - Create, configure, revise, and re-configure a new colle
       cy.get('[data-test="description-input"]').eq(4).find('input').should('have.value', 'Last Saved Breadcrumb')
     })
 
-    it.only('updates the enumerators', () => {
+    it('updates the enumerators', () => {
       cy.visit(`/configurations/${collectionName}.yaml`)
       cy.url().should('include', `/configurations/${collectionName}.yaml`)
       cy.get('[data-test="enumerators-file-chip"]').should('be.visible').click()
@@ -150,21 +153,25 @@ describe('User Journey - Create, configure, revise, and re-configure a new colle
       // Add a new value to the default_status enumerator
       cy.get('[data-test="add-enum-value-btn-0"]').click()
       cy.get('[data-test="enum-value-input-0-2"]').should('be.visible').click()
-      cy.get('[data-test="enum-value-input-0-2"]').type('Draft')
+      cy.get('[data-test="enum-value-input-0-2"]').type('draft')
+      cy.get('[data-test="enum-value-input-0-2"] input').should('have.value', 'draft')
       cy.get('[data-test="enum-description-input-0-2"]').should('be.visible').click()
       cy.get('[data-test="enum-description-input-0-2"]').type('A Draft Status')
+      cy.get('[data-test="enum-description-input-0-2"] input').should('have.value', 'A Draft Status')
 
       // Verify persistence
+      cy.wait(250)
       cy.reload()
-      cy.get('[data-test="enum-value-input-0-2"]').should('have.value', 'Draft')
-      cy.get('[data-test="enum-description-input-0-2"]').should('have.value', 'A Draft Status')
+      cy.get('[data-test="enum-value-input-0-2"] input').should('have.value', 'draft')
+      cy.get('[data-test="enum-description-input-0-2"] input').should('have.value', 'A Draft Status')
     })
 
     it('adds indexes', () => {
-      cy.visit('/configurations/${collectionName}.${Version1}')
-      cy.get('[data-test="add-index-btn"]').should('be.visible').click()
-
+      cy.visit(`/configurations/${collectionName}.yaml`)
+      cy.url().should('include', `/configurations/${collectionName}.yaml`)
+      
       // Add the name index
+      cy.get('[data-test="add-index-btn"]').should('be.visible').click()
       cy.get('[data-test="step5-index-json-textarea"] textarea:not(.v-textarea__sizer)')
         .clear()
         .type('{"name": "nameIndex", "key": { "first_name": 1, "last_name": 1 }, "options": { "unique": true }}'
@@ -174,6 +181,7 @@ describe('User Journey - Create, configure, revise, and re-configure a new colle
       cy.get('[data-test="step5-indexes-content"]').should('be.visible').should('contain', 'nameIndex')
 
       // Add the status index
+      cy.get('[data-test="add-index-btn"]').should('be.visible').click()
       cy.get('[data-test="step5-index-json-textarea"] textarea:not(.v-textarea__sizer)')
         .clear()
         .type('{"name": "statusIndex", "key": { "status": 1 }, "options": { "unique": false }}', 
@@ -183,13 +191,15 @@ describe('User Journey - Create, configure, revise, and re-configure a new colle
       cy.get('[data-test="step5-indexes-content"]').should('be.visible').should('contain', 'statusIndex')
 
       // Verify persistence
+      cy.wait(250)
       cy.reload()
       cy.get('[data-test="step5-indexes-content"]').should('be.visible').should('contain', 'nameIndex')
       cy.get('[data-test="step5-indexes-content"]').should('be.visible').should('contain', 'statusIndex')
     })
 
     it('creates some test data', () => {
-      cy.visit('/configurations/${collectionName}.yaml/')
+      cy.visit(`/configurations/${collectionName}.yaml`)
+      cy.url().should('include', `/configurations/${collectionName}.yaml`)
       cy.get('[data-test="test-data-file-chip"]').should('be.visible').click()
       cy.url().should('include', `/test_data/${collectionName}.${Version1}.${EnumeratorsVersion1}.json`)
 
@@ -211,39 +221,68 @@ describe('User Journey - Create, configure, revise, and re-configure a new colle
         .type('{"_id": "000000000000000000000002", "first_name": "Jane", "last_name": "Doe", "status": "archived", "last_saved": {"from_ip": "127.0.0.1", "by_user": "jane.doe", "at_time": "2021-01-02"}, "correlation_id": "0987654321"}', 
           { parseSpecialCharSequences: false })
 
+      // Add the third test data document
+      cy.get('[data-test="add-item-btn"]').click()
+      cy.get('[data-test="array-item-textarea-2"]')
+        .find('textarea')
+        .first()
+        .clear()
+        .type('{"_id": "000000000000000000000003", "first_name": "Foo", "last_name": "Bar", "status": "draft", "last_saved": {"from_ip": "127.0.0.1", "by_user": "jane.doe", "at_time": "2021-01-02"}, "correlation_id": "0987654321"}', 
+          { parseSpecialCharSequences: false })
+
       // Verify persistence
+      cy.wait(250)
       cy.reload()
+      cy.get('[data-test="array-panel-title-0"] i').eq(1).should('be.visible').click()
       cy.get('[data-test="array-item-textarea-0"]')
         .find('textarea')
         .first()
         .invoke('val')
-        .should('contain', '"name"').and('contain', '"John"')
+        .should('contain', '"first_name"').and('contain', '"John"')
       
+      cy.get('[data-test="array-panel-title-1"] i').eq(1).should('be.visible').click()
       cy.get('[data-test="array-item-textarea-1"]')
         .find('textarea')
         .first()
         .invoke('val')
-        .should('contain', '"name"').and('contain', '"Jane"')
+        .should('contain', '"first_name"').and('contain', '"Jane"')
+
+      cy.get('[data-test="array-panel-title-2"] i').eq(1).should('be.visible').click()
+      cy.get('[data-test="array-item-textarea-2"]')
+        .find('textarea')
+        .first()
+        .invoke('val')
+        .should('contain', '"first_name"').and('contain', '"Foo"')
     })
 
     it('configures the collection', () => {
-      cy.visit('/configurations/${collectionName}')
+      cy.visit(`/configurations/${collectionName}.yaml`)
+      cy.url().should('include', `/configurations/${collectionName}.yaml`)
       cy.get('[data-test="configure-collection-btn"]').should('be.visible').click()
 
       cy.url().should('include', '/event-viewer')
       cy.get('body').should('not.contain', 'Loading...')
 
       // Find the Load Test Data event and verify 2 documents were loaded
-      cy.get('[data-test="event-type-title"]').should('be.visible').should('contain', 'PROCESS_CONFIGURATION').within(() => {
+      cy.get('[data-test="card-header"]').should('be.visible').should('contain', 'PROCESS_CONFIGURATION').within(() => {
         cy.get('[data-test="expand-collapse-icon"]').should('be.visible').click()
-        cy.get('[data-test="event-id"]').should('be.visible').should('contain', 'PROCESS').within(() => {
+      })
+
+      cy.get('[data-test="expanded-sub-events"]').eq(0).should('be.visible').within(() => {
+        cy.get('[data-test="card-header"]:contains("PROCESS")').should('be.visible').within(() => {
           cy.get('[data-test="expand-collapse-icon"]').should('be.visible').click()
-          cy.get('[data-test="event-id"]').should('be.visible').should('contain', 'LOAD_TEST_DATA').within(() => {
-            cy.get('[data-test="expand-collapse-icon"]').should('be.visible').click()
-            cy.get('[data-test="event-id"]').should('be.visible').should('contain', 'LOAD_DATA').within(() => {
-              cy.get('[data-test="event-data-json"]').should('be.visible').should('contain', '"documents_loaded": 2"')
-            })
-          })
+        })
+      })
+
+      cy.get('[data-test="expanded-sub-events"]').eq(1).should('be.visible').within(() => {
+        cy.get('[data-test="card-header"]:contains("LOAD_TEST_DATA")').should('be.visible').within(() => {
+          cy.get('[data-test="expand-collapse-icon"]').should('be.visible').click()
+        })
+      })
+
+      cy.get('[data-test="expanded-sub-events"]').eq(2).should('be.visible').within(() => {
+        cy.get('[data-test="card-header"]:contains("LOAD_DATA")').should('be.visible').within(() => {
+          cy.get('[data-test="event-data-json"]').should('be.visible').should('contain', '"documents_loaded": 2"')
         })
       })
     })
