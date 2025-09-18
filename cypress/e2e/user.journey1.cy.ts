@@ -18,7 +18,7 @@ describe('User Journey - Create, configure, revise, and re-configure a new colle
       `dictionaries/${collectionName}.${Version1}.yaml`, 
       `test_data/${collectionName}.${Version1}.${EnumeratorsVersion1}.json`,
       `dictionaries/${collectionName}.${Version2}.yaml`, 
-      `migrations/${collectionName}.name_migration.yaml`,
+      `migrations/${collectionName}.names_to_full_name.yaml`,
       `test_data/${collectionName}.${Version2}.${EnumeratorsVersion2}.json`
     ]
     filesToDelete.forEach((file) => {
@@ -40,7 +40,7 @@ describe('User Journey - Create, configure, revise, and re-configure a new colle
       collectionName = 'Journey1'
       Version1 = '0.1.0'
       EnumeratorsVersion1 = '0'
-      Version2 = '0.1.1'
+      Version2 = '1.0.0'
       EnumeratorsVersion2 = '1'
 
       cy.visit('/configurations')
@@ -209,7 +209,7 @@ describe('User Journey - Create, configure, revise, and re-configure a new colle
         .find('textarea')
         .first()
         .clear()
-        .type('{"_id": "000000000000000000000001", "first_name": "John", "last_name": "Doe", "status": "active", "last_saved": {"from_ip": "127.0.0.1", "by_user": "john.doe", "at_time": "2021-01-01"}, "correlation_id": "1234567890"}', 
+        .type('{"_id": {"$oid": "000000000000000000000001"}, "first_name": "John", "last_name": "Doe", "status": "active", "last_saved": {"from_ip": "127.0.0.1", "by_user": "john.doe", "at_time": {"$datetime": "2021-01-01"}, "correlation_id": "1234567890"}}', 
           { parseSpecialCharSequences: false })
 
       // Add the second test data document
@@ -218,7 +218,7 @@ describe('User Journey - Create, configure, revise, and re-configure a new colle
         .find('textarea')
         .first()
         .clear()
-        .type('{"_id": "000000000000000000000002", "first_name": "Jane", "last_name": "Doe", "status": "archived", "last_saved": {"from_ip": "127.0.0.1", "by_user": "jane.doe", "at_time": "2021-01-02"}, "correlation_id": "0987654321"}', 
+        .type('{"_id": {"$oid": "000000000000000000000002"}, "first_name": "Jane", "last_name": "Doe", "status": "archived", "last_saved": {"from_ip": "127.0.0.1", "by_user": "jane.doe", "at_time": {"$datetime": "2021-01-02"}, "correlation_id": "0987654321"}}', 
           { parseSpecialCharSequences: false })
 
       // Add the third test data document
@@ -227,7 +227,7 @@ describe('User Journey - Create, configure, revise, and re-configure a new colle
         .find('textarea')
         .first()
         .clear()
-        .type('{"_id": "000000000000000000000003", "first_name": "Foo", "last_name": "Bar", "status": "draft", "last_saved": {"from_ip": "127.0.0.1", "by_user": "jane.doe", "at_time": "2021-01-02"}, "correlation_id": "0987654321"}', 
+        .type('{"_id": {"$oid": "000000000000000000000003"}, "first_name": "Foo", "last_name": "Bar", "status": "draft", "last_saved": {"from_ip": "127.0.0.1", "by_user": "jane.doe", "at_time": {"$datetime": "2021-01-02"}, "correlation_id": "0987654321"}}', 
           { parseSpecialCharSequences: false })
 
       // Verify persistence
@@ -238,6 +238,7 @@ describe('User Journey - Create, configure, revise, and re-configure a new colle
         .find('textarea')
         .first()
         .invoke('val')
+        .should('contain', '"_id"').and('contain', '"$oid"').and('contain', '"000000000000000000000001"')
         .should('contain', '"first_name"').and('contain', '"John"')
       
       cy.get('[data-test="array-panel-title-1"] i').eq(1).should('be.visible').click()
@@ -245,6 +246,7 @@ describe('User Journey - Create, configure, revise, and re-configure a new colle
         .find('textarea')
         .first()
         .invoke('val')
+        .should('contain', '"_id"').and('contain', '"$oid"').and('contain', '"000000000000000000000002"')
         .should('contain', '"first_name"').and('contain', '"Jane"')
 
       cy.get('[data-test="array-panel-title-2"] i').eq(1).should('be.visible').click()
@@ -252,6 +254,7 @@ describe('User Journey - Create, configure, revise, and re-configure a new colle
         .find('textarea')
         .first()
         .invoke('val')
+        .should('contain', '"_id"').and('contain', '"$oid"').and('contain', '"000000000000000000000003"')
         .should('contain', '"first_name"').and('contain', '"Foo"')
     })
 
@@ -290,35 +293,201 @@ describe('User Journey - Create, configure, revise, and re-configure a new colle
 
   describe('User Journey Part 2 - Create and configure a new version of the collection', () => {
     it('creates a new version', () => {
-      expect(true, 'Not Yet Implemented').to.equal(false)
+      cy.visit(`/configurations/${collectionName}.yaml`)
+      cy.url().should('include', `/configurations/${collectionName}.yaml`)
+      cy.get('[data-test="new-version-btn"]').should('be.visible').click()
+      cy.get('[data-test="new-version-major-plus-btn"]').should('be.visible').click()
+      cy.get('[data-test="new-version-enumerators-plus-btn"]').should('be.visible').click()
+      cy.get('[data-test="new-version-create-btn"]').click()
+      cy.get('[data-test="active-version"]').should('contain', `${Version2}.${EnumeratorsVersion2}`)
     })
 
     it('drops a previously created index', () => {
-      expect(true, 'Not Yet Implemented').to.equal(false)
+      cy.visit(`/configurations/${collectionName}.yaml`)
+      cy.url().should('include', `/configurations/${collectionName}.yaml`)
+      cy.get('[data-test="active-version"]').should('contain', `${Version2}.${EnumeratorsVersion2}`)
+
+      cy.get('[data-test="add-drop-index-btn"]').click()
+      cy.get('.v-chip:contains("nameIndex")').eq(0).should('be.visible').click()
+      cy.get('[data-test="drop-indexes-content"]').should('be.visible').should('contain', 'nameIndex')
     })
 
     it('updates the dictionary', () => {
-      expect(true, 'Not Yet Implemented').to.equal(false)
+      cy.visit(`/configurations/${collectionName}.yaml`)
+      cy.url().should('include', `/configurations/${collectionName}.yaml`)
+      cy.get('[data-test="active-version"]').should('contain', `${Version2}.${EnumeratorsVersion2}`)
+      cy.get('[data-test="dictionary-file-chip"]').should('be.visible').click()
+      cy.url().should('include', `/dictionaries/${collectionName}.${Version2}.yaml`)
+
+      // Change Name to Full Name
+      cy.get('[data-test="property-name-input"]').eq(1).should('be.visible').click()
+      cy.get('[data-test="property-name-input"]').eq(1).find('input').clear().type('full_name')
+      cy.get('[data-test="description-input"]').eq(1).should('be.visible').click()
+      cy.get('[data-test="description-input"]').eq(1).find('input').clear().type('A User Full Name')
+      cy.get('[data-test="type-chip"]').eq(2).should('be.visible').should('contain', 'word')
+
+      // Delete the Last Name property
+      cy.get('[data-test="delete-property-btn"]').eq(2).should('be.visible').click()
     })
 
     it('updates the enumerators', () => {
-      expect(true, 'Not Yet Implemented').to.equal(false)
+      cy.visit(`/configurations/${collectionName}.yaml`)
+      cy.url().should('include', `/configurations/${collectionName}.yaml`)
+      cy.get('[data-test="active-version"]').should('contain', `${Version2}.${EnumeratorsVersion2}`)
+      cy.get('[data-test="enumerators-file-chip"]').should('be.visible').click()
+      cy.url().should('include', `/enumerators/enumerations.${EnumeratorsVersion2}.yaml`)
+
+      // Add a new value to the default_status enumerator
+      cy.get('[data-test="add-enum-value-btn-0"]').click()
+      cy.get('[data-test="enum-value-input-0-3"]').should('be.visible').click()
+      cy.get('[data-test="enum-value-input-0-3"]').type('suspended')
+      cy.get('[data-test="enum-value-input-0-3"] input').should('have.value', 'suspended')
+      cy.get('[data-test="enum-description-input-0-3"]').should('be.visible').click()
+      cy.get('[data-test="enum-description-input-0-3"]').type('A Suspended Account')
+      cy.get('[data-test="enum-description-input-0-3"] input').should('have.value', 'A Suspended Account')
     })
 
     it('creates a migration', () => {
-      expect(true, 'Not Yet Implemented').to.equal(false)
+      cy.visit(`/configurations/${collectionName}.yaml`)
+      cy.url().should('include', `/configurations/${collectionName}.yaml`)
+      cy.get('[data-test="active-version"]').should('contain', `${Version2}.${EnumeratorsVersion2}`)
+      cy.get('[data-test="add-migration-btn"]').should('be.visible').click()
+
+      // Create a new migration
+      cy.get('[data-test="new-migration-name-input"]').type('names_to_full_name.json')
+      cy.get('[data-test="new-migration-create-btn"]').click()
+      cy.get('[data-test="migrations-content"]').should('contain', 'names_to_full_name.json')
+      cy.get('[data-test="migration-chip"]').should('be.visible').click()
+      cy.url().should('include', `/migrations/names_to_full_name.json`)
+
+      // Add the first migration step
+      cy.get('[data-test="add-item-btn"]').click()
+      cy.get('[data-test="array-item-textarea-0"]')
+        .find('textarea')
+        .first()
+        .clear()
+        .type('{"$addFields": {"full_name": {"$concat": ["$first_name"," ","$last_name"]}}}', 
+          { parseSpecialCharSequences: false })
+
+      // Add the second migration step
+      cy.get('[data-test="add-item-btn"]').click()
+      cy.get('[data-test="array-item-textarea-1"]')
+        .find('textarea')
+        .first()
+        .clear()
+        .type('{"$unset": ["first_name","last_name"]}', 
+          { parseSpecialCharSequences: false })
+
+      // Add the third migration step
+      cy.get('[data-test="add-item-btn"]').click()
+      cy.get('[data-test="array-item-textarea-2"]')
+        .find('textarea')
+        .first()
+        .clear()
+        .type(`{"$out": "${collectionName}"}`, 
+          { parseSpecialCharSequences: false })
+
+      // Verify persistence
+      cy.wait(250)
+      cy.reload()
+      cy.get('[data-test="array-panel-title-0"]').eq(0).should('be.visible').click()
+      cy.get('[data-test="array-item-textarea-0"]')
+        .find('textarea')
+        .first()
+        .invoke('val')
+        .should('contain', '"$addFields"').and('contain', '"full_name"')
+      cy.get('[data-test="array-panel-title-1"]').eq(0).should('be.visible').click()
+      cy.get('[data-test="array-item-textarea-1"]')
+        .find('textarea')
+        .first()
+        .invoke('val')
+        .should('contain', '"first_name"').and('contain', '"last_name"')
+      cy.get('[data-test="array-panel-title-2"]').eq(0).should('be.visible').click()
+      cy.get('[data-test="array-item-textarea-2"]')
+        .find('textarea')
+        .first()
+        .invoke('val')
+        .should('contain', '"$out"').and('contain', `"${collectionName}"`)
     })
 
     it('adds an index', () => {
-      expect(true, 'Not Yet Implemented').to.equal(false)
+      cy.visit(`/configurations/${collectionName}.yaml`)
+      cy.url().should('include', `/configurations/${collectionName}.yaml`)
+      cy.get('[data-test="active-version"]').should('contain', `${Version2}.${EnumeratorsVersion2}`)
+      
+      // Add the fullName index
+      cy.get('[data-test="add-index-btn"]').should('be.visible').click()
+      cy.get('[data-test="step5-index-json-textarea"] textarea:not(.v-textarea__sizer)')
+        .clear()
+        .type('{"name": "fullNameIndex", "key": { "full_name": 1 }, "options": { "unique": true }}'
+          , { parseSpecialCharSequences: false }
+        )
+      cy.get('[data-test="save-index-btn"]').should('be.visible').click()
+      cy.get('[data-test="step5-indexes-content"]').should('be.visible').should('contain', 'fullNameIndex')
+
+      // Verify persistence
+      cy.wait(250)
+      cy.reload()
+      cy.get('[data-test="step5-indexes-content"]').should('be.visible').should('contain', 'fullNameIndex')
     })
 
     it('creates some test data', () => {
-      expect(true, 'Not Yet Implemented').to.equal(false)
+      cy.visit(`/configurations/${collectionName}.yaml`)
+      cy.url().should('include', `/configurations/${collectionName}.yaml`)
+      cy.get('[data-test="test-data-file-chip"]').should('be.visible').click()
+      cy.url().should('include', `${collectionName}.${Version2}.${EnumeratorsVersion2}.json`)
+
+      // Add the first test data document
+      cy.get('[data-test="add-item-btn"]').click()
+      cy.get('[data-test="array-item-textarea-0"]')
+        .find('textarea')
+        .first()
+        .clear()
+        .type('{"_id": {"$oid": "000000000000000000000003"}, "full_name": "Dr. James Earl Ray II", "status": "suspended", "last_saved": {"from_ip": "127.0.0.1", "by_user": "john.doe", "at_time": {"$datetime": "2021-01-01"}, "correlation_id": "1234567890"}}', 
+          { parseSpecialCharSequences: false })
+
+      // Verify persistence
+      cy.wait(250)
+      cy.reload()
+      cy.get('[data-test="array-panel-title-0"] i').eq(1).should('be.visible').click()
+      cy.get('[data-test="array-item-textarea-0"]')
+        .find('textarea')
+        .first()
+        .invoke('val')
+        .should('contain', '"_id"').and('contain', '"$oid"').and('contain', '"000000000000000000000003"')
+        .should('contain', '"full_name"').and('contain', '"Dr. James Earl Ray II"')
     })
 
     it('re-configures the collection', () => {
-      expect(true, 'Not Yet Implemented').to.equal(false)
+      cy.visit(`/configurations/${collectionName}.yaml`)
+      cy.url().should('include', `/configurations/${collectionName}.yaml`)
+      cy.get('[data-test="configure-collection-btn"]').should('be.visible').click()
+
+      cy.url().should('include', '/event-viewer')
+      cy.get('body').should('not.contain', 'Loading...')
+
+      // Find the Load Test Data event and verify 2 documents were loaded
+      cy.get('[data-test="card-header"]').should('be.visible').should('contain', 'PROCESS_CONFIGURATION').within(() => {
+        cy.get('[data-test="expand-collapse-icon"]').should('be.visible').click()
+      })
+
+      cy.get('[data-test="expanded-sub-events"]').eq(0).should('be.visible').within(() => {
+        cy.get('[data-test="card-header"]:contains("PROCESS")').should('be.visible').within(() => {
+          cy.get('[data-test="expand-collapse-icon"]').should('be.visible').click()
+        })
+      })
+
+      cy.get('[data-test="expanded-sub-events"]').eq(1).should('be.visible').within(() => {
+        cy.get('[data-test="card-header"]:contains("LOAD_TEST_DATA")').should('be.visible').within(() => {
+          cy.get('[data-test="expand-collapse-icon"]').should('be.visible').click()
+        })
+      })
+
+      cy.get('[data-test="expanded-sub-events"]').eq(2).should('be.visible').within(() => {
+        cy.get('[data-test="card-header"]:contains("LOAD_DATA")').should('be.visible').within(() => {
+          cy.get('[data-test="event-data-json"]').should('be.visible').should('contain', '"documents_loaded": 2"')
+        })
+      })
     })
   })
 })
