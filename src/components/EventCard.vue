@@ -23,17 +23,17 @@
           </v-icon>
         </v-btn>
         
-        <!-- Event Type Title -->
-        <span class="text-h6 font-weight-medium text-white" data-test="event-type-title">
-          {{ event.type }}
+        <!-- Event ID Title -->
+        <span class="text-h6 font-weight-medium text-white" data-test="event-id-title">
+          {{ event.id }}
         </span>
       </div>
     </template>
     <template #header-actions>
       <div class="d-flex align-center flex-grow-1">
         <div class="flex-grow-1">
-          <div class="text-h6 font-weight-medium text-white" data-test="event-id">
-            {{ event.id }}
+          <div class="text-h6 font-weight-medium text-white text-right" data-test="event-type">
+            {{ event.type }}
           </div>
         </div>
       </div>
