@@ -1,4 +1,10 @@
 describe('App Help Pages', () => {
+  // Reset backend
+  before(() => {
+    cy.exec('npm run service', { failOnNonZeroExit: true, timeout: 120000 })
+    cy.wait(1000)
+  })
+
   it('loads the welcome carousel and navigation', () => {
     cy.visit('/')
     cy.getByTest('help-carousel').should('be.visible')
