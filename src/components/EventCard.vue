@@ -7,35 +7,41 @@
     :data-test="`event-card-${event.id}`"
   >
     <template #title>
-      <div class="d-flex align-center">
-        <!-- Show/Hide Button (only for events with sub-events) -->
-        <v-btn
-          v-if="event.sub_events && event.sub_events.length > 0"
-          size="small"
-          variant="text"
-          color="white"
-          @click="subEventsExpanded = !subEventsExpanded"
-          class="mr-3"
-          data-test="expand-collapse-btn"
-        >
-          <v-icon size="24" data-test="expand-collapse-icon">
-            {{ subEventsExpanded ? 'mdi-eye-off' : 'mdi-eye' }}
-          </v-icon>
-        </v-btn>
-        
-        <!-- Event Type Title -->
-        <span class="text-h6 font-weight-medium text-white" data-test="event-type-title">
-          {{ event.type }}
-        </span>
-      </div>
+      <!-- Event ID Title -->
+      <span class="text-h6 font-weight-medium text-white" data-test="event-id-title">
+        {{ event.id }}
+      </span>
     </template>
     <template #header-actions>
-      <div class="d-flex align-center flex-grow-1">
-        <div class="flex-grow-1">
-          <div class="text-h6 font-weight-medium text-white" data-test="event-id">
-            {{ event.id }}
-          </div>
-        </div>
+      <!-- Event Type -->
+      <span class="text-h6 font-weight-medium text-white mr-4" data-test="event-type">
+        {{ event.type }}
+      </span>
+      
+      <!-- Expand/Collapse Button (only for events with sub-events) -->
+      <div v-if="event.sub_events && event.sub_events.length > 0" class="mr-2" data-test="expand-collapse-section">
+        <v-tooltip 
+          :text="subEventsExpanded ? 'Hide sub-events' : 'Show sub-events'"
+          location="top"
+          color="primary"
+          text-color="white"
+        >
+          <template v-slot:activator="{ props }">
+            <v-btn
+              variant="text"
+              size="normal"
+              density="compact"
+              color="default"
+              v-bind="props"
+              @click="subEventsExpanded = !subEventsExpanded"
+              data-test="expand-collapse-btn"
+            >
+              <span class="material-symbols-outlined" data-test="expand-collapse-icon">
+                {{ subEventsExpanded ? 'collapse_content' : 'expand_content' }}
+              </span>
+            </v-btn>
+          </template>
+        </v-tooltip>
       </div>
       
       <!-- Status Badge -->
@@ -43,7 +49,6 @@
         :color="getStatusColor()"
         size="small"
         variant="tonal"
-        class="ml-2"
         data-test="event-status-chip"
       >
         {{ event.status }}
@@ -243,5 +248,10 @@ pre {
   font-size: 0.75rem;
   line-height: 1.4;
   margin: 0;
+}
+
+/* Override BaseCard header-actions alignment */
+.event-card :deep(.card-header-actions) {
+  margin-left: auto;
 }
 </style> 

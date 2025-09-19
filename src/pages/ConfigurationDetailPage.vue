@@ -650,10 +650,18 @@ const createNewVersion = async () => {
       }
     }
     
+    // Create test data filename for the new version
+    const baseName = configuration.value.file_name.replace('.yaml', '')
+    const versionParts = versionString.split('.')
+    const testDataFileName = versionParts.length >= 4 
+      ? `${baseName}.${versionParts[0]}.${versionParts[1]}.${versionParts[2]}.${versionParts[3]}.json`
+      : ''
+    
     // Create new version object
     const newVersionObj: ConfigurationVersion = {
       version: versionString,
-      _locked: false
+      _locked: false,
+      test_data: testDataFileName
     }
     
     // Add to configuration
@@ -684,12 +692,7 @@ const createNewVersion = async () => {
     
     // Create new test data file for the new version
     try {
-      const baseName = configuration.value.file_name.replace('.yaml', '')
-      const versionParts = versionString.split('.')
-      
-      if (versionParts.length >= 4) {
-        const testDataFileName = `${baseName}.${versionParts[0]}.${versionParts[1]}.${versionParts[2]}.${versionParts[3]}.json`
-        
+      if (testDataFileName) {
         // Create empty test data array
         const newTestData: any[] = []
         

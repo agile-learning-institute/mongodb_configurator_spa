@@ -37,7 +37,7 @@ export function useNewVersion() {
         const match = file.file_name.match(/enumerations\.(\d+)\.yaml/)
         if (match) {
           const version = parseInt(match[1], 10)
-          if (version > maxVersion) {
+          if (version >= maxVersion) {
             maxVersion = version
             newestFile = file
           }
@@ -51,7 +51,7 @@ export function useNewVersion() {
       }
       
       // Lock the newest version if it exists and is not already locked
-      if (newestFile && !(newestFile as any)._locked) {
+      if (newestFile && newestEnumeratorData && !(newestFile as any)._locked) {
         const lockData = {
           ...newestEnumeratorData,
           _locked: true
