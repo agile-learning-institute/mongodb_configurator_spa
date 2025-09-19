@@ -191,7 +191,6 @@ describe('User Journey - Create, configure, revise, and re-configure a new colle
       cy.get('[data-test="step5-indexes-content"]').should('be.visible').should('contain', 'statusIndex')
 
       // Verify persistence
-      cy.wait(250)
       cy.reload()
       cy.get('[data-test="step5-indexes-content"]').should('be.visible').should('contain', 'nameIndex')
       cy.get('[data-test="step5-indexes-content"]').should('be.visible').should('contain', 'statusIndex')
@@ -204,31 +203,57 @@ describe('User Journey - Create, configure, revise, and re-configure a new colle
       cy.url().should('include', `/test_data/${collectionName}.${Version1}.${EnumeratorsVersion1}.json`)
 
       // Add the first test data document
+      var test_document = {
+        "_id": {"$oid": "000000000000000000000001"},
+        "first_name": "John",
+        "last_name": "Doe",
+        "status": "active",
+        "last_saved": {
+          "from_ip": "127.0.0.1", 
+          "by_user": "john.doe", 
+          "at_time": {"$date": "2021-01-01T01:23:45.678Z"}, 
+          "correlation_id": "1234567890"
+        }
+      }
       cy.get('[data-test="add-item-btn"]').click()
-      cy.get('[data-test="array-item-textarea-0"]')
-        .find('textarea')
-        .first()
-        .clear()
-        .type('{"_id": {"$oid": "000000000000000000000001"}, "first_name": "John", "last_name": "Doe", "status": "active", "last_saved": {"from_ip": "127.0.0.1", "by_user": "john.doe", "at_time": {"$datetime": "2021-01-01"}, "correlation_id": "1234567890"}}', 
-          { parseSpecialCharSequences: false })
+      cy.get('[data-test="array-item-textarea-0"]').find('textarea').first().clear()
+        .type(JSON.stringify(test_document), { parseSpecialCharSequences: false })
 
       // Add the second test data document
+      test_document = {
+        "_id": {"$oid": "000000000000000000000002"}, 
+        "first_name": "Jane", 
+        "last_name": "Doe", 
+        "status": "archived", 
+        "last_saved": {
+          "from_ip": "127.0.0.1", 
+          "by_user": "jane.doe", 
+          "at_time": {"$date": "2021-01-02T01:23:45.678Z"}, 
+          "correlation_id": "0987654321"
+        }
+      }
+
       cy.get('[data-test="add-item-btn"]').click()
-      cy.get('[data-test="array-item-textarea-1"]')
-        .find('textarea')
-        .first()
-        .clear()
-        .type('{"_id": {"$oid": "000000000000000000000002"}, "first_name": "Jane", "last_name": "Doe", "status": "archived", "last_saved": {"from_ip": "127.0.0.1", "by_user": "jane.doe", "at_time": {"$datetime": "2021-01-02"}, "correlation_id": "0987654321"}}', 
-          { parseSpecialCharSequences: false })
+      cy.get('[data-test="array-item-textarea-1"]').find('textarea').first().clear()
+        .type(JSON.stringify(test_document), { parseSpecialCharSequences: false })
 
       // Add the third test data document
+      test_document = {
+        "_id": {"$oid": "000000000000000000000003"}, 
+        "first_name": "Foo", 
+        "last_name": "Bar", 
+        "status": "draft", 
+        "last_saved": {
+          "from_ip": "127.0.0.1", 
+          "by_user": "jane.doe", 
+          "at_time": {"$date": "2021-01-02T01:23:45.678Z"}, 
+          "correlation_id": "0987654321"
+        }
+      }
+      
       cy.get('[data-test="add-item-btn"]').click()
-      cy.get('[data-test="array-item-textarea-2"]')
-        .find('textarea')
-        .first()
-        .clear()
-        .type('{"_id": {"$oid": "000000000000000000000003"}, "first_name": "Foo", "last_name": "Bar", "status": "draft", "last_saved": {"from_ip": "127.0.0.1", "by_user": "jane.doe", "at_time": {"$datetime": "2021-01-02"}, "correlation_id": "0987654321"}}', 
-          { parseSpecialCharSequences: false })
+      cy.get('[data-test="array-item-textarea-2"]').find('textarea').first().clear()
+        .type(JSON.stringify(test_document), { parseSpecialCharSequences: false })
 
       // Verify persistence
       cy.wait(250)
@@ -267,26 +292,30 @@ describe('User Journey - Create, configure, revise, and re-configure a new colle
       cy.get('body').should('not.contain', 'Loading...')
 
       // Find the Load Test Data event and verify 2 documents were loaded
-      cy.get('[data-test="card-header"]').should('be.visible').should('contain', 'PROCESS_CONFIGURATION').within(() => {
+      cy.get('[data-test="card-header"]').should('be.visible').should('contain', 'CFG-09-PROCESS_ONE_CONFIGURATION').within(() => {
         cy.get('[data-test="expand-collapse-icon"]').should('be.visible').click()
       })
 
       cy.get('[data-test="expanded-sub-events"]').eq(0).should('be.visible').within(() => {
-        cy.get('[data-test="card-header"]:contains("PROCESS")').should('be.visible').within(() => {
+        cy.get('[data-test="card-header"]:contains("CFG-05-Journey1.yaml")').should('be.visible').within(() => {
           cy.get('[data-test="expand-collapse-icon"]').should('be.visible').click()
         })
       })
 
       cy.get('[data-test="expanded-sub-events"]').eq(1).should('be.visible').within(() => {
-        cy.get('[data-test="card-header"]:contains("LOAD_TEST_DATA")').should('be.visible').within(() => {
+        cy.get('[data-test="card-header"]:contains("PROCESS_VERSION-0.1.0.0")').should('be.visible').within(() => {
           cy.get('[data-test="expand-collapse-icon"]').should('be.visible').click()
         })
       })
 
       cy.get('[data-test="expanded-sub-events"]').eq(2).should('be.visible').within(() => {
-        cy.get('[data-test="card-header"]:contains("LOAD_DATA")').should('be.visible').within(() => {
-          cy.get('[data-test="event-data-json"]').should('be.visible').should('contain', '"documents_loaded": 2"')
+        cy.get('[data-test="card-header"]:contains("PRO-06-LOAD_TEST_DATA")').should('be.visible').within(() => {
+          cy.get('[data-test="expand-collapse-icon"]').should('be.visible').click()
         })
+      })
+
+      cy.get('[data-test="sub-event-card-MON-11"]').should('be.visible').within(() => {
+        cy.get('[data-test="event-data-json"]').should('be.visible').should('contain', '"documents_loaded": 3')
       })
     })
   })
