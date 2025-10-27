@@ -12,11 +12,14 @@
     "test:run": "vitest run",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
     "format": "prettier --write src/",
-    "container": "docker build -t ghcr.io/agile-learning-institute/mongodb_configurator_spa:latest .",
+    "open": "open -a 'Google Chrome' 'http://localhost:8082/configurations' || google-chrome 'http://localhost:8082/configurations' || exg-open 'localhost:8082'",
+
     "api": "npm run down && docker compose --profile configurator-api up -d",
-    "service": "npm run down && docker compose --profile configurator up -d",
-    "pull": "docker compose --profile configurator pull",
+    "service": "npm run down && docker compose --profile configurator up -d && npm run open",
     "down": "docker compose down configurator_spa configurator_api mongodb",
+    "pull": "docker compose --profile configurator pull",
+    "container": "docker build -t ghcr.io/agile-learning-institute/mongodb_configurator_spa:latest .",
+
     "cy:open": "cypress open",
     "cy:run": "cypress run",
     "e2e": "npm run container && npm run service && npm run cy:run",
