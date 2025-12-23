@@ -57,6 +57,9 @@ npm run e2e
 # shut down all of the containers after testing 
 npm run down
 
+# Open the browser for testing
+npm run open
+
 ```
 
 ## Architecture
