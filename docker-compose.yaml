@@ -34,6 +34,7 @@ services:
       ENABLE_DROP_DATABASE: True
       API_PORT: 8081
       SPA_PORT: 8082
+      MONGODB_REQUIRE_TLS: False
     depends_on:
       mongodb:
         condition: service_healthy
