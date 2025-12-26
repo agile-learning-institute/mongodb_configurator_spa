@@ -45,12 +45,12 @@ describe('User Journey - Create, configure, revise, and re-configure a new colle
 
       cy.visit('/configurations')
       cy.get('[data-test="new-collection-btn"]').click()
-      cy.get('[data-test="new-collection-name-input"]').type(collectionName)
-      cy.get('[data-test="new-collection-description-input"]').type('User Journey 1 Collection')
+      cy.get('[data-test="new-collection-name-input"]').find('input').type(collectionName)
+      cy.get('[data-test="new-collection-description-input"]').find('input').type('User Journey 1 Collection')
       cy.get('[data-test="version-minor-plus-btn"]').click()
       cy.get('[data-test="new-collection-create-btn"]').click()
       cy.url().should('include', `/configurations/${collectionName}.yaml`)
-      cy.get('[data-test="page-header"]').should('be.visible').should('contain', 'User Journey 1 Collection')
+      cy.get('[data-test="page-header"]').find('textarea').should('have.value', 'User Journey 1 Collection')
     })
     
     it('updates the dictionary', () => {

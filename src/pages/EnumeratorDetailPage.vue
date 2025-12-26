@@ -123,54 +123,60 @@
             class="enumerator-item mb-2"
           >
             <div class="d-flex align-center enumerator-header mb-1">
-              <input
-                v-model="editableEnumNames[enumIdx]"
-                :readonly="enumerator._locked"
-                class="mr-3 enumerator-name-input"
-                :data-test="`enumerator-name-input-${enumIdx}`"
-                style="width: 20%; max-width: 150px; font-size: 1.5rem; font-weight: 500; line-height: 1.2; border: none; outline: none;"
-                :ref="(el) => { if (el) enumNameInputRefs[enumIdx] = el as HTMLInputElement }"
-                @input="handleEnumNameChange(enumIdx, editableEnumNames[enumIdx])"
-                @blur="finishEnumNameEdit(enumIdx)"
-                @keyup.enter="finishEnumNameEdit(enumIdx)"
-              />
-              <v-spacer />
-              <v-chip size="small" color="primary" class="mr-2" :data-test="`enum-value-count-${enumIdx}`">
-                {{ enumItem.values.length }} values
-              </v-chip>
-              <v-btn
-                v-if="!enumerator._locked"
-                prepend-icon="mdi-plus"
-                variant="elevated"
-                size="small"
-                color="white"
-                @click="addEnumValue(enumIdx)"
-                class="mr-2"
-                :data-test="`add-enum-value-btn-${enumIdx}`"
-              >
-                <span class="text-primary">Add Value</span>
-              </v-btn>
-              <v-btn
-                v-if="!enumerator._locked"
-                icon="mdi-delete"
-                variant="text"
-                color="error"
-                @click.stop="deleteEnumeration(enumIdx)"
-                class="mr-2"
-                :data-test="`delete-enumeration-btn-${enumIdx}`"
-              >
-                <v-icon size="16">mdi-delete</v-icon>
-              </v-btn>
-              <v-btn
-                icon="mdi-chevron-down"
-                variant="text"
-                size="small"
-                @click="toggleEnumeratorCollapse(enumIdx)"
-                :class="{ 'rotate-icon': !isEnumeratorCollapsed(enumIdx) }"
-                :data-test="`toggle-enumerator-btn-${enumIdx}`"
-              >
-                <v-icon size="16">mdi-chevron-down</v-icon>
-              </v-btn>
+              <div class="enumerator-name-wrapper mr-3">
+                <v-text-field
+                  v-model="editableEnumNames[enumIdx]"
+                  :readonly="enumerator._locked"
+                  variant="plain"
+                  density="compact"
+                  hide-details
+                  class="enumerator-name-input"
+                  :style="{ minWidth: '200px', width: '100%' }"
+                  style="font-size: 1.5rem; font-weight: 500; line-height: 1.2;"
+                  :data-test="`enumerator-name-input-${enumIdx}`"
+                  :ref="(el) => { if (el) enumNameInputRefs[enumIdx] = el }"
+                  @blur="finishEnumNameEdit(enumIdx)"
+                  @keyup.enter="finishEnumNameEdit(enumIdx)"
+                />
+              </div>
+              <div style="flex-shrink: 0;">
+                <v-chip size="small" color="primary" class="mr-2" :data-test="`enum-value-count-${enumIdx}`">
+                  {{ enumItem.values.length }} values
+                </v-chip>
+                <v-btn
+                  v-if="!enumerator._locked"
+                  prepend-icon="mdi-plus"
+                  variant="elevated"
+                  size="small"
+                  color="white"
+                  @click="addEnumValue(enumIdx)"
+                  class="mr-2"
+                  :data-test="`add-enum-value-btn-${enumIdx}`"
+                >
+                  <span class="text-primary">Add Value</span>
+                </v-btn>
+                <v-btn
+                  v-if="!enumerator._locked"
+                  icon="mdi-delete"
+                  variant="text"
+                  color="error"
+                  @click.stop="deleteEnumeration(enumIdx)"
+                  class="mr-2"
+                  :data-test="`delete-enumeration-btn-${enumIdx}`"
+                >
+                  <v-icon size="16">mdi-delete</v-icon>
+                </v-btn>
+                <v-btn
+                  icon="mdi-chevron-down"
+                  variant="text"
+                  size="small"
+                  @click="toggleEnumeratorCollapse(enumIdx)"
+                  :class="{ 'rotate-icon': !isEnumeratorCollapsed(enumIdx) }"
+                  :data-test="`toggle-enumerator-btn-${enumIdx}`"
+                >
+                  <v-icon size="16">mdi-chevron-down</v-icon>
+                </v-btn>
+              </div>
             </div>
             <div v-show="!isEnumeratorCollapsed(enumIdx)" class="enum-values">
               <div v-if="!enumItem.values || enumItem.values.length === 0" class="text-center pa-1">
@@ -327,7 +333,7 @@ const enumeratorFiles = ref<any[]>([])
 const loadingFiles = ref(false)
 const collapsedEnumerators = ref<Set<number>>(new Set())
 const valueInputRefs = ref<Record<string, HTMLInputElement>>({})
-const enumNameInputRefs = ref<Record<number, HTMLInputElement>>({})
+const enumNameInputRefs = ref<Record<number, any>>({})
 
 // Editable state for enum names and values (by index)
 const editableEnumNames = ref<string[]>([])
@@ -394,10 +400,13 @@ const addEnumeration = () => {
   // Focus on the new enumerator name after the DOM updates
   const newEnumIdx = enumerator.value.enumerators.length - 1
   nextTick(() => {
-    const inputRef = enumNameInputRefs.value[newEnumIdx]
-    if (inputRef) {
-      inputRef.focus()
-      inputRef.select()
+    const componentRef = enumNameInputRefs.value[newEnumIdx]
+    if (componentRef && '$el' in componentRef) {
+      const input = (componentRef as any).$el.querySelector('input')
+      if (input) {
+        input.focus()
+        input.select()
+      }
     }
   })
   
@@ -697,12 +706,32 @@ onMounted(() => {
   transition: transform 0.2s ease;
 }
 
-/* Target enumerator name inputs specifically */
-.enumerator-header .v-text-field .v-field__input {
-  font-size: 3rem !important;
-  font-weight: 700 !important;
-  line-height: 1.2 !important;
-  color: red !important;
-  background-color: yellow !important;
+.enumerator-header {
+  width: 100%;
 }
+
+.enumerator-name-wrapper {
+  flex: 1 1 0;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.enumerator-name-input :deep(.v-input__control) {
+  width: 100% !important;
+}
+
+.enumerator-name-input :deep(.v-field) {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+.enumerator-name-input :deep(.v-field__input) {
+  width: 100% !important;
+}
+
+.enumerator-name-input :deep(input) {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
 </style> 

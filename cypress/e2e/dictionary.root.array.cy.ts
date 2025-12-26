@@ -26,6 +26,9 @@ describe('Dictionary Details Page', () => {
 
   // Clean up any dictionaries created during tests
   afterEach(() => {
+    // force a blur of the active input fields
+    cy.visit('/dictionaries') 
+    
     // Unlock the dictionary
     cy.request({
       method: 'PUT',    
@@ -46,18 +49,17 @@ describe('Dictionary Details Page', () => {
     cy.wait(200)
     cy.visit('/dictionaries')
     cy.url().should('include', '/dictionaries')
-    cy.get('[data-test^="file-card-"]').should('not.contain', dictionaryFileName)
+    cy.get('[data-test="file-name"]').should('not.contain.text', dictionaryFileName)
   })
 
   describe('Array of Custom (Defaults) Property Editor', () => {
     it('can persist description edits', () => {
       cy.visit(`/dictionaries/${dictionaryFileName}`)
 
-      cy.get('[data-test="root-description-display"]').should('be.visible').click()
-      cy.get('[data-test="root-description-input-edit"]').type('A dictionary array')
+      cy.get('[data-test="root-description-input"]').find('input').clear().type('A dictionary array{enter}')
       cy.wait(250)
       cy.reload()
-      cy.get('[data-test="root-description-display"]').should('contain', 'A dictionary array')
+      cy.get('[data-test="root-description-input"]').find('input').should('have.value', 'A dictionary array')
     })
 
     it('has the correct type picker', () => {

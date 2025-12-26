@@ -3,30 +3,16 @@
     <div class="flex-grow-1">
       <!-- Editable Title -->
       <div class="mb-2">
-        <!-- View Mode -->
-        <h1 
-          v-if="!editingTitle" 
-          class="text-h4 clickable-title"
-          @click="startEditTitle"
-          data-test="file-title-display"
-        >
-          {{ displayTitle }}
-        </h1>
-        <!-- Edit Mode -->
         <v-text-field
-          v-else
           v-model="editableTitle"
           variant="outlined"
           density="compact"
           class="text-h4"
           :disabled="disabled"
-          @update:model-value="handleTitleChange"
-          @blur="stopEditTitle"
-          @keyup.enter="stopEditTitle"
-          @keyup.esc="cancelEditTitle"
-          ref="titleField"
+          :readonly="!allowEdit"
+          @blur="handleTitleChange"
+          @keyup.enter="handleTitleChange"
           hide-details
-          autofocus
           data-test="file-title-input"
         />
       </div>
@@ -86,7 +72,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, nextTick } from 'vue'
+import { ref, watch } from 'vue'
 
 interface Props {
   title: string
@@ -111,56 +97,22 @@ const emit = defineEmits<{
 }>()
 
 // Reactive state
-const editingTitle = ref(false)
 const editableTitle = ref(props.title)
-const titleField = ref<HTMLElement>()
 
-// Computed properties
-const displayTitle = computed(() => {
-  if (props.title) return props.title
-  if (props.fileName) return props.fileName.replace('.yaml', '')
-  return 'Untitled'
+// Watch for title changes from parent
+watch(() => props.title, (newTitle) => {
+  editableTitle.value = newTitle
 })
 
 // Methods
-const startEditTitle = () => {
-  if (!props.allowEdit || props.disabled) return
-  
-  editingTitle.value = true
-  editableTitle.value = props.title || displayTitle.value
-  
-  nextTick(() => {
-    titleField.value?.focus()
-  })
-}
-
-const stopEditTitle = () => {
-  if (editingTitle.value) {
-    editingTitle.value = false
+const handleTitleChange = () => {
+  if (editableTitle.value !== props.title) {
     emit('title-change', editableTitle.value)
   }
-}
-
-const cancelEditTitle = () => {
-  editingTitle.value = false
-  editableTitle.value = props.title || displayTitle.value
-}
-
-const handleTitleChange = (value: string) => {
-  editableTitle.value = value
 }
 </script>
 
 <style scoped>
-.clickable-title {
-  cursor: pointer;
-  transition: color 0.2s ease-in-out;
-}
-
-.clickable-title:hover {
-  color: #2E7D32;
-}
-
 .file-header {
   border-bottom: 1px solid #e0e0e0;
   padding-bottom: 16px;

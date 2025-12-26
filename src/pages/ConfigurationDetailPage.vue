@@ -19,23 +19,21 @@
       <div class="mb-6">
         <!-- File name, description, and process button row -->
         <div class="d-flex align-center justify-space-between mb-2">
-          <div class="d-flex align-center">
+          <div class="d-flex align-center" style="flex: 1; min-width: 0;">
             <h3 class="text-h5 text-medium-emphasis mr-2 mb-0">{{ configuration.file_name.replace('.yaml', '') }}:</h3>
-            <div v-if="!editingDescription" @click="startEditDescription" class="title-display">
-              <h3 class="title-text mb-0 cursor-pointer" data-test="page-header">{{ configuration.description || 'Enter configuration description...' }}</h3>
-            </div>
-            <v-text-field
-              v-else
+            <v-textarea
               v-model="configuration.description"
               placeholder="Enter configuration description..."
               variant="plain"
               density="compact"
               class="title-edit-field h1-style"
+              :style="{ flex: '1', minWidth: '300px' }"
+              auto-grow
+              rows="1"
               hide-details
-              @update:model-value="autoSave"
-              @blur="finishEditDescription"
-              @keyup.enter="finishEditDescription"
-              ref="descriptionInput"
+              @blur="handleDescriptionChange"
+              @keyup.enter.ctrl="handleDescriptionChange"
+              data-test="page-header"
             />
           </div>
           
@@ -364,8 +362,6 @@ const processing = ref(false)
 const error = ref<string | null>(null)
 const configuration = ref<Configuration | null>(null)
 const activeVersion = ref<string>('')
-const editingDescription = ref(false)
-const descriptionInput = ref<HTMLElement | null>(null)
 const showNewVersionDialog = ref(false)
 const showDeleteCollectionDialog = ref(false)
 const newVersion = ref({
@@ -462,18 +458,8 @@ const autoSave = async () => {
   }
 }
 
-const startEditDescription = () => {
-  editingDescription.value = true
-  // Focus the input after it's rendered
-  setTimeout(() => {
-    if (descriptionInput.value) {
-      descriptionInput.value.focus()
-    }
-  }, 0)
-}
-
-const finishEditDescription = () => {
-  editingDescription.value = false
+const handleDescriptionChange = () => {
+  autoSave()
 }
 
 
@@ -900,24 +886,35 @@ watch(showNewVersionDialog, (newValue) => {
   font-weight: 500;
 }
 
-.h1-style {
+.h1-style :deep(.v-field__input) {
   font-size: 1.5rem !important;
   font-weight: 400 !important;
   line-height: 1.3 !important;
   color: rgba(0, 0, 0, 0.87) !important;
+  padding: 0 !important;
+  white-space: pre-wrap !important;
+  word-wrap: break-word !important;
 }
 
-.title-display {
-  cursor: pointer;
+.h1-style :deep(textarea) {
+  font-size: 1.5rem !important;
+  font-weight: 400 !important;
+  line-height: 1.3 !important;
+  color: rgba(0, 0, 0, 0.87) !important;
+  white-space: pre-wrap !important;
+  word-wrap: break-word !important;
+  overflow-wrap: break-word !important;
 }
 
-.title-text {
-  font-size: 1.5rem;
-  font-weight: 400;
-  line-height: 1.3;
-  color: rgba(0, 0, 0, 0.87);
-  margin: 0;
+.h1-style :deep(.v-field) {
+  padding: 0 !important;
+  min-height: auto !important;
 }
+
+.h1-style :deep(.v-field__outline) {
+  display: none !important;
+}
+
 
 /* New Version Dialog Styles */
 .version-row {
@@ -973,22 +970,6 @@ watch(showNewVersionDialog, (newValue) => {
   color: rgba(0, 0, 0, 0.6);
 }
 
-.description-display {
-  cursor: pointer;
-}
-
-.description-text {
-  font-size: 0.875rem;
-  color: rgba(0, 0, 0, 0.6);
-  line-height: 1.4;
-  margin: 0;
-  padding: 4px 0;
-  transition: color 0.2s ease;
-}
-
-.description-text:hover {
-  color: rgba(0, 0, 0, 0.8);
-}
 
 .cursor-pointer {
   cursor: pointer;

@@ -55,7 +55,9 @@ describe('Dictionary Details Page', () => {
       cy.get('h2').should('contain', `${dictionaryName}`)
       cy.contains('button', 'Lock').should('be.visible')
       cy.contains('button', 'Delete').should('be.visible')
-      cy.get('[data-test="root-description-placeholder"]').should('be.visible').and('contain', 'Click to add description')
+      cy.get('[data-test="root-property-card"]').should('exist').should('be.visible')
+      cy.get('[data-test="card-header"]').should('exist').should('be.visible')
+      cy.get('[data-test="root-description-input"]').should('exist').should('be.visible')
       cy.get('[data-test="root-type-chip-picker"] [data-test="type-chip"]').should('be.visible').and('contain', 'void')
     })
 
@@ -74,11 +76,9 @@ describe('Dictionary Details Page', () => {
 
     it('persists description edits', () => {
       cy.visit(`/dictionaries/${dictionaryFileName}`)
-      cy.get('[data-test="root-description-placeholder"]').click()
-      cy.get('[data-test="root-description-input-edit"]').type('Test description')
+      cy.get('[data-test="root-description-input"]').find('input').clear().type('Test description{enter}')
       cy.reload()
-      cy.get('[data-test="root-description-placeholder"]').should('not.exist')
-      cy.get('[data-test="root-description-display"]').should('contain', 'Test description')
+      cy.get('[data-test="root-description-input"]').find('input').should('have.value', 'Test description')
     })
     
     it('can delete a dictionary', () => {

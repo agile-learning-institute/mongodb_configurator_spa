@@ -62,29 +62,19 @@
         data-test="root-property-card"
       >
         <template #title>
-          <!-- Description Display/Edit -->
-          <div class="description-section" :style="{ minWidth: '200px' }">
-            <div v-if="!isEditingDescription" 
-                 class="description-display" 
-                 @click="startEditDescription"
-                 data-test="root-description-display">
-              <span v-if="dictionary.root.description" class="description-text" data-test="root-description-text">{{ dictionary.root.description }}</span>
-              <span v-else class="description-placeholder" data-test="root-description-placeholder">Click to add description</span>
-            </div>
+          <!-- Description Input -->
+          <div class="description-section" :style="{ minWidth: '200px' }" data-test="root-description-input">
             <v-text-field
-              v-if="isEditingDescription"
               v-model="editableDescription"
               variant="plain"
               density="compact"
               hide-details
-              :disabled="dictionary._locked"
+              :readonly="dictionary._locked"
+              class="root-description-input"
               :style="{ minWidth: '200px' }"
               placeholder="Description"
-              @blur="finishEditDescription"
-              @keyup.enter="finishEditDescription"
-              @input="handleDescriptionInput"
-              ref="descriptionInput"
-              data-test="root-description-input-edit"
+              @blur="handleDescriptionChange"
+              @keyup.enter="handleDescriptionChange"
             />
           </div>
         </template>
@@ -248,7 +238,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, nextTick } from 'vue'
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useRoute } from 'vue-router'
 import { apiService } from '@/utils/api'
 import BaseCard from '@/components/BaseCard.vue'
@@ -271,36 +261,12 @@ const error = ref<string | null>(null)
 const dictionary = ref<DictionaryData | null>(null)
 const showDeleteDialog = ref(false)
 const showUnlockDialog = ref(false)
-const isEditingDescription = ref(false)
 const editableDescription = ref('')
 const editableType = ref('')
-const descriptionInput = ref<HTMLElement>()
 
 // Methods
-const startEditDescription = () => {
-  if (!dictionary.value?._locked) {
-    isEditingDescription.value = true
-    editableDescription.value = dictionary.value?.root?.description || ''
-    // Focus the input after it's rendered
-    nextTick(() => {
-      if (descriptionInput.value) {
-        (descriptionInput.value as HTMLInputElement).focus()
-      }
-    })
-  }
-}
-
-const finishEditDescription = () => {
-  isEditingDescription.value = false
+const handleDescriptionChange = () => {
   if (dictionary.value?.root && editableDescription.value !== dictionary.value.root.description) {
-    dictionary.value.root.description = editableDescription.value
-    autoSave()
-  }
-}
-
-const handleDescriptionInput = () => {
-  // Auto-save on every keystroke while editing
-  if (dictionary.value?.root) {
     dictionary.value.root.description = editableDescription.value
     autoSave()
   }
@@ -573,9 +539,23 @@ const cancelUnlock = () => {
   showUnlockDialog.value = false
 }
 
+// Handle page unload - blur active inputs to trigger save handlers
+const handleBeforeUnload = () => {
+  // Blur the active element if it's an input to trigger save handlers
+  const activeElement = document.activeElement
+  if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) {
+    ;(activeElement as HTMLElement).blur()
+  }
+}
+
 // Load dictionary on mount
 onMounted(() => {
   loadDictionary()
+  window.addEventListener('beforeunload', handleBeforeUnload)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('beforeunload', handleBeforeUnload)
 })
 </script>
 
@@ -583,32 +563,6 @@ onMounted(() => {
 /* Dictionary content styling */
 .dictionary-content {
   margin-top: 24px;
-}
-
-/* Root property card title styling */
-.description-display {
-  cursor: pointer;
-  padding: 8px 12px;
-  border-radius: 4px;
-  border: 1px solid transparent;
-  transition: all 0.2s ease;
-  font-size: 1.25rem;
-  font-weight: 500;
-  line-height: 1.2;
-}
-
-.description-display:hover {
-  background-color: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.3);
-}
-
-.description-text {
-  color: white;
-}
-
-.description-placeholder {
-  color: rgba(255, 255, 255, 0.7);
-  font-style: italic;
 }
 
 /* Ensure the type picker in the card title has proper styling */
@@ -619,5 +573,42 @@ onMounted(() => {
 .description-section {
   flex: 1;
   min-width: 0;
+}
+
+/* Style the root description input to look like H2/H3 in the card header */
+.root-description-input :deep(.v-field__input) {
+  color: white !important;
+  font-size: 1.25rem !important; /* text-h6 size */
+  font-weight: 500 !important;
+  line-height: 1.2 !important;
+  padding: 0 !important;
+}
+
+.root-description-input :deep(.v-field__input)::placeholder {
+  color: rgba(255, 255, 255, 0.7) !important;
+  opacity: 1 !important;
+  font-style: italic;
+}
+
+.root-description-input :deep(.v-field) {
+  padding: 0 !important;
+  min-height: auto !important;
+}
+
+.root-description-input :deep(.v-field__outline) {
+  display: none !important;
+}
+
+.root-description-input :deep(input) {
+  color: white !important;
+  font-size: 1.25rem !important;
+  font-weight: 500 !important;
+  line-height: 1.2 !important;
+}
+
+.root-description-input :deep(input)::placeholder {
+  color: rgba(255, 255, 255, 0.7) !important;
+  opacity: 1 !important;
+  font-style: italic;
 }
 </style> 

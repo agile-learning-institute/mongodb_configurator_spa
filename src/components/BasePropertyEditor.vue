@@ -23,7 +23,6 @@
           class="mr-2"
           :style="{ minWidth: '180px' }"
           placeholder="Name"
-          @input="handleNameInput"
           @blur="handleNameChange"
           @keyup.enter="handleNameChange"
           data-test="property-name-input"
@@ -31,39 +30,8 @@
       </div>
       
       <div class="property-description-section" :id="`property-description-${property.name || 'root'}`" data-test="property-description-section">
-        <!-- Display mode for root properties -->
-        <div v-if="isRoot && !isEditingDescription" 
-             class="description-display mr-2" 
-             :class="{ 'root-description': isRoot }"
-             :style="{ minWidth: '200px', flex: '1' }"
-             @click.stop="startEditDescription"
-             data-test="description-display">
-          <span v-if="editableDescription" class="description-text" data-test="description-text">{{ editableDescription }}</span>
-          <span v-else class="description-placeholder" data-test="description-placeholder">Click to add description</span>
-        </div>
-        
-        <!-- Edit mode for root properties -->
+        <!-- Always editable description input -->
         <v-text-field
-          v-if="isRoot && isEditingDescription"
-          v-model="editableDescription"
-          variant="plain"
-          density="compact"
-          hide-details
-          :disabled="disabled"
-          class="mr-2"
-          :style="{ minWidth: '200px', flex: '1' }"
-          placeholder="Description"
-          @input="handleDescriptionInput"
-          @blur="finishEditDescription"
-          @keyup.enter="finishEditDescription"
-          @click.stop
-          ref="descriptionInput"
-          data-test="description-input-edit"
-        />
-        
-        <!-- Always editable for non-root properties -->
-        <v-text-field
-          v-if="!isRoot"
           v-model="editableDescription"
           variant="plain"
           density="compact"
@@ -72,7 +40,6 @@
           class="mr-2"
           :style="{ minWidth: '200px', flex: '1' }"
           placeholder="Description"
-          @input="handleDescriptionInput"
           @blur="handleDescriptionChange"
           @keyup.enter="handleDescriptionChange"
           data-test="description-input"
@@ -150,7 +117,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch, nextTick, onUnmounted } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { 
   type Property,
   isArrayProperty,
@@ -182,12 +149,6 @@ const editableName = ref(props.property.name)
 const editableDescription = ref(props.property.description)
 const editableType = ref(props.property.type)
 const editableRequired = ref(props.property.required)
-const isEditingDescription = ref(false)
-const descriptionInput = ref<HTMLElement>()
-
-// Debounced save timers
-let nameSaveTimer: number | null = null
-let descriptionSaveTimer: number | null = null
 
 // Computed properties
 const isRoot = computed(() => props.isRoot || false)
@@ -242,56 +203,14 @@ const showBody = computed(() => {
 })
 
 // Methods
-const handleNameInput = () => {
-  // Debounced auto-save - clear existing timer and set new one
-  if (nameSaveTimer) {
-    clearTimeout(nameSaveTimer)
-  }
-  
-  nameSaveTimer = setTimeout(() => {
-    if (editableName.value !== props.property.name) {
-      props.property.name = editableName.value
-      emit('change', props.property)
-    }
-  }, 300) // 300ms delay
-}
-
 const handleNameChange = () => {
-  // Immediate save on blur/enter - clear any pending timer
-  if (nameSaveTimer) {
-    clearTimeout(nameSaveTimer)
-    nameSaveTimer = null
-  }
-  
   if (editableName.value !== props.property.name) {
     props.property.name = editableName.value
     emit('change', props.property)
   }
 }
 
-const handleDescriptionInput = () => {
-  // Debounced auto-save for non-root properties
-  if (!isRoot.value) {
-    if (descriptionSaveTimer) {
-      clearTimeout(descriptionSaveTimer)
-    }
-    
-    descriptionSaveTimer = setTimeout(() => {
-      if (editableDescription.value !== props.property.description) {
-        props.property.description = editableDescription.value
-        emit('change', props.property)
-      }
-    }, 300) // 300ms delay
-  }
-}
-
 const handleDescriptionChange = () => {
-  // Immediate save on blur/enter - clear any pending timer
-  if (descriptionSaveTimer) {
-    clearTimeout(descriptionSaveTimer)
-    descriptionSaveTimer = null
-  }
-  
   if (editableDescription.value !== props.property.description) {
     props.property.description = editableDescription.value
     emit('change', props.property)
@@ -417,27 +336,6 @@ const handleDelete = () => {
   emit('delete')
 }
 
-const startEditDescription = () => {
-  if (isRoot.value && !props.disabled && !isEditingDescription.value) {
-    isEditingDescription.value = true
-    // Focus the input after it's rendered
-    nextTick(() => {
-      if (descriptionInput.value) {
-        descriptionInput.value.focus()
-        // Select all text for easy replacement
-        ;(descriptionInput.value as HTMLInputElement).select()
-      }
-    })
-  }
-}
-
-const finishEditDescription = () => {
-  if (isRoot.value) {
-    isEditingDescription.value = false
-    handleDescriptionChange()
-  }
-}
-
 const toggleRequired = () => {
   editableRequired.value = !editableRequired.value
   handleRequiredChange()
@@ -478,16 +376,6 @@ watch(() => props.property, (newProperty) => {
   editableType.value = newProperty.type
   editableRequired.value = newProperty.required
 }, { deep: true })
-
-// Cleanup timers on component unmount
-onUnmounted(() => {
-  if (nameSaveTimer) {
-    clearTimeout(nameSaveTimer)
-  }
-  if (descriptionSaveTimer) {
-    clearTimeout(descriptionSaveTimer)
-  }
-})
 </script>
 
 <style scoped>
@@ -541,34 +429,6 @@ onUnmounted(() => {
 .property-body {
   padding: 16px;
   background-color: #ffffff;
-}
-
-/* Root property description styling - display mode */
-.description-display {
-  cursor: pointer;
-  padding: 8px 12px;
-  border-radius: 4px;
-  border: 1px solid transparent;
-  transition: all 0.2s ease;
-}
-
-.description-display:hover {
-  background-color: rgba(0, 0, 0, 0.04);
-  border-color: rgba(0, 0, 0, 0.12);
-}
-
-.root-description.description-display {
-  font-size: 2.0rem;
-  font-weight: 500;
-}
-
-.description-text {
-  color: rgba(0, 0, 0, 0.87);
-}
-
-.description-placeholder {
-  color: rgba(0, 0, 0, 0.38);
-  font-style: italic;
 }
 
 /* Ensure readonly inputs don't get dimmed */
