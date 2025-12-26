@@ -27,6 +27,9 @@ describe('Dictionary Details Page', () => {
 
   // Clean up any dictionaries created during tests
   afterEach(() => {
+    // force a blur of the active input fields
+    cy.visit('/dictionaries') 
+    
     // Unlock the dictionary
     cy.request({
       method: 'PUT',    
@@ -44,21 +47,21 @@ describe('Dictionary Details Page', () => {
     })
 
     // Verify the dictionary is deleted
+    cy.wait(200)
     cy.visit('/dictionaries')
     cy.url().should('include', '/dictionaries')
-    cy.get('[data-test^="file-card-"]').should('not.contain', dictionaryFileName)
+    cy.get('[data-test="file-name"]').should('not.contain.text', dictionaryFileName)
   })
 
   describe('One Of Root Property Editor', () => {
     it('can persist description edits', () => {
       cy.visit(`/dictionaries/${dictionaryFileName}`)
 
-      cy.get('[data-test="root-description-placeholder"]').should('be.visible')
-      cy.get('[data-test="root-description-display"]').should('be.visible').click()
-      cy.get('[data-test="root-description-input-edit"]').type('A Root One Of property')
+      cy.get('[data-test="root-description-input"]').should('be.visible')
+      cy.get('[data-test="root-description-input"]').find('input').clear().type('A Root One Of property{enter}')
       cy.wait(250)
       cy.reload()
-      cy.get('[data-test="root-description-display"]').should('contain', 'A Root One Of property')
+      cy.get('[data-test="root-description-input"]').find('input').should('have.value', 'A Root One Of property')
 
     })
 
@@ -272,7 +275,7 @@ describe('Dictionary Details Page', () => {
       cy.get('[data-test="delete-dictionary-btn"]').should('not.exist')
 
       // Make sure the description is locked
-      cy.get('[data-test="root-description-placeholder"]').eq(0).find('input').should('not.exist')
+      cy.get('[data-test="root-description-input"]').eq(0).should('be.visible')
 
       // verify these controls do not exist
       cy.get('[data-test="add-property-btn"]').should('not.exist')
@@ -300,8 +303,7 @@ describe('Dictionary Details Page', () => {
       cy.get('[data-test="unlock-dictionary-dialog"]').should('not.exist')
 
       // Make sure the description is unlocked
-      cy.get('[data-test="root-description-display"]').eq(0).click()
-      cy.get('[data-test="root-description-input-edit"]').eq(0).find('input').should('be.enabled')
+      cy.get('[data-test="root-description-input"]').eq(0).find('input').should('not.have.attr', 'readonly')
 
       // Make sure add-property button is visible and enabled
       cy.get('[data-test="add-property-btn"]').eq(0).should('be.visible').and('not.be.disabled')

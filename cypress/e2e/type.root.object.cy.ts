@@ -5,7 +5,6 @@ describe('Types Detail Page', () => {
 
   // Setup a type with an object root property
   beforeEach(() => {
-    thingsToDelete.push(`/api/types/${fileName}/`)
 
     cy.visit('/types')
     cy.get('[data-test="new-type-btn"]').click()
@@ -14,7 +13,7 @@ describe('Types Detail Page', () => {
     cy.get('[data-test="new-type-create-btn"]').click()
     cy.wait(500)
     cy.url().should('include', `/types/${name}`)
-    cy.get('[data-test="root-description-placeholder"]').should('be.visible').and('contain', 'Click to add description')
+    cy.get('[data-test="root-description-input"]').should('be.visible')
     cy.get('[data-test="root-type-chip-picker"] [data-test="type-chip"]').should('be.visible').and('contain', 'void')    
     cy.get('[data-test="root-type-chip-picker"] [data-test="type-chip"]').click()
     cy.get('[data-test="built-in-type-object"]').click()
@@ -22,35 +21,30 @@ describe('Types Detail Page', () => {
 
   // Clean up any documents created during tests
   afterEach(() => {
-    thingsToDelete.forEach((thing) => {
-      cy.request({
-        method: 'PUT',    
-        url: thing,
-        headers: {"Content-Type": "application/json"},
-        body: {"_locked": false, "root":{"name":""}},
-        failOnStatusCode: false
-      }).then((response) => {
-        if (response.status === 200) {
-          cy.log(`Successfully unlocked ${thing}`)
-          cy.request({
-            method: 'DELETE',
-            url: thing,
-            failOnStatusCode: false
-          }).then((response) => {
-            if (response.status === 200) {
-              cy.log(`Successfully deleted ${thing}`)
-            } else {
-              cy.log(`Failed to delete ${thing}: ${response.status}`)
-            }
-          })
-        } else {
-          cy.log(`Failed to unlock ${thing}: ${response.status}`)
-        }
-      })
+    // force a blur of the active input fields
+    cy.visit('/types') 
+    
+    // Unlock the type
+    cy.request({
+      method: 'PUT',    
+      url: `/api/types/${fileName}/`,
+      headers: {"Content-Type": "application/json"},
+      body: {"_locked": false, "root":{"name":""}},
+      failOnStatusCode: false
     })
+    
+    // Delete the type
+    cy.request({
+      method: 'DELETE',
+      url: `/api/types/${fileName}/`,
+      failOnStatusCode: false
+    })
+
+    // Verify the type is deleted
+    cy.wait(200)
     cy.visit('/types')
     cy.url().should('include', '/types')
-    cy.get('[data-test^="file-card-"]').should('not.contain', fileName)
+    cy.get('[data-test="file-name"]').should('not.contain.text', fileName)
   })
 
   describe('Object Property Editor', () => {
@@ -61,11 +55,10 @@ describe('Types Detail Page', () => {
         cy.get('[data-test="type-display-name"]').should('contain', 'Object')
         
         // enter description
-        cy.get('[data-test="root-description-placeholder"]').click()
-        cy.get('[data-test="root-description-input-edit"]').type('Root object description')
+        cy.get('[data-test="root-description-input"]').find('input').clear().type('Root object description{enter}')
         cy.reload()
         cy.wait(100)
-        cy.get('[data-test="root-description-display"]').should('contain', 'Root object description')
+        cy.get('[data-test="root-description-input"]').find('input').should('have.value', 'Root object description')
         cy.get('[data-test="card-content"]').should('contain', 'No properties defined')
       })
 

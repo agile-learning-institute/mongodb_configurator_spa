@@ -61,29 +61,18 @@
         data-test="root-property-card"
       >
         <template #title>
-          <!-- Description Display/Edit -->
-          <div class="description-section" :style="{ minWidth: '200px' }">
-            <div v-if="!isEditingDescription" 
-                 class="description-display" 
-                 @click="startEditDescription"
-                 data-test="root-description-display">
-              <span v-if="typeData.root.description" class="description-text" data-test="root-description-text">{{ typeData.root.description }}</span>
-              <span v-else class="description-placeholder" data-test="root-description-placeholder">Click to add description</span>
-            </div>
+          <!-- Description Input -->
+          <div class="description-section" :style="{ minWidth: '200px' }" data-test="root-description-input">
             <v-text-field
-              v-if="isEditingDescription"
               v-model="editableDescription"
               variant="plain"
               density="compact"
               hide-details
-              :disabled="typeData._locked"
+              :readonly="typeData._locked"
               :style="{ minWidth: '200px' }"
               placeholder="Description"
-              @blur="finishEditDescription"
-              @keyup.enter="finishEditDescription"
-              @input="handleDescriptionInput"
-              ref="descriptionInput"
-              data-test="root-description-input-edit"
+              @blur="handleDescriptionChange"
+              @keyup.enter="handleDescriptionChange"
             />
           </div>
         </template>
@@ -212,7 +201,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, nextTick } from 'vue'
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { apiService } from '@/utils/api'
 import PropertyEditor from '@/components/PropertyEditor.vue'
@@ -232,10 +221,8 @@ const error = ref<string | null>(null)
 const showDeleteDialog = ref(false)
 const showUnlockDialog = ref(false)
 const typeData = ref<TypeData | null>(null)
-const isEditingDescription = ref(false)
 const editableDescription = ref('')
 const editableType = ref('')
-const descriptionInput = ref<HTMLElement>()
 
 // Methods
 const loadType = async () => {
@@ -283,28 +270,7 @@ const handleRootPropertyChange = (updatedProperty: TypeProperty) => {
   }
 }
 
-const startEditDescription = () => {
-  if (!typeData.value?._locked) {
-    isEditingDescription.value = true
-    // Focus the input after it's rendered
-    nextTick(() => {
-      if (descriptionInput.value) {
-        descriptionInput.value.focus()
-      }
-    })
-  }
-}
-
-const handleDescriptionInput = () => {
-  // Auto-save on every keystroke while editing
-  if (typeData.value?.root) {
-    typeData.value.root.description = editableDescription.value
-    autoSave()
-  }
-}
-
-const finishEditDescription = () => {
-  isEditingDescription.value = false
+const handleDescriptionChange = () => {
   if (typeData.value?.root && editableDescription.value !== typeData.value.root.description) {
     typeData.value.root.description = editableDescription.value
     autoSave()
@@ -464,9 +430,23 @@ const cancelUnlock = () => {
   showUnlockDialog.value = false
 }
 
+// Handle page unload - blur active inputs to trigger save handlers
+const handleBeforeUnload = () => {
+  // Blur the active element if it's an input to trigger save handlers
+  const activeElement = document.activeElement
+  if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) {
+    ;(activeElement as HTMLElement).blur()
+  }
+}
+
 // Load type on mount
 onMounted(() => {
   loadType()
+  window.addEventListener('beforeunload', handleBeforeUnload)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('beforeunload', handleBeforeUnload)
 })
 </script>
 
@@ -474,32 +454,6 @@ onMounted(() => {
 /* Type content styling */
 .type-content {
   margin-top: 24px;
-}
-
-/* Root property card title styling */
-.description-display {
-  cursor: pointer;
-  padding: 8px 12px;
-  border-radius: 4px;
-  border: 1px solid transparent;
-  transition: all 0.2s ease;
-  font-size: 1.25rem;
-  font-weight: 500;
-  line-height: 1.2;
-}
-
-.description-display:hover {
-  background-color: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.3);
-}
-
-.description-text {
-  color: white;
-}
-
-.description-placeholder {
-  color: rgba(255, 255, 255, 0.7);
-  font-style: italic;
 }
 
 /* Ensure the type picker in the card title has proper styling */

@@ -38,6 +38,9 @@ describe('Dictionary Details Page', () => {
 
   // Clean up any dictionaries created during tests
   afterEach(() => {
+    // force a blur of the active input fields
+    cy.visit('/dictionaries') 
+    
     // Unlock the dictionary
     cy.request({
       method: 'PUT',    
@@ -55,9 +58,10 @@ describe('Dictionary Details Page', () => {
     })
 
     // Verify the dictionary is deleted
+    cy.wait(200)
     cy.visit('/dictionaries')
     cy.url().should('include', '/dictionaries')
-    cy.get('[data-test^="file-card-"]').should('not.contain', dictionaryFileName)
+    cy.get('[data-test="file-name"]').should('not.contain.text', dictionaryFileName)
   })
 
   describe('Constant Property Editor', () => {

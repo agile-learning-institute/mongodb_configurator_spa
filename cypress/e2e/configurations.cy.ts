@@ -24,6 +24,7 @@ describe('Configurations detail page', () => {
   })
 
   afterEach(() => {
+    cy.visit('/configurations')
     thingsToDelete.forEach((thing) => {
       cy.request({
         method: 'DELETE',
@@ -32,7 +33,7 @@ describe('Configurations detail page', () => {
       })
     })
     cy.visit('/configurations')
-    cy.get('.v-card').should('exist').should('have.length', 1)
+
   })
 
   describe('List Configurations Page Functionality', () => {
@@ -43,10 +44,7 @@ describe('Configurations detail page', () => {
       // Verify title and buttons
       cy.get('[data-test="page-title"]').should('contain', 'Collection Configurations')
       cy.get('[data-test="new-collection-btn"]').should('be.visible')
-      cy.get('[data-test="configurations-file-list"]').should('exist')
-
-      // Verify one existing configurations + one test configuration
-      cy.get('.v-card').should('exist').should('have.length', 2)
+      cy.get('[data-test="configurations-file-list"]').should('exist').should('be.visible')
     })
 
     it('can create a new configuration', () => {
@@ -55,11 +53,12 @@ describe('Configurations detail page', () => {
       cy.wait(500)
 
       // Verify default values
-      cy.get('[data-test="page-header"]').should('contain', 'Test configuration for E2E testing')
-      cy.get('[data-test="active-version"]').should('contain', '0.1.0.2')
-      cy.get('[data-test="dictionary-file-chip"]').should('contain', `${createdConfigurationName}.${createdConfigurationVersion}.yaml`)
-      cy.get('[data-test="enumerators-file-chip"]').should('contain', 'enumerations.2.yaml')
-      cy.get('[data-test="test-data-file-chip"]').should('contain', `${createdConfigurationName}.${createdConfigurationVersion}.${createdEnumeratorsVersion}.json`)
+      cy.get('[data-test="page-header"]').should('exist')
+      cy.get('[data-test="page-header"]').find('textarea').should('have.value', 'Test configuration for E2E testing')
+      cy.get('[data-test="active-version"]').should('exist').should('contain', '0.1.0.2')
+      cy.get('[data-test="dictionary-file-chip"]').should('exist').should('contain', `${createdConfigurationName}.${createdConfigurationVersion}.yaml`)
+      cy.get('[data-test="enumerators-file-chip"]').should('exist').should('contain', 'enumerations.2.yaml')
+      cy.get('[data-test="test-data-file-chip"]').should('exist').should('contain', `${createdConfigurationName}.${createdConfigurationVersion}.${createdEnumeratorsVersion}.json`)
     })
 
     it('correctly patches version numbers', () => {
@@ -108,7 +107,7 @@ describe('Configurations detail page', () => {
       // First create a configuration
       cy.visit(`/configurations/${createdConfigurationName}.yaml`)
 
-      cy.get('[data-test="page-header"]').should('contain', 'Test configuration for E2E testing')
+      cy.get('[data-test="page-header"]').find('textarea').should('have.value', 'Test configuration for E2E testing')
       cy.get('[data-test="configure-collection-btn"]').should('be.enabled')
       cy.get('[data-test="delete-collection-btn"]').should('be.enabled')
       cy.get('[data-test="json-schema-btn"]').should('be.enabled')

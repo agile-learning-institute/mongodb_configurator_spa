@@ -14,7 +14,7 @@ describe('Types Detail Page', () => {
     cy.get('[data-test="new-type-create-btn"]').click()
     cy.wait(500)
     cy.url().should('include', `/types/${name}`)
-    cy.get('[data-test="root-description-placeholder"]').should('be.visible').and('contain', 'Click to add description')
+    cy.get('[data-test="root-description-input"]').should('be.visible')
     cy.get('[data-test="root-type-chip-picker"] [data-test="type-chip"]').should('be.visible').and('contain', 'void')    
     cy.get('[data-test="root-type-chip-picker"] [data-test="type-chip"]').click()
     cy.get('[data-test="built-in-type-simple"]').click()
@@ -60,12 +60,11 @@ describe('Types Detail Page', () => {
     
     it('can add description', () => {
       // Add description
-      cy.get('[data-test="root-description-display"]').click()
-      cy.get('[data-test="root-description-input-edit"]').type('Simple property for testing')
+      cy.get('[data-test="root-description-input"]').find('input').clear().type('Simple property for testing{enter}')
 
       cy.reload()
       cy.wait(500)
-      cy.get('[data-test="root-description-display"]').should('contain', 'Simple property for testing')
+      cy.get('[data-test="root-description-input"]').find('input').should('have.value', 'Simple property for testing')
     })
 
     it('can enter schema string', () => {
@@ -95,7 +94,7 @@ describe('Types Detail Page', () => {
       // Verify the state
       cy.get('[data-test="unlock-type-btn"]').should('be.visible')
       cy.get('[data-test="lock-type-btn"]').should('not.exist')
-      cy.get('[data-test="root-description-display"]').should('contain', 'Click to add description') 
+      cy.get('[data-test="root-description-input"]').find('input').should('have.value', '') 
       cy.get('[data-test="root-type-chip-picker"] [data-test="type-chip"]').should('not.have.attr', 'data-disabled')
       // cy.get('[data-test="simple-property-schema-input"]').find('textarea').first().should('have.attr', 'readonly')
     })
@@ -128,7 +127,7 @@ describe('Types Detail Page', () => {
       // Verify unlocked state
       cy.get('[data-test="lock-type-btn"]').should('be.visible')
       cy.get('[data-test="unlock-type-btn"]').should('not.exist')
-      cy.get('[data-test="root-description-display"]').should('be.visible')
+      cy.get('[data-test="root-description-input"]').should('be.visible')
       cy.get('[data-test="root-type-chip-picker"] [data-test="type-chip"]').should('be.visible')
       cy.get('[data-test="simple-property-schema-input"]').find('textarea').should('not.have.attr', 'readonly')
     })

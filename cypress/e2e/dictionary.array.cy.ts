@@ -33,6 +33,9 @@ describe('Dictionary Details Page', () => {
 
   // Clean up any dictionaries created during tests
   afterEach(() => {
+    // force a blur of the active input fields
+    cy.visit('/dictionaries') 
+
     // Unlock the dictionary
     cy.request({
       method: 'PUT',    
@@ -53,22 +56,18 @@ describe('Dictionary Details Page', () => {
     cy.wait(200)
     cy.visit('/dictionaries')
     cy.url().should('include', '/dictionaries')
-    cy.get('[data-test^="file-card-"]').should('not.contain', dictionaryFileName)
+    cy.get('[data-test="file-name"]').should('not.contain.text', dictionaryFileName)
   })
 
   describe('Array of Custom (Defaults) Property Editor', () => {
     it('can persist name/description edits', () => {
       cy.visit(`/dictionaries/${dictionaryFileName}`)
 
-      cy.get('[data-test="property-name-input"]').should('be.visible').click()
       cy.get('[data-test="property-name-input"]').find('input').type('firstTestProperty')
-      cy.wait(250)
       cy.reload()
       cy.get('[data-test="property-name-input"]').find('input').should('have.value', 'firstTestProperty')
 
-      cy.get('[data-test="description-input"]').should('be.visible').click()
       cy.get('[data-test="description-input"]').find('input').type('One property for testing object properties')
-      cy.wait(250)
       cy.reload()
       cy.get('[data-test="description-input"]').find('input').should('have.value', 'One property for testing object properties')
     })
@@ -264,11 +263,8 @@ describe('Dictionary Details Page', () => {
 
       // add three properties to the object
       cy.get('[data-test="add-property-btn"]').eq(1).click().click().click()
-      cy.get('[data-test="property-name-input"]').eq(1).click()
       cy.get('[data-test="property-name-input"]').eq(1).find('input').type('firstTestProperty')
-      cy.get('[data-test="property-name-input"]').eq(2).click()
       cy.get('[data-test="property-name-input"]').eq(2).find('input').type('secondTestProperty')
-      cy.get('[data-test="property-name-input"]').eq(3).click()
       cy.get('[data-test="property-name-input"]').eq(3).find('input').type('thirdTestProperty')
 
       // verify the properties were added
@@ -296,11 +292,8 @@ describe('Dictionary Details Page', () => {
     it('can arrange properties', () => {
       cy.visit(`/dictionaries/${dictionaryFileName}`)
       cy.get('[data-test="add-property-btn"]').eq(1).should('be.visible').click().click().click()
-      cy.get('[data-test="property-name-input"]').eq(1).click()
       cy.get('[data-test="property-name-input"]').eq(1).find('input').type('firstTestProperty')
-      cy.get('[data-test="property-name-input"]').eq(2).click()
       cy.get('[data-test="property-name-input"]').eq(2).find('input').type('secondTestProperty')
-      cy.get('[data-test="property-name-input"]').eq(3).click()
       cy.get('[data-test="property-name-input"]').eq(3).find('input').type('thirdTestProperty')
 
       cy.get('[data-test="property-name-input"]').should('have.length', 4)
@@ -504,11 +497,8 @@ describe('Dictionary Details Page', () => {
 
       // add three properties to the object
       cy.get('[data-test="add-property-btn"]').eq(1).click().click().click()
-      cy.get('[data-test="property-name-input"]').eq(1).click()
       cy.get('[data-test="property-name-input"]').eq(1).find('input').type('firstTestProperty')
-      cy.get('[data-test="property-name-input"]').eq(2).click()
       cy.get('[data-test="property-name-input"]').eq(2).find('input').type('secondTestProperty')
-      cy.get('[data-test="property-name-input"]').eq(3).click()
       cy.get('[data-test="property-name-input"]').eq(3).find('input').type('thirdTestProperty')
 
       // verify the properties were added
@@ -536,11 +526,8 @@ describe('Dictionary Details Page', () => {
     it('can arrange properties', () => {
       cy.visit(`/dictionaries/${dictionaryFileName}`)
       cy.get('[data-test="add-property-btn"]').eq(1).should('be.visible').click().click().click()
-      cy.get('[data-test="property-name-input"]').eq(1).click()
       cy.get('[data-test="property-name-input"]').eq(1).find('input').type('firstTestProperty')
-      cy.get('[data-test="property-name-input"]').eq(2).click()
       cy.get('[data-test="property-name-input"]').eq(2).find('input').type('secondTestProperty')
-      cy.get('[data-test="property-name-input"]').eq(3).click()
       cy.get('[data-test="property-name-input"]').eq(3).find('input').type('thirdTestProperty')
 
       cy.get('[data-test="property-name-input"]').should('have.length', 4)
@@ -787,7 +774,6 @@ describe('Dictionary Details Page', () => {
     })
   
     it('persists name/description edits', () => {
-      cy.get('[data-test="property-name-input"]').eq(1).should('be.visible').click()
       cy.get('[data-test="property-name-input"]').eq(1).find('input').clear().type('firstTestProperty')
       cy.get('[data-test="description-input"]').eq(1).find('input').clear().type('One property for testing array of array properties')
       cy.wait(250)

@@ -1,6 +1,6 @@
 # MongoDB Configurator SPA
 
-A Vue 3 SPA for managing MongoDB schema configurations and processing operations. Supported by the [MongoDB Configurator API](https://github.com/agile-learning-institute/mongodb_configurator_api)
+This project builds the [MongoDB Configurator](https://github.com/agile-learning-institute/mongodb_configurator) Vue3 SPA. This code uses functionality exposed by the [MongoDB Configurator API](https://github.com/agile-learning-institute/mongodb_configurator_api)
 
 ## Quick Start
 ```bash

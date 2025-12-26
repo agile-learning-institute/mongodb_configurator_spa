@@ -10,7 +10,7 @@ describe('Enumerators detail page', () => {
     cy.get('[data-test="card-title"]').should('contain', 'Enumerators')
     cy.contains('button', 'Add Enumeration').should('be.visible')
 
-    cy.get('[data-test="enumerator-name-input-0"]').should('have.value', 'default_status')
+    cy.get('[data-test="enumerator-name-input-0"]').find('input').should('have.value', 'default_status')
     cy.get('[data-test="enum-value-input-0-0"]').find('input').should('have.value', 'draft')
     cy.get('[data-test="enum-description-input-0-0"]').find('input').should('have.value', 'Draft')
     cy.get('[data-test="enum-value-input-0-1"]').find('input').should('have.value', 'active')
@@ -18,7 +18,7 @@ describe('Enumerators detail page', () => {
     cy.get('[data-test="enum-value-input-0-2"]').find('input').should('have.value', 'archived')
     cy.get('[data-test="enum-description-input-0-2"]').find('input').should('have.value', 'Soft Delete Indicator')
 
-    cy.get('[data-test="enumerator-name-input-1"]').should('have.value', 'test_enum')
+    cy.get('[data-test="enumerator-name-input-1"]').find('input').should('have.value', 'test_enum')
     cy.get('[data-test="enum-value-input-1-0"]').find('input').should('have.value', 'foo')
     cy.get('[data-test="enum-description-input-1-0"]').find('input').should('have.value', 'bar')
     cy.get('[data-test="enum-value-input-1-1"]').find('input').should('have.value', 'bar')
@@ -109,16 +109,16 @@ describe('Enumerators detail page', () => {
              
       // Add new enumeration
       cy.get('[data-test="add-enumeration-btn"]').click()
-      cy.get('[data-test="enumerator-name-input-2"]').clear().type('TestEnum1')
+      cy.get('[data-test="enumerator-name-input-2"]').find('input').clear().type('TestEnum1')
       
       // Add first value to the new enumeration
       cy.get('[data-test="add-enum-value-btn-2"]').click()
-      cy.get('[data-test="enum-value-input-2-0"]').type('TestValue1')
+      cy.get('[data-test="enum-value-input-2-0"]').find('input').type('TestValue1')
       cy.get('[data-test="enum-description-input-2-0"]').type('Test Description One')
       
       // Add second value to the new enumeration
       cy.get('[data-test="add-enum-value-btn-2"]').click()
-      cy.get('[data-test="enum-value-input-2-1"]').type('TestValue2')
+      cy.get('[data-test="enum-value-input-2-1"]').find('input').type('TestValue2')
       cy.get('[data-test="enum-description-input-2-1"]').type('Test Description Two')
 
       // Wait for the enumeration to be saved and reload the page
@@ -132,7 +132,7 @@ describe('Enumerators detail page', () => {
       cy.get('[data-test^="enumerator-name-input-"]').should('have.length', 3)
 
       // Verify new enumeration and its values
-      cy.get('[data-test="enumerator-name-input-2"]').should('have.value', 'TestEnum1')
+      cy.get('[data-test="enumerator-name-input-2"]').find('input').should('have.value', 'TestEnum1')
       cy.get('[data-test="enum-value-count-2"]').should('contain', '2 values')
       cy.get('[data-test="toggle-enumerator-btn-2"]').should('exist').click()
       cy.get('[data-test="enum-value-input-2-0"]').find('input').should('have.value', 'TestValue1')

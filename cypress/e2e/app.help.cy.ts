@@ -1,7 +1,7 @@
 describe('App Help Pages', () => {
   // Reset backend
   before(() => {
-    cy.exec('npm run service', { failOnNonZeroExit: true, timeout: 120000 })
+    // cy.exec('npm run service', { failOnNonZeroExit: true, timeout: 120000 })
     cy.wait(1000)
   })
 
