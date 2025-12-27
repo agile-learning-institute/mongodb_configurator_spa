@@ -262,7 +262,7 @@
               <div class="version-controls">
                 <div class="version-display-value" data-test="new-version-enumerators">{{ newVersion.enumerators }}</div>
                 <v-btn
-                  v-if="versionButtonClicked && shouldShowEnumeratorButton"
+                  v-if="shouldShowEnumeratorButton"
                   icon="mdi-plus"
                   size="small"
                   variant="elevated"
@@ -446,6 +446,7 @@ const newestEnumeratorVersion = ref<number | null>(null)
 const enumeratorsWereBackLevel = ref(false)
 const enumeratorsWereIncremented = ref(false)
 const initialEnumeratorsVersion = ref<number>(0)
+const enumeratorsButtonClicked = ref(false)
 
 // Computed properties
 const sortedVersions = computed(() => {
@@ -483,23 +484,36 @@ const isEnumeratorsAtNewest = computed(() => {
 
 // Check if enumerator button should be shown
 const shouldShowEnumeratorButton = computed(() => {
-  if (!versionButtonClicked.value) return false
-  // If enumerators were back level and we set them to newest, always show the button
-  if (enumeratorsWereBackLevel.value) {
+  // If enumerators button was already clicked, hide it
+  if (enumeratorsButtonClicked.value) {
+    return false
+  }
+  // If enumerators are at newest version, show button immediately (even without version button click)
+  if (isEnumeratorsAtNewest.value) {
     return true
   }
-  // If enumerators are at newest (and weren't back level), use existing logic (show if < 3)
-  if (isEnumeratorsAtNewest.value) {
-    return newVersion.value.enumerators < 3
+  // If enumerators are back level, show button only after version button is clicked
+  if (enumeratorsWereBackLevel.value) {
+    return versionButtonClicked.value
   }
-  // If enumerators are back level, always show the button
-  return true
+  // Otherwise, show button only after version button is clicked
+  return versionButtonClicked.value
 })
 
 // Check if CREATE VERSION button should be enabled
 const canCreateVersion = computed(() => {
-  // Enable if a version button was clicked, OR if enumerators were automatically updated to newest
-  return versionButtonClicked.value || enumeratorsWereBackLevel.value
+  if (!configuration.value?.versions || configuration.value.versions.length === 0) {
+    // If no versions exist, allow creating the first version
+    return true
+  }
+  
+  // Get the current latest version
+  const latestVersion = configuration.value.versions[configuration.value.versions.length - 1]
+  const latestVersionString = latestVersion.version
+  const newVersionStringValue = newVersionString.value
+  
+  // Only enable if the new version is different from the latest version
+  return latestVersionString !== newVersionStringValue
 })
 
 // Remove unused computed properties
@@ -783,6 +797,7 @@ const initializeNewVersion = async () => {
   newestEnumeratorVersion.value = null
   enumeratorsWereBackLevel.value = false
   enumeratorsWereIncremented.value = false
+  enumeratorsButtonClicked.value = false
   
   // Get newest enumerator version
   await getNewestEnumeratorVersion()
@@ -849,6 +864,7 @@ const incrementVersion = async (type: 'major' | 'minor' | 'patch' | 'enumerators
   } else if (type === 'enumerators') {
     newVersion.value.enumerators++
     enumeratorsWereIncremented.value = true
+    enumeratorsButtonClicked.value = true
   }
 }
 

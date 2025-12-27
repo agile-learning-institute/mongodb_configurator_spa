@@ -60,7 +60,7 @@ describe('Dictionary Details Page', () => {
       cy.get('.v-dialog').should('be.visible')
       cy.get('.v-dialog .v-card-title').should('exist').should('contain', 'Delete Dictionary?')
       cy.get('.v-dialog .v-card-text').find('p').eq(0).should('exist').should('contain', 'Are you sure you want to delete')
-      cy.get('.v-dialog .v-card-text').find('p').eq(1).should('contain', 'This action cannot be undone.')
+      cy.get('.v-dialog .v-card-text').find('p').eq(1).should('contain', 'This action cannot be undone')
       cy.get('[data-test="delete-dialog-cancel-btn"]').should('be.visible')
       cy.get('[data-test="delete-dialog-confirm-btn"]').should('be.visible').click()
       cy.get('.v-dialog').should('not.exist')
