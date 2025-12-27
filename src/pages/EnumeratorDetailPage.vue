@@ -58,7 +58,7 @@
         <div class="d-flex align-center" v-if="!isReadOnly">
           <div class="d-flex gap-2">
             <v-btn
-              v-if="enumerator._locked"
+              v-if="enumerator._locked && !isReadOnly"
               color="warning"
               variant="elevated"
               @click="showUnlockDialog = true"
@@ -70,7 +70,7 @@
               <span data-test="unlock-btn-text">Unlock</span>
             </v-btn>
             <v-btn
-              v-else
+              v-else-if="!isReadOnly"
               color="info"
               variant="elevated"
               @click="lockEnumerator"
@@ -100,7 +100,7 @@
       <BaseCard title="Enumerators">
         <template #header-actions>
           <v-btn
-            v-if="!enumerator._locked"
+            v-if="!isDisabled"
             prepend-icon="mdi-plus"
             variant="elevated"
             color="white"
@@ -363,6 +363,12 @@ const {
   loadEnumerator,
   saveEnumerator,
 } = useEnumeratorDetail()
+
+// Get read-only state from config
+const { isReadOnly } = useConfig()
+
+// Computed disabled state - read-only mode OR locked
+const isDisabled = computed(() => isReadOnly.value || (enumerator.value?._locked || false))
 
 // New version functionality
 const { createNewVersionAndNavigate } = useNewVersion()
