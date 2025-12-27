@@ -37,26 +37,28 @@
             />
           </div>
           
-          <div class="d-flex flex-column gap-2" v-if="!isReadOnly">
-            <v-btn
-              color="secondary"
-              @click="processAllVersions"
-              :loading="processing"
-              data-test="configure-collection-btn"
-            >
-              <v-icon start>mdi-cog</v-icon>
-              Configure Collection
-            </v-btn>
-            
-            <v-btn
-              color="red"
-              variant="outlined"
-              @click="showDeleteCollectionDialog = true"
-              data-test="delete-collection-btn"
-            >
-              <v-icon start>mdi-delete</v-icon>
-              Delete Collection
-            </v-btn>
+          <div class="d-flex flex-column gap-2">
+            <div v-if="!isReadOnly" class="d-flex flex-column gap-2">
+              <v-btn
+                color="secondary"
+                @click="processAllVersions"
+                :loading="processing"
+                data-test="configure-collection-btn"
+              >
+                <v-icon start>mdi-cog</v-icon>
+                Configure Collection
+              </v-btn>
+              
+              <v-btn
+                color="red"
+                variant="outlined"
+                @click="showDeleteCollectionDialog = true"
+                data-test="delete-collection-btn"
+              >
+                <v-icon start>mdi-delete</v-icon>
+                Delete Collection
+              </v-btn>
+            </div>
             
             <div class="d-flex gap-2">
               <v-btn
