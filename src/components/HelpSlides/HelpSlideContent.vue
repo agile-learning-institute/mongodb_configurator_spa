@@ -73,17 +73,17 @@ onMounted(() => {
   color: #34495e;
 }
 
-.detailed-content h2 {
-  font-size: 1.75rem;
-  font-weight: 700;
-  color: #1976d2;
-  margin: 2rem 0 1rem 0;
-  line-height: 1.3;
-  text-shadow: 0 2px 4px rgba(25, 118, 210, 0.1);
+.detailed-content :deep(h2) {
+  font-size: 1.75rem !important;
+  font-weight: 700 !important;
+  color: #1976d2 !important;
+  margin: 2rem 0 1rem 0 !important;
+  line-height: 1.3 !important;
+  text-shadow: 0 2px 4px rgba(25, 118, 210, 0.1) !important;
   position: relative;
 }
 
-.detailed-content h2::after {
+.detailed-content :deep(h2::after) {
   content: '';
   position: absolute;
   bottom: -8px;
@@ -94,7 +94,7 @@ onMounted(() => {
   border-radius: 2px;
 }
 
-.detailed-content h3 {
+.detailed-content :deep(h3) {
   font-size: 1.375rem;
   font-weight: 600;
   color: #37474f;
@@ -103,28 +103,30 @@ onMounted(() => {
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
-.detailed-content p {
-  margin-bottom: 1rem;
-  font-size: 1rem;
-  line-height: 1.7;
-  color: #455a64;
+.detailed-content :deep(p) {
+  margin-bottom: 1rem !important;
+  font-size: 1rem !important;
+  line-height: 1.7 !important;
+  color: #455a64 !important;
 }
 
-.detailed-content ul, .detailed-content ol {
-  margin-bottom: 1rem;
-  padding-left: 1.75rem;
-  font-size: 1rem;
+.detailed-content :deep(ul), .detailed-content :deep(ol) {
+  margin-bottom: 1rem !important;
+  padding-left: 1.75rem !important;
+  font-size: 1rem !important;
+  list-style: none !important;
 }
 
-.detailed-content li {
-  margin-bottom: 0.75rem;
-  font-size: 1rem;
-  line-height: 1.6;
-  color: #455a64;
+.detailed-content :deep(li) {
+  margin-bottom: 0.75rem !important;
+  font-size: 1rem !important;
+  line-height: 1.6 !important;
+  color: #455a64 !important;
   position: relative;
+  list-style: none !important;
 }
 
-.detailed-content ul li::before {
+.detailed-content :deep(ul li::before) {
   content: '•';
   color: #1976d2;
   font-weight: bold;
@@ -132,10 +134,9 @@ onMounted(() => {
   left: -1.25rem;
 }
 
-.detailed-content strong {
-  font-weight: 700;
-  color: #2c3e50;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+.detailed-content :deep(strong) {
+  font-weight: 600 !important;
+  color: #2c3e50 !important;
 }
 </style>
 
