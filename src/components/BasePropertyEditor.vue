@@ -382,11 +382,11 @@ watch(() => props.property, (newProperty) => {
 .base-property-editor {
   border: 1px solid #e0e0e0;
   border-radius: 4px;
-  margin-bottom: 16px;
+  margin-bottom: 4px;
 }
 
 .property-header {
-  padding: 12px 5px;
+  padding: 4px 5px;
   background-color: #fafafa;
   border-bottom: 1px solid #e0e0e0;
   gap: 8px;
@@ -416,8 +416,8 @@ watch(() => props.property, (newProperty) => {
 .property-drag-handle {
   flex-shrink: 0;
   cursor: grab;
-  padding: 4px;
-  margin-right: 8px;
+  padding: 2px;
+  margin-right: 4px;
 }
 
 .property-drag-handle:active {
@@ -427,7 +427,7 @@ watch(() => props.property, (newProperty) => {
 
 
 .property-body {
-  padding: 16px;
+  padding: 8px;
   background-color: #ffffff;
 }
 
