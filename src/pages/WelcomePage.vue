@@ -1,12 +1,12 @@
 <template>
-  <v-container>
+  <v-container class="pa-0" style="height: calc(100vh - 64px);">
     <!-- Help Carousel -->
     <v-card class="help-carousel" variant="outlined" elevation="0" data-test="help-carousel">
           <v-card-title class="d-flex align-center pa-6" data-test="carousel-title">
             <v-icon :icon="helpSlides[currentSlide].icon" class="mr-2" :data-test="`carousel-icon-${currentSlide}`" />
             <span class="text-h4" data-test="carousel-title-text">{{ helpSlides[currentSlide].title }}</span>
           </v-card-title>
-          <v-card-text class="pa-0">
+          <v-card-text class="pa-0 d-flex flex-column">
             <div class="carousel-container">
               <!-- Previous Button -->
               <v-btn
@@ -32,7 +32,7 @@
                       <p class="slide-description" :data-test="`slide-description-${index}`" v-html="slide.description"></p>
                       
                       <h2>Configuration Processing</h2>
-                      <p>Collection configuration it's done using a six step process:</p>
+                      <p>Collection configuration is done using a six-step process:</p>
                       <ol>
                         <li>Drop any existing Schema Validation</li>
                         <li>Drop any indexes that should be removed</li>
@@ -48,7 +48,7 @@
                     
                     <!-- Other slides with detailed content using v-html -->
                     <div v-else-if="slide.detailedContent" class="overview-content" :data-test="`slide-content-${index}`">
-                      <p class="slide-description" :data-test="`slide-description-${index}`" v-html="slide.description"></p>
+                      <p :class="slide.title === 'Welcome' ? 'welcome-description' : 'slide-description'" :data-test="`slide-description-${index}`" v-html="slide.description"></p>
                       <div class="detailed-content" v-html="slide.detailedContent" :data-test="`slide-detailed-content-${index}`"></div>
                       
                       <!-- Quick start section for Welcome slide -->
@@ -110,7 +110,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useHelp } from '@/composables/useHelp'
 import HelpDialog from '@/components/HelpDialog.vue'
@@ -125,7 +125,20 @@ const route = useRoute()
 // New collection dialog state
 const showNewCollectionDialog = ref(false)
 
-// Initialize slide based on URL parameter
+// Handle feature link clicks using event delegation
+const handleFeatureLinkClick = (event: Event) => {
+  const target = event.target as HTMLElement
+  const link = target.closest('.feature-link') as HTMLAnchorElement
+  if (link) {
+    event.preventDefault()
+    const href = link.getAttribute('href')
+    if (href) {
+      router.push(href)
+    }
+  }
+}
+
+// Initialize slide based on URL parameter and set up link handlers
 onMounted(() => {
   const slideParam = route.query.slide
   if (slideParam && typeof slideParam === 'string') {
@@ -134,6 +147,14 @@ onMounted(() => {
       currentSlide.value = slideIndex
     }
   }
+  
+  // Set up click handler for feature links using event delegation on the help window
+  nextTick(() => {
+    const helpWindow = document.querySelector('.help-window')
+    if (helpWindow) {
+      helpWindow.addEventListener('click', handleFeatureLinkClick)
+    }
+  })
 })
 
 // Open new collection dialog
@@ -150,27 +171,27 @@ const helpSlides = [
   {
     icon: 'mdi-information-outline',
     title: 'Welcome',
-    description: 'The mongoDB Configurator makes it easy for you to implement the <a href="https://www.mongodb.com/company/blog/building-with-patterns-the-schema-versioning-pattern" target="_blank">MongoDB Schema Versioning Pattern</a> best practices.',
+    description: 'As a data engineer working with MongoDB across multiple use cases—from backing APIs in various languages to automated data ingestion pipelines and change data capture solutions—you need centralized data quality constraints that go beyond domain-specific tools like ODMs. This Configurator helps you define data quality constraints using a simplified schema approach that configures MongoDB Schema Validation. Test your configurations locally, then package them for independent deployment. See the Configurator SRE Guide for deployment details.',
     detailedContent: `
-      <h2>Key Features</h2>
-      <ul>
-        <li><strong>Online Help</strong> is available using <i class="mdi mdi-help-circle"></i> <i class="mdi mdi-arrow-top-right"></i> from any page.</li>
-        <li><strong>Collection Configurations</strong> control the configuration process.</li>
-        <li><strong>Data Dictionaries</strong> provide a human friendly way to define data structures.</li>
-        <li><strong>Custom Types</strong> specify json/bson schemas for Dictionary types.</li>
-        <li><strong>Enumerators</strong> provide a versioned location for enumerator validation values.</li>
-        <li><strong>Test Data</strong> can be loaded into the database to support a robust developer experience.</li>
-        <li><strong>Migrations</strong> allow you to run migration pipelines to alter existing data when schema changes require it.</li>
+      <h2 class="key-features-title">Key Features</h2>
+      <ul class="key-features-list">
+        <li><h4 class="key-feature-item"><a href="/" class="feature-link">Online Help</a></h4> is available using <i class="mdi mdi-help-circle"></i> <i class="mdi mdi-arrow-top-right"></i> from any page.</li>
+        <li><h4 class="key-feature-item"><a href="/configurations" class="feature-link">Collection Configurations</a></h4> control the configuration process.</li>
+        <li><h4 class="key-feature-item"><a href="/dictionaries" class="feature-link">Data Dictionaries</a></h4> provide a human-friendly way to define data structures.</li>
+        <li><h4 class="key-feature-item"><a href="/types" class="feature-link">Custom Types</a></h4> specify JSON/BSON schemas for Dictionary types.</li>
+        <li><h4 class="key-feature-item"><a href="/enumerators" class="feature-link">Enumerators</a></h4> provide a versioned location for enumerator validation values.</li>
+        <li><h4 class="key-feature-item"><a href="/test_data" class="feature-link">Test Data</a></h4> can be loaded into the database to support a robust developer experience.</li>
+        <li><h4 class="key-feature-item"><a href="/migrations" class="feature-link">Migrations</a></h4> allow you to run migration pipelines to alter existing data when schema changes require it.</li>
       </ul>
     `
   },
   {
-    icon: 'mdi-compass',
+    icon: 'mdi-database',
     title: 'Collection Configuration',
     description: '',
     detailedContent: `
       <h2>Configuration Processing</h2>
-      <p>Collection configuration it's done using a six step process:</p>
+      <p>Collection configuration is done using a six-step process:</p>
       <ol>
         <li>Drop any existing Schema Validation</li>
         <li>Drop any indexes that should be removed</li>
@@ -190,7 +211,7 @@ const helpSlides = [
     description: 'Create simple technology agnostic schema definitions.',
     detailedContent: `
       <h2>Simple Schema</h2>
-      <p>Configurator data dictionaries provide a simplified approach to defining data structures and validation constraints. This approach is technology agnostic and Creates dictionaries that can easily be shared with non-technical users. The configurator can also use these dictionaries to create json or bson schema for software engineers. These are the types used in a Dictionary:</p>
+      <p>Configurator data dictionaries provide a simplified approach to defining data structures and validation constraints. This approach is technology agnostic and creates dictionaries that can easily be shared with non-technical users. The configurator can also use these dictionaries to create JSON or BSON schema for software engineers. These are the types used in a Dictionary:</p>
       <ul>
         <li><strong>Custom Type:</strong> A human description of a data type (i.e. street address, phone number, sentence, or paragraph).</li>
         <li><strong>Enumerated Types:</strong> A data type that represents an item from an enumerated list. See Enumerators.</li>
@@ -204,7 +225,7 @@ const helpSlides = [
       <p>A custom type can have any name other than the identified simple types below. Names should be short and meaningful. Embedded white space in a type name is not allowed. If you are defining a dictionary property that has a custom type, you don't need to specify any additional information.</p>
       
       <h2>Enumerated Types</h2>
-      <p>When you can define a data type, it should be one of a defined set of valid values. You can have very high-quality data and you can support optimal user experiences, especially with touch devices. When you use the enum type, you must identify which valid list of enumerators should be used. See Enumerators for additional information on creating enumerations. The Enum Array type is used for an array of values from an enumeration.</p>
+      <p>When you define a data type that should be one of a defined set of valid values, you can ensure very high-quality data and support optimal user experiences, especially with touch devices. When you use the enum type, you must identify which valid list of enumerators should be used. See Enumerators for additional information on creating enumerations. The Enum Array type is used for an array of values from an enumeration.</p>
       
       <h2>Object Types</h2>
       <p>An object type is simply a way to group a set of related properties. The root property for most dictionaries is an object type. Object types have a special <em>Additional Properties</em> indicator that allows you to define loosely constrained data structures.</p>
@@ -213,17 +234,17 @@ const helpSlides = [
       <p>An Array type is simply a list of values defined as properties. When you identify the types of items that will be contained in the array, you can specify the additional attributes necessary to define the property.</p>
       
       <h2>One Of and Constant Types</h2>
-      <p>Powerful data structures often include polymorphic types of data. The one of data type is used to identify the list of possible types that a data property might comply with. The one of constraint is frequently combined with the constant constraint used to identify a type indicator for the polymorphic object.</p>
+      <p>Powerful data structures often include polymorphic types of data. The "one of" data type is used to identify the list of possible types that a data property might comply with. The "one of" constraint is frequently combined with the constant constraint, which is used to identify a type indicator for the polymorphic object.</p>
       
       <h2>Reference Types</h2>
       <p>If a dictionary is feeling cumbersome or there are excessive levels of nesting, you might want to consider breaking the dictionary apart into multiple dictionaries. You can use the Ref type property to include those dictionaries.</p>
       
-      <h3>Required Properties</h3>
+      <h2>Required Properties</h2>
       <p>Every property can be identified as a required property using the checkbox icon on the property. Note that this is different from JSON and BSON schemas where they specify required as an array attribute of an object. Schema rendering converts these values for you.</p>
     `
   },
   {
-    icon: 'mdi-shape-outline',
+    icon: 'mdi-shape',
     title: 'Type',
     description: 'Define reusable type definitions that isolate the complexities of terse schema languages.',
     detailedContent: `
@@ -240,12 +261,12 @@ const helpSlides = [
       </ul>
       
       <div class="mt-6 pa-4 bg-warning-lighten-5 border-warning border rounded">
-        <p class="text-body-2 mb-0"><strong>Note:</strong> Custom types are not versioned. Once locked, they should be considered immutable assets used by your data dictionaries. If you should need to change a custom type that has already been deployed to meaningful environments, you will need to create a new custom type with a slightly different name. See the <span class="text-link clickable" @click="navigateToSlide(9)">Locking</span> panel for more information about what it means to <em>lock</em> a configuration.</p>
+        <p class="text-body-2 mb-0"><strong>Note:</strong> Custom types are not versioned. Once locked, they should be considered immutable assets used by your data dictionaries. If you need to change a custom type that has already been deployed to meaningful environments, you will need to create a new custom type with a slightly different name. See the <span class="text-link clickable" @click="navigateToSlide(9)">Locking</span> panel for more information about what it means to <em>lock</em> a configuration.</p>
       </div>
     `
   },
   {
-    icon: 'mdi-format-list-checks',
+    icon: 'mdi-format-list-bulleted',
     title: 'Enumerator',
     description: 'Create sets of allowed values for Enum or Enum Array properties.',
     detailedContent: `
@@ -253,12 +274,12 @@ const helpSlides = [
       <p>To support Dictionary <em>enum</em> and <em>enum_array</em> types simple schema leverages a list of valid enumerators, and the individual enumeration values with descriptions. Enumerators are loaded to a specified collection during configuration, making it easy to provide the information needed by a Javascript Web application to support choosers or drop downs. Enumerator versions are managed automatically, and only the latest enumerators should be unlocked. See the <span class="text-link clickable" @click="navigateToSlide(9)">Locking</span> panel for more information about what it means to <em>lock</em> a configuration.</p>
       
       <div class="mt-6 pa-4 bg-info-lighten-5 border-info border rounded">
-        <p class="text-body-2 mb-0"><strong>Note:</strong> These enumerators are for use when the list of valid enumerations are relatively stable. The configurator makes it easy to add new values to a list, but the deployment of that change does require a new version of the database configuration be deployed. Dynamic enumerator lists that allow real-time updates should be implemented as normal string primitives, with a custom data store for the valid values.</p>
+        <p class="text-body-2 mb-0"><strong>Note:</strong> These enumerators are for use when the list of valid enumerations is relatively stable. The configurator makes it easy to add new values to a list, but the deployment of that change does require a new version of the database configuration to be deployed. Dynamic enumerator lists that allow real-time updates should be implemented as normal string primitives, with a custom data store for the valid values.</p>
       </div>
     `
   },
   {
-    icon: 'mdi-test-tube',
+    icon: 'mdi-file-document',
     title: 'Test Data',
     description: 'Test data that can be loaded into the database during version processing.',
     detailedContent: `
@@ -267,7 +288,7 @@ const helpSlides = [
     `
   },
   {
-    icon: 'mdi-database-sync',
+    icon: 'mdi-swap-horizontal',
     title: 'Migration',
     description: 'Create data transformation scripts for schema updates.',
     detailedContent: `
@@ -390,20 +411,37 @@ const navigateToSlide = (index: number) => {
 
 <style scoped>
 .help-carousel {
-  height: calc(100vh - 200px);
+  height: calc(100vh - 64px);
+  max-height: calc(100vh - 64px);
   overflow: hidden;
   display: flex;
   flex-direction: column;
   background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
 }
 
+.help-carousel :deep(.v-card-title) {
+  flex-shrink: 0;
+}
+
+.help-carousel :deep(.v-card-text) {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+  padding: 0 !important;
+  max-height: 100%;
+}
+
 .carousel-container {
   position: relative;
-  flex: 1;
+  flex: 1 1 0;
   display: flex;
   align-items: stretch;
-  min-height: 400px;
-  max-height: calc(100vh - 200px);
+  min-height: 0;
+  overflow: hidden;
+  padding-bottom: 0;
 }
 
 .carousel-nav-btn {
@@ -455,8 +493,6 @@ const navigateToSlide = (index: number) => {
   width: 100%;
   height: 100%;
   padding: 50px 30px;
-  min-height: 500px;
-  max-height: 600px;
   overflow-y: auto;
   background: rgba(255, 255, 255, 0.95);
   border-radius: 16px;
@@ -464,6 +500,8 @@ const navigateToSlide = (index: number) => {
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.8);
+  min-height: 0;
+  flex: 1 1 auto;
 }
 
 .slide-description {
@@ -474,6 +512,15 @@ const navigateToSlide = (index: number) => {
   margin-bottom: 2.5rem;
   max-width: 800px;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.welcome-description {
+  font-size: 1rem;
+  font-weight: 400;
+  color: #455a64;
+  line-height: 1.7;
+  margin-bottom: 2rem;
+  max-width: 800px;
 }
 
 .overview-content {
@@ -583,10 +630,17 @@ const navigateToSlide = (index: number) => {
 .carousel-dots {
   display: flex;
   justify-content: center;
-  padding: 1.5rem 0;
+  align-items: center;
+  padding: 1rem 0;
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 249, 250, 0.9) 100%);
   border-top: 2px solid rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(10px);
+  flex-shrink: 0;
+  margin-top: 0;
+  position: relative;
+  z-index: 5;
+  height: auto;
+  box-sizing: border-box;
 }
 
 .carousel-dots .v-btn {
@@ -630,6 +684,72 @@ const navigateToSlide = (index: number) => {
 .text-link.clickable:hover {
   color: #1565c0;
   text-decoration: none;
+  background-color: rgba(25, 118, 210, 0.1);
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+
+/* Key Features list styling */
+.key-features-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #1976d2;
+  margin: 2rem 0 1rem 0;
+  line-height: 1.3;
+  text-shadow: 0 2px 4px rgba(25, 118, 210, 0.1);
+  position: relative;
+}
+
+.key-features-title::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 0;
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(90deg, #1976d2 0%, #42a5f5 100%);
+  border-radius: 2px;
+}
+
+.key-features-list {
+  list-style: none;
+  padding-left: 0;
+  margin: 0 0 1.5rem 0;
+}
+
+.key-features-list li {
+  margin-bottom: 1rem;
+  line-height: 1.6;
+  color: #455a64;
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.key-feature-item {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1976d2;
+  margin: 0;
+  display: inline;
+  line-height: 1.4;
+  flex-shrink: 0;
+}
+
+.key-feature-item::after {
+  content: '';
+  display: none;
+}
+
+.feature-link {
+  color: #1976d2;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.feature-link:hover {
+  color: #1565c0;
+  text-decoration: underline;
   background-color: rgba(25, 118, 210, 0.1);
   padding: 2px 4px;
   border-radius: 4px;
