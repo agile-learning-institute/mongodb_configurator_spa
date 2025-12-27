@@ -182,39 +182,41 @@ const helpSlides = [
   {
     icon: 'mdi-book-open-variant',
     title: 'Dictionary',
-    description: 'Create simple technology agnostic schema definitions.',
+    description: 'Create simple, technology-agnostic schema definitions that are easy to understand and share.',
     detailedContent: `
-      <h2>Simple Schema</h2>
-      <p>Configurator data dictionaries provide a simplified approach to defining data structures and validation constraints. This approach is technology agnostic and creates dictionaries that can easily be shared with non-technical users. The configurator can also use these dictionaries to create JSON or BSON schema for software engineers. These are the types used in a Dictionary:</p>
+      <h2>Simple Schema Approach</h2>
+      <p>Data dictionaries provide a simplified, human-readable way to define data structures and validation constraints. This approach is technology-agnostic, making dictionaries easy to share with non-technical stakeholders like product managers and business analysts. The configurator automatically converts these dictionaries into JSON or BSON schemas for your applications. Dictionary properties support these types:</p>
       <ul>
-        <li><strong>Custom Type:</strong> A human description of a data type (i.e. street address, phone number, sentence, or paragraph).</li>
-        <li><strong>Enumerated Types:</strong> A data type that represents an item from an enumerated list. See Enumerators.</li>
-        <li><strong>Object Types:</strong> A list of named properties.</li>
-        <li><strong>Array Types:</strong> An array of property items.</li>
-        <li><strong>One Of Types:</strong> A structure for representing polymorphic data structures.</li>
-        <li><strong>Reference Types:</strong> A reference to another dictionary.</li>
+        <li><strong>Custom Type:</strong> A human-readable description of a data type (e.g., street address, phone number, sentence, or paragraph). Custom types are defined separately in Type files.</li>
+        <li><strong>Enum:</strong> A value that must be one item from a defined list. Requires selecting an Enumerator file that contains the valid values.</li>
+        <li><strong>Enum Array:</strong> An array where each item must be from a defined enumeration list.</li>
+        <li><strong>Object:</strong> A structured collection of named properties, typically used as the root property of a dictionary.</li>
+        <li><strong>Array:</strong> A list of items where each item follows a specified type definition.</li>
+        <li><strong>One Of:</strong> A union type that allows a property to match one of several possible type definitions, useful for polymorphic data structures.</li>
+        <li><strong>Reference:</strong> A reference to another dictionary file, allowing you to reuse and compose dictionary definitions.</li>
+        <li><strong>Constant:</strong> A fixed value that never changes, often used with "One Of" to create type discriminators.</li>
       </ul>
       
       <h2>Custom Types</h2>
-      <p>A custom type can have any name other than the identified simple types below. Names should be short and meaningful. Embedded white space in a type name is not allowed. If you are defining a dictionary property that has a custom type, you don't need to specify any additional information.</p>
+      <p>Custom types let you define reusable data types with meaningful names like "email", "phone_number", or "street_address". These types are defined in separate Type files and can be referenced by name in your dictionaries. Type names should be short, meaningful, and cannot contain spaces. When you use a custom type in a dictionary property, you don't need to specify any additional configuration—just the type name.</p>
       
       <h2>Enumerated Types</h2>
-      <p>When you define a data type that should be one of a defined set of valid values, you can ensure very high-quality data and support optimal user experiences, especially with touch devices. When you use the enum type, you must identify which valid list of enumerators should be used. See Enumerators for additional information on creating enumerations. The Enum Array type is used for an array of values from an enumeration.</p>
+      <p>Enum and Enum Array types ensure data quality by restricting values to a predefined list. This is especially valuable for user interfaces, where dropdown menus and pickers can guide users to valid selections. When using an enum type, you must select which Enumerator file contains the valid values. Enum Array allows multiple values from the enumeration to be stored in a single array. See the Enumerators panel for more information on creating and managing enumerations.</p>
       
       <h2>Object Types</h2>
-      <p>An object type is simply a way to group a set of related properties. The root property for most dictionaries is an object type. Object types have a special <em>Additional Properties</em> indicator that allows you to define loosely constrained data structures.</p>
+      <p>Object types group related properties together, forming the structure of your data. Most dictionaries use an object type as the root property. Objects can include an <em>Additional Properties</em> option, which allows documents to contain extra properties beyond those explicitly defined—useful for flexible or evolving data structures.</p>
       
       <h2>Array Types</h2>
-      <p>An Array type is simply a list of values defined as properties. When you identify the types of items that will be contained in the array, you can specify the additional attributes necessary to define the property.</p>
+      <p>Array types define lists of items where each item follows a specified type. You can create arrays of primitives (like strings or numbers), arrays of objects, or even nested arrays. When defining an array property, you specify the type that each item in the array must conform to.</p>
       
       <h2>One Of and Constant Types</h2>
-      <p>Powerful data structures often include polymorphic types of data. The "one of" data type is used to identify the list of possible types that a data property might comply with. The "one of" constraint is frequently combined with the constant constraint, which is used to identify a type indicator for the polymorphic object.</p>
+      <p>One Of types enable polymorphic data structures by allowing a property to match one of several possible type definitions. This is commonly combined with Constant types, which store a fixed value that acts as a type discriminator. For example, a "one of" property might allow either a "Person" or "Company" object, with a constant "type" field indicating which structure is used.</p>
       
       <h2>Reference Types</h2>
-      <p>If a dictionary is feeling cumbersome or there are excessive levels of nesting, you might want to consider breaking the dictionary apart into multiple dictionaries. You can use the Ref type property to include those dictionaries.</p>
+      <p>Reference types allow you to include another dictionary file within your current dictionary. This is useful for breaking complex dictionaries into smaller, reusable components, reducing nesting levels, and promoting code reuse across multiple dictionaries.</p>
       
       <h2>Required Properties</h2>
-      <p>Every property can be identified as a required property using the checkbox icon on the property. Note that this is different from JSON and BSON schemas where they specify required as an array attribute of an object. Schema rendering converts these values for you.</p>
+      <p>Every property can be marked as required using the checkbox in the property editor. Required properties must be present in all documents. Note that this differs from JSON/BSON schemas, which specify required properties as an array attribute of an object. The configurator automatically converts this to the appropriate schema format when generating JSON or BSON schemas.</p>
     `
   },
   {

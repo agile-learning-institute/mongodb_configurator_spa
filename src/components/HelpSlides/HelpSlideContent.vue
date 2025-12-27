@@ -60,13 +60,12 @@ onMounted(() => {
 }
 
 .slide-description {
-  font-size: 1.375rem;
-  font-weight: 500;
-  color: #2c3e50;
+  font-size: 1rem;
+  font-weight: 400;
+  color: #455a64;
   line-height: 1.7;
-  margin-bottom: 2.5rem;
+  margin-bottom: 2rem;
   max-width: 800px;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .detailed-content {
@@ -106,7 +105,7 @@ onMounted(() => {
 
 .detailed-content p {
   margin-bottom: 1rem;
-  font-size: 1.0625rem;
+  font-size: 1rem;
   line-height: 1.7;
   color: #455a64;
 }
@@ -114,12 +113,12 @@ onMounted(() => {
 .detailed-content ul, .detailed-content ol {
   margin-bottom: 1rem;
   padding-left: 1.75rem;
-  font-size: 1.0625rem;
+  font-size: 1rem;
 }
 
 .detailed-content li {
-  margin-bottom: 0.5rem;
-  font-size: 1.0625rem;
+  margin-bottom: 0.75rem;
+  font-size: 1rem;
   line-height: 1.6;
   color: #455a64;
   position: relative;

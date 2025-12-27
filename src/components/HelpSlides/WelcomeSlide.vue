@@ -65,21 +65,35 @@ onMounted(() => {
   color: #34495e;
 }
 
+.detailed-content :deep(.key-features-list) {
+  margin-bottom: 1rem;
+  padding-left: 1.75rem;
+  font-size: 1rem;
+}
+
 .detailed-content :deep(.key-features-list li) {
   margin-bottom: 0.75rem;
   line-height: 1.6;
   color: #455a64;
+  font-size: 1rem !important;
+  position: relative;
   display: flex;
   align-items: baseline;
   gap: 0.5rem;
-  font-size: 1rem !important;
-  padding: 0;
-  margin-top: 0;
+}
+
+.detailed-content :deep(.key-features-list li::before) {
+  content: '•';
+  color: #1976d2;
+  font-weight: bold;
+  position: absolute;
+  left: -1.25rem;
 }
 
 .detailed-content :deep(.key-feature-link) {
   font-size: 1rem !important;
   font-weight: 600;
+  color: #2c3e50;
   display: inline;
   margin-right: 0.5rem;
 }
@@ -150,7 +164,7 @@ onMounted(() => {
   font-weight: 500;
 }
 
-.key-features-title {
+.detailed-content :deep(.key-features-title) {
   font-size: 1.75rem;
   font-weight: 700;
   color: #1976d2;
@@ -160,7 +174,7 @@ onMounted(() => {
   position: relative;
 }
 
-.key-features-title::after {
+.detailed-content :deep(.key-features-title::after) {
   content: '';
   position: absolute;
   bottom: -8px;
