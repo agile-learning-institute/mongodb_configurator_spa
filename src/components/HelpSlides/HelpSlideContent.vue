@@ -7,15 +7,12 @@
 
 <script setup lang="ts">
 import { computed, onMounted, nextTick } from 'vue'
-import { useRouter } from 'vue-router'
 
 const props = defineProps<{
   description?: string
   detailedContent?: string
   isWelcome?: boolean
 }>()
-
-const router = useRouter()
 
 const descriptionClass = computed(() => {
   return props.isWelcome ? 'welcome-description' : 'slide-description'
