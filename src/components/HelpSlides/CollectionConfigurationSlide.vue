@@ -1,5 +1,5 @@
 <template>
-  <div class="overview-content">
+  <div class="overview-content" style="width: 100%; min-width: 0;">
     <p class="slide-description" v-html="description"></p>
     <h2>Configuration Processing</h2>
     <p>Collection configuration is done using a six-step process:</p>

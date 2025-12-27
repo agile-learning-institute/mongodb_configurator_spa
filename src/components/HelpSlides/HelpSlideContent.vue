@@ -1,5 +1,5 @@
 <template>
-  <div class="overview-content">
+  <div class="overview-content" style="width: 100%; min-width: 0;">
     <p v-if="description" :class="descriptionClass" v-html="description"></p>
     <div v-if="detailedContent" class="detailed-content" v-html="detailedContent"></div>
   </div>

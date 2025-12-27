@@ -414,8 +414,10 @@ const navigateToSlide = (index: number) => {
   display: flex;
   align-items: stretch;
   min-height: 0;
+  max-height: 100%;
   overflow: hidden;
   padding-bottom: 0;
+  height: 100%;
 }
 
 .carousel-nav-btn {
@@ -454,9 +456,24 @@ const navigateToSlide = (index: number) => {
 }
 
 .help-window {
-  flex: 1;
+  flex: 1 1 0;
   width: 100%;
   padding: 0 100px;
+  min-height: 0;
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  height: 100%;
+}
+
+.help-window :deep(.v-window-item) {
+  height: 100%;
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .slide-content {
@@ -465,8 +482,8 @@ const navigateToSlide = (index: number) => {
   justify-content: flex-start;
   align-items: flex-start;
   width: calc(100% - 58px);
-  flex: 1;
-  min-height: 0;
+  height: calc(100% - 40px);
+  max-height: calc(100% - 40px);
   padding: 50px 30px;
   overflow-y: auto;
   overflow-x: hidden;
@@ -477,6 +494,7 @@ const navigateToSlide = (index: number) => {
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.8);
   box-sizing: border-box;
+  flex-shrink: 0;
 }
 
 

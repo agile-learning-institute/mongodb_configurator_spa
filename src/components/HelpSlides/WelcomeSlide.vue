@@ -1,5 +1,5 @@
 <template>
-  <div class="overview-content">
+  <div class="overview-content" style="width: 100%; min-width: 0;">
     <p class="welcome-description" v-html="description"></p>
     <div class="detailed-content" v-html="detailedContent"></div>
     <div class="quick-start-section">
