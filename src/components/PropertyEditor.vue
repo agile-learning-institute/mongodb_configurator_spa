@@ -127,7 +127,7 @@
       <!-- Array of OneOf: Show oneof properties directly (only when not collapsed) -->
       <div v-if="isArrayProperty(property) && property.items && property.items.type === 'one_of' && !(property.items as any)._collapsed" class="array-property-body" data-test="array-of-oneof-body">
         <div class="object-properties">
-          <div v-if="!(property.items as any).properties || (property.items as any).properties.length === 0" class="text-center pa-4" data-test="no-properties-message">
+          <div v-if="!(property.items as any).properties || (property.items as any).properties.length === 0" class="text-center pa-2" data-test="no-properties-message">
             <v-icon size="48" color="grey" data-test="no-properties-icon">mdi-format-list-bulleted</v-icon>
             <p class="text-body-2 text-medium-emphasis mt-2" data-test="no-properties-text">No properties defined. Click the <v-icon icon="mdi-plus" size="small" class="mx-1" data-test="add-property-icon" /> icon to add your first property</p>
           </div>
@@ -176,7 +176,7 @@
       <!-- Array of Object: Show object properties directly (only when not collapsed) -->
       <div v-else-if="isArrayProperty(property) && property.items && property.items.type === 'object' && !(property.items as any)._collapsed" class="array-property-body" data-test="array-of-object-body">
         <div class="object-properties">
-          <div v-if="!(property.items as any).properties || (property.items as any).properties.length === 0" class="text-center pa-4" data-test="no-properties-message">
+          <div v-if="!(property.items as any).properties || (property.items as any).properties.length === 0" class="text-center pa-2" data-test="no-properties-message">
             <v-icon size="48" color="grey" data-test="no-properties-icon">mdi-format-list-bulleted</v-icon>
             <p class="text-body-2 text-medium-emphasis mt-2" data-test="no-properties-text">No properties defined. Click the <v-icon icon="mdi-plus" size="small" class="mx-1" data-test="add-property-icon" /> icon to add your first property</p>
           </div>
@@ -244,7 +244,7 @@
       
       <!-- Object property body -->
       <div v-else-if="isObjectProperty(property) && !(property as any)._collapsed" class="object-property-body" data-test="object-property-body">
-        <div v-if="!property.properties || property.properties.length === 0" class="text-center pa-4" data-test="no-object-properties-message">
+        <div v-if="!property.properties || property.properties.length === 0" class="text-center pa-2" data-test="no-object-properties-message">
           <v-icon size="48" color="grey" data-test="no-object-properties-icon">mdi-format-list-bulleted</v-icon>
           <p class="text-body-2 text-medium-emphasis mt-2" data-test="no-object-properties-text">No properties defined. Click the <v-icon icon="mdi-plus" size="small" class="mx-1" data-test="add-object-property-icon" /> icon to add your first property</p>
         </div>
@@ -291,7 +291,7 @@
       
       <!-- OneOf property body -->
       <div v-else-if="isOneOfProperty(property) && !(property as any)._collapsed" class="object-property-body" data-test="object-property-body">
-        <div v-if="!property.properties || property.properties.length === 0" class="text-center pa-4" data-test="no-object-properties-message">
+        <div v-if="!property.properties || property.properties.length === 0" class="text-center pa-2" data-test="no-object-properties-message">
           <v-icon size="48" color="grey" data-test="no-object-properties-icon">mdi-format-list-bulleted</v-icon>
           <p class="text-body-2 text-medium-emphasis mt-2" data-test="no-object-properties-text">No properties defined. Click the <v-icon icon="mdi-plus" size="small" class="mx-1" data-test="add-object-property-icon" /> icon to add your first property</p>
         </div>
@@ -338,8 +338,8 @@
       
       <!-- Simple property body - show schema configuration -->
       <div v-else-if="isSimpleProperty(property)" class="simple-property-body" data-test="simple-property-body">
-        <div class="schema-configuration pa-4">
-          <h4 class="text-h6 mb-3" data-test="schema-configuration-title">Schema Configuration</h4>
+        <div class="schema-configuration pa-2">
+          <h4 class="text-h6 mb-2" data-test="schema-configuration-title">Schema Configuration</h4>
           
           <v-textarea
             v-model="simplePropertySchema"
@@ -356,8 +356,8 @@
       
       <!-- Complex property body - show JSON and BSON type configuration -->
       <div v-else-if="isComplexProperty(property)" class="complex-property-body" data-test="complex-property-body">
-        <div class="type-configuration pa-4">
-          <h4 class="text-h6 mb-3" data-test="type-configuration-title">Type Configuration</h4>
+        <div class="type-configuration pa-2">
+          <h4 class="text-h6 mb-2" data-test="type-configuration-title">Type Configuration</h4>
           
           <v-row>
             <v-col cols="12" md="6">
@@ -892,22 +892,22 @@ const handleComplexPropertyBsonTypeChange = (value: string) => {
 
 <style scoped>
 .array-property-body {
-  padding: 16px;
+  padding: 8px;
   background-color: #ffffff;
 }
 
 .object-property-body {
-  padding: 16px;
+  padding: 8px;
   background-color: #ffffff;
 }
 
 .object-properties {
-  padding: 16px;
+  padding: 8px;
   background-color: #ffffff;
 }
 
 .array-item-editor {
-  margin-top: 8px;
+  margin-top: 4px;
 }
 
 .properties-section {
@@ -918,10 +918,10 @@ const handleComplexPropertyBsonTypeChange = (value: string) => {
   display: flex;
   align-items: center;
   gap: 16px;
-  padding: 12px 16px;
+  padding: 4px 12px;
   background-color: #f8f9fa;
   border-radius: 4px;
-  margin-bottom: 8px;
+  margin-bottom: 4px;
 }
 
 .nested-array-name {
@@ -941,23 +941,23 @@ const handleComplexPropertyBsonTypeChange = (value: string) => {
 }
 
 .nested-array-content {
-  margin-left: 16px;
+  margin-left: 8px;
 }
 
 .nested-array-level {
-  margin-bottom: 8px;
+  margin-bottom: 4px;
 }
 
 .nested-object-properties {
-  margin-top: 8px;
+  margin-top: 4px;
 }
 
 .nested-object-header {
   display: flex;
   justify-content: flex-end;
-  padding: 8px 0;
+  padding: 4px 0;
   border-bottom: 1px solid #e0e0e0;
-  margin-bottom: 8px;
+  margin-bottom: 4px;
 }
 
 .nested-object-actions {
@@ -967,16 +967,16 @@ const handleComplexPropertyBsonTypeChange = (value: string) => {
 }
 
 .nested-object-properties-list {
-  margin-left: 16px;
+  margin-left: 8px;
 }
 
 .simple-property-body {
-  padding: 16px;
+  padding: 8px;
   background-color: #ffffff;
 }
 
 .complex-property-body {
-  padding: 16px;
+  padding: 8px;
   background-color: #ffffff;
 }
 
@@ -990,8 +990,8 @@ const handleComplexPropertyBsonTypeChange = (value: string) => {
 
 /* Drop zone styling */
 .drop-zone {
-  min-height: 8px;
-  margin: 4px 0;
+  min-height: 4px;
+  margin: 2px 0;
   transition: all 0.2s ease;
   border-radius: 4px;
 }
@@ -1024,7 +1024,7 @@ const handleComplexPropertyBsonTypeChange = (value: string) => {
 .property-drop-zone {
   transition: all 0.2s ease;
   border-radius: 8px;
-  margin: 2px 0;
+  margin: 1px 0;
   position: relative;
 }
 
