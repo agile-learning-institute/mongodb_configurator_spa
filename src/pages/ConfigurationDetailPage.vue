@@ -199,6 +199,7 @@
               <div class="version-controls">
                 <div class="version-display-value" data-test="new-version-major">{{ newVersion.major }}</div>
                 <v-btn
+                  v-if="!versionButtonClicked"
                   icon="mdi-plus"
                   size="small"
                   variant="elevated"
@@ -219,6 +220,7 @@
               <div class="version-controls">
                 <div class="version-display-value" data-test="new-version-minor">{{ newVersion.minor }}</div>
                 <v-btn
+                  v-if="!versionButtonClicked"
                   icon="mdi-plus"
                   size="small"
                   variant="elevated"
@@ -239,6 +241,7 @@
               <div class="version-controls">
                 <div class="version-display-value" data-test="new-version-patch">{{ newVersion.patch }}</div>
                 <v-btn
+                  v-if="!versionButtonClicked"
                   icon="mdi-plus"
                   size="small"
                   variant="elevated"
@@ -259,7 +262,7 @@
               <div class="version-controls">
                 <div class="version-display-value" data-test="new-version-enumerators">{{ newVersion.enumerators }}</div>
                 <v-btn
-                  v-if="newVersion.enumerators < 3"
+                  v-if="versionButtonClicked && shouldShowEnumeratorButton"
                   icon="mdi-plus"
                   size="small"
                   variant="elevated"
@@ -298,6 +301,7 @@
           variant="elevated"
           @click="createNewVersion"
           :loading="saving"
+          :disabled="!canCreateVersion"
           data-test="new-version-create-btn"
         >
           <v-icon start>mdi-plus</v-icon>
@@ -406,6 +410,11 @@ const newVersion = ref({
   patch: 0,
   enumerators: 0
 })
+const versionButtonClicked = ref(false)
+const newestEnumeratorVersion = ref<number | null>(null)
+const enumeratorsWereBackLevel = ref(false)
+const enumeratorsWereIncremented = ref(false)
+const initialEnumeratorsVersion = ref<number>(0)
 
 // Computed properties
 const sortedVersions = computed(() => {
@@ -433,6 +442,33 @@ const hasNextVersion = computed(() => {
 
 const newVersionString = computed(() => {
   return `${newVersion.value.major}.${newVersion.value.minor}.${newVersion.value.patch}.${newVersion.value.enumerators}`
+})
+
+// Check if enumerators are at newest version
+const isEnumeratorsAtNewest = computed(() => {
+  if (newestEnumeratorVersion.value === null) return false
+  return newVersion.value.enumerators >= newestEnumeratorVersion.value
+})
+
+// Check if enumerator button should be shown
+const shouldShowEnumeratorButton = computed(() => {
+  if (!versionButtonClicked.value) return false
+  // If enumerators were back level and we set them to newest, always show the button
+  if (enumeratorsWereBackLevel.value) {
+    return true
+  }
+  // If enumerators are at newest (and weren't back level), use existing logic (show if < 3)
+  if (isEnumeratorsAtNewest.value) {
+    return newVersion.value.enumerators < 3
+  }
+  // If enumerators are back level, always show the button
+  return true
+})
+
+// Check if CREATE VERSION button should be enabled
+const canCreateVersion = computed(() => {
+  // Enable if a version button was clicked, OR if enumerators were automatically updated to newest
+  return versionButtonClicked.value || enumeratorsWereBackLevel.value
 })
 
 // Remove unused computed properties
@@ -682,10 +718,47 @@ const downloadBsonSchema = async (version: string) => {
   }
 }
 
+// Get newest enumerator version
+const getNewestEnumeratorVersion = async () => {
+  try {
+    const enumeratorFiles = await apiService.getEnumerators()
+    if (enumeratorFiles.length === 0) {
+      newestEnumeratorVersion.value = 0
+      return
+    }
+    
+    // Find the highest version number
+    let maxVersion = 0
+    enumeratorFiles.forEach((file: any) => {
+      const match = file.file_name.match(/enumerations\.(\d+)\.yaml/)
+      if (match) {
+        const version = parseInt(match[1], 10)
+        if (version > maxVersion) {
+          maxVersion = version
+        }
+      }
+    })
+    newestEnumeratorVersion.value = maxVersion
+  } catch (err: any) {
+    console.error('Failed to get newest enumerator version:', err)
+    newestEnumeratorVersion.value = 0
+  }
+}
+
 // Version management methods
-const initializeNewVersion = () => {
+const initializeNewVersion = async () => {
+  // Reset state
+  versionButtonClicked.value = false
+  newestEnumeratorVersion.value = null
+  enumeratorsWereBackLevel.value = false
+  enumeratorsWereIncremented.value = false
+  
+  // Get newest enumerator version
+  await getNewestEnumeratorVersion()
+  
   if (!configuration.value?.versions || configuration.value.versions.length === 0) {
     newVersion.value = { major: 1, minor: 0, patch: 0, enumerators: 0 }
+    initialEnumeratorsVersion.value = 0
     return
   }
   
@@ -694,18 +767,45 @@ const initializeNewVersion = () => {
   const versionParts = latestVersion.version.split('.')
   
   if (versionParts.length >= 3) {
+    const initialEnumerators = parseInt(versionParts[3]) || 0
     newVersion.value = {
       major: parseInt(versionParts[0]) || 0,
       minor: parseInt(versionParts[1]) || 0,
       patch: parseInt(versionParts[2]) || 0,
-      enumerators: parseInt(versionParts[3]) || 0
+      enumerators: initialEnumerators
     }
+    initialEnumeratorsVersion.value = initialEnumerators
   } else {
     newVersion.value = { major: 1, minor: 0, patch: 0, enumerators: 0 }
+    initialEnumeratorsVersion.value = 0
+  }
+  
+  // Check if enumerators are back level and automatically update if needed
+  if (newestEnumeratorVersion.value !== null && newVersion.value.enumerators < newestEnumeratorVersion.value) {
+    enumeratorsWereBackLevel.value = true
+    newVersion.value.enumerators = newestEnumeratorVersion.value
+    // Note: enumeratorsWereIncremented stays false because we're just setting to existing max
   }
 }
 
-const incrementVersion = (type: 'major' | 'minor' | 'patch' | 'enumerators') => {
+const incrementVersion = async (type: 'major' | 'minor' | 'patch' | 'enumerators') => {
+  // If this is a version button (major, minor, patch) being clicked for the first time
+  if ((type === 'major' || type === 'minor' || type === 'patch') && !versionButtonClicked.value) {
+    versionButtonClicked.value = true
+    
+    // Get newest enumerator version if not already loaded
+    if (newestEnumeratorVersion.value === null) {
+      await getNewestEnumeratorVersion()
+    }
+    
+    // If enumerators are back level, set to newest version and mark as back level
+    if (newestEnumeratorVersion.value !== null && newVersion.value.enumerators < newestEnumeratorVersion.value) {
+      enumeratorsWereBackLevel.value = true
+      newVersion.value.enumerators = newestEnumeratorVersion.value
+      // Note: enumeratorsWereIncremented stays false because we're just setting to existing max
+    }
+  }
+  
   if (type === 'major') {
     newVersion.value.major++
     newVersion.value.minor = 0
@@ -717,6 +817,7 @@ const incrementVersion = (type: 'major' | 'minor' | 'patch' | 'enumerators') => 
     newVersion.value.patch++
   } else if (type === 'enumerators') {
     newVersion.value.enumerators++
+    enumeratorsWereIncremented.value = true
   }
 }
 
@@ -815,17 +916,14 @@ const createNewVersion = async () => {
       console.log(`Failed to create test data file for new version: ${err.message}`)
     }
 
-    // Create new enumerators file if enumerators version changed
-    try {
-      const versionParts = versionString.split('.')
-      
-      if (versionParts.length >= 4 && previousLatestVersion) {
-        const oldVersionParts = previousLatestVersion.version.split('.')
-        const newEnumeratorsVersion = versionParts[3] // enumerators version is the 4th part
-        const oldEnumeratorsVersion = oldVersionParts.length >= 4 ? oldVersionParts[3] : '0'
+    // Create new enumerators file only if enumerators were actually incremented
+    // (not if we just set it to the existing max)
+    if (enumeratorsWereIncremented.value) {
+      try {
+        const versionParts = versionString.split('.')
         
-        // Only create new enumerators version if the enumerators version actually changed
-        if (newEnumeratorsVersion !== oldEnumeratorsVersion) {
+        if (versionParts.length >= 4) {
+          const newEnumeratorsVersion = versionParts[3] // enumerators version is the 4th part
           const enumeratorsFileName = `enumerations.${newEnumeratorsVersion}.yaml`
           
           // Use unified new version logic to create enumerators file
@@ -833,12 +931,12 @@ const createNewVersion = async () => {
           await createNewEnumeratorVersion()
           
           console.log(`Enumerators file created using unified logic: ${enumeratorsFileName}`)
-        } else {
-          console.log(`Enumerators version unchanged (${newEnumeratorsVersion}), skipping enumerators file creation`)
         }
+      } catch (err: any) {
+        console.log(`Failed to create enumerators file for new version: ${err.message}`)
       }
-    } catch (err: any) {
-      console.log(`Failed to create enumerators file for new version: ${err.message}`)
+    } else {
+      console.log(`Enumerators version not incremented (using existing max), skipping enumerators file creation`)
     }
     
     // Set as active version
@@ -1010,9 +1108,9 @@ onMounted(() => {
 })
 
 // Watch for dialog opening to initialize new version
-watch(showNewVersionDialog, (newValue) => {
+watch(showNewVersionDialog, async (newValue) => {
   if (newValue) {
-    initializeNewVersion()
+    await initializeNewVersion()
   }
 })
 </script>
