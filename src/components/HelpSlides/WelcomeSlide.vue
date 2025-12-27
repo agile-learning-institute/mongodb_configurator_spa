@@ -65,6 +65,25 @@ onMounted(() => {
   color: #34495e;
 }
 
+.detailed-content :deep(.key-features-list li) {
+  margin-bottom: 0.75rem;
+  line-height: 1.6;
+  color: #455a64;
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  font-size: 1rem !important;
+  padding: 0;
+  margin-top: 0;
+}
+
+.detailed-content :deep(.key-feature-link) {
+  font-size: 1rem !important;
+  font-weight: 600;
+  display: inline;
+  margin-right: 0.5rem;
+}
+
 .detailed-content h2 {
   font-size: 1.75rem;
   font-weight: 700;
@@ -101,12 +120,6 @@ onMounted(() => {
   gap: 0.5rem;
 }
 
-.key-feature-link {
-  font-size: 1.125rem;
-  font-weight: 600;
-  display: inline;
-  margin-right: 0.5rem;
-}
 
 .quick-start-section {
   margin-top: 2.5rem;
@@ -171,10 +184,11 @@ onMounted(() => {
   display: flex;
   align-items: baseline;
   gap: 0.5rem;
+  font-size: 1.25rem;
 }
 
 .key-feature-link {
-  font-size: 1.125rem;
+  font-size: 1.25rem;
   font-weight: 600;
   display: inline;
   margin-right: 0.5rem;
