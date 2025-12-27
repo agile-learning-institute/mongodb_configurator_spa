@@ -4,6 +4,7 @@
     <v-chip
       :color="getChipColor()"
       :variant="getChipVariant()"
+      size="small"
       class="cursor-pointer"
       :disabled="disabled"
       @click="showPicker = true"
