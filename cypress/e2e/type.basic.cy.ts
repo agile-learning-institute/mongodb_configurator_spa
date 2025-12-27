@@ -93,31 +93,14 @@ describe('Types Detail Page', () => {
     })
 
     it('can delete a type with confirmation', () => {
-      // verify delete button is visible and enabled
       cy.get('[data-test="delete-type-btn"]').should('be.visible').and('be.enabled')
-      
-      // click delete button
       cy.get('[data-test="delete-type-btn"]').click()
-      
-      // verify delete confirmation dialog is visible
       cy.get('[data-test="delete-type-dialog"]').should('be.visible')
-      
-      // verify delete confirmation dialog has "Are you sure you want to delete "test-type.yaml"?"
       cy.get('[data-test="delete-confirmation-message"]').should('contain', `Are you sure you want to delete "${typeName}"?`)
-      
-      // verify delete confirmation dialog has "This action cannot be undone. The type will be permanently removed from the system."
-      cy.get('[data-test="delete-warning-message"]').should('contain', 'This action cannot be undone. The type will be permanently removed from the system.')
-      
-      // verify delete confirmation dialog has "Cancel" button
+      cy.get('[data-test="delete-warning-message"]').should('contain', 'This action cannot be undone')
       cy.get('[data-test="delete-cancel-btn"]').should('be.visible')
-      
-      // verify delete confirmation dialog has "Delete" button
       cy.get('[data-test="delete-confirm-btn"]').should('be.visible')
-      
-      // click delete button in dialog
       cy.get('[data-test="delete-confirm-btn"]').click()
-      
-      // verify dialog is closed and we're redirected to types list
       cy.url().should('include', '/types')
       cy.get('[data-test="delete-type-dialog"]').should('not.exist')
       

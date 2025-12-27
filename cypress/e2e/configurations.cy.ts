@@ -195,7 +195,7 @@ describe('Configurations detail page', () => {
   })
 
   describe('New Version Management', () => {
-    it('can create new version with patch logic', () => {
+    it('New Version Dialog increment major', () => {
       // Arrange - very minimal assertions
       cy.visit(`/configurations/${createdConfigurationName}.yaml`)
       cy.get('[data-test="new-version-btn"]').click()
@@ -203,32 +203,45 @@ describe('Configurations detail page', () => {
       // Assert we are in Create New Version dialog
       cy.get('[data-test="new-version-dialog"]').should('be.visible')
       cy.get('[data-test="new-version-dialog-title"]').should('contain', 'Create New Version')
-      // Verify patch down and up
+
+      // Verify major version up
       cy.get('[data-test="new-version-major-plus-btn"]').click()
       cy.get('[data-test="new-version-major"]').should('contain', '1')
       cy.get('[data-test="new-version-display"]').should('contain', '1.0.0.2')
+      cy.get('[data-test="new-version-cancel-btn"]').click()
+      cy.get('[data-test="new-version-dialog"]').should('not.exist')
+    })
+
+    it('New Version Dialog increment minor', () => {
+      // Arrange - very minimal assertions
+      cy.visit(`/configurations/${createdConfigurationName}.yaml`)
+      cy.get('[data-test="new-version-btn"]').click()
       
-      cy.get('[data-test="new-version-minor-plus-btn"]').click()
-      cy.get('[data-test="new-version-minor"]').should('contain', '1')
-      cy.get('[data-test="new-version-display"]').should('contain', '1.1.0.2')
+      // Assert we are in Create New Version dialog
+      cy.get('[data-test="new-version-dialog"]').should('be.visible')
+      cy.get('[data-test="new-version-dialog-title"]').should('contain', 'Create New Version')
 
-      cy.get('[data-test="new-version-patch-plus-btn"]').click()
-      cy.get('[data-test="new-version-patch"]').should('contain', '1')
-      cy.get('[data-test="new-version-display"]').should('contain', '1.1.1.2')
-
-      cy.get('[data-test="new-version-patch-plus-btn"]').click()
-      cy.get('[data-test="new-version-patch"]').should('contain', '2')
-      cy.get('[data-test="new-version-display"]').should('contain', '1.1.2.2')
-
+      // Verify minor version up
       cy.get('[data-test="new-version-minor-plus-btn"]').click()
       cy.get('[data-test="new-version-minor"]').should('contain', '2')
-      cy.get('[data-test="new-version-display"]').should('contain', '1.2.0.2')
+      cy.get('[data-test="new-version-display"]').should('contain', '0.2.0.2')
+      cy.get('[data-test="new-version-cancel-btn"]').click()
+      cy.get('[data-test="new-version-dialog"]').should('not.exist')
+    })
 
-      cy.get('[data-test="new-version-major-plus-btn"]').click()
-      cy.get('[data-test="new-version-major"]').should('contain', '2')
-      cy.get('[data-test="new-version-display"]').should('contain', '2.0.0.2')
+    it('New Version Dialog increment minor', () => {
+      // Arrange - very minimal assertions
+      cy.visit(`/configurations/${createdConfigurationName}.yaml`)
+      cy.get('[data-test="new-version-btn"]').click()
+      
+      // Assert we are in Create New Version dialog
+      cy.get('[data-test="new-version-dialog"]').should('be.visible')
+      cy.get('[data-test="new-version-dialog-title"]').should('contain', 'Create New Version')
 
-      // Close dialog without creating
+      // Verify patch version up
+      cy.get('[data-test="new-version-patch-plus-btn"]').click()
+      cy.get('[data-test="new-version-patch"]').should('contain', '1')
+      cy.get('[data-test="new-version-display"]').should('contain', '0.1.1.2')
       cy.get('[data-test="new-version-cancel-btn"]').click()
       cy.get('[data-test="new-version-dialog"]').should('not.exist')
     })

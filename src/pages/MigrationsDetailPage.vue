@@ -54,7 +54,7 @@
         <v-card-text>
           <p>Are you sure you want to delete "{{ fileName }}"?</p>
           <p class="text-caption text-medium-emphasis">
-            This action cannot be undone.
+            This action cannot be undone in the WebUI. If you think you may want to undo this action you should commit changes in git first.
           </p>
         </v-card-text>
         <v-card-actions>

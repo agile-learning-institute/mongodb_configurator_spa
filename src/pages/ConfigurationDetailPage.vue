@@ -56,7 +56,7 @@
                 data-test="delete-collection-btn"
               >
                 <v-icon start>mdi-delete</v-icon>
-                Delete Collection
+                Delete Configuration
               </v-btn>
             </div>
             
@@ -153,7 +153,7 @@
                   color="error"
                   variant="elevated"
                   size="small"
-                  @click="deleteVersion"
+                  @click="handleDeleteVersion"
                   data-test="delete-version-btn"
                 >
                   <v-icon start size="small" data-test="delete-icon">mdi-delete</v-icon>
@@ -199,6 +199,7 @@
               <div class="version-controls">
                 <div class="version-display-value" data-test="new-version-major">{{ newVersion.major }}</div>
                 <v-btn
+                  v-if="!versionButtonClicked"
                   icon="mdi-plus"
                   size="small"
                   variant="elevated"
@@ -219,6 +220,7 @@
               <div class="version-controls">
                 <div class="version-display-value" data-test="new-version-minor">{{ newVersion.minor }}</div>
                 <v-btn
+                  v-if="!versionButtonClicked"
                   icon="mdi-plus"
                   size="small"
                   variant="elevated"
@@ -239,6 +241,7 @@
               <div class="version-controls">
                 <div class="version-display-value" data-test="new-version-patch">{{ newVersion.patch }}</div>
                 <v-btn
+                  v-if="!versionButtonClicked"
                   icon="mdi-plus"
                   size="small"
                   variant="elevated"
@@ -259,7 +262,7 @@
               <div class="version-controls">
                 <div class="version-display-value" data-test="new-version-enumerators">{{ newVersion.enumerators }}</div>
                 <v-btn
-                  v-if="newVersion.enumerators < 3"
+                  v-if="shouldShowEnumeratorButton"
                   icon="mdi-plus"
                   size="small"
                   variant="elevated"
@@ -298,6 +301,7 @@
           variant="elevated"
           @click="createNewVersion"
           :loading="saving"
+          :disabled="!canCreateVersion"
           data-test="new-version-create-btn"
         >
           <v-icon start>mdi-plus</v-icon>
@@ -307,22 +311,82 @@
     </v-card>
   </v-dialog>
   
-  <!-- Delete Collection Confirmation Dialog -->
+  <!-- Delete Configuration Confirmation Dialog -->
   <v-dialog v-model="showDeleteCollectionDialog" max-width="500" data-test="delete-collection-dialog">
     <v-card>
       <v-card-title class="text-h5">
-        Delete Collection?
+        Delete Configuration?
       </v-card-title>
       <v-card-text>
-        <p>Are you sure you want to delete the collection "{{ configuration?.file_name }}"?</p>
+        <p>Are you sure you want to delete "{{ configuration?.file_name }}"?</p>
         <p class="text-caption text-medium-emphasis">
-          This will permanently delete the configuration and all its versions. This action cannot be undone.
+          This action cannot be undone in the WebUI. If you think you may want to undo this action you should commit changes in git first.
         </p>
       </v-card-text>
       <v-card-actions>
         <v-spacer />
         <v-btn @click="showDeleteCollectionDialog = false" data-test="delete-collection-cancel-btn">Cancel</v-btn>
-        <v-btn color="error" @click="confirmDeleteCollection" data-test="delete-collection-confirm-btn">Delete</v-btn>
+        <v-btn color="error" @click="confirmDeleteCollection" data-test="delete-collection-confirm-btn">Delete Configuration</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+
+  <!-- Unlock Version Confirmation Dialog -->
+  <v-dialog v-model="showUnlockVersionDialog" max-width="500" data-test="unlock-version-dialog">
+    <v-card>
+      <v-card-title class="text-h5 d-flex align-center">
+        <v-icon color="warning" class="mr-3">mdi-alert-circle</v-icon>
+        Unlock Version
+      </v-card-title>
+      <v-card-text>
+        <p class="mb-3" data-test="unlock-version-confirmation-message">
+          <strong>Are you sure you want to unlock version "{{ activeVersion }}"?</strong>
+        </p>
+        <p class="text-body-2 text-medium-emphasis" data-test="unlock-version-warning-message">
+          This will allow the version to be modified. Changes will be saved automatically.
+        </p>
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer />
+        <v-btn @click="cancelUnlockVersion" data-test="unlock-version-cancel-btn">Cancel</v-btn>
+        <v-btn 
+          color="warning" 
+          variant="elevated"
+          @click="confirmUnlockVersion"
+          data-test="unlock-version-confirm-btn"
+        >
+          Unlock
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+
+  <!-- Delete Version Confirmation Dialog -->
+  <v-dialog v-model="showDeleteVersionDialog" max-width="500" data-test="delete-version-dialog">
+    <v-card>
+      <v-card-title class="text-h5 d-flex align-center">
+        <v-icon color="error" class="mr-3">mdi-alert-circle</v-icon>
+        Delete Version
+      </v-card-title>
+      <v-card-text>
+        <p class="mb-3" data-test="delete-version-confirmation-message">
+          <strong>Are you sure you want to delete version "{{ activeVersion }}"?</strong>
+        </p>
+        <p class="text-body-2 text-medium-emphasis" data-test="delete-version-warning-message">
+          This action cannot be undone in the WebUI. If you think you may want to undo this action you should commit changes in git first.
+        </p>
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer />
+        <v-btn @click="cancelDeleteVersion" data-test="delete-version-cancel-btn">Cancel</v-btn>
+        <v-btn 
+          color="error" 
+          variant="elevated"
+          @click="confirmDeleteVersion"
+          data-test="delete-version-confirm-btn"
+        >
+          Delete
+        </v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -369,12 +433,20 @@ const configuration = ref<Configuration | null>(null)
 const activeVersion = ref<string>('')
 const showNewVersionDialog = ref(false)
 const showDeleteCollectionDialog = ref(false)
+const showUnlockVersionDialog = ref(false)
+const showDeleteVersionDialog = ref(false)
 const newVersion = ref({
   major: 0,
   minor: 0,
   patch: 0,
   enumerators: 0
 })
+const versionButtonClicked = ref(false)
+const newestEnumeratorVersion = ref<number | null>(null)
+const enumeratorsWereBackLevel = ref(false)
+const enumeratorsWereIncremented = ref(false)
+const initialEnumeratorsVersion = ref<number>(0)
+const enumeratorsButtonClicked = ref(false)
 
 // Computed properties
 const sortedVersions = computed(() => {
@@ -402,6 +474,46 @@ const hasNextVersion = computed(() => {
 
 const newVersionString = computed(() => {
   return `${newVersion.value.major}.${newVersion.value.minor}.${newVersion.value.patch}.${newVersion.value.enumerators}`
+})
+
+// Check if enumerators are at newest version
+const isEnumeratorsAtNewest = computed(() => {
+  if (newestEnumeratorVersion.value === null) return false
+  return newVersion.value.enumerators >= newestEnumeratorVersion.value
+})
+
+// Check if enumerator button should be shown
+const shouldShowEnumeratorButton = computed(() => {
+  // If enumerators button was already clicked, hide it
+  if (enumeratorsButtonClicked.value) {
+    return false
+  }
+  // If enumerators are at newest version, show button immediately (even without version button click)
+  if (isEnumeratorsAtNewest.value) {
+    return true
+  }
+  // If enumerators are back level, show button only after version button is clicked
+  if (enumeratorsWereBackLevel.value) {
+    return versionButtonClicked.value
+  }
+  // Otherwise, show button only after version button is clicked
+  return versionButtonClicked.value
+})
+
+// Check if CREATE VERSION button should be enabled
+const canCreateVersion = computed(() => {
+  if (!configuration.value?.versions || configuration.value.versions.length === 0) {
+    // If no versions exist, allow creating the first version
+    return true
+  }
+  
+  // Get the current latest version
+  const latestVersion = configuration.value.versions[configuration.value.versions.length - 1]
+  const latestVersionString = latestVersion.version
+  const newVersionStringValue = newVersionString.value
+  
+  // Only enable if the new version is different from the latest version
+  return latestVersionString !== newVersionStringValue
 })
 
 // Remove unused computed properties
@@ -651,10 +763,48 @@ const downloadBsonSchema = async (version: string) => {
   }
 }
 
+// Get newest enumerator version
+const getNewestEnumeratorVersion = async () => {
+  try {
+    const enumeratorFiles = await apiService.getEnumerators()
+    if (enumeratorFiles.length === 0) {
+      newestEnumeratorVersion.value = 0
+      return
+    }
+    
+    // Find the highest version number
+    let maxVersion = 0
+    enumeratorFiles.forEach((file: any) => {
+      const match = file.file_name.match(/enumerations\.(\d+)\.yaml/)
+      if (match) {
+        const version = parseInt(match[1], 10)
+        if (version > maxVersion) {
+          maxVersion = version
+        }
+      }
+    })
+    newestEnumeratorVersion.value = maxVersion
+  } catch (err: any) {
+    console.error('Failed to get newest enumerator version:', err)
+    newestEnumeratorVersion.value = 0
+  }
+}
+
 // Version management methods
-const initializeNewVersion = () => {
+const initializeNewVersion = async () => {
+  // Reset state
+  versionButtonClicked.value = false
+  newestEnumeratorVersion.value = null
+  enumeratorsWereBackLevel.value = false
+  enumeratorsWereIncremented.value = false
+  enumeratorsButtonClicked.value = false
+  
+  // Get newest enumerator version
+  await getNewestEnumeratorVersion()
+  
   if (!configuration.value?.versions || configuration.value.versions.length === 0) {
     newVersion.value = { major: 1, minor: 0, patch: 0, enumerators: 0 }
+    initialEnumeratorsVersion.value = 0
     return
   }
   
@@ -663,18 +813,45 @@ const initializeNewVersion = () => {
   const versionParts = latestVersion.version.split('.')
   
   if (versionParts.length >= 3) {
+    const initialEnumerators = parseInt(versionParts[3]) || 0
     newVersion.value = {
       major: parseInt(versionParts[0]) || 0,
       minor: parseInt(versionParts[1]) || 0,
       patch: parseInt(versionParts[2]) || 0,
-      enumerators: parseInt(versionParts[3]) || 0
+      enumerators: initialEnumerators
     }
+    initialEnumeratorsVersion.value = initialEnumerators
   } else {
     newVersion.value = { major: 1, minor: 0, patch: 0, enumerators: 0 }
+    initialEnumeratorsVersion.value = 0
+  }
+  
+  // Check if enumerators are back level and automatically update if needed
+  if (newestEnumeratorVersion.value !== null && newVersion.value.enumerators < newestEnumeratorVersion.value) {
+    enumeratorsWereBackLevel.value = true
+    newVersion.value.enumerators = newestEnumeratorVersion.value
+    // Note: enumeratorsWereIncremented stays false because we're just setting to existing max
   }
 }
 
-const incrementVersion = (type: 'major' | 'minor' | 'patch' | 'enumerators') => {
+const incrementVersion = async (type: 'major' | 'minor' | 'patch' | 'enumerators') => {
+  // If this is a version button (major, minor, patch) being clicked for the first time
+  if ((type === 'major' || type === 'minor' || type === 'patch') && !versionButtonClicked.value) {
+    versionButtonClicked.value = true
+    
+    // Get newest enumerator version if not already loaded
+    if (newestEnumeratorVersion.value === null) {
+      await getNewestEnumeratorVersion()
+    }
+    
+    // If enumerators are back level, set to newest version and mark as back level
+    if (newestEnumeratorVersion.value !== null && newVersion.value.enumerators < newestEnumeratorVersion.value) {
+      enumeratorsWereBackLevel.value = true
+      newVersion.value.enumerators = newestEnumeratorVersion.value
+      // Note: enumeratorsWereIncremented stays false because we're just setting to existing max
+    }
+  }
+  
   if (type === 'major') {
     newVersion.value.major++
     newVersion.value.minor = 0
@@ -686,6 +863,8 @@ const incrementVersion = (type: 'major' | 'minor' | 'patch' | 'enumerators') => 
     newVersion.value.patch++
   } else if (type === 'enumerators') {
     newVersion.value.enumerators++
+    enumeratorsWereIncremented.value = true
+    enumeratorsButtonClicked.value = true
   }
 }
 
@@ -784,17 +963,14 @@ const createNewVersion = async () => {
       console.log(`Failed to create test data file for new version: ${err.message}`)
     }
 
-    // Create new enumerators file if enumerators version changed
-    try {
-      const versionParts = versionString.split('.')
-      
-      if (versionParts.length >= 4 && previousLatestVersion) {
-        const oldVersionParts = previousLatestVersion.version.split('.')
-        const newEnumeratorsVersion = versionParts[3] // enumerators version is the 4th part
-        const oldEnumeratorsVersion = oldVersionParts.length >= 4 ? oldVersionParts[3] : '0'
+    // Create new enumerators file only if enumerators were actually incremented
+    // (not if we just set it to the existing max)
+    if (enumeratorsWereIncremented.value) {
+      try {
+        const versionParts = versionString.split('.')
         
-        // Only create new enumerators version if the enumerators version actually changed
-        if (newEnumeratorsVersion !== oldEnumeratorsVersion) {
+        if (versionParts.length >= 4) {
+          const newEnumeratorsVersion = versionParts[3] // enumerators version is the 4th part
           const enumeratorsFileName = `enumerations.${newEnumeratorsVersion}.yaml`
           
           // Use unified new version logic to create enumerators file
@@ -802,12 +978,12 @@ const createNewVersion = async () => {
           await createNewEnumeratorVersion()
           
           console.log(`Enumerators file created using unified logic: ${enumeratorsFileName}`)
-        } else {
-          console.log(`Enumerators version unchanged (${newEnumeratorsVersion}), skipping enumerators file creation`)
         }
+      } catch (err: any) {
+        console.log(`Failed to create enumerators file for new version: ${err.message}`)
       }
-    } catch (err: any) {
-      console.log(`Failed to create enumerators file for new version: ${err.message}`)
+    } else {
+      console.log(`Enumerators version not incremented (using existing max), skipping enumerators file creation`)
     }
     
     // Set as active version
@@ -827,22 +1003,54 @@ const createNewVersion = async () => {
 const toggleVersionLock = async () => {
   if (!configuration.value || !activeVersionData.value) return
   
+  // If unlocking, show confirmation dialog
+  if (activeVersionData.value._locked) {
+    showUnlockVersionDialog.value = true
+    return
+  }
+  
+  // If locking, do it directly
   try {
     // Find the version object in the configuration and toggle its lock status
     const versionIndex = configuration.value.versions.findIndex(v => v.version === activeVersion.value)
     if (versionIndex !== -1) {
-      configuration.value.versions[versionIndex]._locked = !configuration.value.versions[versionIndex]._locked
+      configuration.value.versions[versionIndex]._locked = true
       
       // Save configuration
       await autoSave()
     }
   } catch (err: any) {
-    error.value = err.message || 'Failed to toggle version lock'
-    console.error('Failed to toggle version lock:', err)
+    error.value = err.message || 'Failed to lock version'
+    console.error('Failed to lock version:', err)
   }
 }
 
-const deleteVersion = async () => {
+const confirmUnlockVersion = async () => {
+  if (!configuration.value || !activeVersionData.value) return
+  
+  try {
+    // Find the version object in the configuration and unlock it
+    const versionIndex = configuration.value.versions.findIndex(v => v.version === activeVersion.value)
+    if (versionIndex !== -1) {
+      configuration.value.versions[versionIndex]._locked = false
+      
+      // Save configuration
+      await autoSave()
+    }
+    
+    // Close the dialog
+    showUnlockVersionDialog.value = false
+  } catch (err: any) {
+    error.value = err.message || 'Failed to unlock version'
+    console.error('Failed to unlock version:', err)
+  }
+}
+
+const cancelUnlockVersion = () => {
+  showUnlockVersionDialog.value = false
+}
+
+const handleDeleteVersion = () => {
   if (!configuration.value || !activeVersionData.value) return
   
   // Don't allow deletion if version is locked
@@ -856,6 +1064,13 @@ const deleteVersion = async () => {
     showDeleteCollectionDialog.value = true
     return
   }
+  
+  // Show delete version confirmation dialog
+  showDeleteVersionDialog.value = true
+}
+
+const confirmDeleteVersion = async () => {
+  if (!configuration.value || !activeVersionData.value) return
   
   try {
     // Remove version from configuration
@@ -871,10 +1086,17 @@ const deleteVersion = async () => {
         activeVersion.value = configuration.value.versions[configuration.value.versions.length - 1].version
       }
     }
+    
+    // Close the dialog
+    showDeleteVersionDialog.value = false
   } catch (err: any) {
     error.value = err.message || 'Failed to delete version'
     console.error('Failed to delete version:', err)
   }
+}
+
+const cancelDeleteVersion = () => {
+  showDeleteVersionDialog.value = false
 }
 
 const confirmDeleteCollection = async () => {
@@ -947,9 +1169,9 @@ onMounted(() => {
 })
 
 // Watch for dialog opening to initialize new version
-watch(showNewVersionDialog, (newValue) => {
+watch(showNewVersionDialog, async (newValue) => {
   if (newValue) {
-    initializeNewVersion()
+    await initializeNewVersion()
   }
 })
 </script>

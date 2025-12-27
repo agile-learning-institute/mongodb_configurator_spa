@@ -151,7 +151,7 @@
           <strong>Are you sure you want to delete "{{ typeData?.file_name.replace('.yaml', '') }}"?</strong>
         </p>
         <p class="text-body-2 text-medium-emphasis" data-test="delete-warning-message">
-          This action cannot be undone. The type will be permanently removed from the system.
+          This action cannot be undone in the WebUI. If you think you may want to undo this action you should commit changes in git first.
         </p>
       </v-card-text>
       <v-card-actions>
