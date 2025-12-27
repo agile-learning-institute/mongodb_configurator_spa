@@ -222,23 +222,24 @@ const helpSlides = [
   {
     icon: 'mdi-shape',
     title: 'Type',
-    description: 'Define reusable type definitions that isolate the complexities of terse schema languages.',
+    description: 'Create reusable type definitions that encapsulate JSON/BSON schema complexity, making them easy to reference in your dictionaries.',
     detailedContent: `
       <h2>Complex Types</h2>
+      <p>Complex types define structured data with multiple properties or elements:</p>
       <ul>
-        <li><strong>Object:</strong> Define complex object structures with nested properties and validation rules</li>
-        <li><strong>Array:</strong> Create array types with specific item definitions and constraints</li>
+        <li><strong>Object:</strong> Define nested object structures with multiple properties and validation rules. Use objects when you need to group related fields together, such as an address object with street, city, and zip code properties.</li>
+        <li><strong>Array:</strong> Create array types where each item follows a specific type definition. Arrays can contain primitives (like strings or numbers) or complex types (like objects).</li>
       </ul>
       
       <h2>Primitive Types</h2>
+      <p>Primitive types define simple data values with validation constraints:</p>
       <ul>
-        <li><strong>Simple Primitive:</strong> Primitives where the only difference between a json schema and bson schema would be the change from a "type" property to a "bsonType" property. String types with pattern constraints can usually be simple primitives.</li>
-        <li><strong>Complex Primitive:</strong> Allow you to define different constraints for bson/json schema. Object ID's that are 24-character strings when rendered to json schema are an example of a complex primitive.</li>
+        <li><strong>Simple Primitive:</strong> Use when the validation rules are the same for both JSON and BSON schemas. The configurator automatically converts between "type" (JSON) and "bsonType" (BSON) properties. Most string types with pattern constraints (like email or phone number) are simple primitives.</li>
+        <li><strong>Complex Primitive:</strong> Use when you need different validation rules for JSON and BSON schemas. For example, MongoDB ObjectIDs are stored as ObjectID in BSON but must be represented as 24-character hex strings in JSON. Complex primitives let you define these different constraints for each schema format.</li>
       </ul>
       
-      <div class="mt-6 pa-4 bg-warning-lighten-5 border-warning border rounded">
-        <p class="text-body-2 mb-0"><strong>Note:</strong> Custom types are not versioned. Once locked, they should be considered immutable assets used by your data dictionaries. If you need to change a custom type that has already been deployed to meaningful environments, you will need to create a new custom type with a slightly different name. See the <span class="text-link clickable" @click="navigateToSlide(9)">Locking</span> panel for more information about what it means to <em>lock</em> a configuration.</p>
-      </div>
+      <h2>Important Note</h2>
+      <p><strong>Custom types are not versioned.</strong> Once locked, they should be considered immutable assets used by your data dictionaries. If you need to change a custom type that has already been deployed to meaningful environments, you will need to create a new custom type with a slightly different name. See the <span class="text-link clickable" data-slide-index="9">Locking</span> panel for more information about what it means to <em>lock</em> a configuration.</p>
     `
   },
   {
