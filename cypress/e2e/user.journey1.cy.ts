@@ -217,7 +217,8 @@ describe('User Journey - Create, configure, revise, and re-configure a new colle
       }
       cy.get('[data-test="add-item-btn"]').click()
       cy.get('[data-test="array-item-textarea-0"]').find('textarea').first().clear()
-        .type(JSON.stringify(test_document), { parseSpecialCharSequences: false })
+        .type(JSON.stringify(test_document), { parseSpecialCharSequences: false }).blur()
+      cy.wait(300)
 
       // Add the second test data document
       test_document = {
@@ -235,7 +236,8 @@ describe('User Journey - Create, configure, revise, and re-configure a new colle
 
       cy.get('[data-test="add-item-btn"]').click()
       cy.get('[data-test="array-item-textarea-1"]').find('textarea').first().clear()
-        .type(JSON.stringify(test_document), { parseSpecialCharSequences: false })
+        .type(JSON.stringify(test_document), { parseSpecialCharSequences: false }).blur()
+      cy.wait(300)
 
       // Add the third test data document
       test_document = {
@@ -253,12 +255,17 @@ describe('User Journey - Create, configure, revise, and re-configure a new colle
       
       cy.get('[data-test="add-item-btn"]').click()
       cy.get('[data-test="array-item-textarea-2"]').find('textarea').first().clear()
-        .type(JSON.stringify(test_document), { parseSpecialCharSequences: false })
+        .type(JSON.stringify(test_document), { parseSpecialCharSequences: false }).blur()
+      cy.wait(300)
 
       // Verify persistence
-      cy.wait(250)
+      cy.wait(500)
       cy.reload()
-      cy.get('[data-test="array-panel-title-0"] i').eq(1).should('be.visible').click()
+      cy.wait(500)
+      
+      // Expand and verify first document
+      cy.get('[data-test="array-panel-title-0"]').should('be.visible').click()
+      cy.get('[data-test="array-item-textarea-0"]').should('be.visible')
       cy.get('[data-test="array-item-textarea-0"]')
         .find('textarea')
         .first()
@@ -266,7 +273,9 @@ describe('User Journey - Create, configure, revise, and re-configure a new colle
         .should('contain', '"_id"').and('contain', '"$oid"').and('contain', '"000000000000000000000001"')
         .should('contain', '"first_name"').and('contain', '"John"')
       
-      cy.get('[data-test="array-panel-title-1"] i').eq(1).should('be.visible').click()
+      // Expand and verify second document
+      cy.get('[data-test="array-panel-title-1"]').should('be.visible').click()
+      cy.get('[data-test="array-item-textarea-1"]').should('be.visible')
       cy.get('[data-test="array-item-textarea-1"]')
         .find('textarea')
         .first()
@@ -274,7 +283,9 @@ describe('User Journey - Create, configure, revise, and re-configure a new colle
         .should('contain', '"_id"').and('contain', '"$oid"').and('contain', '"000000000000000000000002"')
         .should('contain', '"first_name"').and('contain', '"Jane"')
 
-      cy.get('[data-test="array-panel-title-2"] i').eq(1).should('be.visible').click()
+      // Expand and verify third document
+      cy.get('[data-test="array-panel-title-2"]').should('be.visible').click()
+      cy.get('[data-test="array-item-textarea-2"]').should('be.visible')
       cy.get('[data-test="array-item-textarea-2"]')
         .find('textarea')
         .first()
@@ -291,7 +302,7 @@ describe('User Journey - Create, configure, revise, and re-configure a new colle
       cy.url().should('include', '/event-viewer')
       cy.get('body').should('not.contain', 'Loading...')
 
-      // Find the Load Test Data event and verify 2 documents were loaded
+      // Find the Load Test Data event and verify 3 documents were loaded
       cy.get('[data-test="card-header"]').should('be.visible').should('contain', 'CFG-09-PROCESS_ONE_CONFIGURATION').within(() => {
         cy.get('[data-test="expand-collapse-icon"]').should('be.visible').click()
       })
@@ -488,12 +499,17 @@ describe('User Journey - Create, configure, revise, and re-configure a new colle
       }
       cy.get('[data-test="add-item-btn"]').click()
       cy.get('[data-test="array-item-textarea-0"]').find('textarea').first().clear()
-        .type(JSON.stringify(test_document), { parseSpecialCharSequences: false })
+        .type(JSON.stringify(test_document), { parseSpecialCharSequences: false }).blur()
+      cy.wait(300)
 
       // Verify persistence
-      cy.wait(250)
+      cy.wait(500)
       cy.reload()
-      cy.get('[data-test="array-panel-title-0"] i').eq(1).should('be.visible').click()
+      cy.wait(500)
+      
+      // Expand and verify document
+      cy.get('[data-test="array-panel-title-0"]').should('be.visible').click()
+      cy.get('[data-test="array-item-textarea-0"]').should('be.visible')
       cy.get('[data-test="array-item-textarea-0"]')
         .find('textarea')
         .first()
@@ -510,7 +526,7 @@ describe('User Journey - Create, configure, revise, and re-configure a new colle
       cy.url().should('include', '/event-viewer')
       cy.get('body').should('not.contain', 'Loading...')
 
-      // Find the Load Test Data event and verify 2 documents were loaded
+      // Find the Load Test Data event and verify 1 document was loaded
       cy.get('[data-test="card-header"]').should('be.visible').should('contain', 'CFG-09-PROCESS_ONE_CONFIGURATION').within(() => {
         cy.get('[data-test="expand-collapse-icon"]').should('be.visible').click()
       })
