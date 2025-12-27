@@ -490,10 +490,12 @@ const navigateToSlide = (index: number) => {
   flex-direction: column;
   justify-content: flex-start;
   align-items: flex-start;
-  width: 100%;
+  width: calc(100% - 58px);
   height: 100%;
+  max-height: 100%;
   padding: 50px 30px;
   overflow-y: auto;
+  overflow-x: hidden;
   background: rgba(255, 255, 255, 0.95);
   border-radius: 16px;
   margin: 20px;
@@ -501,7 +503,8 @@ const navigateToSlide = (index: number) => {
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.8);
   min-height: 0;
-  flex: 1 1 auto;
+  flex: 1 1 0;
+  box-sizing: border-box;
 }
 
 .slide-description {
