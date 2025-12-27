@@ -56,7 +56,7 @@
                 data-test="delete-collection-btn"
               >
                 <v-icon start>mdi-delete</v-icon>
-                Delete Collection
+                Delete Configuration
               </v-btn>
             </div>
             
@@ -307,22 +307,52 @@
     </v-card>
   </v-dialog>
   
-  <!-- Delete Collection Confirmation Dialog -->
+  <!-- Delete Configuration Confirmation Dialog -->
   <v-dialog v-model="showDeleteCollectionDialog" max-width="500" data-test="delete-collection-dialog">
     <v-card>
       <v-card-title class="text-h5">
-        Delete Collection?
+        Delete Configuration?
       </v-card-title>
       <v-card-text>
-        <p>Are you sure you want to delete the collection "{{ configuration?.file_name }}"?</p>
+        <p>Are you sure you want to delete "{{ configuration?.file_name }}"?</p>
         <p class="text-caption text-medium-emphasis">
-          This will permanently delete the configuration and all its versions. This action cannot be undone.
+          This action cannot be undone in the WebUI. If you think you may want to undo this action you should commit changes in git first.
         </p>
       </v-card-text>
       <v-card-actions>
         <v-spacer />
         <v-btn @click="showDeleteCollectionDialog = false" data-test="delete-collection-cancel-btn">Cancel</v-btn>
-        <v-btn color="error" @click="confirmDeleteCollection" data-test="delete-collection-confirm-btn">Delete</v-btn>
+        <v-btn color="error" @click="confirmDeleteCollection" data-test="delete-collection-confirm-btn">Delete Configuration</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+
+  <!-- Unlock Version Confirmation Dialog -->
+  <v-dialog v-model="showUnlockVersionDialog" max-width="500" data-test="unlock-version-dialog">
+    <v-card>
+      <v-card-title class="text-h5 d-flex align-center">
+        <v-icon color="warning" class="mr-3">mdi-alert-circle</v-icon>
+        Unlock Version
+      </v-card-title>
+      <v-card-text>
+        <p class="mb-3" data-test="unlock-version-confirmation-message">
+          <strong>Are you sure you want to unlock version "{{ activeVersion }}"?</strong>
+        </p>
+        <p class="text-body-2 text-medium-emphasis" data-test="unlock-version-warning-message">
+          This will allow the version to be modified. Changes will be saved automatically.
+        </p>
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer />
+        <v-btn @click="cancelUnlockVersion" data-test="unlock-version-cancel-btn">Cancel</v-btn>
+        <v-btn 
+          color="warning" 
+          variant="elevated"
+          @click="confirmUnlockVersion"
+          data-test="unlock-version-confirm-btn"
+        >
+          Unlock
+        </v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -369,6 +399,7 @@ const configuration = ref<Configuration | null>(null)
 const activeVersion = ref<string>('')
 const showNewVersionDialog = ref(false)
 const showDeleteCollectionDialog = ref(false)
+const showUnlockVersionDialog = ref(false)
 const newVersion = ref({
   major: 0,
   minor: 0,
@@ -827,19 +858,51 @@ const createNewVersion = async () => {
 const toggleVersionLock = async () => {
   if (!configuration.value || !activeVersionData.value) return
   
+  // If unlocking, show confirmation dialog
+  if (activeVersionData.value._locked) {
+    showUnlockVersionDialog.value = true
+    return
+  }
+  
+  // If locking, do it directly
   try {
     // Find the version object in the configuration and toggle its lock status
     const versionIndex = configuration.value.versions.findIndex(v => v.version === activeVersion.value)
     if (versionIndex !== -1) {
-      configuration.value.versions[versionIndex]._locked = !configuration.value.versions[versionIndex]._locked
+      configuration.value.versions[versionIndex]._locked = true
       
       // Save configuration
       await autoSave()
     }
   } catch (err: any) {
-    error.value = err.message || 'Failed to toggle version lock'
-    console.error('Failed to toggle version lock:', err)
+    error.value = err.message || 'Failed to lock version'
+    console.error('Failed to lock version:', err)
   }
+}
+
+const confirmUnlockVersion = async () => {
+  if (!configuration.value || !activeVersionData.value) return
+  
+  try {
+    // Find the version object in the configuration and unlock it
+    const versionIndex = configuration.value.versions.findIndex(v => v.version === activeVersion.value)
+    if (versionIndex !== -1) {
+      configuration.value.versions[versionIndex]._locked = false
+      
+      // Save configuration
+      await autoSave()
+    }
+    
+    // Close the dialog
+    showUnlockVersionDialog.value = false
+  } catch (err: any) {
+    error.value = err.message || 'Failed to unlock version'
+    console.error('Failed to unlock version:', err)
+  }
+}
+
+const cancelUnlockVersion = () => {
+  showUnlockVersionDialog.value = false
 }
 
 const deleteVersion = async () => {
