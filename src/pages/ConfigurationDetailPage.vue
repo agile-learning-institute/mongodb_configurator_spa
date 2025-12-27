@@ -331,6 +331,7 @@ import { ref, onMounted, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useEventState } from '@/composables/useEventState'
 import { useNewVersion } from '@/composables/useNewVersion'
+import { useEvents } from '@/composables/useEvents'
 import { apiService } from '@/utils/api'
 import BaseCard from '@/components/BaseCard.vue'
 import VersionInformationCards from '@/components/VersionInformationCards.vue'
@@ -523,6 +524,8 @@ const processAllVersions = async () => {
 const downloadJsonSchema = async (version: string) => {
   if (!configuration.value) return
   
+  const { showEvent, showError } = useEvents()
+  
   try {
     const blob = await apiService.downloadJsonSchema(configuration.value.file_name, version)
     const url = window.URL.createObjectURL(blob)
@@ -534,13 +537,57 @@ const downloadJsonSchema = async (version: string) => {
     document.body.removeChild(link)
     window.URL.revokeObjectURL(url)
   } catch (err: any) {
-    error.value = err.message || 'Failed to download JSON schema'
     console.error('Failed to download JSON schema:', err)
+    
+    // Helper function to parse blob as JSON event
+    const parseBlobEvent = async (blob: Blob): Promise<any | null> => {
+      try {
+        const text = await blob.text()
+        const eventData = JSON.parse(text)
+        if (eventData.id && eventData.type && eventData.status) {
+          return eventData
+        }
+      } catch (parseErr) {
+        // Not valid JSON or not an event structure
+      }
+      return null
+    }
+    
+    // Handle blob error responses - need to parse blob as JSON
+    if (err.response && err.response.data instanceof Blob) {
+      const eventData = await parseBlobEvent(err.response.data)
+      if (eventData) {
+        showEvent(eventData, 'JSON Schema Generation Error', 'Failed to generate JSON schema')
+      } else {
+        showError('Failed to download JSON schema', 'JSON Schema Generation Error')
+      }
+    } 
+    // Handle API errors with event data (from interceptor, may be a Blob)
+    else if (err.type === 'API_ERROR' && err.data) {
+      if (err.data instanceof Blob) {
+        const eventData = await parseBlobEvent(err.data)
+        if (eventData) {
+          showEvent(eventData, 'JSON Schema Generation Error', 'Failed to generate JSON schema')
+        } else {
+          showError('Failed to download JSON schema', 'JSON Schema Generation Error')
+        }
+      } else if (err.data.id && err.data.type && err.data.status) {
+        showEvent(err.data, 'JSON Schema Generation Error', 'Failed to generate JSON schema')
+      } else {
+        showError(err.message || 'Failed to download JSON schema', 'JSON Schema Generation Error')
+      }
+    } 
+    // Generic error
+    else {
+      showError(err.message || 'Failed to download JSON schema', 'JSON Schema Generation Error')
+    }
   }
 }
 
 const downloadBsonSchema = async (version: string) => {
   if (!configuration.value) return
+  
+  const { showEvent, showError } = useEvents()
   
   try {
     const blob = await apiService.downloadBsonSchema(configuration.value.file_name, version)
@@ -553,8 +600,50 @@ const downloadBsonSchema = async (version: string) => {
     document.body.removeChild(link)
     window.URL.revokeObjectURL(url)
   } catch (err: any) {
-    error.value = err.message || 'Failed to download BSON schema'
     console.error('Failed to download BSON schema:', err)
+    
+    // Helper function to parse blob as JSON event
+    const parseBlobEvent = async (blob: Blob): Promise<any | null> => {
+      try {
+        const text = await blob.text()
+        const eventData = JSON.parse(text)
+        if (eventData.id && eventData.type && eventData.status) {
+          return eventData
+        }
+      } catch (parseErr) {
+        // Not valid JSON or not an event structure
+      }
+      return null
+    }
+    
+    // Handle blob error responses - need to parse blob as JSON
+    if (err.response && err.response.data instanceof Blob) {
+      const eventData = await parseBlobEvent(err.response.data)
+      if (eventData) {
+        showEvent(eventData, 'BSON Schema Generation Error', 'Failed to generate BSON schema')
+      } else {
+        showError('Failed to download BSON schema', 'BSON Schema Generation Error')
+      }
+    } 
+    // Handle API errors with event data (from interceptor, may be a Blob)
+    else if (err.type === 'API_ERROR' && err.data) {
+      if (err.data instanceof Blob) {
+        const eventData = await parseBlobEvent(err.data)
+        if (eventData) {
+          showEvent(eventData, 'BSON Schema Generation Error', 'Failed to generate BSON schema')
+        } else {
+          showError('Failed to download BSON schema', 'BSON Schema Generation Error')
+        }
+      } else if (err.data.id && err.data.type && err.data.status) {
+        showEvent(err.data, 'BSON Schema Generation Error', 'Failed to generate BSON schema')
+      } else {
+        showError(err.message || 'Failed to download BSON schema', 'BSON Schema Generation Error')
+      }
+    } 
+    // Generic error
+    else {
+      showError(err.message || 'Failed to download BSON schema', 'BSON Schema Generation Error')
+    }
   }
 }
 
