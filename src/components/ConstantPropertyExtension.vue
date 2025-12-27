@@ -35,9 +35,10 @@ const emit = defineEmits<{
 const editableConstantValue = ref('')
 let constantSaveTimer: number | null = null
 
-// Initialize the ref with the current property name (constant value is stored in name)
+// Initialize the ref with the current constant value
 if (props.property.type === 'constant') {
-  editableConstantValue.value = props.property.name || ''
+  const constantProp = props.property as ConstantProperty
+  editableConstantValue.value = constantProp.constant || ''
 }
 
 // Handle input changes with debounced auto-save
@@ -48,13 +49,16 @@ const handleConstantInput = () => {
   }
   
   constantSaveTimer = setTimeout(() => {
-    if (props.property.type === 'constant' && editableConstantValue.value !== props.property.name) {
-      const updatedProperty = {
-        ...props.property,
-        name: editableConstantValue.value
-      } as ConstantProperty
-      
-      emit('change', updatedProperty)
+    if (props.property.type === 'constant') {
+      const constantProp = props.property as ConstantProperty
+      if (editableConstantValue.value !== constantProp.constant) {
+        const updatedProperty = {
+          ...props.property,
+          constant: editableConstantValue.value
+        } as ConstantProperty
+        
+        emit('change', updatedProperty)
+      }
     }
   }, 300) // 300ms delay
 }
@@ -67,22 +71,30 @@ const handleConstantChange = () => {
     constantSaveTimer = null
   }
   
-  if (props.property.type === 'constant' && editableConstantValue.value !== props.property.name) {
-    const updatedProperty = {
-      ...props.property,
-      name: editableConstantValue.value
-    } as ConstantProperty
-    
-    emit('change', updatedProperty)
+  if (props.property.type === 'constant') {
+    const constantProp = props.property as ConstantProperty
+    if (editableConstantValue.value !== constantProp.constant) {
+      const updatedProperty = {
+        ...props.property,
+        constant: editableConstantValue.value
+      } as ConstantProperty
+      
+      emit('change', updatedProperty)
+    }
   }
 }
 
 // Watch for property changes to update the local ref
-watch(() => props.property.name, (newName) => {
-  if (newName !== editableConstantValue.value) {
-    editableConstantValue.value = newName || ''
+watch(() => {
+  if (props.property.type === 'constant') {
+    return (props.property as ConstantProperty).constant
   }
-}, { deep: true })
+  return ''
+}, (newConstant) => {
+  if (newConstant !== editableConstantValue.value) {
+    editableConstantValue.value = newConstant || ''
+  }
+})
 
 // Cleanup timer on component unmount
 onUnmounted(() => {

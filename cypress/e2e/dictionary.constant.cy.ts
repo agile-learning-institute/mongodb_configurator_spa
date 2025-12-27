@@ -111,7 +111,7 @@ describe('Dictionary Details Page', () => {
       cy.get('[data-test="constant-value-input"]').eq(0).find('input').type('Constant Value')
       cy.wait(250)
       cy.reload()
-      cy.get('[data-test="property-name-input"]').eq(0).find('input').should('have.value', 'Constant Value')
+      cy.get('[data-test="constant-value-input"]').eq(0).find('input').should('have.value', 'Constant Value')
     })
 
     it('locks', () => {
