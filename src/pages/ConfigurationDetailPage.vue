@@ -153,7 +153,7 @@
                   color="error"
                   variant="elevated"
                   size="small"
-                  @click="deleteVersion"
+                  @click="handleDeleteVersion"
                   data-test="delete-version-btn"
                 >
                   <v-icon start size="small" data-test="delete-icon">mdi-delete</v-icon>
@@ -360,6 +360,36 @@
       </v-card-actions>
     </v-card>
   </v-dialog>
+
+  <!-- Delete Version Confirmation Dialog -->
+  <v-dialog v-model="showDeleteVersionDialog" max-width="500" data-test="delete-version-dialog">
+    <v-card>
+      <v-card-title class="text-h5 d-flex align-center">
+        <v-icon color="error" class="mr-3">mdi-alert-circle</v-icon>
+        Delete Version
+      </v-card-title>
+      <v-card-text>
+        <p class="mb-3" data-test="delete-version-confirmation-message">
+          <strong>Are you sure you want to delete version "{{ activeVersion }}"?</strong>
+        </p>
+        <p class="text-body-2 text-medium-emphasis" data-test="delete-version-warning-message">
+          This action cannot be undone in the WebUI. If you think you may want to undo this action you should commit changes in git first.
+        </p>
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer />
+        <v-btn @click="cancelDeleteVersion" data-test="delete-version-cancel-btn">Cancel</v-btn>
+        <v-btn 
+          color="error" 
+          variant="elevated"
+          @click="confirmDeleteVersion"
+          data-test="delete-version-confirm-btn"
+        >
+          Delete
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script setup lang="ts">
@@ -404,6 +434,7 @@ const activeVersion = ref<string>('')
 const showNewVersionDialog = ref(false)
 const showDeleteCollectionDialog = ref(false)
 const showUnlockVersionDialog = ref(false)
+const showDeleteVersionDialog = ref(false)
 const newVersion = ref({
   major: 0,
   minor: 0,
@@ -1003,7 +1034,7 @@ const cancelUnlockVersion = () => {
   showUnlockVersionDialog.value = false
 }
 
-const deleteVersion = async () => {
+const handleDeleteVersion = () => {
   if (!configuration.value || !activeVersionData.value) return
   
   // Don't allow deletion if version is locked
@@ -1017,6 +1048,13 @@ const deleteVersion = async () => {
     showDeleteCollectionDialog.value = true
     return
   }
+  
+  // Show delete version confirmation dialog
+  showDeleteVersionDialog.value = true
+}
+
+const confirmDeleteVersion = async () => {
+  if (!configuration.value || !activeVersionData.value) return
   
   try {
     // Remove version from configuration
@@ -1032,10 +1070,17 @@ const deleteVersion = async () => {
         activeVersion.value = configuration.value.versions[configuration.value.versions.length - 1].version
       }
     }
+    
+    // Close the dialog
+    showDeleteVersionDialog.value = false
   } catch (err: any) {
     error.value = err.message || 'Failed to delete version'
     console.error('Failed to delete version:', err)
   }
+}
+
+const cancelDeleteVersion = () => {
+  showDeleteVersionDialog.value = false
 }
 
 const confirmDeleteCollection = async () => {
