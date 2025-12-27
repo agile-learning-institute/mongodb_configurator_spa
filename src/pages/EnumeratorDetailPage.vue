@@ -39,7 +39,7 @@
                 data-test="next-version-btn"
               />
               <v-btn
-                v-if="!hasNextVersion"
+                v-if="!hasNextVersion && !isReadOnly"
                 prepend-icon="mdi-plus"
                 variant="text"
                 size="small"
@@ -55,10 +55,10 @@
           </div>
 
         </div>
-        <div class="d-flex align-center">
+        <div class="d-flex align-center" v-if="!isReadOnly">
           <div class="d-flex gap-2">
             <v-btn
-              v-if="enumerator._locked"
+              v-if="enumerator._locked && !isReadOnly"
               color="warning"
               variant="elevated"
               @click="showUnlockDialog = true"
@@ -70,7 +70,7 @@
               <span data-test="unlock-btn-text">Unlock</span>
             </v-btn>
             <v-btn
-              v-else
+              v-else-if="!isReadOnly"
               color="info"
               variant="elevated"
               @click="lockEnumerator"
@@ -82,7 +82,7 @@
               <span data-test="lock-btn-text">Lock</span>
             </v-btn>
             <v-btn
-              v-if="!enumerator._locked"
+              v-if="!isDisabled"
               color="error"
               variant="elevated"
               @click="handleDelete"
@@ -100,7 +100,7 @@
       <BaseCard title="Enumerators">
         <template #header-actions>
           <v-btn
-            v-if="!enumerator._locked"
+            v-if="!isDisabled"
             prepend-icon="mdi-plus"
             variant="elevated"
             color="white"
@@ -126,7 +126,7 @@
               <div class="enumerator-name-wrapper mr-3">
                 <v-text-field
                   v-model="editableEnumNames[enumIdx]"
-                  :readonly="enumerator._locked"
+                  :readonly="isDisabled"
                   variant="plain"
                   density="compact"
                   hide-details
@@ -144,7 +144,7 @@
                   {{ enumItem.values.length }} values
                 </v-chip>
                 <v-btn
-                  v-if="!enumerator._locked"
+                  v-if="!isDisabled"
                   prepend-icon="mdi-plus"
                   variant="elevated"
                   size="small"
@@ -156,7 +156,7 @@
                   <span class="text-primary">Add Value</span>
                 </v-btn>
                 <v-btn
-                  v-if="!enumerator._locked"
+                  v-if="!isDisabled"
                   icon="mdi-delete"
                   variant="text"
                   color="error"
@@ -194,7 +194,7 @@
                     density="compact"
                     variant="plain"
                     hide-details
-                    :readonly="enumerator._locked"
+                    :readonly="isDisabled"
                     class="mr-2"
                     style="max-width: 180px;"
                     :data-test="`enum-value-input-${enumIdx}-${valIdx}`"
@@ -208,7 +208,7 @@
                     density="compact"
                     variant="plain"
                     hide-details
-                    :readonly="enumerator._locked"
+                    :readonly="isDisabled"
                     class="mr-2"
                     style="min-width: 200px;"
                     placeholder="Description"
@@ -218,7 +218,7 @@
                     @keyup.enter="finishEnumDescriptionEdit(enumIdx, valIdx)"
                   />
                   <v-btn
-                    v-if="!enumerator._locked"
+                    v-if="!isDisabled"
                     icon
                     size="small"
                     variant="text"
@@ -315,6 +315,7 @@ import { ref, watch, computed, onMounted, nextTick } from 'vue'
 import BaseCard from '@/components/BaseCard.vue'
 import { useEnumeratorDetail } from '@/composables/useEnumeratorDetail'
 import { useNewVersion } from '@/composables/useNewVersion'
+import { useConfig } from '@/composables/useConfig'
 import { apiService } from '@/utils/api'
 import type { Enumerator, EnumeratorValue } from '@/types/types'
 
@@ -363,6 +364,12 @@ const {
   saveEnumerator,
 } = useEnumeratorDetail()
 
+// Get read-only state from config
+const { isReadOnly } = useConfig()
+
+// Computed disabled state - read-only mode OR locked
+const isDisabled = computed(() => isReadOnly.value || (enumerator.value?._locked || false))
+
 // New version functionality
 const { createNewVersionAndNavigate } = useNewVersion()
 
@@ -371,7 +378,7 @@ watch(enumerator, (val) => {
 }, { immediate: true })
 
 const autoSaveLocal = async () => {
-  if (!enumerator.value) return
+  if (!enumerator.value || isReadOnly.value) return
   await saveEnumerator()
 }
 

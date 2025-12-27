@@ -16,9 +16,11 @@
 </template>
 
 <script setup lang="ts">
+import { onMounted } from 'vue'
 import AppLayout from '@/components/AppLayout.vue'
 import EventDialog from '@/components/EventDialog.vue'
 import { useEvents } from '@/composables/useEvents'
+import { useConfig } from '@/composables/useConfig'
 
 const {
   showEventDialog,
@@ -27,6 +29,12 @@ const {
   eventTitle,
   eventSubtitle
 } = useEvents()
+
+// Load configuration on app startup
+const { loadConfig } = useConfig()
+onMounted(() => {
+  loadConfig()
+})
 </script>
 
 <style>

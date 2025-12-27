@@ -18,7 +18,7 @@
       <!-- Page Header -->
       <header class="d-flex align-center justify-space-between mb-6">
         <h2 class="text-h3 mb-0">Type: {{ typeData.file_name.replace('.yaml', '') }}</h2>
-        <div class="d-flex gap-2" v-if="!typeData._locked">
+        <div class="d-flex gap-2" v-if="!isReadOnly && !typeData._locked">
           <v-btn
             color="warning"
             variant="elevated"
@@ -40,7 +40,7 @@
             Delete
           </v-btn>
         </div>
-        <div v-else class="d-flex gap-2">
+        <div v-else-if="!isReadOnly && typeData._locked" class="d-flex gap-2">
           <v-btn
             color="success"
             variant="elevated"
@@ -68,7 +68,7 @@
               variant="plain"
               density="compact"
               hide-details
-              :readonly="typeData._locked"
+              :readonly="isDisabled"
               :style="{ minWidth: '200px' }"
               placeholder="Description"
               @blur="handleDescriptionChange"
@@ -96,7 +96,7 @@
             <ObjectPropertyExtension
               v-if="typeData.root && typeData.root.type === 'object'"
               :property="typeData.root as any"
-              :disabled="typeData._locked"
+              :disabled="isDisabled"
               @change="handleRootPropertyChange"
               @addProperty="handleAddProperty"
               @toggleCollapsed="handleToggleCollapsed"
@@ -108,7 +108,7 @@
               v-if="typeData.root && isArrayProperty(typeData.root) && (!typeData.root.items || typeData.root.items.type !== 'object')"
               :property="typeData.root as any"
               :is-type="true"
-              :disabled="typeData._locked"
+              :disabled="isDisabled"
               @change="handleRootPropertyChange"
               data-test="root-array-extension"
             />
@@ -118,7 +118,7 @@
               v-if="typeData.root && isArrayProperty(typeData.root) && typeData.root.items && typeData.root.items.type === 'object'"
               :property="typeData.root as any"
               :is-type="true"
-              :disabled="typeData._locked"
+              :disabled="isDisabled"
               @change="handleRootPropertyChange"
               @addProperty="handleAddArrayObjectProperty"
               @collapsed="handleArrayObjectCollapsed"
@@ -131,7 +131,7 @@
           :property="typeData.root"
           :is-root="true"
           :is-type="true"
-          :disabled="typeData._locked"
+          :disabled="isDisabled"
           :hideTypeSelector="true"
           @change="handleRootPropertyChange"
         />
@@ -201,9 +201,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { ref, onMounted, onBeforeUnmount, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { apiService } from '@/utils/api'
+import { useConfig } from '@/composables/useConfig'
 import PropertyEditor from '@/components/PropertyEditor.vue'
 import BaseCard from '@/components/BaseCard.vue'
 import TypeChipPicker from '@/components/TypeChipPicker.vue'
@@ -215,6 +216,7 @@ import { isArrayProperty } from '@/types/types'
 
 const route = useRoute()
 const router = useRouter()
+const { isReadOnly } = useConfig()
 const loading = ref(false)
 const saving = ref(false)
 const error = ref<string | null>(null)
@@ -223,6 +225,9 @@ const showUnlockDialog = ref(false)
 const typeData = ref<TypeData | null>(null)
 const editableDescription = ref('')
 const editableType = ref('')
+
+// Computed disabled state - read-only mode OR locked
+const isDisabled = computed(() => isReadOnly.value || (typeData.value?._locked || false))
 
 // Methods
 const loadType = async () => {
@@ -246,7 +251,7 @@ const loadType = async () => {
 }
 
 const autoSave = async () => {
-  if (!typeData.value) return
+  if (!typeData.value || isReadOnly.value) return
   saving.value = true
   error.value = null
   try {

@@ -38,25 +38,27 @@
           </div>
           
           <div class="d-flex flex-column gap-2">
-            <v-btn
-              color="secondary"
-              @click="processAllVersions"
-              :loading="processing"
-              data-test="configure-collection-btn"
-            >
-              <v-icon start>mdi-cog</v-icon>
-              Configure Collection
-            </v-btn>
-            
-            <v-btn
-              color="red"
-              variant="outlined"
-              @click="showDeleteCollectionDialog = true"
-              data-test="delete-collection-btn"
-            >
-              <v-icon start>mdi-delete</v-icon>
-              Delete Collection
-            </v-btn>
+            <div v-if="!isReadOnly" class="d-flex flex-column gap-2">
+              <v-btn
+                color="secondary"
+                @click="processAllVersions"
+                :loading="processing"
+                data-test="configure-collection-btn"
+              >
+                <v-icon start>mdi-cog</v-icon>
+                Configure Collection
+              </v-btn>
+              
+              <v-btn
+                color="red"
+                variant="outlined"
+                @click="showDeleteCollectionDialog = true"
+                data-test="delete-collection-btn"
+              >
+                <v-icon start>mdi-delete</v-icon>
+                Delete Collection
+              </v-btn>
+            </div>
             
             <div class="d-flex gap-2">
               <v-btn
@@ -106,7 +108,7 @@
                 />
                 <span class="text-h6 font-weight-medium" data-test="active-version">{{ activeVersion }}</span>
                                   <v-btn
-                    v-if="!hasNextVersion"
+                    v-if="!hasNextVersion && !isReadOnly"
                     prepend-icon="mdi-plus"
                     variant="elevated"
                     size="small"
@@ -133,7 +135,7 @@
           </template>
           
           <template #header-actions>
-            <div v-if="activeVersion && activeVersionData" class="d-flex flex-column gap-2">
+            <div v-if="activeVersion && activeVersionData && !isReadOnly" class="d-flex flex-column gap-2">
               <!-- Version action buttons -->
               <div class="d-flex gap-2">
                 <v-btn
@@ -166,7 +168,7 @@
               <VersionInformationCards
                 :version="activeVersionData"
                 :on-update="autoSave"
-                :disabled="activeVersionData._locked"
+                :disabled="isReadOnly || activeVersionData._locked"
                 :configuration="configuration"
               />
             </div>
@@ -332,6 +334,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useEventState } from '@/composables/useEventState'
 import { useNewVersion } from '@/composables/useNewVersion'
 import { useEvents } from '@/composables/useEvents'
+import { useConfig } from '@/composables/useConfig'
 import { apiService } from '@/utils/api'
 import BaseCard from '@/components/BaseCard.vue'
 import VersionInformationCards from '@/components/VersionInformationCards.vue'
@@ -353,6 +356,7 @@ interface Configuration {
 
 const route = useRoute()
 const router = useRouter()
+const { isReadOnly } = useConfig()
 
 // New version functionality for enumerators
 const { createNewEnumeratorVersion } = useNewVersion()
@@ -444,7 +448,7 @@ const loadConfiguration = async () => {
 }
 
 const autoSave = async () => {
-  if (!configuration.value) return
+  if (!configuration.value || isReadOnly.value) return
   
   saving.value = true
   error.value = null

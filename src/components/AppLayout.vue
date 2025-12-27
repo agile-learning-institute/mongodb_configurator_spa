@@ -10,6 +10,7 @@
       
       <!-- Configure Database Button -->
       <v-btn
+        v-if="!isReadOnly"
         color="white"
         variant="elevated"
         size="large"
@@ -25,6 +26,7 @@
       
       <!-- Drop Database Button -->
       <v-btn
+        v-if="!isReadOnly"
         color="white"
         variant="elevated"
         size="large"
@@ -149,7 +151,11 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useEvents } from '@/composables/useEvents'
 import { useEventState } from '@/composables/useEventState'
+import { useConfig } from '@/composables/useConfig'
 import { apiService } from '@/utils/api'
+
+// Get read-only state from config
+const { isReadOnly } = useConfig()
 
 // Initialize drawer state from localStorage or default to true
 const drawer = ref(true)

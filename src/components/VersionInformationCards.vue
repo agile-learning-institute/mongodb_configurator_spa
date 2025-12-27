@@ -49,6 +49,7 @@
             <v-icon start size="small">mdi-database-minus</v-icon>
             {{ dropIndex }}
             <v-icon
+              v-if="!props.disabled"
               end
               size="small"
               color="error"
@@ -184,6 +185,7 @@
           <v-icon start size="small">mdi-database-plus</v-icon>
           {{ indexData.name || `Index ${index + 1}` }}
           <v-icon
+            v-if="!props.disabled"
             end
             size="small"
             color="error"
@@ -252,7 +254,7 @@
           <v-btn
             color="primary"
             @click="saveIndex"
-            :disabled="isSaveDisabled"
+            :disabled="isSaveDisabled || props.disabled"
             data-test="save-index-btn"
           >
             {{ editingIndexTitle === 'New Index' ? 'Create' : 'Save' }}
@@ -600,6 +602,7 @@ const addSelectedDropIndex = () => {
 }
 
 const removeDropIndex = (indexName: string) => {
+  if (props.disabled) return
   if (props.version.drop_indexes) {
     props.version.drop_indexes = props.version.drop_indexes.filter(
       (dropIndex) => dropIndex !== indexName
@@ -690,6 +693,7 @@ const addNewIndex = () => {
 }
 
 const openIndexEditor = (indexData: any) => {
+  // Allow opening in read-only mode to view the index
   editingIndexData.value = { ...indexData }
   editingIndexTitle.value = 'Edit Index'
   // Populate JSON text with current index data
@@ -729,6 +733,7 @@ const isSaveDisabled = computed(() => {
 })
 
 const saveIndex = async () => {
+  if (props.disabled) return
   try {
     if (!jsonText.value.trim()) {
       return
@@ -794,6 +799,7 @@ const saveIndex = async () => {
 
 
 const deleteIndex = (index: number) => {
+  if (props.disabled) return
   if (props.version.add_indexes && props.version.add_indexes[index]) {
     props.version.add_indexes.splice(index, 1)
     props.onUpdate()
@@ -926,4 +932,5 @@ onMounted(() => {
   color: rgba(var(--v-theme-on-surface), 0.87);
   font-family: monospace;
 }
+
 </style>
