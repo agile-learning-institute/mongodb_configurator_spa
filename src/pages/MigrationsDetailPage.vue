@@ -21,6 +21,7 @@
       >
         <template #header-actions>
           <v-btn
+            v-if="!isReadOnly"
             color="error"
             variant="elevated"
             @click="showDeleteDialog = true"
@@ -36,7 +37,7 @@
           v-model="migration"
           title="Migrations"
           item-label="Migration"
-          :disabled="false"
+          :disabled="isReadOnly"
           :auto-save="autoSave"
           :allow-multiple="true"
           size-mode="fit-content"
@@ -70,10 +71,12 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { apiService } from '@/utils/api'
+import { useConfig } from '@/composables/useConfig'
 import JsonArrayEditor from '@/components/JsonArrayEditor.vue'
 import BaseCard from '@/components/BaseCard.vue'
 
 const route = useRoute()
+const { isReadOnly } = useConfig()
 const loading = ref(false)
 const saving = ref(false)
 const error = ref<string | null>(null)
@@ -100,7 +103,7 @@ const loadMigration = async () => {
 
 // Auto-save functionality
 const autoSave = async () => {
-  if (!migration.value) return
+  if (!migration.value || isReadOnly.value) return
   
   saving.value = true
   try {

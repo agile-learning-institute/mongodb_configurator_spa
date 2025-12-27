@@ -4,6 +4,7 @@
       <h3>Test Data</h3>
       <div class="d-flex align-center">
         <v-btn
+          v-if="!isReadOnly"
           color="primary"
           variant="elevated"
           prepend-icon="mdi-plus"
@@ -59,9 +60,11 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useConfig } from '@/composables/useConfig'
 import FileList from '@/components/FileList.vue'
 
 const router = useRouter()
+const { isReadOnly } = useConfig()
 const fileListRef = ref()
 
 // New test data functionality

@@ -18,7 +18,7 @@
       <!-- Page Header -->
       <header class="d-flex align-center justify-space-between mb-6">
         <h2 class="text-h3 mb-0">Dictionary: {{ dictionary.file_name.replace('.yaml', '') }}</h2>
-        <div class="d-flex gap-2">
+        <div class="d-flex gap-2" v-if="!isReadOnly">
           <v-btn
             v-if="dictionary._locked"
             color="warning"
@@ -69,7 +69,7 @@
               variant="plain"
               density="compact"
               hide-details
-              :readonly="dictionary._locked"
+              :readonly="isDisabled"
               class="root-description-input"
               :style="{ minWidth: '200px' }"
               placeholder="Description"
@@ -88,7 +88,7 @@
                 v-model="editableType"
                 :is-root="true"
                 :is-dictionary="true"
-                :disabled="dictionary._locked"
+                :disabled="isDisabled"
                 @update:model-value="handleTypeChange"
                 data-test="root-type-chip-picker"
               />
@@ -98,7 +98,7 @@
             <ObjectPropertyExtension
               v-if="dictionary.root && dictionary.root.type === 'object'"
               :property="dictionary.root as any"
-              :disabled="dictionary._locked"
+              :disabled="isDisabled"
               @change="handleRootPropertyChange"
               @addProperty="handleAddProperty"
               @toggleCollapsed="handleToggleCollapsed"
@@ -109,7 +109,7 @@
             <OneOfPropertyExtension
               v-if="dictionary.root && isOneOfProperty(dictionary.root)"
               :property="dictionary.root as any"
-              :disabled="dictionary._locked"
+              :disabled="isDisabled"
               @change="handleRootPropertyChange"
               @addProperty="handleAddProperty"
               @toggleCollapsed="handleToggleCollapsed"
@@ -121,7 +121,7 @@
               v-if="dictionary.root && isArrayProperty(dictionary.root) && (!dictionary.root.items || !['object','one_of','ref','array'].includes(dictionary.root.items.type))"
               :property="dictionary.root as any"
               :is-dictionary="true"
-              :disabled="dictionary._locked"
+              :disabled="isDisabled"
               @change="handleRootPropertyChange"
               data-test="root-array-extension"
             />
@@ -131,7 +131,7 @@
               v-if="dictionary.root && isArrayProperty(dictionary.root) && dictionary.root.items && dictionary.root.items.type === 'object'"
               :property="dictionary.root as any"
               :is-dictionary="true"
-              :disabled="dictionary._locked"
+              :disabled="isDisabled"
               @change="handleRootPropertyChange"
               @addProperty="handleAddArrayObjectProperty"
               @collapsed="handleArrayObjectCollapsed"
@@ -143,7 +143,7 @@
               v-if="dictionary.root && isArrayProperty(dictionary.root) && dictionary.root.items && dictionary.root.items.type === 'one_of'"
               :property="dictionary.root as any"
               :is-dictionary="true"
-              :disabled="dictionary._locked"
+              :disabled="isDisabled"
               @change="handleRootPropertyChange"
               @addProperty="handleAddArrayOneOfProperty"
               @collapsed="handleArrayOneOfCollapsed"
@@ -155,18 +155,18 @@
               v-if="dictionary.root && isArrayProperty(dictionary.root) && dictionary.root.items && dictionary.root.items.type === 'array'"
               :property="dictionary.root as any"
               :is-dictionary="true"
-              :disabled="dictionary._locked"
+              :disabled="isDisabled"
               @change="handleRootPropertyChange"
               @collapsed="handleArrayArrayCollapsed"
               data-test="root-array-of-array-extension"
             />
-
+            
             <!-- Array of Ref Extension (for array with ref items, not void) -->
             <ArrayOfRefExtension
               v-if="dictionary.root && isArrayProperty(dictionary.root) && dictionary.root.items && dictionary.root.items.type === 'ref'"
               :property="dictionary.root as any"
               :is-dictionary="true"
-              :disabled="dictionary._locked"
+              :disabled="isDisabled"
               @change="handleRootPropertyChange"
               data-test="root-array-of-ref-extension"
             />
@@ -179,7 +179,7 @@
           :property="dictionary.root"
           :is-root="true"
           :is-dictionary="true"
-          :disabled="dictionary._locked"
+          :disabled="isDisabled"
           @change="handleRootPropertyChange"
         />
       </BaseCard>
@@ -238,9 +238,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { ref, onMounted, onBeforeUnmount, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { apiService } from '@/utils/api'
+import { useConfig } from '@/composables/useConfig'
 import BaseCard from '@/components/BaseCard.vue'
 import TypeChipPicker from '@/components/TypeChipPicker.vue'
 import ObjectPropertyExtension from '@/components/ObjectPropertyExtension.vue'
@@ -255,6 +256,7 @@ import { isArrayProperty, isObjectProperty, isOneOfProperty } from '@/types/type
 import ArrayOfArrayExtension from '@/components/ArrayOfArrayExtension.vue'
 
 const route = useRoute()
+const { isReadOnly } = useConfig()
 const loading = ref(false)
 const saving = ref(false)
 const error = ref<string | null>(null)
@@ -263,6 +265,9 @@ const showDeleteDialog = ref(false)
 const showUnlockDialog = ref(false)
 const editableDescription = ref('')
 const editableType = ref('')
+
+// Computed disabled state - read-only mode OR locked
+const isDisabled = computed(() => isReadOnly.value || (dictionary.value?._locked || false))
 
 // Methods
 const handleDescriptionChange = () => {
@@ -458,7 +463,7 @@ const loadDictionary = async () => {
 }
 
 const autoSave = async () => {
-  if (!dictionary.value) return
+  if (!dictionary.value || isReadOnly.value) return
   
   saving.value = true
   error.value = null

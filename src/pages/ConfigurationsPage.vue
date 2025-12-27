@@ -4,6 +4,7 @@
       <h3 data-test="page-title">Collection Configurations</h3>
       <div class="d-flex align-center gap-2">
         <v-btn
+          v-if="!isReadOnly"
           color="primary"
           variant="elevated"
           prepend-icon="mdi-plus"
@@ -13,7 +14,7 @@
           New
         </v-btn>
         <v-btn
-          v-if="canLockAll"
+          v-if="canLockAll && !isReadOnly"
           color="info"
           variant="outlined"
           prepend-icon="mdi-lock"
@@ -56,10 +57,12 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { useConfig } from '@/composables/useConfig'
 import FileList from '@/components/FileList.vue'
 import NewCollectionDialog from '@/components/NewCollectionDialog.vue'
 
 const router = useRouter()
+const { isReadOnly } = useConfig()
 const fileListRef = ref()
 
 // New collection dialog state

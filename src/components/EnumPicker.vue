@@ -144,4 +144,17 @@ onMounted(() => {
 .cursor-pointer {
   cursor: pointer;
 }
+
+/* Ensure chip maintains full opacity even when disabled */
+.v-chip.v-chip--disabled {
+  opacity: 1 !important;
+}
+
+.v-chip.v-chip--disabled .v-chip__content {
+  opacity: 1 !important;
+}
+
+.v-chip.v-chip--disabled .v-icon {
+  opacity: 1 !important;
+}
 </style> 
