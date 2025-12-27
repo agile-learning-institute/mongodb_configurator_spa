@@ -1,30 +1,18 @@
+import { createType } from '../support/helpers'
+
 describe('Types Detail Page', () => {
-  const name = `e2e-test-type-${Date.now()}`
-  const fileName = `${name}.yaml`
-  const thingsToDelete: string[] = []
+  let typeName: string
+  let typeFileName: string
 
   // Clean up any types created during tests
   beforeEach(() => {
-    thingsToDelete.push(`/api/types/${fileName}/`)
-    cy.visit('/types')
-    cy.get('[data-test="new-type-btn"]').click()
-    cy.get('[data-test="new-type-dialog"]').should('be.visible')
-    cy.get('[data-test="new-type-name-input"]').type(name)
-    cy.get('[data-test="new-type-create-btn"]').click()
-    cy.wait(500)
-    cy.url().should('include', `/types/${name}`)
+    const result = createType(`e2e-test-type-${Date.now()}`)
+    typeName = result.typeName
+    typeFileName = result.typeFileName
   })
 
   afterEach(() => {
-    thingsToDelete.forEach((thing) => {
-      cy.request({
-        method: 'DELETE',
-        url: thing,
-        failOnStatusCode: false
-      })
-    })
-    cy.visit('/types')
-    cy.get('[data-test^="file-card-"]').should('not.contain', fileName)
+    cy.unlockAndDeleteFile('types', typeFileName)
   })
 
   describe('Types List Page - Basic Elements', () => {
@@ -41,7 +29,7 @@ describe('Types Detail Page', () => {
     it('loads types detail page and shows basic elements', () => {
       // Verify page title is "Type: <file-name>"
       cy.get('h2.text-h3').should('contain', 'Type:')
-      cy.get('h2.text-h3').should('contain', name)
+      cy.get('h2.text-h3').should('contain', typeName)
       cy.get('[data-test="lock-type-btn"]').should('be.visible').and('be.enabled')
       cy.get('[data-test="delete-type-btn"]').should('be.visible').and('be.enabled')
       cy.get('[data-test="unlock-type-btn"]').should('not.exist')
@@ -69,7 +57,7 @@ describe('Types Detail Page', () => {
       cy.get('[data-test="unlock-type-dialog"]').should('be.visible')
       
       // verify unlock confirmation dialog has proper message
-      cy.get('[data-test="unlock-confirmation-message"]').should('contain', `Are you sure you want to unlock "${name}"?`)
+      cy.get('[data-test="unlock-confirmation-message"]').should('contain', `Are you sure you want to unlock "${typeName}"?`)
       cy.get('[data-test="unlock-warning-message"]').should('contain', 'This will allow the type to be modified. Changes will be saved automatically.')
       
       // verify unlock confirmation dialog has Cancel and Unlock buttons
@@ -115,7 +103,7 @@ describe('Types Detail Page', () => {
       cy.get('[data-test="delete-type-dialog"]').should('be.visible')
       
       // verify delete confirmation dialog has "Are you sure you want to delete "test-type.yaml"?"
-      cy.get('[data-test="delete-confirmation-message"]').should('contain', `Are you sure you want to delete "${name}"?`)
+      cy.get('[data-test="delete-confirmation-message"]').should('contain', `Are you sure you want to delete "${typeName}"?`)
       
       // verify delete confirmation dialog has "This action cannot be undone. The type will be permanently removed from the system."
       cy.get('[data-test="delete-warning-message"]').should('contain', 'This action cannot be undone. The type will be permanently removed from the system.')
@@ -134,7 +122,7 @@ describe('Types Detail Page', () => {
       cy.get('[data-test="delete-type-dialog"]').should('not.exist')
       
       // verify type is deleted
-      cy.get('[data-test^="file-card-"]').should('not.contain', fileName)
+      cy.get('[data-test^="file-card-"]').should('not.contain', typeFileName)
     })
 
   })

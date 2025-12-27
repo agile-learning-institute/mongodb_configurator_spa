@@ -1,19 +1,15 @@
+import { createType } from '../support/helpers'
+
 describe('Types Detail Page', () => {
-  const name = `e2e-test-type-simple-${Date.now()}`
-  const fileName = `${name}.yaml`
-  const thingsToDelete: string[] = []
+  let typeName: string
+  let typeFileName: string
 
   // Setup a type with a simple root property
   beforeEach(() => {
-    thingsToDelete.push(`/api/types/${fileName}/`)
+    const result = createType(`e2e-test-type-simple-${Date.now()}`)
+    typeName = result.typeName
+    typeFileName = result.typeFileName
 
-    cy.visit('/types')
-    cy.get('[data-test="new-type-btn"]').click()
-    cy.get('[data-test="new-type-dialog"]').should('be.visible')
-    cy.get('[data-test="new-type-name-input"]').type(name)
-    cy.get('[data-test="new-type-create-btn"]').click()
-    cy.wait(500)
-    cy.url().should('include', `/types/${name}`)
     cy.get('[data-test="root-description-input"]').should('be.visible')
     cy.get('[data-test="root-type-chip-picker"] [data-test="type-chip"]').should('be.visible').and('contain', 'void')    
     cy.get('[data-test="root-type-chip-picker"] [data-test="type-chip"]').click()
@@ -22,39 +18,12 @@ describe('Types Detail Page', () => {
 
   // Clean up any types created during tests
   afterEach(() => {
-    thingsToDelete.forEach((thing) => {
-      cy.request({
-        method: 'PUT',    
-        url: thing,
-        headers: {"Content-Type": "application/json"},
-        body: {"_locked": false, "root":{"name":""}},
-        failOnStatusCode: false
-      }).then((response) => {
-        if (response.status === 200) {
-          cy.log(`Successfully unlocked ${thing}`)
-          cy.request({
-            method: 'DELETE',
-            url: thing,
-            failOnStatusCode: false
-          }).then((response) => {
-            if (response.status === 200) {
-              cy.log(`Successfully deleted ${thing}`)
-            } else {
-              cy.log(`Failed to delete ${thing}: ${response.status}`)
-            }
-          })
-        } else {
-          cy.log(`Failed to unlock ${thing}: ${response.status}`)
-        }
-      })
-    })
-    cy.visit('/types')
-    cy.get('[data-test^="file-card-"]').should('not.contain', fileName)
+    cy.unlockAndDeleteFile('types', typeFileName)
   })
 
   describe('Simple Property Editor', () => {
     it('can change type', () => {
-      cy.visit(`/types/${fileName}`)
+      cy.visit(`/types/${typeFileName}`)
       cy.get('[data-test="type-display-name"]').should('contain', 'Simple')
     })
     
@@ -82,7 +51,7 @@ describe('Types Detail Page', () => {
     })
 
     it('locks', () => {
-      cy.visit(`/types/${fileName}`)
+      cy.visit(`/types/${typeFileName}`)
 
       // Arrange unlocked state
       cy.get('[data-test="lock-type-btn"]').should('be.visible')
@@ -100,7 +69,7 @@ describe('Types Detail Page', () => {
     })
 
     it('unlocks', () => {
-      cy.visit(`/types/${fileName}`)
+      cy.visit(`/types/${typeFileName}`)
 
       // Arrange an unlocked type
       cy.get('[data-test="lock-type-btn"]').should('be.visible').click()
