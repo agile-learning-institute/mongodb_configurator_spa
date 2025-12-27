@@ -1,17 +1,14 @@
+import { createType } from '../support/helpers'
+
 describe('Types Detail Page', () => {
-  const name = `e2e-test-type-array-${Date.now()}`
-  const fileName = `${name}.yaml`
-  const thingsToDelete: string[] = []
+  let typeName: string
+  let typeFileName: string
 
   // Setup a type with an array root property
   beforeEach(() => {
-    cy.visit('/types')
-    cy.get('[data-test="new-type-btn"]').click()
-    cy.get('[data-test="new-type-dialog"]').should('be.visible')
-    cy.get('[data-test="new-type-name-input"]').type(name)
-    cy.get('[data-test="new-type-create-btn"]').click()
-    cy.wait(200) // Increased wait time
-    cy.url().should('include', `/types/${name}`)
+    const result = createType(`e2e-test-type-array-${Date.now()}`)
+    typeName = result.typeName
+    typeFileName = result.typeFileName
     
     // Change root type to array
     cy.get('[data-test="root-description-input"]').should('be.visible')
@@ -24,29 +21,8 @@ describe('Types Detail Page', () => {
   // Clean up any types created during tests
   afterEach(() => {
     // force a blur of the active input fields
-    cy.visit('/types') 
-    
-    // Unlock the type
-    cy.request({
-      method: 'PUT',    
-      url: `/api/types/${fileName}/`,
-      headers: {"Content-Type": "application/json"},
-      body: {"_locked": false, "root":{"name":""}},
-      failOnStatusCode: false
-    })
-    
-    // Delete the type
-    cy.request({
-      method: 'DELETE',
-      url: `/api/types/${fileName}/`,
-      failOnStatusCode: false
-    })
-
-    // Verify the type is deleted
-    cy.wait(200)
     cy.visit('/types')
-    cy.url().should('include', '/types')
-    cy.get('[data-test="file-name"]').should('not.contain.text', fileName)
+    cy.unlockAndDeleteFile('types', typeFileName)
   })
 
   describe('Array Property Editor', () => {

@@ -1,23 +1,17 @@
+import { createDictionary } from '../support/helpers'
+
 describe('Dictionary Details Page', () => {
   let dictionaryFileName: string
   let dictionaryName: string
 
   // Setup a dictionary Object with a Object property
   beforeEach(() => {
-    dictionaryName = `TestDictionary-object-${Date.now()}`
-    dictionaryFileName = `${dictionaryName}.yaml`
-
-    // Create a test dictionary
-    cy.visit('/dictionaries')
-    cy.contains('button', 'New').should('be.visible').click()
-    cy.get('.v-dialog').should('be.visible')
-    cy.get('.v-dialog input').type(dictionaryName)
-    cy.get('.v-dialog').contains('button', 'Create').click()
-    cy.get('.v-dialog').should('not.exist')
-    cy.wait(200)
-    cy.url().should('include', `/dictionaries/${dictionaryFileName}`)
+    const result = createDictionary(`TestDictionary-object-${Date.now()}`)
+    dictionaryName = result.dictionaryName
+    dictionaryFileName = result.dictionaryFileName
 
     // Set type to Object
+    cy.visit(`/dictionaries/${dictionaryFileName}`)
     cy.get('[data-test="root-type-chip-picker"] [data-test="type-chip"]').should('be.visible').click()
     cy.get('[data-test="built-in-type-object"]').should('be.visible').click()
     cy.get('[data-test="root-type-chip-picker"] [data-test="type-chip"]').should('be.visible').should('contain', 'Object')
@@ -29,39 +23,13 @@ describe('Dictionary Details Page', () => {
     cy.get('[data-test="built-in-type-enum"]').should('be.visible').click()
     cy.get('[data-test="type-picker-card"]').should('not.exist')
     cy.get('[data-test="type-chip"]').eq(1).should('be.visible').should('contain', 'Enum')
-
-    // Verify the dictionary is created
-    cy.visit('/dictionaries')
-    cy.url().should('include', '/dictionaries')
-    cy.get(`[data-test="file-card-${dictionaryName}.yaml"]`).should('be.visible')
   })
 
   // Clean up any dictionaries created during tests
   afterEach(() => {
     // force a blur of the active input fields
-    cy.visit('/dictionaries') 
-    
-    // Unlock the dictionary
-    cy.request({
-      method: 'PUT',    
-      url: `/api/dictionaries/${dictionaryFileName}/`,
-      headers: {"Content-Type": "application/json"},
-      body: {"_locked": false, "root":{"name":""}},
-      failOnStatusCode: false
-    })
-    
-    // Delete the dictionary
-    cy.request({
-      method: 'DELETE',
-      url: `/api/dictionaries/${dictionaryFileName}/`,
-      failOnStatusCode: false
-    })
-
-    // Verify the dictionary is deleted
-    cy.wait(200)
     cy.visit('/dictionaries')
-    cy.url().should('include', '/dictionaries')
-    cy.get('[data-test="file-name"]').should('not.contain.text', dictionaryFileName)
+    cy.unlockAndDeleteFile('dictionaries', dictionaryFileName)
   })
 
   describe('Enum Property Editor', () => {
