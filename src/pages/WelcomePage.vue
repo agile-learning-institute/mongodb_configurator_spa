@@ -25,43 +25,22 @@
                   :value="index"
                   :data-test="`carousel-slide-${index}`"
                 >
-                  <div class="slide-content">
-                    
-                    <!-- Collection Configuration slide with clickable locking link -->
-                    <div v-if="slide.title === 'Collection Configuration'" class="overview-content" :data-test="`slide-content-${index}`">
-                      <p class="slide-description" :data-test="`slide-description-${index}`" v-html="slide.description"></p>
-                      
-                      <h2>Configuration Processing</h2>
-                      <p>Collection configuration is done using a six-step process:</p>
-                      <ol>
-                        <li>Drop any existing Schema Validation</li>
-                        <li>Drop any indexes that should be removed</li>
-                        <li>Run any migrations that are needed to transform data</li>
-                        <li>Create any new indexes that are needed</li>
-                        <li>Apply the Validation Schema</li>
-                        <li>Load Test Data (when enabled)</li>
-                      </ol>
-                      
-                      <h2>Schema Versioning</h2>
-                      <p>Collection Configuration versions use a 3-part semantic Schema version number plus an Enumerators version. When configuring a collection, only newer versions are applied. Creating a new version automatically locks the currently active version. See <span class="text-link clickable" @click="navigateToSlide(9)">configuration locking</span> for more information about configuration locking.</p>
-                    </div>
-                    
-                    <!-- Other slides with detailed content using v-html -->
-                    <div v-else-if="slide.detailedContent" class="overview-content" :data-test="`slide-content-${index}`">
-                      <p :class="slide.title === 'Welcome' ? 'welcome-description' : 'slide-description'" :data-test="`slide-description-${index}`" v-html="slide.description"></p>
-                      <div class="detailed-content" v-html="slide.detailedContent" :data-test="`slide-detailed-content-${index}`"></div>
-                      
-                      <!-- Quick start section for Welcome slide -->
-                      <div v-if="slide.title === 'Welcome'" class="quick-start-section">
-                        <p>For a quick start you can create a <v-btn variant="outlined" size="small" color="primary" @click="createNewCollection">New Collection</v-btn> and review help screens from there.</p>
-                      </div>
-                    </div>
-                    
-                    <!-- Other slides with simple description -->
-                    <div v-else :data-test="`slide-content-${index}`">
-                      <p class="slide-description" :data-test="`slide-description-${index}`" v-html="slide.description"></p>
-                    </div>
-                    
+                  <div class="slide-content" :data-test="`slide-content-${index}`">
+                    <component
+                      :is="slide.component"
+                      v-if="slide.component"
+                      :description="slide.description"
+                      :detailed-content="slide.detailedContent"
+                      :is-welcome="slide.title === 'Welcome'"
+                      @create-new-collection="createNewCollection"
+                      @navigate-to-slide="navigateToSlide"
+                    />
+                    <HelpSlideContent
+                      v-else
+                      :description="slide.description"
+                      :detailed-content="slide.detailedContent"
+                      :is-welcome="slide.title === 'Welcome'"
+                    />
                   </div>
                 </v-window-item>
               </v-window>
@@ -115,6 +94,9 @@ import { useRoute, useRouter } from 'vue-router'
 import { useHelp } from '@/composables/useHelp'
 import HelpDialog from '@/components/HelpDialog.vue'
 import NewCollectionDialog from '@/components/NewCollectionDialog.vue'
+import HelpSlideContent from '@/components/HelpSlides/HelpSlideContent.vue'
+import WelcomeSlide from '@/components/HelpSlides/WelcomeSlide.vue'
+import CollectionConfigurationSlide from '@/components/HelpSlides/CollectionConfigurationSlide.vue'
 
 const { showHelp, currentHelp } = useHelp()
 const router = useRouter()
@@ -155,6 +137,11 @@ onMounted(() => {
       helpWindow.addEventListener('click', handleFeatureLinkClick)
     }
   })
+  
+  // Listen for navigate-to-slide events from slide components
+  window.addEventListener('navigate-to-slide', ((e: CustomEvent<number>) => {
+    navigateToSlide(e.detail)
+  }) as EventListener)
 })
 
 // Open new collection dialog
@@ -171,39 +158,26 @@ const helpSlides = [
   {
     icon: 'mdi-information-outline',
     title: 'Welcome',
+    component: WelcomeSlide,
     description: 'As a data engineer working with MongoDB across multiple use cases—from backing APIs in various languages to automated data ingestion pipelines and change data capture solutions—you need centralized data quality constraints that go beyond domain-specific tools like ODMs. This Configurator helps you define data quality constraints using a simplified schema approach that configures MongoDB Schema Validation. Test your configurations locally, then package them for independent deployment. See the Configurator SRE Guide for deployment details.',
     detailedContent: `
       <h2 class="key-features-title">Key Features</h2>
       <ul class="key-features-list">
-        <li><h4 class="key-feature-item"><a href="/" class="feature-link">Online Help</a></h4> is available using <i class="mdi mdi-help-circle"></i> <i class="mdi mdi-arrow-top-right"></i> from any page.</li>
-        <li><h4 class="key-feature-item"><a href="/configurations" class="feature-link">Collection Configurations</a></h4> control the configuration process.</li>
-        <li><h4 class="key-feature-item"><a href="/dictionaries" class="feature-link">Data Dictionaries</a></h4> provide a human-friendly way to define data structures.</li>
-        <li><h4 class="key-feature-item"><a href="/types" class="feature-link">Custom Types</a></h4> specify JSON/BSON schemas for Dictionary types.</li>
-        <li><h4 class="key-feature-item"><a href="/enumerators" class="feature-link">Enumerators</a></h4> provide a versioned location for enumerator validation values.</li>
-        <li><h4 class="key-feature-item"><a href="/test_data" class="feature-link">Test Data</a></h4> can be loaded into the database to support a robust developer experience.</li>
-        <li><h4 class="key-feature-item"><a href="/migrations" class="feature-link">Migrations</a></h4> allow you to run migration pipelines to alter existing data when schema changes require it.</li>
+        <li><span class="key-feature-link"><a href="/" class="feature-link">Online Help</a></span> is available using <i class="mdi mdi-help-circle"></i> <i class="mdi mdi-arrow-top-right"></i> from any page.</li>
+        <li><span class="key-feature-link"><a href="/configurations" class="feature-link">Collection Configurations</a></span> control the configuration process.</li>
+        <li><span class="key-feature-link"><a href="/dictionaries" class="feature-link">Data Dictionaries</a></span> provide a human-friendly way to define data structures.</li>
+        <li><span class="key-feature-link"><a href="/types" class="feature-link">Custom Types</a></span> specify JSON/BSON schemas for Dictionary types.</li>
+        <li><span class="key-feature-link"><a href="/enumerators" class="feature-link">Enumerators</a></span> provide a versioned location for enumerator validation values.</li>
+        <li><span class="key-feature-link"><a href="/test_data" class="feature-link">Test Data</a></span> can be loaded into the database to support a robust developer experience.</li>
+        <li><span class="key-feature-link"><a href="/migrations" class="feature-link">Migrations</a></span> allow you to run migration pipelines to alter existing data when schema changes require it.</li>
       </ul>
     `
   },
   {
     icon: 'mdi-database',
     title: 'Collection Configuration',
+    component: CollectionConfigurationSlide,
     description: '',
-    detailedContent: `
-      <h2>Configuration Processing</h2>
-      <p>Collection configuration is done using a six-step process:</p>
-      <ol>
-        <li>Drop any existing Schema Validation</li>
-        <li>Drop any indexes that should be removed</li>
-        <li>Run any migrations that are needed to transform data</li>
-        <li>Create any new indexes that are needed</li>
-        <li>Apply the Validation Schema</li>
-        <li>Load Test Data (when enabled)</li>
-      </ol>
-      
-      <h2>Schema Versioning</h2>
-      <p>Collection Configuration versions use a 3-part semantic Schema version number plus an Enumerators version. When configuring a collection, only newer versions are applied. Creating a new version automatically locks the currently active version. See <span class="text-link clickable" @click="navigateToSlide(9)">configuration locking</span> for more information about configuration locking.</p>
-    `
   },
   {
     icon: 'mdi-book-open-variant',
@@ -491,8 +465,8 @@ const navigateToSlide = (index: number) => {
   justify-content: flex-start;
   align-items: flex-start;
   width: calc(100% - 58px);
-  height: 100%;
-  max-height: 100%;
+  flex: 1;
+  min-height: 0;
   padding: 50px 30px;
   overflow-y: auto;
   overflow-x: hidden;
@@ -502,133 +476,9 @@ const navigateToSlide = (index: number) => {
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.8);
-  min-height: 0;
-  flex: 1 1 0;
   box-sizing: border-box;
 }
 
-.slide-description {
-  font-size: 1.375rem;
-  font-weight: 500;
-  color: #2c3e50;
-  line-height: 1.7;
-  margin-bottom: 2.5rem;
-  max-width: 800px;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-}
-
-.welcome-description {
-  font-size: 1rem;
-  font-weight: 400;
-  color: #455a64;
-  line-height: 1.7;
-  margin-bottom: 2rem;
-  max-width: 800px;
-}
-
-.overview-content {
-  max-width: 800px;
-  width: 100%;
-}
-
-.detailed-content {
-  line-height: 1.7;
-  color: #34495e;
-}
-
-.detailed-content h2 {
-  font-size: 1.75rem;
-  font-weight: 700;
-  color: #1976d2;
-  margin: 2rem 0 1rem 0;
-  line-height: 1.3;
-  text-shadow: 0 2px 4px rgba(25, 118, 210, 0.1);
-  position: relative;
-}
-
-.detailed-content h2::after {
-  content: '';
-  position: absolute;
-  bottom: -8px;
-  left: 0;
-  width: 60px;
-  height: 3px;
-  background: linear-gradient(90deg, #1976d2 0%, #42a5f5 100%);
-  border-radius: 2px;
-}
-
-.detailed-content h3 {
-  font-size: 1.375rem;
-  font-weight: 600;
-  color: #37474f;
-  margin: 1.5rem 0 0.75rem 0;
-  line-height: 1.3;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-}
-
-.detailed-content p {
-  margin-bottom: 1rem;
-  font-size: 1.0625rem;
-  line-height: 1.7;
-  color: #455a64;
-}
-
-.detailed-content ul, .detailed-content ol {
-  margin-bottom: 1rem;
-  padding-left: 1.75rem;
-  font-size: 1.0625rem;
-}
-
-.detailed-content li {
-  margin-bottom: 0.5rem;
-  font-size: 1.0625rem;
-  line-height: 1.6;
-  color: #455a64;
-  position: relative;
-}
-
-.detailed-content ul li::before {
-  content: '•';
-  color: #1976d2;
-  font-weight: bold;
-  position: absolute;
-  left: -1.25rem;
-}
-
-.detailed-content strong {
-  font-weight: 700;
-  color: #2c3e50;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-}
-
-.quick-start-section {
-  margin-top: 2.5rem;
-  padding: 2rem;
-  background: linear-gradient(135deg, rgba(25, 118, 210, 0.08) 0%, rgba(66, 165, 245, 0.05) 100%);
-  border-radius: 12px;
-  border: 2px solid rgba(25, 118, 210, 0.15);
-  box-shadow: 0 4px 20px rgba(25, 118, 210, 0.1);
-  position: relative;
-  overflow: hidden;
-}
-
-.quick-start-section::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, #1976d2 0%, #42a5f5 0%, #90caf9 100%);
-}
-
-.quick-start-section p {
-  margin: 0;
-  font-size: 1.125rem;
-  line-height: 1.6;
-  color: #2c3e50;
-  font-weight: 500;
-}
 
 .carousel-dots {
   display: flex;
@@ -692,57 +542,6 @@ const navigateToSlide = (index: number) => {
   border-radius: 4px;
 }
 
-/* Key Features list styling */
-.key-features-title {
-  font-size: 1.75rem;
-  font-weight: 700;
-  color: #1976d2;
-  margin: 2rem 0 1rem 0;
-  line-height: 1.3;
-  text-shadow: 0 2px 4px rgba(25, 118, 210, 0.1);
-  position: relative;
-}
-
-.key-features-title::after {
-  content: '';
-  position: absolute;
-  bottom: -8px;
-  left: 0;
-  width: 60px;
-  height: 3px;
-  background: linear-gradient(90deg, #1976d2 0%, #42a5f5 100%);
-  border-radius: 2px;
-}
-
-.key-features-list {
-  list-style: none;
-  padding-left: 0;
-  margin: 0 0 1.5rem 0;
-}
-
-.key-features-list li {
-  margin-bottom: 1rem;
-  line-height: 1.6;
-  color: #455a64;
-  display: flex;
-  align-items: baseline;
-  gap: 0.5rem;
-}
-
-.key-feature-item {
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: #1976d2;
-  margin: 0;
-  display: inline;
-  line-height: 1.4;
-  flex-shrink: 0;
-}
-
-.key-feature-item::after {
-  content: '';
-  display: none;
-}
 
 .feature-link {
   color: #1976d2;
