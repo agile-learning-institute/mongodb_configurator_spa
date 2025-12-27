@@ -17,8 +17,8 @@
     <div v-else>
       <v-card>
         <v-card-title>API Config Items</v-card-title>
-        <v-card-text>
-          <v-table>
+        <v-card-text class="config-items-content">
+          <v-table class="config-items-table" density="compact">
             <thead>
               <tr>
                 <th>Name</th>
@@ -95,4 +95,46 @@ const getSourceColor = (source: string) => {
 onMounted(() => {
   loadConfig()
 })
-</script> 
+</script>
+
+<style scoped>
+.config-items-content {
+  padding: 8px 16px !important;
+}
+
+/* Override Vuetify table padding for compact display - use very specific selectors */
+.config-items-table :deep(table),
+.config-items-table :deep(.v-table),
+.config-items-table :deep(.v-table__wrapper) {
+  border-collapse: collapse;
+}
+
+.config-items-table :deep(thead th),
+.config-items-table :deep(thead .v-table__wrapper th),
+.config-items-table :deep(tbody td),
+.config-items-table :deep(tbody .v-table__wrapper td) {
+  padding: 4px 12px !important;
+  font-size: 0.875rem !important;
+  line-height: 1.2 !important;
+  vertical-align: middle !important;
+}
+
+.config-items-table :deep(thead th),
+.config-items-table :deep(thead .v-table__wrapper th) {
+  font-weight: 600;
+  padding-top: 6px !important;
+  padding-bottom: 6px !important;
+}
+
+.config-items-table :deep(tbody td),
+.config-items-table :deep(tbody .v-table__wrapper td) {
+  padding-top: 4px !important;
+  padding-bottom: 4px !important;
+}
+
+.config-items-table :deep(tbody tr),
+.config-items-table :deep(tbody .v-table__wrapper tr) {
+  height: auto !important;
+  min-height: 28px !important;
+}
+</style> 
