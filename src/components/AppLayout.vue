@@ -147,8 +147,8 @@ import { apiService } from '@/utils/api'
 // Get read-only state from config
 const { isReadOnly } = useConfig()
 
-// Initialize drawer state from localStorage or default to true
-const drawer = ref(true)
+// Initialize drawer state from localStorage or default to false (hidden)
+const drawer = ref(false)
 
 // Get current route for context-aware help
 const route = useRoute()
@@ -225,6 +225,9 @@ onMounted(() => {
   const savedDrawerState = localStorage.getItem('navigation-drawer-open')
   if (savedDrawerState !== null) {
     drawer.value = savedDrawerState === 'true'
+  } else {
+    // Default to hidden if no saved state
+    drawer.value = false
   }
 })
 
