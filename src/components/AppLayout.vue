@@ -3,10 +3,9 @@
     <!-- App Bar -->
     <v-app-bar color="primary" theme="dark" class="app-header">
       <v-app-bar-nav-icon @click="toggleDrawer" data-test="nav-toggle" />
-      <v-toolbar-title class="text-h5 font-weight-medium" data-test="app-title">
-        <router-link to="/" class="text-decoration-none text-white">MongoDB Configurator</router-link>
+      <v-toolbar-title class="text-h5 font-weight-medium app-title" data-test="app-title">
+        <router-link to="/" class="text-decoration-none text-white">{{ uiHeader ?? 'MongoDB Configurator' }}</router-link>
       </v-toolbar-title>
-      <v-spacer></v-spacer>
       
       <!-- Configure Database Button -->
       <v-btn
@@ -144,8 +143,8 @@ import { useEventState } from '@/composables/useEventState'
 import { useConfig } from '@/composables/useConfig'
 import { apiService } from '@/utils/api'
 
-// Get read-only state from config
-const { isReadOnly } = useConfig()
+// Get read-only state and UI header from config
+const { isReadOnly, uiHeader } = useConfig()
 
 // Initialize drawer state from localStorage or default to false (hidden)
 const drawer = ref(false)
@@ -334,6 +333,17 @@ const navItems = [
 <style scoped>
 .app-header {
   background: linear-gradient(135deg, #2E7D32 0%, #388E3C 100%) !important;
+}
+
+.app-title {
+  flex: 1;
+  min-width: 0;
+}
+
+.app-title :deep(.v-toolbar-title__placeholder) {
+  overflow: visible;
+  text-overflow: unset;
+  white-space: normal;
 }
 
 .process-btn {

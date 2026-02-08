@@ -30,6 +30,12 @@ export function useConfig() {
     return builtAtItem?.value?.trim() || null
   })
 
+  const uiHeader = computed(() => {
+    if (!config.value) return null
+    const uiHeaderItem = config.value.config_items.find(item => item.name === 'UI_HEADER')
+    return uiHeaderItem?.value?.trim() || null
+  })
+
   const isLocal = computed(() => {
     // If config hasn't loaded yet, default to false (not local)
     if (builtAt.value === null || builtAt.value === undefined) return false
@@ -84,6 +90,7 @@ export function useConfig() {
     loading,
     error,
     builtAt,
+    uiHeader,
     isLocal,
     isReadOnly,
     loadConfig,
