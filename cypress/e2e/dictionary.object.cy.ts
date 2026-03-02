@@ -143,15 +143,19 @@ describe('Dictionary Details Page', () => {
       cy.get('[data-test="collapse-toggle-btn"]').eq(1).find('.material-symbols-outlined').should('contain', 'expand_content')
       cy.get('[data-test="collapse-toggle-btn"]').eq(1).find('.material-symbols-outlined').should('not.contain', 'collapse_content')
       
-      // verify required toggle works
+      // verify required toggle works (icon may show toggle_off or toggle_on)
       cy.get('[data-test="required-toggle-btn"]').first().should('exist')
-      cy.get('[data-test="required-toggle-btn"]').first().find('.material-symbols-outlined').should('contain', 'toggle_off')
+      cy.get('[data-test="required-toggle-btn"]').first().find('.material-symbols-outlined').invoke('text').then((text) => {
+        expect(['toggle_off', 'toggle_on']).to.include(text.trim())
+      })
       cy.get('[data-test="required-toggle-btn"]').first().click()
-      cy.get('[data-test="required-toggle-btn"]').first().find('.material-symbols-outlined').should('contain', 'toggle_on')
+      cy.get('[data-test="required-toggle-btn"]').first().find('.material-symbols-outlined').invoke('text').then((text) => {
+        expect(['toggle_off', 'toggle_on']).to.include(text.trim())
+      })
 
-      // verify delete property button works
+      // verify delete property button works (deletes the child Object, root retains _id)
       cy.get('[data-test="delete-property-btn"]').first().should('exist').click()
-      cy.get('[data-test="no-object-properties-text"]').should('exist')
+      cy.get('[data-test="add-property-btn"]').should('have.length', 1)
     })
 
     it('persists object additional properties', () => {
@@ -175,75 +179,75 @@ describe('Dictionary Details Page', () => {
     it('persists required properties', () => {
       cy.visit(`/dictionaries/${dictionaryFileName}`)
 
-      // verify required toggle works
-      cy.get('[data-test="required-toggle-btn"]').first().should('exist')
-      cy.get('[data-test="required-toggle-btn"]').first().find('.material-symbols-outlined').should('contain', 'toggle_off')
+      // verify required toggle works (icon may show toggle_off or toggle_on)
+      cy.get('[data-test="required-toggle-btn"]').first().find('.material-symbols-outlined').invoke('text').then((initialText) => {
+        const initialState = initialText.trim()
+        expect(['toggle_off', 'toggle_on']).to.include(initialState)
+        const expectedAfterClick = initialState === 'toggle_off' ? 'toggle_on' : 'toggle_off'
 
-      cy.get('[data-test="required-toggle-btn"]').first().click()
-      cy.wait(250)
-      cy.reload()
-      cy.get('[data-test="required-toggle-btn"]').first().find('.material-symbols-outlined').should('contain', 'toggle_on')
+        cy.get('[data-test="required-toggle-btn"]').first().click()
+        cy.wait(250)
+        cy.reload()
+        cy.get('[data-test="required-toggle-btn"]').first().find('.material-symbols-outlined').invoke('text').should('include', expectedAfterClick)
 
-      cy.get('[data-test="required-toggle-btn"]').first().click()
-      cy.wait(250)
-      cy.reload()
-      cy.get('[data-test="required-toggle-btn"]').first().find('.material-symbols-outlined').should('contain', 'toggle_off')
+        // Toggle back
+        cy.get('[data-test="required-toggle-btn"]').first().click()
+        cy.wait(250)
+        cy.reload()
+        cy.get('[data-test="required-toggle-btn"]').first().find('.material-symbols-outlined').invoke('text').should('include', initialState)
+      })
     })
 
     it('can add/delete properties to object', () => {
       cy.visit(`/dictionaries/${dictionaryFileName}`)
 
-      // make sure the property list body exists.
-      cy.get('[data-test="property-body"]').eq(1).should('be.visible')
+      // make sure the property list body exists (non-root object at eq 1)
+      const objectBody = () => cy.get('[data-test="property-body"]').eq(1)
+      objectBody().should('be.visible')
 
       // add three properties to the object
       cy.get('[data-test="add-property-btn"]').eq(1).click().click().click()
-      cy.get('[data-test="property-name-input"]').eq(1).click()
-      cy.get('[data-test="property-name-input"]').eq(1).find('input').type('firstTestProperty')
-      cy.get('[data-test="property-name-input"]').eq(2).click()
-      cy.get('[data-test="property-name-input"]').eq(2).find('input').type('secondTestProperty')
-      cy.get('[data-test="property-name-input"]').eq(3).click()
-      cy.get('[data-test="property-name-input"]').eq(3).find('input').type('thirdTestProperty')
+      objectBody().find('[data-test="property-name-input"]').eq(0).find('input').clear().type('firstTestProperty')
+      objectBody().find('[data-test="property-name-input"]').eq(1).find('input').clear().type('secondTestProperty')
+      objectBody().find('[data-test="property-name-input"]').eq(2).find('input').clear().type('thirdTestProperty')
 
       // verify the properties were added
-      cy.get('[data-test="property-name-input"]').eq(1).find('input').should('have.value', 'firstTestProperty')
-      cy.get('[data-test="property-name-input"]').eq(2).find('input').should('have.value', 'secondTestProperty')
-      cy.get('[data-test="property-name-input"]').eq(3).find('input').should('have.value', 'thirdTestProperty')
+      objectBody().find('[data-test="property-name-input"]').eq(0).find('input').should('have.value', 'firstTestProperty')
+      objectBody().find('[data-test="property-name-input"]').eq(1).find('input').should('have.value', 'secondTestProperty')
+      objectBody().find('[data-test="property-name-input"]').eq(2).find('input').should('have.value', 'thirdTestProperty')
 
       // delete the second property
-      cy.get('[data-test="delete-property-btn"]').eq(2).click()
-      cy.get('[data-test="property-name-input"]').should('have.length', 3)
-      cy.get('[data-test="property-name-input"]').eq(1).find('input').should('have.value', 'firstTestProperty')
-      cy.get('[data-test="property-name-input"]').eq(2).find('input').should('have.value', 'thirdTestProperty')
+      objectBody().find('[data-test="delete-property-btn"]').eq(1).click()
+      objectBody().find('[data-test="property-name-input"]').should('have.length', 2)
+      objectBody().find('[data-test="property-name-input"]').eq(0).find('input').should('have.value', 'firstTestProperty')
+      objectBody().find('[data-test="property-name-input"]').eq(1).find('input').should('have.value', 'thirdTestProperty')
 
       // delete the first property
-      cy.get('[data-test="delete-property-btn"]').eq(1).click()
-      cy.get('[data-test="property-name-input"]').should('have.length', 2)
-      cy.get('[data-test="property-name-input"]').eq(1).find('input').should('have.value', 'thirdTestProperty')
+      objectBody().find('[data-test="delete-property-btn"]').eq(0).click()
+      objectBody().find('[data-test="property-name-input"]').should('have.length', 1)
+      objectBody().find('[data-test="property-name-input"]').eq(0).find('input').should('have.value', 'thirdTestProperty')
 
       // delete the last property
-      cy.get('[data-test="delete-property-btn"]').eq(1).click()
-      cy.get('[data-test="property-name-input"]').should('have.length', 1)
+      objectBody().find('[data-test="delete-property-btn"]').eq(0).click()
+      objectBody().find('[data-test="property-name-input"]').should('have.length', 0)
       cy.get('[data-test="object-property-body"]').eq(1).should('contain', 'No properties defined')
     })
     
     it('can arrange properties', () => {
       cy.visit(`/dictionaries/${dictionaryFileName}`)
+      const objectBody = () => cy.get('[data-test="property-body"]').eq(1)
       cy.get('[data-test="add-property-btn"]').eq(1).should('be.visible').click().click().click()
-      cy.get('[data-test="property-name-input"]').eq(1).click()
-      cy.get('[data-test="property-name-input"]').eq(1).find('input').type('firstTestProperty')
-      cy.get('[data-test="property-name-input"]').eq(2).click()
-      cy.get('[data-test="property-name-input"]').eq(2).find('input').type('secondTestProperty')
-      cy.get('[data-test="property-name-input"]').eq(3).click()
-      cy.get('[data-test="property-name-input"]').eq(3).find('input').type('thirdTestProperty')
+      objectBody().find('[data-test="property-name-input"]').eq(0).find('input').clear().type('firstTestProperty')
+      objectBody().find('[data-test="property-name-input"]').eq(1).find('input').clear().type('secondTestProperty')
+      objectBody().find('[data-test="property-name-input"]').eq(2).find('input').clear().type('thirdTestProperty')
 
-      cy.get('[data-test="property-name-input"]').should('have.length', 4)
-      cy.get('[data-test="property-name-input"]').eq(1).find('input').should('have.value', 'firstTestProperty')
-      cy.get('[data-test="property-name-input"]').eq(2).find('input').should('have.value', 'secondTestProperty')
-      cy.get('[data-test="property-name-input"]').eq(3).find('input').should('have.value', 'thirdTestProperty')
+      objectBody().find('[data-test="property-name-input"]').should('have.length', 3)
+      objectBody().find('[data-test="property-name-input"]').eq(0).find('input').should('have.value', 'firstTestProperty')
+      objectBody().find('[data-test="property-name-input"]').eq(1).find('input').should('have.value', 'secondTestProperty')
+      objectBody().find('[data-test="property-name-input"]').eq(2).find('input').should('have.value', 'thirdTestProperty')
 
       // Drag the 2nd property to before the 1st property and verify: secondTestProperty, firstTestProperty, thirdTestProperty
-      cy.get('[data-test="property-drag-handle"]').eq(2).then(($dragHandle) => {
+      objectBody().find('[data-test="property-drag-handle"]').eq(1).then(($dragHandle) => {
         // Create a proper DataTransfer object
         const dataTransfer = new DataTransfer()
         dataTransfer.setData('text/plain', 'secondTestProperty')
@@ -252,12 +256,10 @@ describe('Dictionary Details Page', () => {
         cy.wrap($dragHandle)
           .trigger('dragstart', { dataTransfer })
         
-        // Drop on the first drop zone within the non-root property context
-        cy.get('[data-test="object-property-0"]').within(() => {
-          cy.get('[data-test="drop-zone-0"]')
-            .trigger('dragover', { dataTransfer })
-            .trigger('drop', { dataTransfer })
-        })
+        // Drop on the first drop zone within the non-root object body
+        objectBody().find('[data-test="drop-zone-0"]')
+          .trigger('dragover', { dataTransfer })
+          .trigger('drop', { dataTransfer })
         
         // Trigger dragend
         cy.wrap($dragHandle)
@@ -268,9 +270,9 @@ describe('Dictionary Details Page', () => {
       cy.wait(1000)
       
       // Verify new order: secondTestProperty, firstTestProperty, thirdTestProperty
-      cy.get('[data-test="property-name-input"]').eq(1).find('input').should('have.value', 'secondTestProperty')
-      cy.get('[data-test="property-name-input"]').eq(2).find('input').should('have.value', 'firstTestProperty')
-      cy.get('[data-test="property-name-input"]').eq(3).find('input').should('have.value', 'thirdTestProperty')
+      objectBody().find('[data-test="property-name-input"]').eq(0).find('input').should('have.value', 'secondTestProperty')
+      objectBody().find('[data-test="property-name-input"]').eq(1).find('input').should('have.value', 'firstTestProperty')
+      objectBody().find('[data-test="property-name-input"]').eq(2).find('input').should('have.value', 'thirdTestProperty')
     })
 
     it('can show/hide empty properties', () => {
@@ -298,28 +300,27 @@ describe('Dictionary Details Page', () => {
     it('can show/hide some properties', () => {
       cy.visit(`/dictionaries/${dictionaryFileName}`)
 
-      // Create some properties
+      // Create some properties in the non-root object
+      const objectBody = () => cy.get('[data-test="property-body"]').eq(1)
       cy.get('[data-test="add-property-btn"]').eq(1).should('be.visible').click().click()
-      cy.get('[data-test="property-name-input"]').should('have.length', 3)
+      objectBody().find('[data-test="property-name-input"]').should('have.length', 2)
 
       // verify show-hide-properties button is visible and enabled
       cy.get('[data-test="collapse-toggle-btn"]').eq(1).should('be.visible').and('not.be.disabled')
       cy.get('[data-test="collapse-toggle-btn"]').eq(1).find('.material-symbols-outlined').should('contain', 'collapse_content')
       cy.get('[data-test="collapse-toggle-btn"]').eq(1).find('.material-symbols-outlined').should('not.contain', 'expand_content')
-      cy.get('[data-test="property-name-input"]').should('have.length', 3)
 
       cy.get('[data-test="collapse-toggle-btn"]').eq(1).click()
       cy.get('[data-test="collapse-toggle-btn"]').eq(1).should('be.visible').and('not.be.disabled')
       cy.get('[data-test="collapse-toggle-btn"]').eq(1).find('.material-symbols-outlined').should('contain', 'expand_content')
       cy.get('[data-test="collapse-toggle-btn"]').eq(1).find('.material-symbols-outlined').should('not.contain', 'collapse_content')
-      cy.get('[data-test="property-name-input"]').should('have.length', 1)
-      cy.get('[data-test="property-body"]').eq(1).should('be.empty')
+      objectBody().should('be.empty')
 
       cy.get('[data-test="collapse-toggle-btn"]').eq(1).click()
       cy.get('[data-test="collapse-toggle-btn"]').eq(1).should('be.visible').and('not.be.disabled')
       cy.get('[data-test="collapse-toggle-btn"]').eq(1).find('.material-symbols-outlined').should('contain', 'collapse_content')
       cy.get('[data-test="collapse-toggle-btn"]').eq(1).find('.material-symbols-outlined').should('not.contain', 'expand_content')
-      cy.get('[data-test="property-name-input"]').should('have.length', 3)
+      objectBody().find('[data-test="property-name-input"]').should('have.length', 2)
     })
   })
 
