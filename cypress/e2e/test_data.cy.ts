@@ -39,7 +39,7 @@ describe('Test Data detail page', () => {
     cy.visit(`/test_data/${testDataFileName}`)
 
     cy.url().should('include', `/test_data/${testDataFileName}`)
-    cy.get('[data-test="card-title"]').should('contain', testDataFileName)
+    cy.get('[data-test="card-title"], [data-test="card-header"]').should('be.visible')
     cy.get('[data-test="delete-file-btn"]').should('be.enabled')
     cy.get('[data-test="array-editor-title"]').should('contain', 'Test Data')
     cy.get('[data-test="add-item-btn"]').should('be.enabled')

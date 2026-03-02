@@ -16,7 +16,7 @@
     <!-- Migration detail -->
     <div v-else-if="migration">
       <BaseCard 
-        title=""
+        :title="fileName"
         icon="mdi-swap-horizontal"
       >
         <template #header-actions>

@@ -16,7 +16,7 @@
     <!-- Test data detail -->
     <div v-else-if="testData">
       <BaseCard 
-        title=""
+        :title="fileName"
         icon="mdi-file-document"
       >
         <template #header-actions>

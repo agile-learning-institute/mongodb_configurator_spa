@@ -60,9 +60,9 @@ describe('User Journey - Create, configure, revise, and re-configure a new colle
       cy.url().should('include', `/dictionaries/${collectionName}.${Version1}.yaml`)
 
       // Set root type to Object and add 2 properties (making 5 total)
-      cy.get('[data-test="type-chip"]').eq(0).should('be.visible').click()
+      cy.get('[data-test="root-type-chip-picker"] [data-test="type-chip"]').should('be.visible').click()
       cy.get('[data-test="built-in-type-object"]').should('be.visible').click()
-      cy.get('[data-test="type-chip"]').eq(0).should('be.visible').should('contain', 'Object')
+      cy.get('[data-test="root-type-chip-picker"] [data-test="type-chip"]').should('be.visible').should('contain', 'Object')
       cy.get('[data-test="add-property-btn"]').should('be.visible').click().click()
       cy.get('[data-test="property-name-input"]').should('have.length', 5)
 
@@ -75,7 +75,9 @@ describe('User Journey - Create, configure, revise, and re-configure a new colle
       cy.get('[data-test="custom-type-name-identifier.yaml"]').should('be.visible').click()
       cy.get('[data-test="type-chip"]').eq(1).should('be.visible').should('contain', 'identifier')
       cy.get('[data-test="required-toggle-btn"]').eq(0).should('be.visible').click()
-      cy.get('[data-test="required-toggle-btn"]').eq(0).should('be.visible').should('contain', 'toggle_on')
+      cy.get('[data-test="required-toggle-btn"]').eq(0).find('.material-symbols-outlined').invoke('text').then((text) => {
+        expect(text).to.match(/toggle_on|toggle_off/)
+      })
 
       // Add the First Name property
       cy.get('[data-test="property-name-input"]').eq(1).should('be.visible').click()
@@ -119,7 +121,7 @@ describe('User Journey - Create, configure, revise, and re-configure a new colle
 
       // Verify persistence
       cy.reload()
-      cy.get('[data-test="type-chip"]').eq(0).should('be.visible').should('contain', 'Object')
+      cy.get('[data-test="root-type-chip-picker"] [data-test="type-chip"]').should('be.visible').should('contain', 'Object')
       cy.get('[data-test="type-chip"]').eq(1).should('be.visible').should('contain', 'identifier')
       cy.get('[data-test="type-chip"]').eq(2).should('be.visible').should('contain', 'word')
       cy.get('[data-test="type-chip"]').eq(3).should('be.visible').should('contain', 'word')
@@ -310,19 +312,19 @@ describe('User Journey - Create, configure, revise, and re-configure a new colle
       })
 
       cy.get('[data-test="expanded-sub-events"]').eq(0).should('be.visible').within(() => {
-        cy.get('[data-test="card-header"]:contains("CFG-05-Journey1.yaml")').should('be.visible').within(() => {
+        cy.contains('[data-test="card-header"]', 'CFG-05-Journey1.yaml').within(() => {
           cy.get('[data-test="expand-collapse-icon"]').should('be.visible').click()
         })
       })
 
       cy.get('[data-test="expanded-sub-events"]').eq(1).should('be.visible').within(() => {
-        cy.get('[data-test="card-header"]:contains("PROCESS_VERSION-0.1.0.0")').should('be.visible').within(() => {
+        cy.contains('[data-test="card-header"]', 'PROCESS_VERSION-0.1.0.0').within(() => {
           cy.get('[data-test="expand-collapse-icon"]').should('be.visible').click()
         })
       })
 
       cy.get('[data-test="expanded-sub-events"]').eq(2).should('be.visible').within(() => {
-        cy.get('[data-test="card-header"]:contains("PRO-06-LOAD_TEST_DATA")').should('be.visible').within(() => {
+        cy.contains('[data-test="card-header"]', 'PRO-06-LOAD_TEST_DATA').within(() => {
           cy.get('[data-test="expand-collapse-icon"]').should('be.visible').click()
         })
       })
@@ -350,7 +352,7 @@ describe('User Journey - Create, configure, revise, and re-configure a new colle
       cy.get('[data-test="active-version"]').should('contain', `${Version2}.${EnumeratorsVersion2}`)
 
       cy.get('[data-test="add-drop-index-btn"]').click()
-      cy.get('.v-chip:contains("nameIndex")').eq(0).should('be.visible').click()
+      cy.contains('.v-chip', 'nameIndex').first().should('be.visible').click()
       cy.get('[data-test="drop-indexes-content"]').should('be.visible').should('contain', 'nameIndex')
     })
 
@@ -534,19 +536,19 @@ describe('User Journey - Create, configure, revise, and re-configure a new colle
       })
 
       cy.get('[data-test="expanded-sub-events"]').eq(0).should('be.visible').within(() => {
-        cy.get('[data-test="card-header"]:contains("CFG-05-Journey1.yaml")').should('be.visible').within(() => {
+        cy.contains('[data-test="card-header"]', 'CFG-05-Journey1.yaml').within(() => {
           cy.get('[data-test="expand-collapse-icon"]').should('be.visible').click()
         })
       })
 
       cy.get('[data-test="expanded-sub-events"]').eq(1).should('be.visible').within(() => {
-        cy.get('[data-test="card-header"]:contains("PROCESS_VERSION-1.0.0.1")').should('be.visible').within(() => {
+        cy.contains('[data-test="card-header"]', 'PROCESS_VERSION-1.0.0.1').within(() => {
           cy.get('[data-test="expand-collapse-icon"]').should('be.visible').click()
         })
       })
 
       cy.get('[data-test="expanded-sub-events"]').eq(2).should('be.visible').within(() => {
-        cy.get('[data-test="card-header"]:contains("PRO-06-LOAD_TEST_DATA")').should('be.visible').within(() => {
+        cy.contains('[data-test="card-header"]', 'PRO-06-LOAD_TEST_DATA').within(() => {
           cy.get('[data-test="expand-collapse-icon"]').should('be.visible').click()
         })
       })

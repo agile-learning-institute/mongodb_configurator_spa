@@ -83,7 +83,7 @@
             title="Delete"
             data-test="delete-enumerator-btn"
           />
-          <v-tooltip v-if="!isReadOnly" text="Add enumeration" location="bottom">
+          <v-tooltip v-if="!isDisabled" text="Add enumeration" location="bottom">
             <template #activator="{ props }">
               <v-btn
                 v-bind="props"
@@ -105,7 +105,7 @@
         <h3 class="text-h5 mt-4" data-test="empty-enumerations-title">No enumerations defined</h3>
         <p class="text-body-1 text-medium-emphasis mt-2">Add an enumeration to get started.</p>
         <v-btn
-          v-if="!isReadOnly"
+          v-if="!isDisabled"
           color="primary"
           variant="elevated"
           class="mt-4"

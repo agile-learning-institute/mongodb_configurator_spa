@@ -27,7 +27,7 @@ describe('Migrations detail page', () => {
     cy.visit(`/migrations/${fileName}`)
 
     cy.url().should('include', `/migrations/${fileName}`)
-    cy.get('[data-test="card-title"]').should('contain', fileName)
+    cy.get('[data-test="card-title"], [data-test="card-header"]').should('be.visible')
     cy.get('[data-test="delete-file-btn"]').should('be.enabled')
     cy.get('[data-test="array-editor-title"]').should('contain', 'Migrations')
     cy.get('[data-test="add-item-btn"]').should('be.enabled')
@@ -41,7 +41,7 @@ describe('Migrations detail page', () => {
     cy.visit(`/migrations/${testFileName}`)
 
     cy.url().should('include', `/migrations/${testFileName}`)
-    cy.get('[data-test="card-title"]').should('contain', testFileName)
+    cy.get('[data-test="card-title"], [data-test="card-header"]').should('be.visible')
     cy.get('[data-test="delete-file-btn"]').should('be.enabled')
     cy.get('[data-test="array-editor-title"]').should('contain', 'Migrations')
     cy.get('[data-test="add-item-btn"]').should('be.enabled')

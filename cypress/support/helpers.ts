@@ -33,6 +33,47 @@ export function resetEnumeratorsToV0(): void {
 }
 
 /**
+ * Creates an enumerator file at the given version via API.
+ * Assumes enumerations.0.yaml exists (call resetEnumeratorsToV0 first).
+ * Copies from v0 and updates version/file_name, or uses baseContent if provided.
+ * @param version - Target version number (e.g. 1, 2, 3)
+ * @param baseContent - Optional. If provided, used as body for PUT.
+ * @returns The created file name (e.g. enumerations.3.yaml)
+ */
+export function createEnumeratorVersion(
+  version: number,
+  baseContent?: Record<string, unknown>
+): string {
+  const fileName = `enumerations.${version}.yaml`
+  if (baseContent) {
+    cy.request('PUT', `/api/enumerators/${fileName}/`, baseContent)
+    return fileName
+  }
+  cy.request('GET', '/api/enumerators/enumerations.0.yaml/').then((res) => {
+    const body = { ...res.body, version, file_name: fileName }
+    cy.request('PUT', `/api/enumerators/${fileName}/`, body)
+  })
+  return fileName
+}
+
+/**
+ * Delete enumerator versions (unlock first, then delete). Use v0 only.
+ * @param versions - Version numbers to delete (e.g. [1, 2, 3])
+ */
+export function deleteEnumeratorVersions(versions: number[]): void {
+  versions.forEach((version) => {
+    const fileName = `enumerations.${version}.yaml`
+    cy.request({
+      method: 'PUT',
+      url: `/api/enumerators/${fileName}/`,
+      body: { _locked: false },
+      failOnStatusCode: false
+    })
+    cy.request({ method: 'DELETE', url: `/api/enumerators/${fileName}/`, failOnStatusCode: false })
+  })
+}
+
+/**
  * Creates a new dictionary (collection) with the given name via R160 API.
  * Uses version 1.0.0.0, so dictionary file is {name}.1.0.0.yaml
  * @param name - The name of the collection to create (without .yaml extension)

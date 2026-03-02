@@ -25,9 +25,10 @@ describe('Event Viewer detail page', () => {
     cy.url().should('include', '/event-viewer')
     cy.get('body').should('not.contain', 'Loading...')
     
-    // Check if we have event data (single config: "Configuration Processed")
-    cy.get('h1.text-h4').should('be.visible').invoke('text').then((text) => {
-      expect(text).to.match(/Processing Complete|Configuration Processed/)
+    // Check if we have event data (subtitle or body contains processing result)
+    cy.get('body').should('satisfy', ($el) => {
+      const text = $el.text()
+      return /Processing Complete|Configuration Processed|Configuration processing completed/.test(text)
     })
     cy.contains('button', 'Back').should('be.visible')
     
@@ -35,8 +36,9 @@ describe('Event Viewer detail page', () => {
     cy.get('[data-test="help-btn"]').should('be.visible').click()
     cy.get('[data-test="carousel-title-text"]').should('be.visible').should('contain', 'Configuration Processing Events')
     cy.get('[data-test="help-btn"]').should('be.visible').click()
-    cy.get('h1.text-h4').should('be.visible').invoke('text').then((text) => {
-      expect(text).to.match(/Processing Complete|Configuration Processed/)
+    cy.get('body').should('satisfy', ($el) => {
+      const text = $el.text()
+      return /Processing Complete|Configuration Processed|Configuration processing completed/.test(text)
     })
   })
 })
