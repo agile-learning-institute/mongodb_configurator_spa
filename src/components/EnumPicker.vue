@@ -3,8 +3,8 @@
     <!-- Display chip that opens the picker -->
     <v-chip
       :color="getChipColor()"
-      :variant="getChipVariant()"
-      size="small"
+      :variant="PICKER_STYLES.chipVariant"
+      :size="PICKER_STYLES.chipSize"
       class="cursor-pointer"
       :disabled="disabled"
       @click="showPicker = true"
@@ -47,9 +47,9 @@
               <v-chip
                 v-for="enumeratorName in enumeratorNames"
                 :key="enumeratorName"
-                :color="modelValue === enumeratorName ? 'primary' : undefined"
-                variant="outlined"
-                size="default"
+                :color="modelValue === enumeratorName ? PICKER_STYLES.optionColorSelected : PICKER_STYLES.optionColorUnselected"
+                :variant="PICKER_STYLES.optionVariant"
+                :size="PICKER_STYLES.optionSize"
                 class="cursor-pointer pa-2"
                 @click="selectEnum(enumeratorName)"
                 :data-test="`enum-type-option-${enumeratorName}`"
@@ -75,6 +75,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { apiService } from '@/utils/api'
 import type { EnumeratorFile, Enumerator } from '@/types/types'
+import { PICKER_STYLES } from '@/config/pickerStyles'
 
 interface Props {
   modelValue?: string
@@ -151,12 +152,7 @@ const selectEnum = (enumeratorName: string) => {
 
 // Get chip color based on whether a value is selected
 const getChipColor = (): string => {
-  return props.modelValue ? 'primary' : 'default'
-}
-
-// Get chip variant
-const getChipVariant = (): "text" | "flat" | "elevated" | "tonal" | "outlined" | "plain" => {
-  return 'elevated'
+  return props.modelValue ? PICKER_STYLES.chipColorSelected : PICKER_STYLES.chipColorUnselected
 }
 
 // Load enumerators on mount

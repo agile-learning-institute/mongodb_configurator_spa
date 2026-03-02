@@ -9,8 +9,8 @@
       <template v-slot:activator="{ props }">
         <v-chip
           :color="getChipColor()"
-          :variant="getChipVariant()"
-          size="small"
+          :variant="PICKER_STYLES.chipVariant"
+          :size="PICKER_STYLES.chipSize"
           v-bind="disabled ? {} : props"
           @click="!disabled && (menuOpen = true)"
           data-test="type-chip"
@@ -46,9 +46,9 @@
                 <v-chip
                   v-for="type in availableBuiltInTypes"
                   :key="type.value"
-                  :color="type.value === modelValue ? 'primary' : 'default'"
-                  variant="outlined"
-                  size="small"
+                  :color="type.value === modelValue ? PICKER_STYLES.optionColorSelected : PICKER_STYLES.optionColorUnselected"
+                  :variant="PICKER_STYLES.optionVariant"
+                  :size="PICKER_STYLES.optionSize"
                   @click="selectType(type.value)"
                   :data-test="`built-in-type-${type.value}`"
                 >
@@ -65,9 +65,9 @@
                 <v-chip
                   v-for="type in customTypes"
                   :key="type.file_name"
-                  :color="isCustomTypeSelected(type) ? 'primary' : 'default'"
-                  variant="outlined"
-                  size="small"
+                  :color="isCustomTypeSelected(type) ? PICKER_STYLES.optionColorSelected : PICKER_STYLES.optionColorUnselected"
+                  :variant="PICKER_STYLES.optionVariant"
+                  :size="PICKER_STYLES.optionSize"
                   @click="selectCustomType(type)"
                   :data-test="`custom-type-${type.file_name}`"
                 >
@@ -86,6 +86,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { apiService } from '@/utils/api'
+import { PICKER_STYLES } from '@/config/pickerStyles'
 
 interface CustomType {
   name: string
@@ -193,20 +194,9 @@ const availableBuiltInTypes = computed(() => {
 
 
 
-// Get chip color based on type
+// Get chip color - selected uses primary, unselected uses default (matches RefPicker, EnumPicker)
 const getChipColor = (): string => {
-  const type = builtInTypes.find(t => t.value === props.modelValue)
-  if (type) {
-    return 'primary'
-  }
-  
-  // Custom type
-  return 'secondary'
-}
-
-// Get chip variant
-const getChipVariant = (): "text" | "flat" | "elevated" | "tonal" | "outlined" | "plain" => {
-  return 'elevated'
+  return props.modelValue ? PICKER_STYLES.chipColorSelected : PICKER_STYLES.chipColorUnselected
 }
 
 // Get type icon

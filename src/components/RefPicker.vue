@@ -3,8 +3,8 @@
     <!-- Display chip that opens the picker -->
     <v-chip
       :color="getChipColor()"
-      :variant="getChipVariant()"
-      size="small"
+      :variant="PICKER_STYLES.chipVariant"
+      :size="PICKER_STYLES.chipSize"
       class="cursor-pointer"
       :disabled="disabled"
       @click="showPicker = true"
@@ -46,9 +46,9 @@
               <v-chip
                 v-for="dictionaryName in dictionaryNames"
                 :key="dictionaryName"
-                :color="modelValue === dictionaryName ? 'primary' : undefined"
-                variant="outlined"
-                size="default"
+                :color="modelValue === dictionaryName ? PICKER_STYLES.optionColorSelected : PICKER_STYLES.optionColorUnselected"
+                :variant="PICKER_STYLES.optionVariant"
+                :size="PICKER_STYLES.optionSize"
                 class="cursor-pointer pa-2"
                 @click="selectDictionary(dictionaryName)"
                 :data-test="`ref-dictionary-option-${dictionaryName}`"
@@ -73,6 +73,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { apiService } from '@/utils/api'
+import { PICKER_STYLES } from '@/config/pickerStyles'
 
 // Simple interface for dictionary file info from API
 interface DictionaryFile {
@@ -132,12 +133,7 @@ const selectDictionary = (dictionaryName: string) => {
 
 // Get chip color based on whether a value is selected
 const getChipColor = (): string => {
-  return props.modelValue ? 'primary' : 'default'
-}
-
-// Get chip variant
-const getChipVariant = (): "text" | "flat" | "elevated" | "tonal" | "outlined" | "plain" => {
-  return 'elevated'
+  return props.modelValue ? PICKER_STYLES.chipColorSelected : PICKER_STYLES.chipColorUnselected
 }
 
 // Load dictionaries on mount
