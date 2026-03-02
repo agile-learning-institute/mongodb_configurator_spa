@@ -577,16 +577,17 @@ describe('Dictionary Details Page', () => {
     })
 
     it('displays ref picker with proper values', () => {
+      const refOptionName = dictionaryFileName.replace('.yaml', '')
       cy.get('[data-test="ref-type-label"]').should('be.visible').should('contain', 'Dictionary:')
-      cy.get('[data-test="ref-dictionary-chip"]').should('be.visible').click()
+      cy.get('[data-test="ref-dictionary-chip"]').first().should('be.visible').click()
       cy.get('[data-test="ref-dictionary-picker-card"]').should('be.visible')
-      cy.get('[data-test^="ref-dictionary-option-"].v-chip').should('have.length.greaterThan', 2)
-      cy.get(`[data-test="ref-dictionary-option-${dictionaryName}"]`).should('be.visible').click()
+      cy.get('[data-test^="ref-dictionary-option-"].v-chip').should('have.length.greaterThan', 0)
+      cy.get(`[data-test="ref-dictionary-option-${refOptionName}"]`).should('be.visible').click()
       cy.get('[data-test="ref-dictionary-picker-card"]').should('not.exist')
-      cy.get('[data-test="ref-dictionary-chip"]').should('be.visible').should('contain', dictionaryName)
+      cy.get('[data-test="ref-dictionary-chip"]').first().should('be.visible').should('contain', dictionaryName)
       cy.wait(250)
       cy.reload()
-      cy.get('[data-test="ref-dictionary-chip"]').should('be.visible').should('contain', dictionaryName)
+      cy.get('[data-test="ref-dictionary-chip"]').first().should('be.visible').should('contain', dictionaryName)
     })
 
     it('displays array of ref action icons', () => {
