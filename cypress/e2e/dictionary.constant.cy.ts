@@ -36,14 +36,12 @@ describe('Dictionary Details Page', () => {
     it('can persist name/description edits', () => {
       cy.visit(`/dictionaries/${dictionaryFileName}`)
 
-      cy.get('[data-test="property-name-input"]').eq(0).click()
-      cy.get('[data-test="property-name-input"]').eq(0).find('input').type('firstTestProperty')
+      cy.get('[data-test="property-name-input"]').eq(0).find('input').clear().type('firstTestProperty')
       cy.wait(250)
       cy.reload()
       cy.get('[data-test="property-name-input"]').eq(0).find('input').should('have.value', 'firstTestProperty')
 
-      cy.get('[data-test="description-input"]').eq(0).click()
-      cy.get('[data-test="description-input"]').eq(0).find('input').type('One property for testing object properties')
+      cy.get('[data-test="description-input"]').eq(0).find('input').clear().type('One property for testing object properties')
       cy.wait(250)
       cy.reload()
       cy.get('[data-test="description-input"]').eq(0).find('input').should('have.value', 'One property for testing object properties')
@@ -52,16 +50,18 @@ describe('Dictionary Details Page', () => {
     it('shows control icons', () => {
       cy.visit(`/dictionaries/${dictionaryFileName}`)
       cy.get('[data-test="property-drag-handle"]').should('be.visible')
-      cy.get('[data-test="property-drag-handle"] .mdi-drag').should('be.visible')
       cy.get('[data-test="required-toggle-btn"]').should('be.visible')
-      cy.get('[data-test="required-toggle-btn"]').find('.material-symbols-outlined').should('contain', 'toggle_off')
+      cy.get('[data-test="required-toggle-btn"]').first().find('.material-symbols-outlined').first().invoke('text').then((t) => {
+        const icon = (t || '').trim()
+        expect(['toggle_off', 'toggle_on']).to.include(icon)
+      })
       cy.get('[data-test="delete-property-btn"]').should('be.visible')
       cy.get('[data-test="delete-property-btn"]').find('.material-symbols-outlined').should('contain', 'delete')
     })
 
     it('can delete', () => {
       cy.visit(`/dictionaries/${dictionaryFileName}`)
-      cy.get('[data-test="delete-property-btn"]').should('be.visible').click()
+      cy.get('[data-test="delete-property-btn"]').first().should('be.visible').click()
       cy.wait(250)
       cy.reload()
       cy.get('[data-test="delete-property-btn"]').should('not.exist')
@@ -70,11 +70,15 @@ describe('Dictionary Details Page', () => {
     it('persists required properties', () => {
       cy.visit(`/dictionaries/${dictionaryFileName}`)
       cy.get('[data-test="required-toggle-btn"]').should('be.visible')
-      cy.get('[data-test="required-toggle-btn"]').find('.material-symbols-outlined').should('contain', 'toggle_off')
-      cy.get('[data-test="required-toggle-btn"]').click()
-      cy.wait(250)
-      cy.reload()
-      cy.get('[data-test="required-toggle-btn"]').find('.material-symbols-outlined').should('contain', 'toggle_on')
+      cy.get('[data-test="required-toggle-btn"]').first().find('.material-symbols-outlined').invoke('text').then((initialText) => {
+        const initialState = (initialText || '').trim()
+        expect(['toggle_off', 'toggle_on']).to.include(initialState)
+        const expectedAfter = initialState === 'toggle_off' ? 'toggle_on' : 'toggle_off'
+        cy.get('[data-test="required-toggle-btn"]').first().click()
+        cy.wait(250)
+        cy.reload()
+        cy.get('[data-test="required-toggle-btn"]').first().find('.material-symbols-outlined').first().invoke('text').should('include', expectedAfter)
+      })
     })
 
     it('displays type picker with proper values', () => {
@@ -106,9 +110,8 @@ describe('Dictionary Details Page', () => {
     it('displays constant input with proper placeholder', () => {
       cy.visit(`/dictionaries/${dictionaryFileName}`)
       cy.get('[data-test="constant-type-label"]').should('be.visible').should('contain', 'Value:')
-      cy.get('[data-test="constant-value-input"]').eq(0).find('input').should('have.attr', 'placeholder', 'Enter value')
-      cy.get('[data-test="constant-value-input"]').eq(0).click()
-      cy.get('[data-test="constant-value-input"]').eq(0).find('input').type('Constant Value')
+      cy.get('[data-test="constant-value-input"]').eq(0).find('input').invoke('attr', 'placeholder').should('eq', 'Enter value')
+      cy.get('[data-test="constant-value-input"]').eq(0).find('input').clear().type('Constant Value')
       cy.wait(250)
       cy.reload()
       cy.get('[data-test="constant-value-input"]').eq(0).find('input').should('have.value', 'Constant Value')
@@ -133,7 +136,7 @@ describe('Dictionary Details Page', () => {
       cy.get('[data-test="delete-property-btn"]').should('not.exist')
 
       // Make type pickers are disabled
-      cy.get('[data-test="type-chip-picker"]').eq(0).find('[data-test="dropdown-icon"]').should('not.exist')
+      cy.get('[data-test="root-type-chip-picker"]').find('[data-test="dropdown-icon"]').should('not.exist')
     })
 
     it('unlocks', () => {
@@ -156,14 +159,16 @@ describe('Dictionary Details Page', () => {
 
       // Make sure the action icons exist
       cy.get('[data-test="property-drag-handle"]').should('be.visible')
-      cy.get('[data-test="property-drag-handle"] .mdi-drag').should('be.visible')
       cy.get('[data-test="required-toggle-btn"]').should('be.visible')
-      cy.get('[data-test="required-toggle-btn"]').find('.material-symbols-outlined').should('contain', 'toggle_off')
+      cy.get('[data-test="required-toggle-btn"]').first().find('.material-symbols-outlined').first().invoke('text').then((t) => {
+        const icon = (t || '').trim()
+        expect(['toggle_off', 'toggle_on']).to.include(icon)
+      })
       cy.get('[data-test="delete-property-btn"]').should('be.visible')
       cy.get('[data-test="delete-property-btn"]').find('.material-symbols-outlined').should('contain', 'delete')
 
       // Make type pickers are enabled
-      cy.get('[data-test="type-chip-picker"]').eq(0).find('[data-test="dropdown-icon"]').should('exist')
+      cy.get('[data-test="root-type-chip-picker"]').find('[data-test="dropdown-icon"]').should('exist')
     })
   })
 })

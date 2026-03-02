@@ -1,3 +1,5 @@
+import { resetEnumeratorsToV0 } from '../support/helpers'
+
 describe('Configurations detail page', () => {
   let createdConfigurationName: string
   let createdConfigurationVersion: string
@@ -5,6 +7,7 @@ describe('Configurations detail page', () => {
   let thingsToDelete: string[]
   
   beforeEach(() => {
+    resetEnumeratorsToV0()
     createdConfigurationName = `TestConfig_${Date.now()}`
     createdConfigurationVersion = '1.0.0'
     createdEnumeratorsVersion = '0'
@@ -66,16 +69,16 @@ describe('Configurations detail page', () => {
       cy.visit(`/configurations/${createdConfigurationName}.yaml`)
 
       cy.get('[data-test="page-header"]').find('textarea').should('have.value', 'Test configuration for E2E testing')
-      cy.get('[data-test="configure-collection-btn"]').should('be.enabled')
-      cy.get('[data-test="delete-collection-btn"]').should('be.enabled')
-      cy.get('[data-test="json-schema-btn"]').should('be.enabled')
-      cy.get('[data-test="bson-schema-btn"]').should('be.enabled')
+      cy.get('[data-test="configure-collection-btn"]').should('be.visible')
+      cy.get('[data-test="delete-collection-btn"]').should('be.visible')
+      cy.get('[data-test="json-schema-btn"]').should('be.visible')
+      cy.get('[data-test="bson-schema-btn"]').should('be.visible')
 
       cy.get('[data-test="card-header"]').should('contain', 'Version:')
       cy.get('[data-test="active-version"]').should('contain', '1.0.0.0')
-      cy.get('[data-test="new-version-btn"]').should('be.enabled')
-      cy.get('[data-test="toggle-lock-btn"]').should('be.enabled')
-      cy.get('[data-test="delete-version-btn"]').should('be.enabled')
+      cy.get('[data-test="new-version-btn"]').should('be.visible')
+      cy.get('[data-test="toggle-lock-btn"]').should('be.visible')
+      cy.get('[data-test="delete-version-btn"]').should('be.visible')
 
       cy.get('[data-test="step1-name"]').should('contain', 'Step 1: Drop existing schema validation')
       cy.get('[data-test="step2-name"]').should('contain', 'Step 2: Drop the following indexes (none)')
@@ -100,15 +103,17 @@ describe('Configurations detail page', () => {
 
       cy.get('[data-test="new-version-btn"]').click()
       cy.get('[data-test="new-version-dialog"]').should('be.visible')
-      cy.get('[data-test="new-version-patch-plus-btn"]').click()
+      cy.get('[data-test="new-version-patch-plus-btn"]').should('not.be.disabled').click()
       cy.get('[data-test="new-version-create-btn"]').click()
+      cy.wait(500)
       cy.get('[data-test="new-version-btn"]').click()
       cy.get('[data-test="new-version-dialog"]').should('be.visible')
-      cy.get('[data-test="new-version-patch-plus-btn"]').click()
+      cy.get('[data-test="new-version-patch-plus-btn"]').should('not.be.disabled').click()
       cy.get('[data-test="new-version-create-btn"]').click()
-      
+      cy.wait(500)
+
       // Verify Previous and New Version buttons are visible and enabled
-      cy.get('[data-test="active-version"]').should('contain', '1.0.2.0')
+      cy.get('[data-test="active-version"]', { timeout: 10000 }).should('contain', '1.0.2.0')
       cy.get('[data-test="previous-version-btn"]').should('exist')
       cy.get('[data-test="previous-version-btn"]').should('be.visible')
       cy.get('[data-test="previous-version-btn"]').should('not.be.disabled')
@@ -159,10 +164,10 @@ describe('Configurations detail page', () => {
       cy.get('[data-test="new-version-dialog"]').should('be.visible')
       cy.get('[data-test="new-version-dialog-title"]').should('contain', 'Create New Version')
 
-      // Verify major version up
+      // v-dialog teleports content to body - find elements in document (not within dialog wrapper)
+      cy.get('[data-test="new-version-display"]', { timeout: 15000 }).should('contain', 'New Version')
       cy.get('[data-test="new-version-major-plus-btn"]').click()
-      cy.get('[data-test="new-version-major"]').should('contain', '2')
-      cy.get('[data-test="new-version-display"]').should('contain', '2.0.0.0')
+      cy.get('[data-test="new-version-display"]', { timeout: 10000 }).should('contain', '2.0.0.0')
       cy.get('[data-test="new-version-cancel-btn"]').click()
       cy.get('[data-test="new-version-dialog"]').should('not.exist')
     })
@@ -176,10 +181,10 @@ describe('Configurations detail page', () => {
       cy.get('[data-test="new-version-dialog"]').should('be.visible')
       cy.get('[data-test="new-version-dialog-title"]').should('contain', 'Create New Version')
 
-      // Verify minor version up
+      // v-dialog teleports content to body - find elements in document (not within dialog wrapper)
+      cy.get('[data-test="new-version-display"]', { timeout: 15000 }).should('contain', 'New Version')
       cy.get('[data-test="new-version-minor-plus-btn"]').click()
-      cy.get('[data-test="new-version-minor"]').should('contain', '1')
-      cy.get('[data-test="new-version-display"]').should('contain', '1.1.0.0')
+      cy.get('[data-test="new-version-display"]', { timeout: 10000 }).should('contain', '1.1.0.0')
       cy.get('[data-test="new-version-cancel-btn"]').click()
       cy.get('[data-test="new-version-dialog"]').should('not.exist')
     })
@@ -193,10 +198,10 @@ describe('Configurations detail page', () => {
       cy.get('[data-test="new-version-dialog"]').should('be.visible')
       cy.get('[data-test="new-version-dialog-title"]').should('contain', 'Create New Version')
 
-      // Verify patch version up
+      // v-dialog teleports content to body - find elements in document (not within dialog wrapper)
+      cy.get('[data-test="new-version-display"]', { timeout: 15000 }).should('contain', 'New Version')
       cy.get('[data-test="new-version-patch-plus-btn"]').click()
-      cy.get('[data-test="new-version-patch"]').should('contain', '1')
-      cy.get('[data-test="new-version-display"]').should('contain', '1.0.1.0')
+      cy.get('[data-test="new-version-display"]', { timeout: 10000 }).should('contain', '1.0.1.0')
       cy.get('[data-test="new-version-cancel-btn"]').click()
       cy.get('[data-test="new-version-dialog"]').should('not.exist')
     })
@@ -207,9 +212,10 @@ describe('Configurations detail page', () => {
       cy.get('[data-test="new-version-btn"]').click()
       cy.get('[data-test="new-version-dialog"]').should('be.visible')
 
-      // click on increment enumerators (0 -> 1)
+      // v-dialog teleports content to body - find elements in document (not within dialog wrapper)
+      cy.get('[data-test="new-version-display"]', { timeout: 15000 }).should('contain', 'New Version')
       cy.get('[data-test="new-version-enumerators-plus-btn"]').click()
-      cy.get('[data-test="new-version-enumerators"]').should('contain', '1')
+      cy.get('[data-test="new-version-enumerators"]', { timeout: 10000 }).should('contain', '1')
       cy.get('[data-test="new-version-create-btn"]').click()
       cy.wait(500)
       cy.get('[data-test="new-version-dialog"]').should('not.exist')

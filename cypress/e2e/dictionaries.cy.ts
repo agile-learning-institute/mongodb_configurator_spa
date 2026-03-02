@@ -22,8 +22,8 @@ describe('Dictionary Details Page', () => {
 
       cy.get('[data-test="app-title"]').should('contain', 'Dictionary')
       cy.get('[data-test="dictionary-header-name"]').should('be.visible').and('contain', dictionaryName)
-      cy.contains('button', 'Lock').should('be.visible')
-      cy.contains('button', 'Delete').should('be.visible')
+      cy.get('[data-test="lock-dictionary-btn"]').should('be.visible')
+      cy.get('[data-test="delete-dictionary-btn"]').should('be.visible')
       cy.get('[data-test="root-property-card"]').should('exist').should('be.visible')
       cy.get('[data-test="card-header"]').should('exist').should('be.visible')
       cy.get('[data-test="root-description-input"]').should('exist').should('be.visible')
@@ -52,8 +52,8 @@ describe('Dictionary Details Page', () => {
     
     it('can delete a dictionary', () => {
       cy.visit(`/dictionaries/${dictionaryFileName}`)
-      cy.contains('button', 'Lock').should('be.visible')
-      cy.contains('button', 'Delete').click()
+      cy.get('[data-test="lock-dictionary-btn"]').should('be.visible')
+      cy.get('[data-test="delete-dictionary-btn"]').click()
 
       // Verify delete confirmation dialog is open
       cy.get('.v-dialog').should('be.visible')
@@ -72,33 +72,33 @@ describe('Dictionary Details Page', () => {
       cy.visit(`/dictionaries/${dictionaryFileName}`)
 
       // Verify the dictionary is unlocked and lock it
-      cy.contains('button', 'Unlock').should('not.exist')
-      cy.contains('button', 'Delete').should('exist')
-      cy.contains('button', 'Lock').should('be.visible').click()
+      cy.get('[data-test="unlock-dictionary-btn"]').should('not.exist')
+      cy.get('[data-test="delete-dictionary-btn"]').should('exist')
+      cy.get('[data-test="lock-dictionary-btn"]').should('be.visible').click()
 
       // Verify it's now locked (Lock button should be replaced with Unlock)
-      cy.contains('button', 'Unlock').should('be.visible')
-      cy.contains('button', 'Delete').should('not.exist')
-      cy.contains('button', 'Lock').should('not.exist')
+      cy.get('[data-test="unlock-dictionary-btn"]').should('be.visible')
+      cy.get('[data-test="delete-dictionary-btn"]').should('not.exist')
+      cy.get('[data-test="lock-dictionary-btn"]').should('not.exist')
       cy.get('[data-test="root-type-chip-picker"] [data-test="dropdown-icon"]').should('not.exist')
     })
 
     it('can unlock a dictionary', () => {
       cy.visit(`/dictionaries/${dictionaryFileName}`)
-      cy.contains('button', 'Lock').should('be.visible').click()
+      cy.get('[data-test="lock-dictionary-btn"]').should('be.visible').click()
 
       // Unlock the dictionary
-      cy.contains('button', 'Unlock').should('be.visible').click()
-      cy.contains('button', 'Delete').should('not.exist')
+      cy.get('[data-test="unlock-dictionary-btn"]').should('be.visible').click()
+      cy.get('[data-test="delete-dictionary-btn"]').should('not.exist')
       cy.get('[data-test="unlock-dictionary-dialog"]').should('be.visible')
       cy.get('[data-test="unlock-confirmation-message"]').should('contain', `Are you sure you want to unlock "${dictionaryFileName.replace('.yaml', '')}"?`)
       cy.get('[data-test="unlock-warning-message"]').should('contain', 'This will allow the dictionary to be modified. Changes will be saved automatically.')
       cy.get('[data-test="unlock-cancel-btn"]').should('be.visible')
       cy.get('[data-test="unlock-confirm-btn"]').should('be.visible').click()
 
-      cy.contains('button', 'Lock').should('be.visible')
-      cy.contains('button', 'Delete').should('exist')
-      cy.contains('button', 'Unlock').should('not.exist')
+      cy.get('[data-test="lock-dictionary-btn"]').should('be.visible')
+      cy.get('[data-test="delete-dictionary-btn"]').should('exist')
+      cy.get('[data-test="unlock-dictionary-btn"]').should('not.exist')
       cy.get('[data-test="root-type-chip-picker"] [data-test="dropdown-icon"]').should('be.visible')
     })
   })

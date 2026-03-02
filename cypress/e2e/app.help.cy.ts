@@ -116,21 +116,21 @@ describe('App Help Pages', () => {
   it('can navigate to the help page from Test Data pages', () => {
     cy.visit('/test_data/sample.1.0.0.1.json')
     cy.wait(100)
-    cy.get('[data-test="card-title"]').should('contain.text', 'sample.1.0.0.1.json')
+    cy.get('[data-test="array-editor-title"]').should('contain.text', 'Test Data')
     cy.get('[data-test="help-btn"]').should('be.visible').click()
     cy.get('[data-test="carousel-title-text"]').should('contain.text', 'Test Data')
     cy.get('[data-test="help-btn"]').should('be.visible').click()
-    cy.get('[data-test="card-title"]').should('contain.text', 'sample.1.0.0.1.json')
+    cy.get('[data-test="array-editor-title"]').should('contain.text', 'Test Data')
   })
 
   it('can navigate to the help page from Migration pages', () => {
     cy.visit('/migrations/first_last_to_full_name.json')
     cy.wait(100)
-    cy.get('[data-test="card-title"]').should('contain.text', 'first_last_to_full_name.json')
+    cy.get('[data-test="array-editor-title"]').should('contain.text', 'Migrations')
     cy.get('[data-test="help-btn"]').should('be.visible').click()
     cy.get('[data-test="carousel-title-text"]').should('contain.text', 'Migration')
     cy.get('[data-test="help-btn"]').should('be.visible').click()
-    cy.get('[data-test="card-title"]').should('contain.text', 'first_last_to_full_name.json')
+    cy.get('[data-test="array-editor-title"]').should('contain.text', 'Migrations')
   })
 
   it('can navigate to the help page from Event Viewer page', () => {
@@ -139,11 +139,12 @@ describe('App Help Pages', () => {
     cy.get('[data-test="configure-collection-btn"]').click()
 
     cy.url().should('include', '/event-viewer')
-    cy.get('h1').first().should('be.visible')
+    cy.get('body').should('not.contain', 'Loading...')
     cy.get('[data-test="help-btn"]').should('be.visible').click()
     cy.get('[data-test="carousel-title-text"]').should('contain.text', 'Configuration Processing Events')
     cy.get('[data-test="help-btn"]').should('be.visible').click()
-    cy.get('h1').first().should('be.visible')
+    cy.url().should('include', '/event-viewer')
+    cy.contains('button', 'Back').should('be.visible')
   })
 })
 

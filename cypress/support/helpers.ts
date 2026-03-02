@@ -1,6 +1,38 @@
 /// <reference types="cypress" />
 
 /**
+ * Resets enumerators to v0 only. Deletes enumerations.1.yaml, enumerations.2.yaml, etc.
+ * Never deletes enumerations.0.yaml. Works down from the latest version: unlock, then delete.
+ * Call in beforeEach/beforeAll for tests that need a clean enumerator state.
+ */
+export function resetEnumeratorsToV0(): void {
+  cy.request('GET', '/api/enumerators/').then((response) => {
+    const files = response.body as Array<{ file_name: string; _locked?: boolean }>
+    const versions = files
+      .map((f) => {
+        const m = f.file_name?.match(/enumerations\.(\d+)\.yaml/)
+        return m ? parseInt(m[1], 10) : null
+      })
+      .filter((v): v is number => v !== null && v > 0)
+      .sort((a, b) => b - a) // highest first - work down from latest
+
+    const deleteOne = (idx: number): void => {
+      if (idx >= versions.length) return
+      const version = versions[idx]
+      const fileName = `enumerations.${version}.yaml`
+      cy.request('GET', `/api/enumerators/${fileName}/`).then((getRes) => {
+        const doc = { ...getRes.body, _locked: false }
+        cy.request({ method: 'PUT', url: `/api/enumerators/${fileName}/`, body: doc, failOnStatusCode: false }).then(() => {
+          cy.request({ method: 'DELETE', url: `/api/enumerators/${fileName}/`, failOnStatusCode: false })
+          deleteOne(idx + 1)
+        })
+      })
+    }
+    deleteOne(0)
+  })
+}
+
+/**
  * Creates a new dictionary (collection) with the given name via R160 API.
  * Uses version 1.0.0.0, so dictionary file is {name}.1.0.0.yaml
  * @param name - The name of the collection to create (without .yaml extension)
@@ -12,7 +44,7 @@ export function createDictionary(name: string): { dictionaryName: string; dictio
 
   cy.request('POST', `/api/configurations/collection/${dictionaryName}/`, { description: '' })
   cy.visit('/dictionaries')
-  cy.get('h3').should('contain', 'Dictionaries')
+  cy.get('[data-test="app-title"]').should('contain', 'Dictionaries')
   cy.get(`[data-test="collection-card-${dictionaryName}"]`, { timeout: 10000 }).should('be.visible')
 
   return { dictionaryName, dictionaryFileName }

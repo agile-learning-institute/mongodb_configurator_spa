@@ -229,6 +229,7 @@
                   size="small"
                   variant="elevated"
                   color="primary"
+                  :disabled="!newVersionDialogReady"
                   @click="incrementVersion('major')"
                   class="ml-2"
                   data-test="new-version-major-plus-btn"
@@ -250,6 +251,7 @@
                   size="small"
                   variant="elevated"
                   color="primary"
+                  :disabled="!newVersionDialogReady"
                   @click="incrementVersion('minor')"
                   class="ml-2"
                   data-test="new-version-minor-plus-btn"
@@ -271,6 +273,7 @@
                   size="small"
                   variant="elevated"
                   color="primary"
+                  :disabled="!newVersionDialogReady"
                   @click="incrementVersion('patch')"
                   class="ml-2"
                   data-test="new-version-patch-plus-btn"
@@ -292,6 +295,7 @@
                   size="small"
                   variant="elevated"
                   color="primary"
+                  :disabled="!newVersionDialogReady"
                   @click="incrementVersion('enumerators')"
                   class="ml-2"
                   data-test="new-version-enumerators-plus-btn"
@@ -468,6 +472,7 @@ const newVersion = ref({
 })
 const versionButtonClicked = ref(false)
 const newestEnumeratorVersion = ref<number | null>(null)
+const newVersionDialogReady = ref(false)
 const enumeratorsWereBackLevel = ref(false)
 const enumeratorsWereIncremented = ref(false)
 const initialEnumeratorsVersion = ref<number>(0)
@@ -817,6 +822,10 @@ const getNewestEnumeratorVersion = async () => {
 
 // Version management methods
 const initializeNewVersion = async () => {
+  // Prevent user interaction until initialization completes (avoids race where
+  // initializeNewVersion overwrites newVersion after user has clicked increment)
+  newVersionDialogReady.value = false
+  
   // Reset state
   versionButtonClicked.value = false
   newestEnumeratorVersion.value = null
@@ -857,6 +866,8 @@ const initializeNewVersion = async () => {
     newVersion.value.enumerators = newestEnumeratorVersion.value
     // Note: enumeratorsWereIncremented stays false because we're just setting to existing max
   }
+  
+  newVersionDialogReady.value = true
 }
 
 const incrementVersion = async (type: 'major' | 'minor' | 'patch' | 'enumerators') => {
@@ -1197,6 +1208,8 @@ onMounted(() => {
 watch(showNewVersionDialog, async (newValue) => {
   if (newValue) {
     await initializeNewVersion()
+  } else {
+    newVersionDialogReady.value = false
   }
 })
 </script>
