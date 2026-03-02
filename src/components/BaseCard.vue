@@ -18,10 +18,10 @@
       :class="{ 'compact-header': compact }"
       data-test="card-header"
     >
-      <div class="d-flex align-center">
+      <div class="d-flex align-center flex-grow-1 min-width-0 mr-2">
         <v-icon 
           v-if="icon" 
-          class="mr-3" 
+          class="mr-3 flex-shrink-0" 
           :size="iconSize" 
           :color="iconColor"
           data-test="card-icon"
@@ -35,7 +35,7 @@
       </div>
       
       <!-- Action buttons on header background -->
-      <div class="d-flex align-center" data-test="card-header-actions">
+      <div class="d-flex align-center flex-shrink-0" data-test="card-header-actions">
         <slot name="header-actions" />
       </div>
     </div>

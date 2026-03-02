@@ -89,8 +89,8 @@
         data-test="root-property-card"
       >
         <template #title>
-          <!-- Description Input -->
-          <div class="description-section" :style="{ minWidth: '200px' }" data-test="root-description-input">
+          <!-- Description Input - expands to fill available space -->
+          <div class="description-section flex-grow-1 min-width-0" data-test="root-description-input">
             <v-text-field
               v-model="editableDescription"
               variant="plain"
@@ -98,7 +98,6 @@
               hide-details
               :readonly="isDisabled"
               class="root-description-input"
-              :style="{ minWidth: '200px' }"
               placeholder="Description"
               @blur="handleDescriptionChange"
               @keyup.enter="handleDescriptionChange"
@@ -705,6 +704,12 @@ onBeforeUnmount(() => {
 .description-section {
   flex: 1;
   min-width: 0;
+  display: flex;
+}
+
+.root-description-input {
+  flex: 1;
+  min-width: 0;
 }
 
 /* Style the root description input to look like H2/H3 in the card header */
@@ -736,11 +741,20 @@ onBeforeUnmount(() => {
   font-size: 1.25rem !important;
   font-weight: 500 !important;
   line-height: 1.2 !important;
+  min-width: 0;
+  overflow: visible;
+  text-overflow: clip;
 }
 
 .root-description-input :deep(input)::placeholder {
   color: rgba(255, 255, 255, 0.7) !important;
   opacity: 1 !important;
   font-style: italic;
+}
+
+/* Allow description field to expand without truncation */
+.root-description-input :deep(.v-field) {
+  flex: 1;
+  min-width: 0;
 }
 </style> 
