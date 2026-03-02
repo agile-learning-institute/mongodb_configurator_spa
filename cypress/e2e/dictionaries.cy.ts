@@ -20,9 +20,8 @@ describe('Dictionary Details Page', () => {
     it('loads the default dictionary page', () => {
       cy.visit(`/dictionaries/${dictionaryFileName}`)
 
-      cy.get('h2').should('be.visible')
-      cy.get('h2').should('contain', 'Dictionary:')
-      cy.get('h2').should('contain', `${dictionaryName}`)
+      cy.get('[data-test="app-title"]').should('contain', 'Dictionary')
+      cy.get('[data-test="dictionary-header-name"]').should('be.visible').and('contain', dictionaryName)
       cy.contains('button', 'Lock').should('be.visible')
       cy.contains('button', 'Delete').should('be.visible')
       cy.get('[data-test="root-property-card"]').should('exist').should('be.visible')

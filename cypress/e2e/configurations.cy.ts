@@ -40,7 +40,7 @@ describe('Configurations detail page', () => {
       cy.visit('/dictionaries')
 
       // Verify title and buttons
-      cy.get('[data-test="page-title"]').should('contain', 'Dictionaries')
+      cy.get('[data-test="app-title"]').should('contain', 'Dictionaries')
       cy.get('[data-test="new-collection-btn"]').should('be.visible')
     })
 

@@ -44,6 +44,8 @@ withDefaults(defineProps<Props>(), {
 .property-card {
   border-radius: 8px !important;
   overflow: hidden;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+  transition: box-shadow 0.2s ease;
 }
 
 .property-card.cursor-pointer {
@@ -52,6 +54,7 @@ withDefaults(defineProps<Props>(), {
 
 .property-card.cursor-pointer:hover {
   background-color: rgba(46, 125, 50, 0.04);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
 }
 
 .header-section {

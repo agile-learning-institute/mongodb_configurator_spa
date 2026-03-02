@@ -9,6 +9,7 @@ const DictionariesPage = () => import('@/pages/DictionariesPage.vue')
 const DictionaryDetailPage = () => import('@/pages/DictionaryDetailPage.vue')
 const TypesPage = () => import('@/pages/TypesPage.vue')
 const TypeDetailPage = () => import('@/pages/TypeDetailPage.vue')
+const EnumeratorCardsPage = () => import('@/pages/EnumeratorCardsPage.vue')
 const EnumeratorDetailPage = () => import('@/pages/EnumeratorDetailPage.vue')
 const TestDataDetailPage = () => import('@/pages/TestDataDetailPage.vue')
 const MigrationsDetailPage = () => import('@/pages/MigrationsDetailPage.vue')
@@ -17,9 +18,13 @@ const EventViewerPage = () => import('@/pages/EventViewerPage.vue')
 const routes = [
   {
     path: '/',
+    redirect: '/dictionaries'
+  },
+  {
+    path: '/help',
     name: 'Welcome',
     component: WelcomePage,
-    meta: { title: 'Welcome' }
+    meta: { title: 'Help' }
   },
   {
     path: '/admin',
@@ -67,6 +72,12 @@ const routes = [
   },
   {
     path: '/enumerators/:fileName',
+    name: 'EnumeratorCards',
+    component: EnumeratorCardsPage,
+    meta: { title: 'Enumerators' }
+  },
+  {
+    path: '/enumerators/:fileName/:enumerationName',
     name: 'EnumeratorDetail',
     component: EnumeratorDetailPage,
     meta: { title: 'Enumerator Detail' }
@@ -100,7 +111,7 @@ const routes = [
   // Catch all route
   {
     path: '/:pathMatch(.*)*',
-    redirect: '/'
+    redirect: '/dictionaries'
   }
 ]
 
@@ -115,7 +126,7 @@ router.beforeEach((to, _from, next) => {
   
   // If in read-only mode, prevent access to edit pages
   if (isReadOnly.value && to.meta.requiresEdit) {
-    next({ name: 'Welcome' })
+    next({ path: '/dictionaries' })
     return
   }
   

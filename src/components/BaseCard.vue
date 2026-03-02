@@ -93,6 +93,7 @@ const titleClass = computed(() => {
   border-radius: 12px !important;
   overflow: hidden;
   transition: all 0.2s ease-in-out;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
 }
 
 .base-card.secondary {
@@ -109,6 +110,7 @@ const titleClass = computed(() => {
 
 .base-card.cursor-pointer:hover {
   background-color: rgba(var(--v-theme-primary), 0.04);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
 }
 
 .header-section {

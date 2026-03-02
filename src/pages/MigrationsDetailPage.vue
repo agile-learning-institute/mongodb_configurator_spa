@@ -16,21 +16,23 @@
     <!-- Migration detail -->
     <div v-else-if="migration">
       <BaseCard 
-        :title="fileName"
+        title=""
         icon="mdi-swap-horizontal"
       >
         <template #header-actions>
-          <v-btn
-            v-if="!isReadOnly"
-            color="error"
-            variant="elevated"
-            @click="showDeleteDialog = true"
-            class="font-weight-bold"
-            data-test="delete-file-btn"
-          >
-            <v-icon start>mdi-delete</v-icon>
-            Delete
-          </v-btn>
+          <v-tooltip v-if="!isReadOnly" text="Delete" location="bottom">
+            <template #activator="{ props }">
+              <v-btn
+                v-bind="props"
+                icon="mdi-delete"
+                variant="text"
+                size="small"
+                color="error"
+                @click="showDeleteDialog = true"
+                data-test="delete-file-btn"
+              />
+            </template>
+          </v-tooltip>
         </template>
 
         <JsonArrayEditor

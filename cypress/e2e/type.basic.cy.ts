@@ -18,7 +18,7 @@ describe('Types Detail Page', () => {
   describe('Types List Page - Basic Elements', () => {
     it('loads types page and shows basic elements', () => {
       cy.visit('/types')
-      cy.get('[data-test="page-title"]').should('contain', 'Types')
+      cy.get('[data-test="app-title"]').should('contain', 'Types')
       cy.get('[data-test="lock-all-btn"]').should('be.visible').and('to.be.enabled')
       cy.get('[data-test="new-type-btn"]').should('be.visible').and('to.be.enabled')
       cy.get('[data-test^="type-card-"]').should('have.length.above', 10)
@@ -27,9 +27,9 @@ describe('Types Detail Page', () => {
 
   describe('Types Detail Page - Basic', () => {
     it('loads types detail page and shows basic elements', () => {
-      // Verify page title is "Type: <file-name>"
-      cy.get('h2.text-h3').should('contain', 'Type:')
-      cy.get('h2.text-h3').should('contain', typeName)
+      // Verify app bar has "Type", page header has type name
+      cy.get('[data-test="app-title"]').should('contain', 'Type')
+      cy.get('[data-test="type-header-name"]').should('be.visible').and('contain', typeName)
       cy.get('[data-test="lock-type-btn"]').should('be.visible').and('be.enabled')
       cy.get('[data-test="delete-type-btn"]').should('be.visible').and('be.enabled')
       cy.get('[data-test="unlock-type-btn"]').should('not.exist')

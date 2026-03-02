@@ -820,7 +820,7 @@ const openDictionaryFile = () => {
 
 const openEnumeratorsFile = () => {
   if (enumeratorsFileName.value) {
-    router.push({ name: 'EnumeratorDetail', params: { fileName: enumeratorsFileName.value } })
+    router.push({ name: 'EnumeratorCards', params: { fileName: enumeratorsFileName.value } })
   }
 }
 

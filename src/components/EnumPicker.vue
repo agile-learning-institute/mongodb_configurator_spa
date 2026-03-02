@@ -56,6 +56,20 @@
               >
                 <v-icon start size="18" :data-test="`enum-type-option-icon-${enumeratorName}`">mdi-format-list-checks</v-icon>
                 <span :data-test="`enum-type-option-name-${enumeratorName}`">{{ enumeratorName }}</span>
+                <v-tooltip v-if="latestEnumeratorFile" text="Open enumeration" location="top">
+                  <template #activator="{ props }">
+                    <v-icon
+                      v-bind="props"
+                      end
+                      size="small"
+                      class="ml-1"
+                      @click.stop="openEnumeration(enumeratorName)"
+                      :data-test="`enum-type-open-${enumeratorName}`"
+                    >
+                      mdi-open-in-new
+                    </v-icon>
+                  </template>
+                </v-tooltip>
               </v-chip>
             </div>
           </div>
@@ -148,6 +162,11 @@ const loadEnumerators = async () => {
 const selectEnum = (enumeratorName: string) => {
   emit('update:modelValue', enumeratorName)
   showPicker.value = false
+}
+
+const openEnumeration = (enumeratorName: string) => {
+  if (!latestEnumeratorFile.value) return
+  window.open(`/enumerators/${latestEnumeratorFile.value}/${encodeURIComponent(enumeratorName)}`, '_blank')
 }
 
 // Get chip color based on whether a value is selected

@@ -4,7 +4,9 @@
     <v-app-bar color="primary" theme="dark" class="app-header">
       <v-app-bar-nav-icon @click="toggleDrawer" data-test="nav-toggle" />
       <v-toolbar-title class="text-h5 font-weight-medium app-title" data-test="app-title">
-        <router-link to="/" class="text-decoration-none text-white">{{ uiHeader ?? 'MongoDB Configurator' }}</router-link>
+        <router-link to="/" class="text-decoration-none text-white">
+          {{ appTitle }}
+        </router-link>
       </v-toolbar-title>
       
       <!-- Admin Button -->
@@ -48,7 +50,7 @@
       
       <!-- Help Link at Bottom -->
       <div class="help-link-container">
-        <v-list-item to="/" link class="help-link" data-test="help-nav-item">
+        <v-list-item to="/help" link class="help-link" data-test="help-nav-item">
           <template v-slot:prepend>
             <v-icon size="large" data-test="help-nav-icon">mdi-help-circle</v-icon>
           </template>
@@ -76,6 +78,29 @@ import { useConfig } from '@/composables/useConfig'
 // Get read-only state and UI header from config
 const { uiHeader } = useConfig()
 
+// Build app title: UI_HEADER + current page focus
+const pageFocus = computed(() => {
+  const path = route.path
+  const params = route.params
+  if (path === '/help') return ''
+  if (path === '/admin') return 'Admin'
+  if (path.startsWith('/configurations/')) return `Configuration: ${(params.fileName as string)?.replace('.yaml', '') ?? ''}`
+  if (path === '/dictionaries') return 'Dictionaries'
+  if (path.startsWith('/dictionaries/')) return 'Dictionary'
+  if (path === '/types') return 'Types'
+  if (path.startsWith('/types/')) return 'Type'
+  if (path.startsWith('/enumerators/')) return 'Enumerators'
+  if (path.startsWith('/test_data/')) return `Test Data: ${(params.fileName as string) ?? ''}`
+  if (path.startsWith('/migrations/')) return `Migrations: ${(params.fileName as string) ?? ''}`
+  if (path === '/event-viewer') return 'Event Viewer'
+  return ''
+})
+
+const appTitle = computed(() => {
+  const base = uiHeader.value ?? 'MongoDB Configurator'
+  return pageFocus.value ? `${base} - ${pageFocus.value}` : base
+})
+
 // Initialize drawer state from localStorage or default to false (hidden)
 const drawer = ref(false)
 
@@ -84,7 +109,7 @@ const route = useRoute()
 const router = useRouter()
 
 // Help state
-const isOnHelpPage = computed(() => route.path === '/')
+const isOnHelpPage = computed(() => route.path === '/help')
 const previousPage = ref('')
 
 // Help route with context
@@ -109,7 +134,7 @@ const helpRoute = computed(() => {
     slideIndex = 7 // Admin
   }
   
-  return `/?slide=${slideIndex}`
+  return `/help?slide=${slideIndex}`
 })
 
 // Toggle help function
@@ -133,10 +158,10 @@ const toggleHelp = () => {
       if (hasEventData()) {
         // If we have event data, store it temporarily and navigate to help
         // The event state will be preserved in the composable
-        router.push('/?slide=8') // Events panel is at index 8 (slide 9)
+        router.push('/help?slide=8') // Events panel is at index 8 (slide 9)
       } else {
         // No event data, just go to help
-        router.push('/?slide=8')
+        router.push('/help?slide=8')
       }
     } else {
       router.push(helpRoute.value)

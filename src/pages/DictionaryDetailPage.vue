@@ -15,8 +15,18 @@
 
     <!-- Content -->
     <div v-else-if="dictionary">
-      <!-- Page Header -->
+      <!-- Page Header: back link + dictionary name (no version) + actions -->
       <header class="dictionary-header d-flex align-center mb-6">
+        <v-btn
+          variant="text"
+          size="small"
+          to="/dictionaries"
+          class="mr-4"
+          data-test="back-to-dictionaries-btn"
+        >
+          <v-icon start>mdi-arrow-left</v-icon>
+          Back
+        </v-btn>
         <h2 class="text-h5 font-weight-medium dictionary-name flex-grow-1 text-truncate mr-4" data-test="dictionary-header-name">
           {{ displayName }}
         </h2>
@@ -79,6 +89,36 @@
             title="Configuration"
             data-test="dictionary-config-link"
           />
+          <v-tooltip v-if="configFileName" text="Download JSON Schema" location="bottom">
+            <template #activator="{ props }">
+              <v-chip
+                v-bind="props"
+                variant="outlined"
+                size="small"
+                color="default"
+                class="cursor-pointer"
+                @click="downloadJsonSchema"
+                data-test="dictionary-json-schema-btn"
+              >
+                json
+              </v-chip>
+            </template>
+          </v-tooltip>
+          <v-tooltip v-if="configFileName" text="Download BSON Schema" location="bottom">
+            <template #activator="{ props }">
+              <v-chip
+                v-bind="props"
+                variant="outlined"
+                size="small"
+                color="default"
+                class="cursor-pointer"
+                @click="downloadBsonSchema"
+                data-test="dictionary-bson-schema-btn"
+              >
+                bson
+              </v-chip>
+            </template>
+          </v-tooltip>
         </div>
       </header>
       
@@ -268,6 +308,7 @@ import { ref, onMounted, onBeforeUnmount, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { apiService } from '@/utils/api'
 import { useConfig } from '@/composables/useConfig'
+import { useEvents } from '@/composables/useEvents'
 import BaseCard from '@/components/BaseCard.vue'
 import TypeChipPicker from '@/components/TypeChipPicker.vue'
 import ObjectPropertyExtension from '@/components/ObjectPropertyExtension.vue'
@@ -319,6 +360,16 @@ const configRoute = computed(() => {
   return parsed ? `/configurations/${parsed.collection}.yaml` : '/dictionaries'
 })
 
+// Config file name and version for schema downloads (config version = dict version + .0 for enumerators)
+const configFileName = computed(() => {
+  const parsed = dictionary.value ? parseDictionaryFileName(dictionary.value.file_name) : null
+  return parsed ? `${parsed.collection}.yaml` : null
+})
+const configVersion = computed(() => {
+  const parsed = dictionary.value ? parseDictionaryFileName(dictionary.value.file_name) : null
+  return parsed ? `${parsed.version}.0` : ''
+})
+
 // Prev/next version navigation
 const hasPreviousVersion = computed(() => {
   if (!dictionary.value || siblingDictionaries.value.length < 2) return false
@@ -348,6 +399,66 @@ const navigateToNextVersion = () => {
 
 // Computed disabled state - read-only mode OR locked
 const isDisabled = computed(() => isReadOnly.value || (dictionary.value?._locked || false))
+
+// Schema download helpers
+const parseBlobEvent = async (blob: Blob): Promise<any | null> => {
+  try {
+    const text = await blob.text()
+    const eventData = JSON.parse(text)
+    if (eventData.id && eventData.type && eventData.status) return eventData
+  } catch {
+    /* not valid JSON or not an event structure */
+  }
+  return null
+}
+
+const downloadJsonSchema = async () => {
+  if (!configFileName.value) return
+  const { showEvent, showError } = useEvents()
+  try {
+    const blob = await apiService.downloadJsonSchema(configFileName.value, configVersion.value)
+    const url = window.URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `${configFileName.value}_${configVersion.value}_json_schema.json`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    window.URL.revokeObjectURL(url)
+  } catch (err: any) {
+    if (err.response?.data instanceof Blob) {
+      const eventData = await parseBlobEvent(err.response.data)
+      if (eventData) showEvent(eventData, 'JSON Schema Generation Error', 'Failed to generate JSON schema')
+      else showError('Failed to download JSON schema', 'JSON Schema Generation Error')
+    } else {
+      showError(err.message || 'Failed to download JSON schema', 'JSON Schema Generation Error')
+    }
+  }
+}
+
+const downloadBsonSchema = async () => {
+  if (!configFileName.value) return
+  const { showEvent, showError } = useEvents()
+  try {
+    const blob = await apiService.downloadBsonSchema(configFileName.value, configVersion.value)
+    const url = window.URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `${configFileName.value}_${configVersion.value}_bson_schema.json`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    window.URL.revokeObjectURL(url)
+  } catch (err: any) {
+    if (err.response?.data instanceof Blob) {
+      const eventData = await parseBlobEvent(err.response.data)
+      if (eventData) showEvent(eventData, 'BSON Schema Generation Error', 'Failed to generate BSON schema')
+      else showError('Failed to download BSON schema', 'BSON Schema Generation Error')
+    } else {
+      showError(err.message || 'Failed to download BSON schema', 'BSON Schema Generation Error')
+    }
+  }
+}
 
 // Methods
 const handleDescriptionChange = () => {
@@ -689,6 +800,10 @@ onBeforeUnmount(() => {
   background: rgba(var(--v-theme-surface-variant), 0.5);
   border-radius: 16px;
   padding: 2px 4px;
+}
+
+.cursor-pointer {
+  cursor: pointer;
 }
 
 /* Dictionary content styling */

@@ -150,8 +150,8 @@ const createNewCollection = () => {
 }
 
 // Handle collection creation from NewCollectionDialog
-const handleCollectionCreated = (fileName: string) => {
-  router.push(`/configurations/${fileName}`)
+const handleCollectionCreated = (dictionaryFileName: string) => {
+  router.push(`/dictionaries/${dictionaryFileName}`)
 }
 
 const helpSlides = [

@@ -1,7 +1,6 @@
 <template>
-  <v-container>
-    <div class="d-flex justify-space-between align-center mb-6">
-      <h3 data-test="page-title">{{ title }}</h3>
+      <v-container>
+    <div v-if="$slots['header-actions']" class="d-flex justify-end align-center mb-4">
       <div class="d-flex align-center gap-2">
         <slot name="header-actions" />
       </div>

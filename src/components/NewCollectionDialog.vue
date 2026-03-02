@@ -120,7 +120,7 @@ const createCollection = async () => {
   try {
     const result = await apiService.createNewCollection(name, newCollectionDescription.value.trim())
     closeDialog()
-    emit('created', result.configuration_file)
+    emit('created', result.dictionary_file)
   } catch (err: any) {
     nameError.value = err.message || err.response?.data?.message || 'Failed to create collection'
   } finally {

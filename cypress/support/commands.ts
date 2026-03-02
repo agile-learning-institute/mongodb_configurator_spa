@@ -20,7 +20,7 @@ Cypress.Commands.add('resetApp', () => {
   cy.exec('npm run api', { failOnNonZeroExit: false, timeout: 120000 })
     .its('stdout')
     .should('include', 'mongodb_configurator_spa-configurator_api-1  Started')
-  cy.visit('/')
+  cy.visit('/dictionaries')
 })
 
 Cypress.Commands.add('interceptAlias', (method, url, alias) => {

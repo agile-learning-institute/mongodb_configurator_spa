@@ -11,27 +11,33 @@
     @retry="loadFiles"
   >
     <template #header-actions>
-      <v-btn
-        v-if="!isReadOnly"
-        color="primary"
-        variant="elevated"
-        prepend-icon="mdi-plus"
-        @click="showNewDialog = true"
-        data-test="new-type-btn"
-      >
-        New Type
-      </v-btn>
-      <v-btn
-        v-if="canLockAll && !isReadOnly"
-        color="info"
-        variant="outlined"
-        prepend-icon="mdi-lock"
-        @click="handleLockAll"
-        :loading="locking"
-        data-test="lock-all-btn"
-      >
-        Lock All
-      </v-btn>
+      <template v-if="!isReadOnly">
+        <v-tooltip v-if="canLockAll" text="Lock all types" location="bottom">
+          <template #activator="{ props }">
+            <v-btn
+              v-bind="props"
+              icon="mdi-lock"
+              variant="text"
+              size="small"
+              :loading="locking"
+              @click="handleLockAll"
+              data-test="lock-all-btn"
+            />
+          </template>
+        </v-tooltip>
+        <v-tooltip text="New type" location="bottom">
+          <template #activator="{ props }">
+            <v-btn
+              v-bind="props"
+              icon="mdi-plus"
+              variant="text"
+              size="small"
+              @click="showNewDialog = true"
+              data-test="new-type-btn"
+            />
+          </template>
+        </v-tooltip>
+      </template>
     </template>
     <template #empty-action>
       <v-btn
@@ -119,6 +125,7 @@ const handleOpen = (fileName: string) => {
 
 const handleLockAll = async () => {
   locking.value = true
+  error.value = null
   try {
     await lockAllFiles()
   } finally {

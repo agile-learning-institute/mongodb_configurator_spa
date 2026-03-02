@@ -6,13 +6,13 @@ describe('App Help Pages', () => {
   })
 
   it('loads the welcome carousel and navigation', () => {
-    cy.visit('/')
+    cy.visit('/help')
     cy.getByTest('help-carousel').should('be.visible')
     cy.getByTest('carousel-title-text').should('contain.text', 'Welcome')
   })
 
   it('has help content for each page', () => {
-    cy.visit('/')
+    cy.visit('/help')
     cy.getByTest('help-carousel').should('be.visible')
     cy.getByTest('carousel-title-text').should('contain.text', 'Welcome')
 
@@ -53,7 +53,7 @@ describe('App Help Pages', () => {
     cy.get('[data-test="help-btn"]').should('be.visible').click()
     cy.get('[data-test="carousel-title-text"]').should('contain.text', 'Dictionary')
     cy.get('[data-test="help-btn"]').should('be.visible').click()
-    cy.get('[data-test="page-title"]').should('contain.text', 'Dictionaries')
+    cy.get('[data-test="app-title"]').should('contain.text', 'Dictionaries')
 
     cy.visit('/configurations/sample.yaml')
     cy.wait(100)
@@ -66,47 +66,51 @@ describe('App Help Pages', () => {
   it('can navigate to the help page from dictionary pages', () => {
     cy.visit('/dictionaries')
     cy.wait(100)
-    cy.get('[data-test="page-title"]').should('contain.text', 'Dictionaries')
+    cy.get('[data-test="app-title"]').should('contain.text', 'Dictionaries')
     cy.get('[data-test="help-btn"]').should('be.visible').click()
     cy.get('[data-test="carousel-title-text"]').should('contain.text', 'Dictionary')
     cy.get('[data-test="help-btn"]').should('be.visible').click()
-    cy.get('[data-test="page-title"]').should('contain.text', 'Dictionaries')
+    cy.get('[data-test="app-title"]').should('contain.text', 'Dictionaries')
 
     cy.visit('/dictionaries/sample.1.0.1.yaml')
     cy.wait(100)
-    cy.get('header').should('contain.text', 'sample.1.0.1')
+    cy.get('[data-test="app-title"]').should('contain.text', 'Dictionary')
+    cy.get('[data-test="dictionary-header-name"]').should('contain.text', 'sample')
     cy.get('[data-test="help-btn"]').should('be.visible').click()
     cy.get('[data-test="carousel-title-text"]').should('contain.text', 'Dictionary')
     cy.get('[data-test="help-btn"]').should('be.visible').click()
-    cy.get('header').should('contain.text', 'sample.1.0.1')
+    cy.get('[data-test="dictionary-header-name"]').should('contain.text', 'sample')
   })
 
   it('can navigate to the help page from type pages', () => {
     cy.visit('/types')
     cy.wait(100)
-    cy.get('[data-test="page-title"]').should('contain.text', 'Types')
+    cy.get('[data-test="app-title"]').should('contain.text', 'Types')
     cy.get('[data-test="help-btn"]').should('be.visible').click()
     cy.get('[data-test="carousel-title-text"]').should('contain.text', 'Type')
     cy.get('[data-test="help-btn"]').should('be.visible').click()
-    cy.get('[data-test="page-title"]').should('contain.text', 'Types')
+    cy.get('[data-test="app-title"]').should('contain.text', 'Types')
 
     cy.visit('/types/word.yaml')
     cy.wait(100)
-    cy.get('header').should('contain.text', 'Type: word')
+    cy.get('[data-test="app-title"]').should('contain.text', 'Type')
+    cy.get('[data-test="type-header-name"]').should('contain.text', 'word')
     cy.get('[data-test="help-btn"]').should('be.visible').click()
     cy.get('[data-test="carousel-title-text"]').should('contain.text', 'Type')
     cy.get('[data-test="help-btn"]').should('be.visible').click()
-    cy.get('header').should('contain.text', 'Type: word')
+    cy.get('[data-test="type-header-name"]').should('contain.text', 'word')
   })
 
   it('can navigate to the help page from enumerators pages', () => {
     cy.visit('/enumerators/enumerations.0.yaml')
     cy.wait(100)
-    cy.get('[data-test="enumerator-version"]').should('contain.text', 'Version: 0')
+    cy.get('[data-test="app-title"]').should('contain.text', 'Enumerators')
+    cy.get('[data-test="enumerator-header-name"]').should('contain.text', 'enumerations')
+    cy.get('[data-test="enumerator-version-pill"]').should('contain.text', '0')
     cy.get('[data-test="help-btn"]').should('be.visible').click()
     cy.get('[data-test="carousel-title-text"]').should('contain.text', 'Enumerator')
     cy.get('[data-test="help-btn"]').should('be.visible').click()
-    cy.get('[data-test="enumerator-version"]').should('contain.text', 'Version: 0')
+    cy.get('[data-test="enumerator-header-name"]').should('contain.text', 'enumerations')
   })
 
   it('can navigate to the help page from Test Data pages', () => {

@@ -11,16 +11,33 @@
     @retry="loadCollections"
   >
     <template #header-actions>
-      <v-btn
-        v-if="!isReadOnly"
-        color="primary"
-        variant="elevated"
-        prepend-icon="mdi-plus"
-        @click="showNewCollectionDialog = true"
-        data-test="new-collection-btn"
-      >
-        New Dictionary
-      </v-btn>
+      <template v-if="!isReadOnly">
+        <v-tooltip text="Lock all dictionaries" location="bottom">
+          <template #activator="{ props }">
+            <v-btn
+              v-bind="props"
+              icon="mdi-lock"
+              variant="text"
+              size="small"
+              :loading="lockAllLoading"
+              @click="handleLockAll"
+              data-test="lock-all-btn"
+            />
+          </template>
+        </v-tooltip>
+        <v-tooltip text="New dictionary" location="bottom">
+          <template #activator="{ props }">
+            <v-btn
+              v-bind="props"
+              icon="mdi-plus"
+              variant="text"
+              size="small"
+              @click="showNewCollectionDialog = true"
+              data-test="new-collection-btn"
+            />
+          </template>
+        </v-tooltip>
+      </template>
     </template>
     <template #empty-action>
       <v-btn
@@ -62,6 +79,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { apiService } from '@/utils/api'
 import { useConfig } from '@/composables/useConfig'
 import { useCollections } from '@/composables/useCollections'
 import ListCardPageLayout from '@/components/ListCardPageLayout.vue'
@@ -73,6 +91,20 @@ const { isReadOnly } = useConfig()
 const { collections, loading, error, loadCollections } = useCollections()
 
 const showNewCollectionDialog = ref(false)
+const lockAllLoading = ref(false)
+
+const handleLockAll = async () => {
+  lockAllLoading.value = true
+  error.value = null
+  try {
+    await apiService.lockAllDictionaries()
+    await loadCollections()
+  } catch (err: any) {
+    error.value = err.message || 'Failed to lock all dictionaries'
+  } finally {
+    lockAllLoading.value = false
+  }
+}
 
 const handleOpenDictionary = (fileName: string) => {
   router.push(`/dictionaries/${fileName}`)
@@ -82,8 +114,8 @@ const handleOpenConfiguration = (fileName: string) => {
   router.push(`/configurations/${fileName}`)
 }
 
-const handleCollectionCreated = (configFileName: string) => {
+const handleCollectionCreated = (dictionaryFileName: string) => {
   loadCollections()
-  router.push(`/configurations/${configFileName}`)
+  router.push(`/dictionaries/${dictionaryFileName}`)
 }
 </script>

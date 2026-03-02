@@ -15,10 +15,9 @@
 
     <!-- Event display -->
     <div v-else-if="event">
-      <!-- Header -->
+      <!-- Header: subtitle and actions (title in app bar) -->
       <div class="d-flex justify-space-between align-center mb-6">
         <div>
-          <h1 class="text-h4">{{ title }}</h1>
           <p class="text-body-1 text-medium-emphasis">{{ subtitle }}</p>
         </div>
         <div class="d-flex align-center">

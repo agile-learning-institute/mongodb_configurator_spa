@@ -59,14 +59,14 @@ const typeName = computed(() => props.typeFile.name.replace(/\.yaml$/, ''))
   height: 100%;
   border-radius: 12px;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
   transition: box-shadow 0.2s ease;
   display: flex;
   flex-direction: column;
 }
 
 .type-card:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
 }
 
 .card-content {

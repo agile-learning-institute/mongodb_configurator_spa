@@ -48,8 +48,8 @@ describe('User Journey - Create, configure, revise, and re-configure a new colle
       cy.get('[data-test="new-collection-name-input"]').find('input').type(collectionName)
       cy.get('[data-test="new-collection-description-input"]').find('input').type('User Journey 1 Collection')
       cy.get('[data-test="new-collection-create-btn"]').click()
-      cy.url().should('include', `/configurations/${collectionName}.yaml`)
-      cy.get('[data-test="page-header"]').find('textarea').should('have.value', 'User Journey 1 Collection')
+      cy.url().should('include', `/dictionaries/${collectionName}.${Version1}.yaml`)
+      cy.get('[data-test="root-description-input"]').find('input').should('have.value', 'User Journey 1 Collection')
     })
     
     it('updates the dictionary', () => {
@@ -144,25 +144,28 @@ describe('User Journey - Create, configure, revise, and re-configure a new colle
       cy.get('[data-test="enumerators-file-chip"]').should('be.visible').click()
       cy.url().should('include', `/enumerators/enumerations.${EnumeratorsVersion1}`)
 
+      // Open default_status enumeration (cards page -> detail page)
+      cy.get('[data-test="enumeration-card-default_status"]').should('be.visible').click()
+      cy.url().should('include', '/enumerators/')
+      cy.url().should('include', '/default_status')
+
       // Unlock the enumerator
       cy.get('[data-test="unlock-btn"]').should('exist').click()
       cy.get('[data-test="unlock-dialog-unlock-btn"]').should('exist').click()
       cy.get('[data-test="unlock-btn"]').should('not.exist')
 
       // Add a new value to the default_status enumerator
-      cy.get('[data-test="add-enum-value-btn-0"]').click()
-      cy.get('[data-test="enum-value-input-0-2"]').should('be.visible').click()
-      cy.get('[data-test="enum-value-input-0-2"]').type('draft')
-      cy.get('[data-test="enum-value-input-0-2"] input').should('have.value', 'draft')
-      cy.get('[data-test="enum-description-input-0-2"]').should('be.visible').click()
-      cy.get('[data-test="enum-description-input-0-2"]').type('A Draft Status')
-      cy.get('[data-test="enum-description-input-0-2"] input').should('have.value', 'A Draft Status')
+      cy.get('[data-test="add-enum-value-btn"]').click()
+      cy.get('[data-test="enum-value-input-2"]').should('be.visible').find('input').clear().type('draft')
+      cy.get('[data-test="enum-value-input-2"] input').should('have.value', 'draft')
+      cy.get('[data-test="enum-description-input-2"]').should('be.visible').find('input').clear().type('A Draft Status')
+      cy.get('[data-test="enum-description-input-2"] input').should('have.value', 'A Draft Status')
 
       // Verify persistence
       cy.wait(250)
       cy.reload()
-      cy.get('[data-test="enum-value-input-0-2"] input').should('have.value', 'draft')
-      cy.get('[data-test="enum-description-input-0-2"] input').should('have.value', 'A Draft Status')
+      cy.get('[data-test="enum-value-input-2"] input').should('have.value', 'draft')
+      cy.get('[data-test="enum-description-input-2"] input').should('have.value', 'A Draft Status')
     })
 
     it('adds indexes', () => {

@@ -17,10 +17,9 @@
     <div v-else-if="configuration">
       <!-- File Header -->
       <div class="mb-6">
-        <!-- File name, description, and process button row -->
+        <!-- Description and process button row (title in app bar) -->
         <div class="d-flex align-center justify-space-between mb-2">
           <div class="d-flex align-center" style="flex: 1; min-width: 0;">
-            <h3 class="text-h5 text-medium-emphasis mr-2 mb-0">{{ configuration.file_name.replace('.yaml', '') }}:</h3>
             <v-textarea
               v-model="configuration.description"
               placeholder="Enter configuration description..."
@@ -37,51 +36,63 @@
             />
           </div>
           
-          <div class="d-flex flex-column gap-2">
-            <div v-if="!isReadOnly" class="d-flex flex-column gap-2">
-              <v-btn
-                color="secondary"
-                @click="processAllVersions"
-                :loading="processing"
-                data-test="configure-collection-btn"
-              >
-                <v-icon start>mdi-cog</v-icon>
-                Configure Collection
-              </v-btn>
-              
-              <v-btn
-                color="red"
-                variant="outlined"
-                @click="showDeleteCollectionDialog = true"
-                data-test="delete-collection-btn"
-              >
-                <v-icon start>mdi-delete</v-icon>
-                Delete Configuration
-              </v-btn>
-            </div>
-            
-            <div class="d-flex gap-2">
-              <v-btn
-                color="primary"
-                variant="outlined"
-                size="small"
-                @click="downloadJsonSchema(activeVersion)"
-                data-test="json-schema-btn"
-              >
-                <v-icon start size="small">mdi-code-json</v-icon>
-                JSON Schema
-              </v-btn>
-              <v-btn
-                color="primary"
-                variant="outlined"
-                size="small"
-                @click="downloadBsonSchema(activeVersion)"
-                data-test="bson-schema-btn"
-              >
-                <v-icon start size="small">mdi-database</v-icon>
-                BSON Schema
-              </v-btn>
-            </div>
+          <div class="d-flex align-center gap-1">
+            <v-tooltip v-if="!isReadOnly" text="Configure Collection" location="bottom">
+              <template #activator="{ props }">
+                <v-btn
+                  v-bind="props"
+                  icon="mdi-cog"
+                  variant="text"
+                  size="small"
+                  @click="processAllVersions"
+                  :loading="processing"
+                  data-test="configure-collection-btn"
+                />
+              </template>
+            </v-tooltip>
+            <v-tooltip v-if="!isReadOnly" text="Delete Collection" location="bottom">
+              <template #activator="{ props }">
+                <v-btn
+                  v-bind="props"
+                  icon="mdi-delete"
+                  variant="text"
+                  size="small"
+                  color="error"
+                  @click="showDeleteCollectionDialog = true"
+                  data-test="delete-collection-btn"
+                />
+              </template>
+            </v-tooltip>
+            <v-tooltip text="Download JSON Schema" location="bottom">
+              <template #activator="{ props }">
+                <v-chip
+                  v-bind="props"
+                  variant="outlined"
+                  size="small"
+                  color="default"
+                  class="cursor-pointer"
+                  @click="downloadJsonSchema(activeVersion)"
+                  data-test="json-schema-btn"
+                >
+                  json
+                </v-chip>
+              </template>
+            </v-tooltip>
+            <v-tooltip text="Download BSON Schema" location="bottom">
+              <template #activator="{ props }">
+                <v-chip
+                  v-bind="props"
+                  variant="outlined"
+                  size="small"
+                  color="default"
+                  class="cursor-pointer"
+                  @click="downloadBsonSchema(activeVersion)"
+                  data-test="bson-schema-btn"
+                >
+                  bson
+                </v-chip>
+              </template>
+            </v-tooltip>
           </div>
         </div>
       </div>
@@ -135,31 +146,45 @@
           </template>
           
           <template #header-actions>
-            <div v-if="activeVersion && activeVersionData && !isReadOnly" class="d-flex flex-column gap-2">
-              <!-- Version action buttons -->
-              <div class="d-flex gap-2">
-                <v-btn
-                  :color="activeVersionData?._locked ? 'warning' : 'success'"
-                  variant="elevated"
-                  size="small"
-                  @click="toggleVersionLock"
-                  data-test="toggle-lock-btn"
-                >
-                  <v-icon start size="small" data-test="lock-icon">{{ activeVersionData?._locked ? 'mdi-lock' : 'mdi-lock-open' }}</v-icon>
-                  <span data-test="lock-btn-text">{{ activeVersionData?._locked ? 'Unlock' : 'Lock' }}</span>
-                </v-btn>
-                <v-btn
-                  v-if="!activeVersionData?._locked"
-                  color="error"
-                  variant="elevated"
-                  size="small"
-                  @click="handleDeleteVersion"
-                  data-test="delete-version-btn"
-                >
-                  <v-icon start size="small" data-test="delete-icon">mdi-delete</v-icon>
-                  <span data-test="delete-btn-text">Delete</span>
-                </v-btn>
-              </div>
+            <div v-if="activeVersion && activeVersionData && !isReadOnly" class="d-flex align-center gap-1">
+              <v-tooltip v-if="activeVersionData?._locked" text="Unlock" location="bottom">
+                <template #activator="{ props }">
+                  <v-btn
+                    v-bind="props"
+                    icon="mdi-lock-open"
+                    variant="text"
+                    size="small"
+                    color="warning"
+                    @click="toggleVersionLock"
+                    data-test="toggle-lock-btn"
+                  />
+                </template>
+              </v-tooltip>
+              <v-tooltip v-else text="Lock" location="bottom">
+                <template #activator="{ props }">
+                  <v-btn
+                    v-bind="props"
+                    icon="mdi-lock"
+                    variant="text"
+                    size="small"
+                    @click="toggleVersionLock"
+                    data-test="toggle-lock-btn"
+                  />
+                </template>
+              </v-tooltip>
+              <v-tooltip v-if="!activeVersionData?._locked" text="Delete Version" location="bottom">
+                <template #activator="{ props }">
+                  <v-btn
+                    v-bind="props"
+                    icon="mdi-delete"
+                    variant="text"
+                    size="small"
+                    color="error"
+                    @click="handleDeleteVersion"
+                    data-test="delete-version-btn"
+                  />
+                </template>
+              </v-tooltip>
             </div>
           </template>
           
