@@ -10,11 +10,14 @@ npm run service
 
 ### 🧪 **Testing Quick Reference**
 ```bash
-# Build a fresh container, and run all cypress tests (headless)
+# Start API and SPA first (in a separate terminal)
+npm run service
+
+# Run all cypress tests (headless; assumes API and SPA are running)
 npm run e2e
 
-# Run all cypress tests (headless, assumes api and spa are live)
-npm run cy:run
+# Run all cypress tests in Chrome
+npm run e2e:chrome
 
 # Run a specific test (headless)
 npm run cy:run -- --spec "cypress/e2e/types.array.cy.ts"
@@ -51,7 +54,7 @@ npm run service
 # pull the latest published containers
 npm run pull
 
-# Build a container and run cypress e2e tests
+# Run cypress e2e tests (start API and SPA with `npm run service` first)
 npm run e2e
 
 # shut down all of the containers after testing 
