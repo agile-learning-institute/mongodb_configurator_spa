@@ -69,13 +69,14 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { apiService } from '@/utils/api'
 import { useConfig } from '@/composables/useConfig'
 import JsonArrayEditor from '@/components/JsonArrayEditor.vue'
 import BaseCard from '@/components/BaseCard.vue'
 
 const route = useRoute()
+const router = useRouter()
 const { isReadOnly } = useConfig()
 const loading = ref(false)
 const saving = ref(false)
@@ -122,7 +123,7 @@ const confirmDelete = async () => {
   try {
     await apiService.deleteTestDataFile(fileName.value)
     // Navigate back to test data list
-    window.location.href = '/test_data'
+    router.push('/dictionaries')
   } catch (err: any) {
     error.value = err.message || 'Failed to delete test data file'
     console.error('Failed to delete test data file:', err)

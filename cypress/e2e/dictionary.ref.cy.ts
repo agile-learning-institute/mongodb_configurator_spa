@@ -109,6 +109,7 @@ describe('Dictionary Details Page', () => {
 
       cy.get('[data-test="ref-dictionary-chip"]').should('be.visible').click()
       cy.get('[data-test="ref-dictionary-picker-card"]').should('be.visible')
+      cy.get('[data-test="open-dictionaries-link"]').should('be.visible')
       cy.get('[data-test^="ref-dictionary-option-"].v-chip').should('have.length.greaterThan', 2)
       cy.get(`[data-test="ref-dictionary-option-${dictionaryName}"]`).should('be.visible').click()
       cy.get('[data-test="ref-dictionary-picker-card"]').should('not.exist')

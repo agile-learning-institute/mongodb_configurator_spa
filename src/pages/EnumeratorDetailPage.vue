@@ -312,6 +312,7 @@
 
 <script setup lang="ts">
 import { ref, watch, computed, onMounted, nextTick } from 'vue'
+import { useRouter } from 'vue-router'
 import BaseCard from '@/components/BaseCard.vue'
 import { useEnumeratorDetail } from '@/composables/useEnumeratorDetail'
 import { useNewVersion } from '@/composables/useNewVersion'
@@ -328,6 +329,7 @@ function debounce<T extends (...args: any[]) => any>(func: T, wait: number): T {
   }) as T
 }
 
+const router = useRouter()
 const showDeleteDialog = ref(false)
 const showUnlockDialog = ref(false)
 const enumeratorFiles = ref<any[]>([])
@@ -547,8 +549,8 @@ const confirmDelete = async () => {
     await apiService.deleteEnumerator(enumerator.value.file_name)
     // Close the dialog
     showDeleteDialog.value = false
-    // Navigate back to enumerators list
-    window.location.href = '/enumerators'
+    // Navigate back to dictionaries (enumerators list removed)
+    router.push('/dictionaries')
   } catch (err: any) {
     error.value = err.message || 'Failed to delete enumerator'
     console.error('Failed to delete enumerator:', err)

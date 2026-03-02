@@ -69,13 +69,14 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { apiService } from '@/utils/api'
 import { useConfig } from '@/composables/useConfig'
 import JsonArrayEditor from '@/components/JsonArrayEditor.vue'
 import BaseCard from '@/components/BaseCard.vue'
 
 const route = useRoute()
+const router = useRouter()
 const { isReadOnly } = useConfig()
 const loading = ref(false)
 const saving = ref(false)
@@ -121,7 +122,7 @@ const confirmDelete = async () => {
   try {
     await apiService.deleteMigration(fileName.value)
     // Navigate back to migrations list
-    window.location.href = '/migrations'
+    router.push('/dictionaries')
   } catch (err: any) {
     error.value = err.message || 'Failed to delete migration'
     console.error('Failed to delete migration:', err)

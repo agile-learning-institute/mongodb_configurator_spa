@@ -4,17 +4,13 @@ import { useConfig } from '@/composables/useConfig'
 // Lazy-loaded page components
 const WelcomePage = () => import('@/pages/WelcomePage.vue')
 const AdminPage = () => import('@/pages/AdminPage.vue')
-const ConfigurationsPage = () => import('@/pages/ConfigurationsPage.vue')
 const ConfigurationDetailPage = () => import('@/pages/ConfigurationDetailPage.vue')
 const DictionariesPage = () => import('@/pages/DictionariesPage.vue')
 const DictionaryDetailPage = () => import('@/pages/DictionaryDetailPage.vue')
 const TypesPage = () => import('@/pages/TypesPage.vue')
 const TypeDetailPage = () => import('@/pages/TypeDetailPage.vue')
-const EnumeratorsPage = () => import('@/pages/EnumeratorsPage.vue')
 const EnumeratorDetailPage = () => import('@/pages/EnumeratorDetailPage.vue')
-const TestDataPage = () => import('@/pages/TestDataPage.vue')
 const TestDataDetailPage = () => import('@/pages/TestDataDetailPage.vue')
-const MigrationsPage = () => import('@/pages/MigrationsPage.vue')
 const MigrationsDetailPage = () => import('@/pages/MigrationsDetailPage.vue')
 const EventViewerPage = () => import('@/pages/EventViewerPage.vue')
 
@@ -33,9 +29,7 @@ const routes = [
   },
   {
     path: '/configurations',
-    name: 'Configurations',
-    component: ConfigurationsPage,
-    meta: { title: 'Configurations' }
+    redirect: '/dictionaries'
   },
   {
     path: '/configurations/:fileName',
@@ -69,9 +63,7 @@ const routes = [
   },
   {
     path: '/enumerators',
-    name: 'Enumerators',
-    component: EnumeratorsPage,
-    meta: { title: 'Enumerators' }
+    redirect: '/enumerators/enumerations.0.yaml'
   },
   {
     path: '/enumerators/:fileName',
@@ -81,9 +73,7 @@ const routes = [
   },
   {
     path: '/test_data',
-    name: 'TestData',
-    component: TestDataPage,
-    meta: { title: 'Test Data' }
+    redirect: '/dictionaries'
   },
   {
     path: '/test_data/:fileName',
@@ -93,9 +83,7 @@ const routes = [
   },
   {
     path: '/migrations',
-    name: 'Migrations',
-    component: MigrationsPage,
-    meta: { title: 'Migrations' }
+    redirect: '/dictionaries'
   },
   {
     path: '/migrations/:fileName',

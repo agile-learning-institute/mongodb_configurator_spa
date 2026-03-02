@@ -11,13 +11,13 @@ describe('User Journey - Create, configure, revise, and re-configure a new colle
     cy.wait(1000)
   })
 
-  // Clean up 
+  // Clean up
   after(() => {
     const filesToDelete = [
-      `configurations/${collectionName}.yaml`, 
-      `dictionaries/${collectionName}.${Version1}.yaml`, 
+      `configurations/${collectionName}.yaml`,
+      `dictionaries/${collectionName}.${Version1}.yaml`,
       `test_data/${collectionName}.${Version1}.${EnumeratorsVersion1}.json`,
-      `dictionaries/${collectionName}.${Version2}.yaml`, 
+      `dictionaries/${collectionName}.${Version2}.yaml`,
       `migrations/${collectionName}.names_to_full_name.yaml`,
       `test_data/${collectionName}.${Version2}.${EnumeratorsVersion2}.json`
     ]
@@ -38,16 +38,15 @@ describe('User Journey - Create, configure, revise, and re-configure a new colle
 
     it('creates a new configuration', () => {
       collectionName = 'Journey1'
-      Version1 = '0.1.0'
+      Version1 = '1.0.0'
       EnumeratorsVersion1 = '0'
-      Version2 = '1.0.0'
+      Version2 = '2.0.0'
       EnumeratorsVersion2 = '1'
 
-      cy.visit('/configurations')
+      cy.visit('/dictionaries')
       cy.get('[data-test="new-collection-btn"]').click()
       cy.get('[data-test="new-collection-name-input"]').find('input').type(collectionName)
       cy.get('[data-test="new-collection-description-input"]').find('input').type('User Journey 1 Collection')
-      cy.get('[data-test="version-minor-plus-btn"]').click()
       cy.get('[data-test="new-collection-create-btn"]').click()
       cy.url().should('include', `/configurations/${collectionName}.yaml`)
       cy.get('[data-test="page-header"]').find('textarea').should('have.value', 'User Journey 1 Collection')

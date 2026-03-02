@@ -108,44 +108,44 @@ const titleClass = computed(() => {
 }
 
 .base-card.cursor-pointer:hover {
-  background-color: rgba(46, 125, 50, 0.04);
+  background-color: rgba(var(--v-theme-primary), 0.04);
 }
 
 .header-section {
-  background: linear-gradient(135deg, #2E7D32 0%, #388E3C 100%);
+  background: linear-gradient(135deg, rgb(var(--v-theme-primary)) 0%, rgb(var(--v-theme-secondary)) 100%);
   border-radius: 12px 12px 0 0;
 }
 
 .base-card.secondary .header-section {
-  background: linear-gradient(135deg, #E8F5E8 0%, #F1F8E9 100%);
+  background: linear-gradient(135deg, rgba(var(--v-theme-primary), 0.08) 0%, rgba(var(--v-theme-primary), 0.04) 100%);
   border-radius: 8px 8px 0 0;
 }
 
 .base-card.compact .header-section {
-  background: linear-gradient(135deg, #2E7D32 0%, #388E3C 100%);
+  background: linear-gradient(135deg, rgb(var(--v-theme-primary)) 0%, rgb(var(--v-theme-secondary)) 100%);
   border-radius: 6px 6px 0 0;
   padding: 8px 12px !important;
 }
 
 .base-card.compact.secondary .header-section {
-  background: linear-gradient(135deg, #E8F5E8 0%, #F1F8E9 100%);
+  background: linear-gradient(135deg, rgba(var(--v-theme-primary), 0.08) 0%, rgba(var(--v-theme-primary), 0.04) 100%);
   border-radius: 6px 6px 0 0;
 }
 
 .content-section {
-  background: linear-gradient(135deg, #F1F8E9 0%, #E8F5E8 100%);
+  background: linear-gradient(135deg, rgba(var(--v-theme-primary), 0.04) 0%, rgba(var(--v-theme-surface), 1) 100%);
 }
 
 .base-card.secondary .content-section {
-  background: linear-gradient(135deg, #FFFFFF 0%, #F9FBE7 100%);
+  background: linear-gradient(135deg, #FFFFFF 0%, rgba(var(--v-theme-primary), 0.02) 100%);
 }
 
 .base-card.compact .content-section {
-  background: linear-gradient(135deg, #F1F8E9 0%, #E8F5E8 100%);
+  background: linear-gradient(135deg, rgba(var(--v-theme-primary), 0.04) 0%, rgba(var(--v-theme-surface), 1) 100%);
   padding: 12px 16px !important;
 }
 
 .base-card.compact.secondary .content-section {
-  background: linear-gradient(135deg, #FFFFFF 0%, #F9FBE7 100%);
+  background: linear-gradient(135deg, #FFFFFF 0%, rgba(var(--v-theme-primary), 0.02) 100%);
 }
 </style> 

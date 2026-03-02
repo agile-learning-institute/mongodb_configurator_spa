@@ -22,8 +22,19 @@
       </template>
       
       <v-card min-width="300" class="type-picker-menu" data-test="type-picker-card">
-        <v-card-title class="text-subtitle-2 pa-4 pb-2" data-test="type-picker-title">
-          Select Property Type
+        <v-card-title class="text-subtitle-2 pa-4 pb-2 d-flex align-center justify-space-between" data-test="type-picker-title">
+          <span>Select Property Type</span>
+          <v-btn
+            variant="text"
+            size="small"
+            color="primary"
+            :to="'/types'"
+            @click="menuOpen = false"
+            data-test="open-types-link"
+          >
+            <v-icon start size="small">mdi-open-in-new</v-icon>
+            Open Types
+          </v-btn>
         </v-card-title>
         
         <v-card-text class="pa-4 pt-0">

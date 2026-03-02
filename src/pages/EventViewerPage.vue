@@ -87,7 +87,7 @@ const loadEvent = () => {
       eventTitle = state.title
       eventSubtitle = state.subtitle
       // Set previous page to configurations as default
-      previousPage.value = '/configurations'
+      previousPage.value = '/dictionaries'
     } else {
       // Fallback to route state for backward compatibility
       const routeState = route.meta?.state || history.state
@@ -133,7 +133,7 @@ const goBack = () => {
   if (previousPage.value) {
     router.push(previousPage.value)
   } else {
-    router.push('/configurations')
+    router.push('/dictionaries')
   }
 }
 

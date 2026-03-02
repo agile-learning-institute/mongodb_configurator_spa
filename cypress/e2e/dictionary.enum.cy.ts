@@ -109,6 +109,7 @@ describe('Dictionary Details Page', () => {
 
       cy.get('[data-test="enum-type-chip"]').should('be.visible').click()
       cy.get('[data-test="enum-type-picker-card"]').should('be.visible')
+      cy.get('[data-test="open-enumerators-link"]').should('be.visible')
       cy.get('[data-test^="enum-type-option-"].v-chip').should('have.length', 2)
       cy.get('[data-test="enum-type-option-test_enum"]').should('contain', 'test_enum')
       cy.get('[data-test="enum-type-option-default_status"]').should('contain', 'default_status').click()

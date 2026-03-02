@@ -59,33 +59,22 @@ describe('Enumerators detail page', () => {
   // This ensures each test starts with a clean, unlocked version to work with
   beforeEach(() => {
     deleteNonSeedData()
-    cy.visit('/enumerators')
-    cy.contains('button', 'New').click()
+    // /enumerators redirects to /enumerators/enumerations.0.yaml; navigate to working version
+    cy.visit('/enumerators/enumerations.3.yaml')
     cy.get(`[data-test="enumerator-version"]`).should('be.visible')
     cy.get(`[data-test="enumerator-version"]`).should('contain', `Version: 3`)
   })
 
   // Teardown: Clean up the working version and any higher versions after each test
   afterEach(() => {
-    // Clean up any versions that might have been created 
     deleteNonSeedData()
-
-    // Verify cleanup by visiting enumerators page and checking file count
-    cy.visit('/enumerators')
-    cy.get('.v-card').should('have.length', 3)
   })
 
-  describe('List Page Functionality', () => {
-    it('loads enumerators list page and shows working version enumerator', () => {
-      // List page
+  describe('Enumerator access (no top-level list; via direct URL or EnumPicker)', () => {
+    it('redirects /enumerators to latest enumerator detail', () => {
       cy.visit('/enumerators')
-      
-      // Verify starting state
-      cy.get('h3').should('contain', 'Enumerators')
-      cy.contains('button', 'New').should('be.visible')
-      cy.contains('button', 'Lock All').should('be.visible')
-      cy.get('.v-card').should('have.length', 4)
-      cy.get('.v-card').last().should('contain', `enumerations.3.yaml`)
+      cy.url().should('include', '/enumerators/')
+      cy.get('[data-test="card-title"]').should('contain', 'Enumerators')
     })
   })
 
@@ -334,10 +323,9 @@ describe('Enumerators detail page', () => {
 
     })
 
-    it('locks when new list new button', () => {
-      // Visit the current version enumerator detail page
-      cy.visit('/enumerators')
-      cy.contains('button', 'New').click()
+    it('locks when new from add version button', () => {
+      cy.visit('/enumerators/enumerations.3.yaml')
+      cy.get('[data-test="add-version-btn"]').click()
         
       // Wait for navigation to the new version
       cy.url().should('contain', '/enumerators/enumerations.4.yaml')
@@ -402,16 +390,13 @@ describe('Enumerators detail page', () => {
     })
 
     it('deletes with a warning', () => {
-      // Visit the working version enumerator detail page (should already be unlocked)
       cy.visit(`/enumerators/enumerations.3.yaml`)
-      
-      // Now click delete to show the warning dialog
       cy.get('[data-test="delete-enumerator-btn"]').should('be.visible').click()
       cy.get('[data-test="delete-warning-dialog"]').should('be.visible')
       cy.get('[data-test="delete-warning-title"]').should('contain', 'Warning: Delete Enumerator')
       cy.get('[data-test="delete-dialog-cancel-btn"]').should('be.visible')
       cy.get('[data-test="delete-dialog-delete-btn"]').should('be.visible').click()
-      cy.url().should('contain', '/enumerators')
+      cy.url().should('include', '/enumerators')
     })
   })
 })

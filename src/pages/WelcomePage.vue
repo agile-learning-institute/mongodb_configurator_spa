@@ -164,12 +164,10 @@ const helpSlides = [
       <h2 class="key-features-title">Key Features</h2>
       <ul class="key-features-list">
         <li><span class="key-feature-link"><a href="/" class="feature-link">Online Help</a></span> is available using <i class="mdi mdi-help-circle"></i> <i class="mdi mdi-arrow-top-right"></i> from any page.</li>
-        <li><span class="key-feature-link"><a href="/configurations" class="feature-link">Collection Configurations</a></span> control the configuration process.</li>
-        <li><span class="key-feature-link"><a href="/dictionaries" class="feature-link">Data Dictionaries</a></span> provide a human-friendly way to define data structures.</li>
+        <li><span class="key-feature-link"><a href="/dictionaries" class="feature-link">Data Dictionaries</a></span> provide a human-friendly way to define data structures. Open configurations from the gear icon on each dictionary card.</li>
         <li><span class="key-feature-link"><a href="/types" class="feature-link">Custom Types</a></span> specify JSON/BSON schemas for Dictionary types.</li>
-        <li><span class="key-feature-link"><a href="/enumerators" class="feature-link">Enumerators</a></span> provide a versioned location for enumerator validation values.</li>
-        <li><span class="key-feature-link"><a href="/test_data" class="feature-link">Test Data</a></span> can be loaded into the database to support a robust developer experience.</li>
-        <li><span class="key-feature-link"><a href="/migrations" class="feature-link">Migrations</a></span> allow you to run migration pipelines to alter existing data when schema changes require it.</li>
+        <li><span class="key-feature-link"><a href="/enumerators/enumerations.0.yaml" class="feature-link">Enumerators</a></span> provide a versioned location for enumerator validation values.</li>
+        <li>Test Data and Migrations are managed from the Configuration detail page (opened via the gear icon on a dictionary card).</li>
       </ul>
     `
   },

@@ -7,38 +7,6 @@
         <router-link to="/" class="text-decoration-none text-white">{{ uiHeader ?? 'MongoDB Configurator' }}</router-link>
       </v-toolbar-title>
       
-      <!-- Configure Database Button -->
-      <v-btn
-        v-if="!isReadOnly"
-        color="white"
-        variant="elevated"
-        size="large"
-        @click="processAllConfigurations"
-        :loading="processing"
-        :disabled="processing"
-        class="mr-3 process-btn"
-        data-test="process-all-btn"
-      >
-        <v-icon start data-test="process-all-icon">mdi-cog</v-icon>
-        Configure Database
-      </v-btn>
-      
-      <!-- Drop Database Button -->
-      <v-btn
-        v-if="!isReadOnly"
-        color="white"
-        variant="elevated"
-        size="large"
-        class="mr-3 drop-btn"
-        @click="showDropDatabaseDialog = true"
-        :loading="dropping"
-        :disabled="dropping"
-        data-test="drop-database-btn"
-      >
-        <v-icon start data-test="drop-database-icon">mdi-delete</v-icon>
-        Drop Database
-      </v-btn>
-      
       <!-- Admin Button -->
       <v-btn icon to="/admin" title="Admin" class="admin-btn" data-test="admin-btn">
         <v-icon data-test="admin-icon">mdi-cog</v-icon>
@@ -96,55 +64,17 @@
       </v-container>
     </v-main>
 
-    <!-- Drop Database Confirmation Dialog -->
-    <v-dialog v-model="showDropDatabaseDialog" max-width="500px" data-test="drop-database-dialog">
-      <v-card>
-        <v-card-title class="text-h5 d-flex align-center" data-test="drop-database-dialog-title">
-          <v-icon color="error" class="mr-3" data-test="drop-database-dialog-icon">mdi-alert-circle</v-icon>
-          Drop Database
-        </v-card-title>
-        <v-card-text>
-          <p class="mb-3" data-test="drop-database-warning">
-            <strong>All data and configurations will be erased.</strong>
-          </p>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer />
-          <v-btn
-            @click="showDropDatabaseDialog = false"
-            :disabled="dropping"
-            data-test="drop-database-cancel-btn"
-          >
-            Cancel
-          </v-btn>
-          <v-btn
-            color="error"
-            variant="elevated"
-            @click="dropDatabase"
-            :loading="dropping"
-            :disabled="dropping"
-            data-test="drop-database-confirm-btn"
-          >
-            <v-icon start data-test="drop-database-confirm-icon">mdi-delete</v-icon>
-            Drop Database
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-    
   </v-app>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useEvents } from '@/composables/useEvents'
 import { useEventState } from '@/composables/useEventState'
 import { useConfig } from '@/composables/useConfig'
-import { apiService } from '@/utils/api'
 
 // Get read-only state and UI header from config
-const { isReadOnly, uiHeader } = useConfig()
+const { uiHeader } = useConfig()
 
 // Initialize drawer state from localStorage or default to false (hidden)
 const drawer = ref(false)
@@ -189,8 +119,8 @@ const toggleHelp = () => {
     if (previousPage.value) {
       router.push(previousPage.value)
     } else {
-      // Fallback to configurations if no previous page
-      router.push('/configurations')
+      // Fallback to dictionaries if no previous page
+      router.push('/dictionaries')
     }
   } else {
     // Currently on another page, go to help page
@@ -214,11 +144,6 @@ const toggleHelp = () => {
   }
 }
 
-// Database operations
-const processing = ref(false)
-const dropping = ref(false)
-const showDropDatabaseDialog = ref(false)
-
 // Load drawer state from localStorage on mount
 onMounted(() => {
   const savedDrawerState = localStorage.getItem('navigation-drawer-open')
@@ -236,103 +161,16 @@ const toggleDrawer = () => {
   localStorage.setItem('navigation-drawer-open', drawer.value.toString())
 }
 
-// Process all configurations
-const processAllConfigurations = async () => {
-  processing.value = true
-  try {
-    const result = await apiService.processAllConfigurations()
-    
-    // Check if the response contains event data
-    if (result && result.id && result.type && result.status) {
-      // Clear any existing event state and set new event data in global state
-      const { clearEventViewerState, setEventViewerState } = useEventState()
-      clearEventViewerState() // Clear old state before setting new
-      setEventViewerState(result, 'Processing Complete', 'All configurations processed successfully')
-      router.push('/event-viewer')
-    }
-    
-  } catch (err: any) {
-    console.error('Failed to process all configurations:', err)
-    
-    // Handle API errors with event data
-    if (err.type === 'API_ERROR' && err.data) {
-      if (err.data.id && err.data.type && err.data.status) {
-        // Clear any existing event state and set error event data in global state
-        const { clearEventViewerState, setEventViewerState } = useEventState()
-        clearEventViewerState() // Clear old state before setting new
-        setEventViewerState(err.data, 'Processing Error', 'Failed to process all configurations')
-        router.push('/event-viewer')
-      } else {
-        const { showError } = useEvents()
-        showError(err.message || 'Failed to process all configurations', 'Processing Error', 'Failed to process all configurations')
-      }
-    } else {
-      const { showError } = useEvents()
-      showError(err.message || 'Failed to process all configurations', 'Processing Error', 'Failed to process all configurations')
-    }
-  } finally {
-    processing.value = false
-  }
-}
-
-// Drop database
-const dropDatabase = async () => {
-  dropping.value = true
-  try {
-    const result = await apiService.dropDatabase()
-    
-    // Handle array of events or single event
-    if (Array.isArray(result) && result.length > 0) {
-      // API returned an array of events
-      const { showEvent } = useEvents()
-      showEvent(result[0], 'Database Dropped', 'Database dropped successfully')
-    } else if (result && result.id && result.type && result.status) {
-      // API returned a single event
-      const { showEvent } = useEvents()
-      showEvent(result, 'Database Dropped', 'Database dropped successfully')
-    } else {
-      // No event data, show simple success message
-      const { showError } = useEvents()
-      showError('Database dropped successfully', 'Success', 'Database Operation Complete')
-    }
-    
-    // Close dialog
-    showDropDatabaseDialog.value = false
-    
-  } catch (err: any) {
-    console.error('Failed to drop database:', err)
-    
-    // Handle API errors with event data
-    if (err.type === 'API_ERROR' && err.data) {
-      if (err.data.id && err.data.type && err.data.status) {
-        const { showEvent } = useEvents()
-        showEvent(err.data, 'Drop Database Error', 'Failed to drop database')
-      } else {
-        const { showError } = useEvents()
-        showError(err.message || 'Failed to drop database', 'Drop Database Error', 'Failed to drop database')
-      }
-    } else {
-      const { showError } = useEvents()
-      showError(err.message || 'Failed to drop database', 'Drop Database Error', 'Failed to drop database')
-    }
-  } finally {
-    dropping.value = false
-  }
-}
-
-const navItems = [
-  { title: 'Configurations', icon: 'mdi-database', to: '/configurations' },
+const navItems = computed(() => [
   { title: 'Dictionaries', icon: 'mdi-book-open-variant', to: '/dictionaries' },
   { title: 'Types', icon: 'mdi-shape', to: '/types' },
-  { title: 'Enumerators', icon: 'mdi-format-list-bulleted', to: '/enumerators' },
-  { title: 'Test Data', icon: 'mdi-file-document', to: '/test_data' },
-  { title: 'Migrations', icon: 'mdi-swap-horizontal', to: '/migrations' },
-]
+  { title: 'Enumerators', icon: 'mdi-format-list-numbered', to: '/enumerators' },
+])
 </script> 
 
 <style scoped>
 .app-header {
-  background: linear-gradient(135deg, #2E7D32 0%, #388E3C 100%) !important;
+  background: linear-gradient(135deg, #1565C0 0%, #1976D2 100%) !important;
 }
 
 .app-title {
@@ -344,32 +182,6 @@ const navItems = [
   overflow: visible;
   text-overflow: unset;
   white-space: normal;
-}
-
-.process-btn {
-  background: linear-gradient(135deg, #4CAF50 0%, #66BB6A 100%) !important;
-  color: white !important;
-  font-weight: 600 !important;
-  text-transform: none !important;
-  box-shadow: 0 4px 8px rgba(76, 175, 80, 0.3) !important;
-}
-
-.process-btn:hover {
-  background: linear-gradient(135deg, #66BB6A 0%, #81C784 100%) !important;
-  box-shadow: 0 6px 12px rgba(76, 175, 80, 0.4) !important;
-}
-
-.drop-btn {
-  background: linear-gradient(135deg, #F44336 0%, #EF5350 100%) !important;
-  color: white !important;
-  font-weight: 600 !important;
-  text-transform: none !important;
-  box-shadow: 0 4px 8px rgba(244, 67, 54, 0.3) !important;
-}
-
-.drop-btn:hover {
-  background: linear-gradient(135deg, #EF5350 0%, #E57373 100%) !important;
-  box-shadow: 0 6px 12px rgba(244, 67, 54, 0.4) !important;
 }
 
 .admin-btn {

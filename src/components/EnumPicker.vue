@@ -20,9 +20,23 @@
       <v-card data-test="enum-type-picker-card">
         <v-card-title class="d-flex justify-space-between align-center pa-4" data-test="enum-type-picker-title">
           <span data-test="enum-type-picker-title-text">Pick an Enumerator</span>
-          <v-btn icon size="small" @click="showPicker = false" data-test="enum-type-picker-close-btn">
-            <v-icon data-test="enum-type-picker-close-icon">mdi-close</v-icon>
-          </v-btn>
+          <div class="d-flex align-center gap-2">
+            <v-btn
+              v-if="latestEnumeratorFile"
+              variant="text"
+              size="small"
+              color="primary"
+              :to="`/enumerators/${latestEnumeratorFile}`"
+              @click="showPicker = false"
+              data-test="open-enumerators-link"
+            >
+              <v-icon start size="small">mdi-open-in-new</v-icon>
+              Open Enumerators
+            </v-btn>
+            <v-btn icon size="small" @click="showPicker = false" data-test="enum-type-picker-close-btn">
+              <v-icon data-test="enum-type-picker-close-icon">mdi-close</v-icon>
+            </v-btn>
+          </div>
         </v-card-title>
         
         <v-card-text class="pa-4">
@@ -90,6 +104,17 @@ const loading = ref(false)
 const enumeratorNames = computed(() => {
   if (!mostRecentEnumeratorData.value?.enumerators) return []
   return mostRecentEnumeratorData.value.enumerators.map((enumerator: Enumerator) => enumerator.name)
+})
+
+// Latest enumerator file for "Open Enumerators" link
+const latestEnumeratorFile = computed(() => {
+  if (availableEnumeratorFiles.value.length === 0) return ''
+  const latest = availableEnumeratorFiles.value.reduce((a: EnumeratorFile, b: EnumeratorFile) => {
+    const aVer = parseInt(a.file_name.match(/enumerations\.(\d+)\.yaml/)?.[1] || '0')
+    const bVer = parseInt(b.file_name.match(/enumerations\.(\d+)\.yaml/)?.[1] || '0')
+    return bVer > aVer ? b : a
+  })
+  return latest.file_name
 })
 
 // Load available enumerator files and get the most recent one

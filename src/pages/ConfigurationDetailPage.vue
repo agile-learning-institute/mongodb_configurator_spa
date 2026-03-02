@@ -1109,8 +1109,8 @@ const confirmDeleteCollection = async () => {
     // Close the dialog
     showDeleteCollectionDialog.value = false
     
-    // Navigate back to configurations list
-    router.push('/configurations')
+    // Navigate back to dictionaries list
+    router.push('/dictionaries')
   } catch (err: any) {
     error.value = err.message || 'Failed to delete collection'
     console.error('Failed to delete collection:', err)

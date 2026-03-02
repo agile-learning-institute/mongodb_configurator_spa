@@ -21,7 +21,7 @@ describe('Types Detail Page', () => {
       cy.get('[data-test="page-title"]').should('contain', 'Types')
       cy.get('[data-test="lock-all-btn"]').should('be.visible').and('to.be.enabled')
       cy.get('[data-test="new-type-btn"]').should('be.visible').and('to.be.enabled')
-      cy.get('[data-test^="file-card-"]').should('have.length.above', 10)
+      cy.get('[data-test^="type-card-"]').should('have.length.above', 10)
     })
   })
 
@@ -78,6 +78,7 @@ describe('Types Detail Page', () => {
     it('has the correct types in the type picker', () => {
       // click on root type chip to open picker
       cy.get('[data-test="root-type-chip-picker"] [data-test="type-chip"]').click()
+      cy.get('[data-test="open-types-link"]').should('be.visible')
       
       // verify root type picker contains only "object", "array", "simple", "complex"
       cy.get('[data-test="type-picker-menu"]').should('be.visible')
@@ -105,7 +106,7 @@ describe('Types Detail Page', () => {
       cy.get('[data-test="delete-type-dialog"]').should('not.exist')
       
       // verify type is deleted
-      cy.get('[data-test^="file-card-"]').should('not.contain', typeFileName)
+      cy.get(`[data-test="type-card-${typeFileName}"]`).should('not.exist')
     })
 
   })

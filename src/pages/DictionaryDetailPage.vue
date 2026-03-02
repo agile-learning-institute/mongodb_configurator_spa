@@ -16,42 +16,69 @@
     <!-- Content -->
     <div v-else-if="dictionary">
       <!-- Page Header -->
-      <header class="d-flex align-center justify-space-between mb-6">
-        <h2 class="text-h3 mb-0">Dictionary: {{ dictionary.file_name.replace('.yaml', '') }}</h2>
-        <div class="d-flex gap-2" v-if="!isReadOnly">
+      <header class="dictionary-header d-flex align-center mb-6">
+        <h2 class="text-h5 font-weight-medium dictionary-name flex-grow-1 text-truncate mr-4" data-test="dictionary-header-name">
+          {{ displayName }}
+        </h2>
+        <div class="d-flex align-center flex-shrink-0 gap-1">
+          <!-- Version pill with prev/next (icons hide when no prev/next) -->
+          <div v-if="versionDisplay" class="d-flex align-center version-pill">
+            <v-btn
+              v-if="hasPreviousVersion"
+              icon="mdi-chevron-left"
+              variant="text"
+              size="small"
+              @click="navigateToPreviousVersion"
+              data-test="dictionary-prev-version-btn"
+            />
+            <span class="text-caption font-weight-medium px-2" data-test="dictionary-version-pill">{{ versionDisplay }}</span>
+            <v-btn
+              v-if="hasNextVersion"
+              icon="mdi-chevron-right"
+              variant="text"
+              size="small"
+              @click="navigateToNextVersion"
+              data-test="dictionary-next-version-btn"
+            />
+          </div>
+          <!-- Icon-only actions -->
           <v-btn
-            v-if="dictionary._locked"
+            v-if="!isReadOnly && dictionary._locked"
+            icon="mdi-lock-open"
+            variant="text"
+            size="small"
             color="warning"
-            variant="elevated"
             @click="unlockType"
-            class="font-weight-bold"
+            title="Unlock"
             data-test="unlock-dictionary-btn"
-          >
-            <v-icon start>mdi-lock-open</v-icon>
-            Unlock
-          </v-btn>
+          />
           <v-btn
-            v-else
-            color="info"
-            variant="elevated"
+            v-else-if="!isReadOnly"
+            icon="mdi-lock"
+            variant="text"
+            size="small"
             @click="lockDictionary"
-            class="font-weight-bold"
+            title="Lock"
             data-test="lock-dictionary-btn"
-          >
-            <v-icon start>mdi-lock</v-icon>
-            Lock
-          </v-btn>
+          />
           <v-btn
-            v-if="!dictionary._locked"
+            v-if="!isReadOnly && !dictionary._locked"
+            icon="mdi-delete"
+            variant="text"
+            size="small"
             color="error"
-            variant="elevated"
             @click="handleDelete"
-            class="font-weight-bold"
+            title="Delete"
             data-test="delete-dictionary-btn"
-          >
-            <v-icon start>mdi-delete</v-icon>
-            Delete
-          </v-btn>
+          />
+          <v-btn
+            icon="mdi-cog"
+            variant="text"
+            size="small"
+            :to="configRoute"
+            title="Configuration"
+            data-test="dictionary-config-link"
+          />
         </div>
       </header>
       
@@ -238,8 +265,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount, computed } from 'vue'
-import { useRoute } from 'vue-router'
+import { ref, onMounted, onBeforeUnmount, computed, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { apiService } from '@/utils/api'
 import { useConfig } from '@/composables/useConfig'
 import BaseCard from '@/components/BaseCard.vue'
@@ -256,6 +283,7 @@ import { isArrayProperty, isObjectProperty, isOneOfProperty } from '@/types/type
 import ArrayOfArrayExtension from '@/components/ArrayOfArrayExtension.vue'
 
 const route = useRoute()
+const router = useRouter()
 const { isReadOnly } = useConfig()
 const loading = ref(false)
 const saving = ref(false)
@@ -265,6 +293,59 @@ const showDeleteDialog = ref(false)
 const showUnlockDialog = ref(false)
 const editableDescription = ref('')
 const editableType = ref('')
+const siblingDictionaries = ref<string[]>([])
+
+// Parse dictionary file name: collection.MAJOR.MINOR.PATCH.yaml -> { collection, version }
+const parseDictionaryFileName = (fileName: string) => {
+  const match = fileName.match(/^(.+)\.(\d+)\.(\d+)\.(\d+)\.yaml$/)
+  if (!match) return null
+  return { collection: match[1], version: `${match[2]}.${match[3]}.${match[4]}` }
+}
+
+// Display name (collection only, no version) e.g. "sample"
+const displayName = computed(() => {
+  const parsed = dictionary.value ? parseDictionaryFileName(dictionary.value.file_name) : null
+  return parsed?.collection ?? dictionary.value?.file_name.replace(/\.yaml$/, '') ?? ''
+})
+
+// Version display (e.g. 1.0.0)
+const versionDisplay = computed(() => {
+  const parsed = dictionary.value ? parseDictionaryFileName(dictionary.value.file_name) : null
+  return parsed?.version ?? ''
+})
+
+// Config route: /configurations/collectionName.yaml
+const configRoute = computed(() => {
+  const parsed = dictionary.value ? parseDictionaryFileName(dictionary.value.file_name) : null
+  return parsed ? `/configurations/${parsed.collection}.yaml` : '/dictionaries'
+})
+
+// Prev/next version navigation
+const hasPreviousVersion = computed(() => {
+  if (!dictionary.value || siblingDictionaries.value.length < 2) return false
+  const idx = siblingDictionaries.value.indexOf(dictionary.value.file_name)
+  return idx > 0
+})
+
+const hasNextVersion = computed(() => {
+  if (!dictionary.value || siblingDictionaries.value.length < 2) return false
+  const idx = siblingDictionaries.value.indexOf(dictionary.value.file_name)
+  return idx >= 0 && idx < siblingDictionaries.value.length - 1
+})
+
+const navigateToPreviousVersion = () => {
+  if (!hasPreviousVersion.value || !dictionary.value) return
+  const idx = siblingDictionaries.value.indexOf(dictionary.value.file_name)
+  const prevFile = siblingDictionaries.value[idx - 1]
+  router.push(`/dictionaries/${prevFile}`)
+}
+
+const navigateToNextVersion = () => {
+  if (!hasNextVersion.value || !dictionary.value) return
+  const idx = siblingDictionaries.value.indexOf(dictionary.value.file_name)
+  const nextFile = siblingDictionaries.value[idx + 1]
+  router.push(`/dictionaries/${nextFile}`)
+}
 
 // Computed disabled state - read-only mode OR locked
 const isDisabled = computed(() => isReadOnly.value || (dictionary.value?._locked || false))
@@ -429,6 +510,33 @@ const handleArrayArrayCollapsed = (collapsed: boolean) => {
   }
 }
 
+const loadSiblingDictionaries = async (fileName: string) => {
+  const parsed = parseDictionaryFileName(fileName)
+  if (!parsed) {
+    siblingDictionaries.value = [fileName]
+    return
+  }
+  try {
+    const allDicts = await apiService.getDictionaries()
+    const sameCollection = (allDicts || [])
+      .filter((f: { file_name: string }) => f.file_name.startsWith(`${parsed.collection}.`) && f.file_name.endsWith('.yaml'))
+      .map((f: { file_name: string }) => f.file_name)
+    // Sort by version (major.minor.patch)
+    sameCollection.sort((a: string, b: string) => {
+      const va = parseDictionaryFileName(a)?.version ?? ''
+      const vb = parseDictionaryFileName(b)?.version ?? ''
+      const [ma, mia, pa] = va.split('.').map(Number)
+      const [mb, mib, pb] = vb.split('.').map(Number)
+      if (ma !== mb) return ma - mb
+      if (mia !== mib) return mia - mib
+      return pa - pb
+    })
+    siblingDictionaries.value = sameCollection
+  } catch {
+    siblingDictionaries.value = [fileName]
+  }
+}
+
 const loadDictionary = async () => {
   loading.value = true
   error.value = null
@@ -436,6 +544,7 @@ const loadDictionary = async () => {
   try {
     const fileName = route.params.fileName as string
     dictionary.value = await apiService.getDictionary(fileName)
+    await loadSiblingDictionaries(fileName)
     
     // Initialize reactive variables
     if (dictionary.value?.root) {
@@ -553,10 +662,14 @@ const handleBeforeUnload = () => {
   }
 }
 
-// Load dictionary on mount
+// Load dictionary on mount and when route changes
 onMounted(() => {
   loadDictionary()
   window.addEventListener('beforeunload', handleBeforeUnload)
+})
+
+watch(() => route.params.fileName, (newFileName) => {
+  if (newFileName) loadDictionary()
 })
 
 onBeforeUnmount(() => {
@@ -565,6 +678,20 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
+.dictionary-header {
+  min-width: 0;
+}
+
+.dictionary-name {
+  min-width: 0;
+}
+
+.version-pill {
+  background: rgba(var(--v-theme-surface-variant), 0.5);
+  border-radius: 16px;
+  padding: 2px 4px;
+}
+
 /* Dictionary content styling */
 .dictionary-content {
   margin-top: 24px;

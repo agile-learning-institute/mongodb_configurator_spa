@@ -20,9 +20,22 @@
       <v-card data-test="ref-dictionary-picker-card">
         <v-card-title class="d-flex justify-space-between align-center pa-4" data-test="ref-dictionary-picker-title">
           <span data-test="ref-dictionary-picker-title-text">Pick a Dictionary</span>
-          <v-btn icon size="small" @click="showPicker = false" data-test="ref-dictionary-picker-close-btn">
-            <v-icon data-test="ref-dictionary-picker-close-icon">mdi-close</v-icon>
-          </v-btn>
+          <div class="d-flex align-center gap-2">
+            <v-btn
+              variant="text"
+              size="small"
+              color="primary"
+              to="/dictionaries"
+              @click="showPicker = false"
+              data-test="open-dictionaries-link"
+            >
+              <v-icon start size="small">mdi-open-in-new</v-icon>
+              Open Dictionaries
+            </v-btn>
+            <v-btn icon size="small" @click="showPicker = false" data-test="ref-dictionary-picker-close-btn">
+              <v-icon data-test="ref-dictionary-picker-close-icon">mdi-close</v-icon>
+            </v-btn>
+          </div>
         </v-card-title>
         
         <v-card-text class="pa-4">
