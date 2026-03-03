@@ -269,21 +269,22 @@ cypress/
 ## Cypress Test Status
 
 ```bash
-       Spec                                           Tests  Passing  
- ✔  admin.cy.ts                              583ms        2        2
- ✔  app.help.cy.ts                           00:05        9        9
+    Spec                                              Tests  Passing
+────────────────────────────────────────────────────────────────────
+ ✔  admin.cy.ts                              533ms        2        2
+ ✔  app.help.cy.ts                           00:04        9        9
  ✔  configurations.cy.ts                     00:39       17       17
- ✔  dictionaries.cy.ts                       00:04        6        6
- ✔  dictionary.array.cy.ts                   01:38       38       38
- ✔  dictionary.constant.cy.ts                00:18        8        8
- ✔  dictionary.enum.cy.ts                    00:21        9        9
- ✔  dictionary.enum_array.cy.ts              00:21        9        9
- ✔  dictionary.object.cy.ts                  00:41       14       14
- ✔  dictionary.one_of.cy.ts                  00:36       13       13
- ✔  dictionary.ref.cy.ts                     00:21        9        9
- ✔  dictionary.root.array.cy.ts              01:04       36       36
+ ✔  dictionaries.cy.ts                       00:03        4        4
+ ✔  dictionary.array.cy.ts                   01:15       28       28
+ ✔  dictionary.constant.cy.ts                00:14        6        6
+ ✔  dictionary.enum.cy.ts                    00:17        7        7
+ ✔  dictionary.enum_array.cy.ts              00:17        7        7
+ ✔  dictionary.object.cy.ts                  00:37       12       12
+ ✔  dictionary.one_of.cy.ts                  00:31       11       11
+ ✔  dictionary.ref.cy.ts                     00:17        7        7
+ ✔  dictionary.root.array.cy.ts              00:49       26       26
  ✔  dictionary.root.object.cy.ts             00:18       10       10
- ✔  dictionary.root.one_of.cy.ts             00:17       11       11
+ ✔  dictionary.root.one_of.cy.ts             00:15        9        9
  ✔  enumerators.cy.ts                        00:07       14       14
  ✔  event-viewer.cy.ts                       00:01        2        2
  ✔  migrations.cy.ts                         00:14        7        7
@@ -291,8 +292,8 @@ cypress/
  ✔  type.basic.cy.ts                         00:09        5        5
  ✔  type.complex.cy.ts                       00:21        8        8
  ✔  type.root.array.cy.ts                    00:42       12       12
- ✔  type.root.object.cy.ts                   01:00       16       16
- ✔  type.simple.cy.ts                        00:14        5        5
- ✔  user.journey1.cy.ts                      00:47       14       14
- -------------------------------------------------------------------
- ✔  All specs passed!                        10:45      281      281
+ ✔  type.root.object.cy.ts                   00:59       16       16
+ ✔  type.simple.cy.ts                        00:13        5        5
+ ✔  user.journey1.cy.ts                      00:46       14       14
+────────────────────────────────────────────────────────────────────
+ ✔  All specs passed!                        09:38      245      245
