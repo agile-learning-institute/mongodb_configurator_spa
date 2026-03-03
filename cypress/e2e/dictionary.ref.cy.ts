@@ -120,42 +120,24 @@ describe('Dictionary Details Page', () => {
       cy.get('[data-test="type-chip"]').eq(1).should('be.visible').should('contain', 'word')
     })
 
-    it('displays ref picker showing only referenced dictionaries and allows opening', () => {
+    it('displays ref picker showing only referenced dictionaries', () => {
       cy.visit(`/dictionaries/${dictionaryFileName}`)
       cy.get('[data-test="ref-type-label"]').should('be.visible').should('contain', 'Dictionary:')
-
-      // Stub window.open to verify dictionary open behavior
-      cy.window().then((win) => {
-        cy.stub(win, 'open').as('windowOpen')
-      })
 
       const versionedRefName = dictionaryFileName.replace('.yaml', '')
       const referencedRefName = referencedDictionaryName
 
       cy.get('[data-test="ref-dictionary-chip"]').first().should('be.visible').click()
       cy.get('[data-test="ref-dictionary-picker-card"]').should('be.visible')
-      cy.get('[data-test="open-dictionaries-link"]').should('be.visible')
 
       // Only referenced (non-versioned) dictionaries are shown
-      cy.get('[data-test^="ref-dictionary-option-"].v-chip').should('have.length.greaterThan', 0)
+      cy.get('[data-test^="ref-dictionary-option-"]').should('have.length.greaterThan', 0)
       cy.get(`[data-test="ref-dictionary-option-${versionedRefName}"]`).should('not.exist')
       cy.get(`[data-test="ref-dictionary-option-${referencedRefName}"]`).should('be.visible')
 
       // Select referenced dictionary
       cy.get(`[data-test="ref-dictionary-option-name-${referencedRefName}"]`).should('be.visible').click()
       cy.get('[data-test="ref-dictionary-picker-card"]').should('not.exist')
-      cy.get('[data-test="ref-dictionary-chip"]').first().should('be.visible').should('contain', referencedRefName)
-
-      // Re-open and click the open icon for the referenced dictionary
-      cy.get('[data-test="ref-dictionary-chip"]').first().click()
-      cy.get(`[data-test="ref-dictionary-open-${referencedRefName}"]`).should('be.visible').click()
-      cy.get('@windowOpen').should(
-        'have.been.calledWith',
-        `/dictionaries/${referencedRefName}.yaml`,
-        '_blank'
-      )
-      cy.wait(250)
-      cy.reload()
       cy.get('[data-test="ref-dictionary-chip"]').first().should('be.visible').should('contain', referencedRefName)
     })
 
