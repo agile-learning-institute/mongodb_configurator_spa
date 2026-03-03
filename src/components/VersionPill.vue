@@ -26,16 +26,20 @@
       />
     </div>
 
-    <!-- Version display: link or plain text -->
+    <!-- Version display: link (with hint) or plain text -->
     <div class="version-pill-value flex-grow-1 text-center">
-      <router-link
-        v-if="linkTo"
-        :to="linkTo"
-        class="version-pill-link text-caption font-weight-medium"
-        :data-test="`${dataTest}-value`"
-      >
-        v{{ displayVersion }}
-      </router-link>
+      <v-tooltip v-if="linkTo" text="Open Configuration" location="bottom">
+        <template #activator="{ props }">
+          <router-link
+            v-bind="props"
+            :to="linkTo"
+            class="version-pill-link text-caption font-weight-medium"
+            :data-test="`${dataTest}-value`"
+          >
+            v{{ displayVersion }}
+          </router-link>
+        </template>
+      </v-tooltip>
       <span
         v-else
         class="text-caption font-weight-medium"

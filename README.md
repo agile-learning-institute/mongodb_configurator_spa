@@ -55,7 +55,14 @@ npm run service
 npm run pull
 
 # Run cypress e2e tests (start API and SPA with `npm run service` first)
-npm run e2e
+# All specs
+npm run cy:run
+
+# Example: run a single spec file
+npm run cy:run -- --spec cypress/e2e/dictionaries.cy.ts
+
+# Open Cypress in interactive mode
+npm run cy:open
 
 # shut down all of the containers after testing 
 npm run down

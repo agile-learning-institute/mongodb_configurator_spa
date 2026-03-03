@@ -22,20 +22,32 @@
         </v-chip>
       </template>
       
-      <v-card min-width="300" class="type-picker-menu" data-test="type-picker-card">
+      <v-card min-width="260" class="type-picker-menu" data-test="type-picker-card">
         <v-card-title class="text-subtitle-2 pa-4 pb-2 d-flex align-center justify-space-between" data-test="type-picker-title">
           <span>Select Property Type</span>
-          <v-btn
-            variant="text"
-            size="small"
-            color="primary"
-            :to="'/types'"
-            @click="menuOpen = false"
-            data-test="open-types-link"
-          >
-            <v-icon start size="small">mdi-open-in-new</v-icon>
-            Open Types
-          </v-btn>
+          <div class="d-flex align-center gap-2">
+            <v-btn
+              variant="text"
+              size="small"
+              color="primary"
+              :to="'/types'"
+              @click="menuOpen = false"
+              data-test="open-types-link"
+            >
+              <v-icon start size="small">mdi-open-in-new</v-icon>
+              Open Types
+            </v-btn>
+            <v-btn
+              icon
+              size="small"
+              variant="text"
+              color="white"
+              @click="menuOpen = false"
+              data-test="type-picker-close-btn"
+            >
+              <v-icon data-test="type-picker-close-icon">mdi-close</v-icon>
+            </v-btn>
+          </div>
         </v-card-title>
         
         <v-card-text class="pa-4 pt-0">
@@ -43,14 +55,14 @@
             <!-- Built-in Types -->
             <div class="type-category mb-4" data-test="built-in-types-category">
               <div class="text-caption text-medium-emphasis mb-2" data-test="built-in-types-label">Built-in Types</div>
-              <div class="d-flex flex-wrap gap-2">
+              <div class="d-flex flex-wrap gap-3">
                 <v-chip
                   v-for="type in availableBuiltInTypes"
                   :key="type.value"
                   :color="type.value === modelValue ? PICKER_STYLES.optionColorSelected : PICKER_STYLES.optionColorUnselected"
                   :variant="PICKER_STYLES.optionVariant"
                   :size="PICKER_STYLES.optionSize"
-                  class="picker-pill-chip"
+                  class="picker-pill-chip type-chip-option"
                   @click="selectType(type.value)"
                   :data-test="`built-in-type-${type.value}`"
                 >
@@ -63,19 +75,33 @@
             <!-- Custom Types (only for non-root properties) -->
             <div v-if="!isRoot && customTypes.length > 0" class="type-category" data-test="custom-types-category">
               <div class="text-caption text-medium-emphasis mb-2" data-test="custom-types-label">Custom Types</div>
-              <div class="d-flex flex-wrap gap-2">
+              <div class="d-flex flex-wrap gap-3">
                 <v-chip
                   v-for="type in customTypes"
                   :key="type.file_name"
                   :color="isCustomTypeSelected(type) ? PICKER_STYLES.optionColorSelected : PICKER_STYLES.optionColorUnselected"
                   :variant="PICKER_STYLES.optionVariant"
                   :size="PICKER_STYLES.optionSize"
-                  class="picker-pill-chip"
+                  class="picker-pill-chip type-chip-option"
                   @click="selectCustomType(type)"
                   :data-test="`custom-type-${type.file_name}`"
                 >
                   <v-icon start size="small" data-test="custom-type-icon">mdi-file-document</v-icon>
                   <span :data-test="`custom-type-name-${type.file_name}`">{{ type.name }}</span>
+                  <v-tooltip text="Open type" location="bottom">
+                    <template #activator="{ props }">
+                      <v-icon
+                        v-bind="props"
+                        end
+                        size="16"
+                        class="ml-1"
+                        @click.stop="openCustomType(type)"
+                        :data-test="`custom-type-open-${type.file_name}`"
+                      >
+                        mdi-open-in-new
+                      </v-icon>
+                    </template>
+                  </v-tooltip>
                 </v-chip>
               </div>
             </div>
@@ -88,6 +114,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { apiService } from '@/utils/api'
 import { PICKER_STYLES } from '@/config/pickerStyles'
 
@@ -114,6 +141,8 @@ const props = defineProps<{
 const emit = defineEmits<{
   'update:modelValue': [value: string]
 }>()
+
+const router = useRouter()
 
 const menuOpen = ref(false)
 const customTypes = ref<CustomType[]>([])
@@ -246,6 +275,11 @@ const selectCustomType = (customType: CustomType) => {
   menuOpen.value = false
 }
 
+// Open the selected custom type in the Type Detail page
+const openCustomType = (customType: CustomType) => {
+  router.push(`/types/${customType.file_name}`)
+}
+
 // Load custom types on mount
 onMounted(() => {
   loadCustomTypes()
@@ -259,7 +293,14 @@ onMounted(() => {
 
 .type-picker-menu {
   max-height: 400px;
+  max-width: 720px;
   overflow-y: auto;
+  background: #0d47a1 !important;
+  color: #ffffff !important;
+}
+
+.type-picker-menu * {
+  color: #ffffff !important;
 }
 
 .type-category {
@@ -281,5 +322,11 @@ onMounted(() => {
 
 .v-chip .v-icon {
   opacity: 1 !important;
+}
+
+.type-chip-option {
+  min-height: 30px;
+  padding-inline: 12px;
+  margin: 3px 5px;
 }
 </style>

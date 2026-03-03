@@ -16,40 +16,34 @@
     </v-chip>
 
     <!-- Ref Picker Dialog -->
-    <v-dialog v-model="showPicker" max-width="600" data-test="ref-dictionary-picker-dialog">
-      <v-card data-test="ref-dictionary-picker-card">
+    <v-dialog v-model="showPicker" max-width="720" data-test="ref-dictionary-picker-dialog">
+      <v-card class="ref-picker-card" data-test="ref-dictionary-picker-card">
         <v-card-title class="d-flex justify-space-between align-center pa-4" data-test="ref-dictionary-picker-title">
           <span data-test="ref-dictionary-picker-title-text">Pick a Dictionary</span>
-          <div class="d-flex align-center gap-2">
-            <v-btn
-              variant="text"
-              size="small"
-              color="primary"
-              to="/dictionaries"
-              @click="showPicker = false"
-              data-test="open-dictionaries-link"
-            >
-              <v-icon start size="small">mdi-open-in-new</v-icon>
-              Open Dictionaries
-            </v-btn>
-            <v-btn icon size="small" @click="showPicker = false" data-test="ref-dictionary-picker-close-btn">
-              <v-icon data-test="ref-dictionary-picker-close-icon">mdi-close</v-icon>
-            </v-btn>
-          </div>
+          <v-btn
+            icon
+            size="small"
+            variant="text"
+            color="white"
+            @click="showPicker = false"
+            data-test="ref-dictionary-picker-close-btn"
+          >
+            <v-icon data-test="ref-dictionary-picker-close-icon">mdi-close</v-icon>
+          </v-btn>
         </v-card-title>
         
         <v-card-text class="pa-4">
           <!-- Dictionary Names -->
           <div v-if="dictionaryNames.length > 0" class="mb-4" data-test="ref-dictionary-picker-values">
             <h4 class="mb-3" data-test="ref-dictionary-picker-values-title">Select Dictionary:</h4>
-            <div class="d-flex flex-wrap gap-2">
+            <div class="d-flex flex-wrap gap-3">
               <v-chip
                 v-for="file in referencedDictionaryFiles"
                 :key="file.file_name"
                 :color="modelValue === getDictionaryDisplayName(file) ? PICKER_STYLES.optionColorSelected : PICKER_STYLES.optionColorUnselected"
                 :variant="PICKER_STYLES.optionVariant"
                 :size="PICKER_STYLES.optionSize"
-                class="cursor-pointer picker-pill-chip pa-2"
+                class="cursor-pointer picker-pill-chip ref-chip-option"
                 @click="selectDictionary(getDictionaryDisplayName(file))"
                 :data-test="`ref-dictionary-option-${getDictionaryDisplayName(file)}`"
               >
@@ -138,6 +132,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { apiService } from '@/utils/api'
 import { PICKER_STYLES } from '@/config/pickerStyles'
 
@@ -164,6 +159,7 @@ const emit = defineEmits<{
   'update:modelValue': [value: string]
 }>()
 
+const router = useRouter()
 const showPicker = ref(false)
 const availableDictionaryFiles = ref<DictionaryFile[]>([])
 const loading = ref(false)
@@ -211,7 +207,8 @@ const getDictionaryDisplayName = (file: DictionaryFile): string => {
 }
 
 const openDictionary = (fileName: string) => {
-  window.open(`/dictionaries/${fileName}`, '_blank')
+  showPicker.value = false
+  router.push(`/dictionaries/${fileName}`)
 }
 
 const getChipColor = (): string => {
@@ -297,5 +294,24 @@ onMounted(() => {
 <style scoped>
 .cursor-pointer {
   cursor: pointer;
+}
+
+/* Picker card styling to match type picker */
+.ref-picker-card {
+  max-height: 400px;
+  max-width: 720px;
+  overflow-y: auto;
+  background: #0d47a1 !important;
+  color: #ffffff !important;
+}
+
+.ref-picker-card * {
+  color: #ffffff !important;
+}
+
+.ref-chip-option {
+  min-height: 30px;
+  padding-inline: 12px;
+  margin: 3px 5px;
 }
 </style>

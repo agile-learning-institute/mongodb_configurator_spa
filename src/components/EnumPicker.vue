@@ -16,8 +16,8 @@
     </v-chip>
 
     <!-- Enum Picker Dialog -->
-    <v-dialog v-model="showPicker" max-width="600" data-test="enum-type-picker-dialog">
-      <v-card data-test="enum-type-picker-card">
+    <v-dialog v-model="showPicker" max-width="720" data-test="enum-type-picker-dialog">
+      <v-card class="enum-picker-card" data-test="enum-type-picker-card">
         <v-card-title class="d-flex justify-space-between align-center pa-4" data-test="enum-type-picker-title">
           <span data-test="enum-type-picker-title-text">Pick an Enumerator</span>
           <div class="d-flex align-center gap-2">
@@ -33,7 +33,14 @@
               <v-icon start size="small">mdi-open-in-new</v-icon>
               Open Enumerators
             </v-btn>
-            <v-btn icon size="small" @click="showPicker = false" data-test="enum-type-picker-close-btn">
+            <v-btn
+              icon
+              size="small"
+              variant="text"
+              color="white"
+              @click="showPicker = false"
+              data-test="enum-type-picker-close-btn"
+            >
               <v-icon data-test="enum-type-picker-close-icon">mdi-close</v-icon>
             </v-btn>
           </div>
@@ -43,14 +50,14 @@
           <!-- Enum Values from Most Recent Version -->
           <div v-if="enumeratorNames.length > 0" class="mb-4" data-test="enum-type-picker-values">
             <h4 class="mb-3" data-test="enum-type-picker-values-title">Select Enumerator:</h4>
-            <div class="d-flex flex-wrap gap-2">
+            <div class="d-flex flex-wrap gap-3">
               <v-chip
                 v-for="enumeratorName in enumeratorNames"
                 :key="enumeratorName"
                 :color="modelValue === enumeratorName ? PICKER_STYLES.optionColorSelected : PICKER_STYLES.optionColorUnselected"
                 :variant="PICKER_STYLES.optionVariant"
                 :size="PICKER_STYLES.optionSize"
-                class="cursor-pointer picker-pill-chip pa-2"
+                class="cursor-pointer picker-pill-chip enum-chip-option"
                 @click="selectEnum(enumeratorName)"
                 :data-test="`enum-type-option-${enumeratorName}`"
               >
@@ -87,6 +94,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { apiService } from '@/utils/api'
 import type { EnumeratorFile, Enumerator } from '@/types/types'
 import { PICKER_STYLES } from '@/config/pickerStyles'
@@ -110,6 +118,7 @@ const emit = defineEmits<{
   'update:modelValue': [value: string]
 }>()
 
+const router = useRouter()
 const showPicker = ref(false)
 const availableEnumeratorFiles = ref<EnumeratorFile[]>([])
 const mostRecentEnumeratorData = ref<EnumeratorFile | null>(null)
@@ -168,7 +177,8 @@ const openEnumeration = (enumeratorName: string) => {
   if (!latestEnumeratorFile.value || !mostRecentEnumeratorData.value?.enumerators) return
   const idx = mostRecentEnumeratorData.value.enumerators.findIndex((e) => e.name === enumeratorName)
   if (idx < 0) return
-  window.open(`/enumerators/${latestEnumeratorFile.value}/${idx}`, '_blank')
+  showPicker.value = false
+  router.push(`/enumerators/${latestEnumeratorFile.value}/${idx}`)
 }
 
 // Get chip color based on whether a value is selected
@@ -185,6 +195,25 @@ onMounted(() => {
 <style scoped>
 .cursor-pointer {
   cursor: pointer;
+}
+
+/* Picker card styling to match type picker */
+.enum-picker-card {
+  max-height: 400px;
+  max-width: 720px;
+  overflow-y: auto;
+  background: #0d47a1 !important;
+  color: #ffffff !important;
+}
+
+.enum-picker-card * {
+  color: #ffffff !important;
+}
+
+.enum-chip-option {
+  min-height: 30px;
+  padding-inline: 12px;
+  margin: 3px 5px;
 }
 
 /* Ensure chip maintains full opacity even when disabled */
