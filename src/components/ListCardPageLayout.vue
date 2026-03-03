@@ -40,7 +40,7 @@
     </div>
 
     <!-- Card grid -->
-    <v-row v-else :data-test="`${pageKey}-grid`">
+    <v-row v-else :data-test="`${pageKey}-grid`" :class="gridClass || undefined">
       <slot />
     </v-row>
   </v-container>
@@ -49,16 +49,20 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
-const props = defineProps<{
-  title: string
-  loading: boolean
-  error: string | null
-  items: unknown[]
-  emptyIcon: string
-  emptyTitle: string
-  emptyMessage: string
-  pageKey: string
-}>()
+const props = withDefaults(
+  defineProps<{
+    title: string
+    loading: boolean
+    error: string | null
+    items: unknown[]
+    emptyIcon: string
+    emptyTitle: string
+    emptyMessage: string
+    pageKey: string
+    gridClass?: string
+  }>(),
+  { gridClass: undefined }
+)
 
 defineEmits<{
   retry: []
@@ -66,3 +70,20 @@ defineEmits<{
 
 const hasItems = computed(() => props.items.length > 0)
 </script>
+
+<style scoped>
+/* 8-column grid for dictionaries on ultra-wide displays (3440x1440) */
+@media (min-width: 2560px) {
+  :deep(.dictionaries-cards-grid) {
+    display: grid !important;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 16px;
+    margin: 0 !important;
+  }
+  :deep(.dictionaries-cards-grid > *) {
+    flex: none !important;
+    max-width: none !important;
+    padding: 0 !important;
+  }
+}
+</style>

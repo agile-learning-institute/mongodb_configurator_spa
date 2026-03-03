@@ -5,6 +5,7 @@
     :error="error"
     :items="collections"
     page-key="dictionaries"
+    grid-class="dictionaries-cards-grid"
     empty-icon="mdi-book-open-variant"
     empty-title="No dictionaries found"
     empty-message="Create a new dictionary to get started."
@@ -59,6 +60,7 @@
         sm="6"
         md="4"
         lg="3"
+        xl="2"
       >
         <CollectionCard
           :collection="collection"

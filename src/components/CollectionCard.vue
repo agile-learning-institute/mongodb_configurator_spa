@@ -29,7 +29,7 @@
           class="collection-version-chip"
           :data-test="`collection-card-version-${collection.collection_name}`"
         >
-          v{{ collection.latest_version }}
+          {{ collection._locked ? 'locked' : `v${collection.latest_version}` }}
         </v-chip>
         <v-icon
           size="small"
