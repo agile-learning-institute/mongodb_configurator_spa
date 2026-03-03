@@ -21,35 +21,44 @@
           {{ typeData.file_name.replace('.yaml', '') }}
         </h2>
         <div v-if="!isReadOnly" class="d-flex align-center flex-shrink-0 gap-1">
-          <v-btn
-            v-if="typeData._locked"
-            icon="mdi-lock-open"
-            variant="text"
-            size="small"
-            color="warning"
-            @click="unlockType"
-            title="Unlock"
-            data-test="unlock-type-btn"
-          />
-          <v-btn
-            v-else
-            icon="mdi-lock"
-            variant="text"
-            size="small"
-            @click="lockType"
-            title="Lock"
-            data-test="lock-type-btn"
-          />
-          <v-btn
-            v-if="!typeData._locked"
-            icon="mdi-delete"
-            variant="text"
-            size="small"
-            color="error"
-            @click="handleDelete"
-            title="Delete"
-            data-test="delete-type-btn"
-          />
+          <v-tooltip v-if="typeData._locked" text="Unlock Type" location="bottom">
+            <template #activator="{ props }">
+              <v-btn
+                v-bind="props"
+                icon="mdi-lock-open"
+                variant="text"
+                size="small"
+                color="warning"
+                @click="unlockType"
+                data-test="unlock-type-btn"
+              />
+            </template>
+          </v-tooltip>
+          <v-tooltip v-else text="Lock Type" location="bottom">
+            <template #activator="{ props }">
+              <v-btn
+                v-bind="props"
+                icon="mdi-lock"
+                variant="text"
+                size="small"
+                @click="lockType"
+                data-test="lock-type-btn"
+              />
+            </template>
+          </v-tooltip>
+          <v-tooltip v-if="!typeData._locked" text="Delete Type" location="bottom">
+            <template #activator="{ props }">
+              <v-btn
+                v-bind="props"
+                icon="mdi-delete"
+                variant="text"
+                size="small"
+                color="error"
+                @click="handleDelete"
+                data-test="delete-type-btn"
+              />
+            </template>
+          </v-tooltip>
         </div>
       </header>
       
