@@ -30,7 +30,6 @@ describe('Event Viewer detail page', () => {
       const text = $el.text()
       return /Processing Complete|Configuration Processed|Configuration processing completed/.test(text)
     })
-    cy.contains('button', 'Back').should('be.visible')
     
     // Verify help button exists in the app bar (if we're on the event viewer page)
     cy.get('[data-test="help-btn"]').should('be.visible').click()

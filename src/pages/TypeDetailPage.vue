@@ -15,18 +15,8 @@
 
     <!-- Content -->
     <div v-else-if="typeData">
-      <!-- Page Header: back link + type name + actions (title in app bar) -->
+      <!-- Page Header: type name + actions (title in app bar) -->
       <header class="d-flex align-center mb-6">
-        <v-btn
-          variant="text"
-          size="small"
-          to="/types"
-          class="mr-4"
-          data-test="back-to-types-btn"
-        >
-          <v-icon start>mdi-arrow-left</v-icon>
-          Back
-        </v-btn>
         <h2 class="text-h5 font-weight-medium flex-grow-1 text-truncate mr-4 mb-0" data-test="type-header-name">
           {{ typeData.file_name.replace('.yaml', '') }}
         </h2>

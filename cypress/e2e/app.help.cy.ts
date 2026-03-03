@@ -135,7 +135,6 @@ describe('App Help Pages', () => {
     cy.get('[data-test="carousel-title-text"]').should('contain.text', 'Configuration Processing Events')
     cy.get('[data-test="help-btn"]').should('be.visible').click()
     cy.url().should('include', '/event-viewer')
-    cy.contains('button', 'Back').should('be.visible')
   })
 })
 

@@ -16,22 +16,11 @@
       <v-icon size="64" color="grey">mdi-alert-circle</v-icon>
       <h3 class="text-h5 mt-4">Enumeration not found</h3>
       <p class="text-body-1 text-medium-emphasis mt-2">"{{ enumerationName }}" was not found in this enumerator file.</p>
-      <v-btn color="primary" class="mt-4" :to="cardsRoute">Back to Enumerators</v-btn>
     </div>
     <!-- Content: single enumeration -->
     <div v-else-if="enumerator && currentEnumeration">
-      <!-- Page Header: back link + editable enumeration name -->
+      <!-- Page Header: editable enumeration name -->
       <header class="d-flex align-center mb-6">
-        <v-btn
-          variant="text"
-          size="small"
-          :to="cardsRoute"
-          class="mr-4"
-          data-test="back-to-enumerators-btn"
-        >
-          <v-icon start>mdi-arrow-left</v-icon>
-          Back
-        </v-btn>
         <v-text-field
           v-model="editableName"
           variant="plain"
@@ -159,7 +148,6 @@ const { isReadOnly } = useConfig()
 const { loading, saving, error, enumerator, loadEnumerator, saveEnumerator } = useEnumeratorDetail()
 
 const enumerationName = computed(() => decodeURIComponent((route.params.enumerationName as string) || ''))
-const cardsRoute = computed(() => `/enumerators/${route.params.fileName}`)
 
 const enumerationIndex = computed(() => {
   if (!enumerator.value?.enumerators) return -1

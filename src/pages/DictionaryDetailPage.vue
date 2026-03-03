@@ -15,18 +15,8 @@
 
     <!-- Content -->
     <div v-else-if="dictionary">
-      <!-- Page Header: back link + dictionary name (no version) + actions -->
+      <!-- Page Header: dictionary name (no version) + actions -->
       <header class="dictionary-header d-flex align-center mb-6">
-        <v-btn
-          variant="text"
-          size="small"
-          to="/dictionaries"
-          class="mr-4"
-          data-test="back-to-dictionaries-btn"
-        >
-          <v-icon start>mdi-arrow-left</v-icon>
-          Back
-        </v-btn>
         <h2 class="text-h5 font-weight-medium dictionary-name flex-grow-1 text-truncate mr-4" data-test="dictionary-header-name">
           {{ displayName }}
         </h2>
