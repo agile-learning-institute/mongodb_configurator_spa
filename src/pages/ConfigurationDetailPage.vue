@@ -1044,24 +1044,58 @@ const createNewVersion = async () => {
   }
 }
 
+const getDictionaryVersionFromConfigVersion = (version: string): string | null => {
+  const parts = version.split('.')
+  if (parts.length < 3) return null
+  return `${parts[0]}.${parts[1]}.${parts[2]}`
+}
+
+const getDictionaryFileNameForVersion = (config: Configuration, version: string): string | null => {
+  const dictVersion = getDictionaryVersionFromConfigVersion(version)
+  if (!dictVersion) return null
+  const baseName = config.file_name.replace('.yaml', '')
+  return `${baseName}.${dictVersion}.yaml`
+}
+
+const updateDictionaryLock = async (fileName: string, locked: boolean) => {
+  try {
+    const dictionary = await apiService.getDictionary(fileName)
+    const updated = { ...dictionary, _locked: locked }
+    await apiService.saveDictionary(fileName, updated)
+  } catch (err: any) {
+    console.error('Failed to update dictionary lock state:', err)
+  }
+}
+
 const toggleVersionLock = async () => {
   if (!configuration.value || !activeVersionData.value) return
   
-  // If unlocking, show confirmation dialog
   if (activeVersionData.value._locked) {
     showUnlockVersionDialog.value = true
     return
   }
   
-  // If locking, do it directly
   try {
-    // Find the version object in the configuration and toggle its lock status
-    const versionIndex = configuration.value.versions.findIndex(v => v.version === activeVersion.value)
-    if (versionIndex !== -1) {
-      configuration.value.versions[versionIndex]._locked = true
-      
-      // Save configuration
-      await autoSave()
+    const versionIndex = configuration.value.versions.findIndex(
+      (v) => v.version === activeVersion.value
+    )
+    if (versionIndex === -1) return
+
+    configuration.value.versions[versionIndex]._locked = true
+    await autoSave()
+
+    const dictFileName = getDictionaryFileNameForVersion(configuration.value, activeVersion.value)
+    const dictVersion = getDictionaryVersionFromConfigVersion(activeVersion.value)
+
+    if (dictFileName && dictVersion) {
+      const referencedByOtherVersion = configuration.value.versions.some((v) => {
+        if (v.version === activeVersion.value) return false
+        return getDictionaryVersionFromConfigVersion(v.version) === dictVersion
+      })
+
+      if (!referencedByOtherVersion) {
+        await updateDictionaryLock(dictFileName, true)
+      }
     }
   } catch (err: any) {
     error.value = err.message || 'Failed to lock version'
@@ -1073,16 +1107,19 @@ const confirmUnlockVersion = async () => {
   if (!configuration.value || !activeVersionData.value) return
   
   try {
-    // Find the version object in the configuration and unlock it
-    const versionIndex = configuration.value.versions.findIndex(v => v.version === activeVersion.value)
-    if (versionIndex !== -1) {
-      configuration.value.versions[versionIndex]._locked = false
-      
-      // Save configuration
-      await autoSave()
+    const versionIndex = configuration.value.versions.findIndex(
+      (v) => v.version === activeVersion.value
+    )
+    if (versionIndex === -1) return
+
+    configuration.value.versions[versionIndex]._locked = false
+    await autoSave()
+
+    const dictFileName = getDictionaryFileNameForVersion(configuration.value, activeVersion.value)
+    if (dictFileName) {
+      await updateDictionaryLock(dictFileName, false)
     }
     
-    // Close the dialog
     showUnlockVersionDialog.value = false
   } catch (err: any) {
     error.value = err.message || 'Failed to unlock version'

@@ -104,7 +104,7 @@
           Add Enumeration
         </v-btn>
       </div>
-      <v-row v-else data-test="enumerations-grid">
+      <v-row v-else data-test="enumerations-grid" class="card-grid--wide-8">
         <v-col
           v-for="(enumItem, i) in enumerator.enumerators"
           :key="enumItem.name"

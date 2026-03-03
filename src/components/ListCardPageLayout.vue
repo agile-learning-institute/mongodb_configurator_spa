@@ -72,18 +72,4 @@ const hasItems = computed(() => props.items.length > 0)
 </script>
 
 <style scoped>
-/* 8-column grid for dictionaries on ultra-wide displays (3440x1440) */
-@media (min-width: 2560px) {
-  :deep(.dictionaries-cards-grid) {
-    display: grid !important;
-    grid-template-columns: repeat(8, 1fr);
-    gap: 16px;
-    margin: 0 !important;
-  }
-  :deep(.dictionaries-cards-grid > *) {
-    flex: none !important;
-    max-width: none !important;
-    padding: 0 !important;
-  }
-}
 </style>

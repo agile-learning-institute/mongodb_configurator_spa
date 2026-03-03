@@ -5,7 +5,7 @@
     :error="error"
     :items="collections"
     page-key="dictionaries"
-    grid-class="dictionaries-cards-grid"
+    grid-class="card-grid--wide-8"
     empty-icon="mdi-book-open-variant"
     empty-title="No dictionaries found"
     empty-message="Create a new dictionary to get started."

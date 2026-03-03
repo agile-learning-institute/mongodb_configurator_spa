@@ -5,6 +5,7 @@
     :error="error"
     :items="files"
     page-key="types"
+    grid-class="card-grid--wide-8"
     empty-icon="mdi-code-braces"
     empty-title="No types found"
     empty-message="Create a new type to get started."

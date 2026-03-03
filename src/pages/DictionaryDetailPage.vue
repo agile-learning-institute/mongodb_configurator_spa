@@ -32,33 +32,12 @@
             @previous="navigateToPreviousVersion"
             @next="navigateToNextVersion"
           />
-          <!-- Icon-only actions -->
-          <v-tooltip v-if="!isReadOnly && dictionary._locked" text="Unlock Dictionary" location="bottom">
-            <template #activator="{ props }">
-              <v-btn
-                v-bind="props"
-                icon="mdi-lock-open"
-                variant="text"
-                size="small"
-                color="warning"
-                @click="unlockType"
-                data-test="unlock-dictionary-btn"
-              />
-            </template>
-          </v-tooltip>
-          <v-tooltip v-else-if="!isReadOnly" text="Lock Dictionary" location="bottom">
-            <template #activator="{ props }">
-              <v-btn
-                v-bind="props"
-                icon="mdi-lock"
-                variant="text"
-                size="small"
-                @click="lockDictionary"
-                data-test="lock-dictionary-btn"
-              />
-            </template>
-          </v-tooltip>
-          <v-tooltip v-if="!isReadOnly && !dictionary._locked" text="Delete Dictionary" location="bottom">
+          <!-- Delete only for non-versioned dictionaries; lock/unlock are controlled via configuration versions -->
+          <v-tooltip
+            v-if="!isReadOnly && !dictionary._locked && !isVersionedDictionary"
+            text="Delete Dictionary"
+            location="bottom"
+          >
             <template #activator="{ props }">
               <v-btn
                 v-bind="props"
@@ -253,36 +232,6 @@
       </v-card-actions>
     </v-card>
   </v-dialog>
-
-  <!-- Unlock Confirmation Dialog -->
-  <v-dialog v-model="showUnlockDialog" max-width="500" data-test="unlock-dictionary-dialog">
-    <v-card>
-      <v-card-title class="text-h5 d-flex align-center">
-        <v-icon color="warning" class="mr-3">mdi-alert-circle</v-icon>
-        Unlock Dictionary
-      </v-card-title>
-      <v-card-text>
-        <p class="mb-3" data-test="unlock-confirmation-message">
-          <strong>Are you sure you want to unlock "{{ dictionary?.file_name.replace('.yaml', '') }}"?</strong>
-        </p>
-        <p class="text-body-2 text-medium-emphasis" data-test="unlock-warning-message">
-          This will allow the dictionary to be modified. Changes will be saved automatically.
-        </p>
-      </v-card-text>
-      <v-card-actions>
-        <v-spacer />
-        <v-btn @click="cancelUnlock" data-test="unlock-cancel-btn">Cancel</v-btn>
-        <v-btn 
-          color="warning" 
-          variant="elevated"
-          @click="confirmUnlock"
-          data-test="unlock-confirm-btn"
-        >
-          Unlock
-        </v-btn>
-      </v-card-actions>
-    </v-card>
-  </v-dialog>
 </template>
 
 <script setup lang="ts">
@@ -313,7 +262,6 @@ const saving = ref(false)
 const error = ref<string | null>(null)
 const dictionary = ref<DictionaryData | null>(null)
 const showDeleteDialog = ref(false)
-const showUnlockDialog = ref(false)
 const editableDescription = ref('')
 const editableType = ref('')
 const siblingDictionaries = ref<string[]>([])
@@ -324,6 +272,11 @@ const parseDictionaryFileName = (fileName: string) => {
   if (!match) return null
   return { collection: match[1], version: `${match[2]}.${match[3]}.${match[4]}` }
 }
+
+const isVersionedDictionary = computed(() => {
+  const fileName = dictionary.value?.file_name ?? ''
+  return /\.\d+\.\d+\.\d+\.yaml$/.test(fileName)
+})
 
 // Display name (collection only, no version) e.g. "sample"
 const displayName = computed(() => {
@@ -688,19 +641,6 @@ const handleRootPropertyChange = (updatedProperty: TypeProperty) => {
   }
 }
 
-const lockDictionary = async () => {
-  if (!dictionary.value) return
-  
-  try {
-    // Note: Lock API endpoint may not be implemented yet
-    dictionary.value._locked = true
-  } catch (err: any) {
-    error.value = err.message || 'Failed to lock dictionary'
-    console.error('Failed to lock dictionary:', err)
-  }
-}
-
-
 const handleDelete = () => {
   showDeleteDialog.value = true
 }
@@ -720,30 +660,6 @@ const confirmDelete = async () => {
 
 const cancelDelete = () => {
   showDeleteDialog.value = false
-}
-
-const unlockType = async () => {
-  if (!dictionary.value) return
-  showUnlockDialog.value = true
-}
-
-const confirmUnlock = async () => {
-  if (!dictionary.value) return
-  try {
-    // Update local state
-    dictionary.value._locked = false
-    showUnlockDialog.value = false
-    
-    // Save the unlocked state to the backend
-    await autoSave()
-  } catch (err: any) {
-    error.value = err.message || 'Failed to unlock dictionary'
-    console.error('Failed to unlock dictionary:', err)
-  }
-}
-
-const cancelUnlock = () => {
-  showUnlockDialog.value = false
 }
 
 // Handle page unload - blur active inputs to trigger save handlers
