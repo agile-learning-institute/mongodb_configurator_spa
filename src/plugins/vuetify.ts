@@ -18,15 +18,17 @@ export default createVuetify({
     themes: {
       light: {
         colors: {
-          primary: '#2E7D32', // Dark green
-          secondary: '#558B2F', // Medium green
-          accent: '#8BC34A', // Light green
+          primary: '#1565C0', // Neutral blue
+          secondary: '#42A5F5', // Medium blue
+          accent: '#64B5F6', // Light blue
           error: '#D32F2F', // Dark red
           info: '#1976D2', // Blue
-          success: '#388E3C', // Green
+          success: '#2E7D32', // Green
           warning: '#F57C00', // Orange
-          surface: '#F1F8E9', // Very light green background
-          'surface-variant': '#E8F5E8', // Light green variant
+          surface: '#E3F2FD', // Very light blue background (nav drawer)
+          'surface-variant': '#BBDEFB', // Light blue variant
+          'picker-pill': '#E3F2FD', // Light blue for picker chips (matches nav drawer)
+          'on-picker-pill': '#000000', // Black text on picker pills
         },
       },
     },

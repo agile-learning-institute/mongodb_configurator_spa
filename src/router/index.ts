@@ -4,26 +4,28 @@ import { useConfig } from '@/composables/useConfig'
 // Lazy-loaded page components
 const WelcomePage = () => import('@/pages/WelcomePage.vue')
 const AdminPage = () => import('@/pages/AdminPage.vue')
-const ConfigurationsPage = () => import('@/pages/ConfigurationsPage.vue')
 const ConfigurationDetailPage = () => import('@/pages/ConfigurationDetailPage.vue')
 const DictionariesPage = () => import('@/pages/DictionariesPage.vue')
 const DictionaryDetailPage = () => import('@/pages/DictionaryDetailPage.vue')
 const TypesPage = () => import('@/pages/TypesPage.vue')
 const TypeDetailPage = () => import('@/pages/TypeDetailPage.vue')
-const EnumeratorsPage = () => import('@/pages/EnumeratorsPage.vue')
+const EnumeratorsRedirectPage = () => import('@/pages/EnumeratorsRedirectPage.vue')
+const EnumeratorCardsPage = () => import('@/pages/EnumeratorCardsPage.vue')
 const EnumeratorDetailPage = () => import('@/pages/EnumeratorDetailPage.vue')
-const TestDataPage = () => import('@/pages/TestDataPage.vue')
 const TestDataDetailPage = () => import('@/pages/TestDataDetailPage.vue')
-const MigrationsPage = () => import('@/pages/MigrationsPage.vue')
 const MigrationsDetailPage = () => import('@/pages/MigrationsDetailPage.vue')
 const EventViewerPage = () => import('@/pages/EventViewerPage.vue')
 
 const routes = [
   {
     path: '/',
-    name: 'Welcome',
+    redirect: '/dictionaries'
+  },
+  {
+    path: '/help',
+    name: 'Help',
     component: WelcomePage,
-    meta: { title: 'Welcome' }
+    meta: { title: 'Help' }
   },
   {
     path: '/admin',
@@ -33,9 +35,7 @@ const routes = [
   },
   {
     path: '/configurations',
-    name: 'Configurations',
-    component: ConfigurationsPage,
-    meta: { title: 'Configurations' }
+    redirect: '/dictionaries'
   },
   {
     path: '/configurations/:fileName',
@@ -69,21 +69,25 @@ const routes = [
   },
   {
     path: '/enumerators',
-    name: 'Enumerators',
-    component: EnumeratorsPage,
+    name: 'EnumeratorsRedirect',
+    component: EnumeratorsRedirectPage,
     meta: { title: 'Enumerators' }
   },
   {
     path: '/enumerators/:fileName',
+    name: 'EnumeratorCards',
+    component: EnumeratorCardsPage,
+    meta: { title: 'Enumerators' }
+  },
+  {
+    path: '/enumerators/:fileName/:enumerationIndex',
     name: 'EnumeratorDetail',
     component: EnumeratorDetailPage,
     meta: { title: 'Enumerator Detail' }
   },
   {
     path: '/test_data',
-    name: 'TestData',
-    component: TestDataPage,
-    meta: { title: 'Test Data' }
+    redirect: '/dictionaries'
   },
   {
     path: '/test_data/:fileName',
@@ -93,9 +97,7 @@ const routes = [
   },
   {
     path: '/migrations',
-    name: 'Migrations',
-    component: MigrationsPage,
-    meta: { title: 'Migrations' }
+    redirect: '/dictionaries'
   },
   {
     path: '/migrations/:fileName',
@@ -112,7 +114,7 @@ const routes = [
   // Catch all route
   {
     path: '/:pathMatch(.*)*',
-    redirect: '/'
+    redirect: '/dictionaries'
   }
 ]
 
@@ -127,7 +129,7 @@ router.beforeEach((to, _from, next) => {
   
   // If in read-only mode, prevent access to edit pages
   if (isReadOnly.value && to.meta.requiresEdit) {
-    next({ name: 'Welcome' })
+    next({ path: '/dictionaries' })
     return
   }
   

@@ -40,6 +40,13 @@ onMounted(() => {
 <style>
 /* Global styles */
 
+/* Picker pills: light blue background (nav drawer), black text */
+.picker-pill-chip,
+.picker-pill-chip .v-icon,
+.picker-pill-chip span {
+  color: black !important;
+}
+
 /* Ensure tooltip text is always visible with good contrast */
 .v-tooltip .v-tooltip__content,
 .v-overlay__content {

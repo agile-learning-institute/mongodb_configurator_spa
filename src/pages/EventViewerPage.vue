@@ -15,21 +15,10 @@
 
     <!-- Event display -->
     <div v-else-if="event">
-      <!-- Header -->
+      <!-- Header: subtitle (title in app bar) -->
       <div class="d-flex justify-space-between align-center mb-6">
         <div>
-          <h1 class="text-h4">{{ title }}</h1>
           <p class="text-body-1 text-medium-emphasis">{{ subtitle }}</p>
-        </div>
-        <div class="d-flex align-center">
-          <v-btn
-            color="secondary"
-            variant="outlined"
-            @click="goBack"
-          >
-            <v-icon start>mdi-arrow-left</v-icon>
-            Back
-          </v-btn>
         </div>
       </div>
 
@@ -44,30 +33,24 @@
       <div class="text-body-2 text-medium-emphasis mt-2">
         No event data was provided. Please return to the previous page.
       </div>
-      <v-btn @click="goBack" class="mt-4">
-        <v-icon start>mdi-arrow-left</v-icon>
-        Go Back
-      </v-btn>
     </div>
   </v-container>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute } from 'vue-router'
 import { useEventState } from '@/composables/useEventState'
 import type { ConfiguratorEvent } from '@/types/events'
 import EventCard from '@/components/EventCard.vue'
 
 const route = useRoute()
-const router = useRouter()
 
 const loading = ref(true)
 const error = ref<string | null>(null)
 const event = ref<ConfiguratorEvent | null>(null)
 const title = ref('Event Details')
 const subtitle = ref('Processing or error information')
-const previousPage = ref<string | null>(null)
 
 const loadEvent = () => {
   loading.value = true
@@ -86,8 +69,6 @@ const loadEvent = () => {
       eventData = state.eventData
       eventTitle = state.title
       eventSubtitle = state.subtitle
-      // Set previous page to configurations as default
-      previousPage.value = '/configurations'
     } else {
       // Fallback to route state for backward compatibility
       const routeState = route.meta?.state || history.state
@@ -124,16 +105,6 @@ const loadEvent = () => {
     error.value = err.message || 'Failed to load event data'
   } finally {
     loading.value = false
-  }
-}
-
-// Go back function
-const goBack = () => {
-  // Don't clear event state when leaving - let it persist for next visit
-  if (previousPage.value) {
-    router.push(previousPage.value)
-  } else {
-    router.push('/configurations')
   }
 }
 

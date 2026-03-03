@@ -1,39 +1,75 @@
 <template>
-  <v-container>
-    <div class="d-flex justify-space-between align-center mb-6">
-      <h3 data-test="page-title">Types</h3>
-      <div class="d-flex align-center gap-2">
-        <v-btn
-          v-if="!isReadOnly"
-          color="primary"
-          variant="elevated"
-          prepend-icon="mdi-plus"
-          @click="showNewDialog = true"
-          data-test="new-type-btn"
-        >
-          New
-        </v-btn>
-        <v-btn
-          v-if="canLockAll && !isReadOnly"
-          color="info"
-          variant="outlined"
-          prepend-icon="mdi-lock"
-          @click="handleLockAll"
-          :loading="locking"
-          data-test="lock-all-btn"
-        >
-          Lock All
-        </v-btn>
-      </div>
-    </div>
-    <FileList 
-      ref="fileListRef"
-      file-type="types"
-      @edit="handleEdit"
-      @open="handleOpen"
-    />
+  <ListCardPageLayout
+    title="Types"
+    :loading="loading"
+    :error="error"
+    :items="files"
+    page-key="types"
+    grid-class="card-grid--wide-8"
+    empty-icon="mdi-code-braces"
+    empty-title="No types found"
+    empty-message="Create a new type to get started."
+    @retry="loadFiles"
+  >
+    <template #header-actions>
+      <template v-if="!isReadOnly">
+        <v-tooltip v-if="canLockAll" text="Lock all types" location="bottom">
+          <template #activator="{ props }">
+            <v-btn
+              v-bind="props"
+              icon="mdi-lock"
+              variant="text"
+              size="small"
+              :loading="locking"
+              @click="handleLockAll"
+              data-test="lock-all-btn"
+            />
+          </template>
+        </v-tooltip>
+        <v-tooltip text="New type" location="bottom">
+          <template #activator="{ props }">
+            <v-btn
+              v-bind="props"
+              icon="mdi-plus"
+              variant="text"
+              size="small"
+              @click="showNewDialog = true"
+              data-test="new-type-btn"
+            />
+          </template>
+        </v-tooltip>
+      </template>
+    </template>
+    <template #empty-action>
+      <v-btn
+        v-if="!isReadOnly"
+        color="primary"
+        variant="elevated"
+        class="mt-4"
+        @click="showNewDialog = true"
+        data-test="new-type-empty-btn"
+      >
+        New Type
+      </v-btn>
+    </template>
+    <template #default>
+      <v-col
+        v-for="typeFile in files"
+        :key="typeFile.name"
+        cols="12"
+        sm="6"
+        md="4"
+        lg="3"
+      >
+        <TypeCard
+          :type-file="typeFile"
+          @open="handleOpen"
+        />
+      </v-col>
+    </template>
+  </ListCardPageLayout>
 
-    <!-- New Type Dialog -->
+  <!-- New Type Dialog -->
     <v-dialog v-model="showNewDialog" max-width="400" data-test="new-type-dialog">
       <v-card>
         <v-card-title class="text-h5">
@@ -65,88 +101,54 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-  </v-container>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useConfig } from '@/composables/useConfig'
-import FileList from '@/components/FileList.vue'
+import { useFiles } from '@/composables/useFiles'
+import { apiService } from '@/utils/api'
+import ListCardPageLayout from '@/components/ListCardPageLayout.vue'
+import TypeCard from '@/components/TypeCard.vue'
 
 const router = useRouter()
 const { isReadOnly } = useConfig()
-const fileListRef = ref()
+const { files, loading, error, loadFiles, canLockAll, lockAllFiles } = useFiles('types')
 
-// Lock all functionality
-const canLockAll = ref(false)
 const locking = ref(false)
-
-// New type functionality
 const showNewDialog = ref(false)
 const newTypeName = ref('')
-
-const handleEdit = (fileName: string) => {
-  router.push(`/types/${fileName}`)
-}
 
 const handleOpen = (fileName: string) => {
   router.push(`/types/${fileName}`)
 }
 
 const handleLockAll = async () => {
-  if (fileListRef.value) {
-    locking.value = true
-    try {
-      await fileListRef.value.handleLockAll()
-    } finally {
-      locking.value = false
-    }
+  locking.value = true
+  error.value = null
+  try {
+    await lockAllFiles()
+  } finally {
+    locking.value = false
   }
 }
 
 const createNewType = async () => {
   const name = newTypeName.value.trim()
   if (!name) return
-  
+
   try {
-    // Create a new empty type document via PUT
     const newTypeData = {
-      root: {
-        name: name
-      }
+      root: { name }
     }
-    
-    // PUT the new document to create it
     const fileName = `${name}.yaml`
-    const response = await fetch(`/api/types/${fileName}/`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(newTypeData)
-    })
-    
-    if (response.ok) {
-      // Navigate to the newly created type
-      router.push(`/types/${fileName}`)
-      showNewDialog.value = false
-      newTypeName.value = ''
-    } else {
-      console.error('Failed to create type:', response.statusText)
-    }
-  } catch (error) {
-    console.error('Error creating new type:', error)
+    await apiService.saveType(fileName, newTypeData)
+    router.push(`/types/${fileName}`)
+    showNewDialog.value = false
+    newTypeName.value = ''
+  } catch (err) {
+    console.error('Error creating new type:', err)
   }
 }
-
-// Initialize canLockAll when component mounts
-onMounted(() => {
-  // Wait for next tick to ensure FileList is mounted
-  setTimeout(() => {
-    if (fileListRef.value) {
-      canLockAll.value = fileListRef.value.canLockAll
-    }
-  }, 100)
-})
 </script> 

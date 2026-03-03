@@ -17,10 +17,9 @@
     <div v-else-if="configuration">
       <!-- File Header -->
       <div class="mb-6">
-        <!-- File name, description, and process button row -->
+        <!-- Description and process button row (title in app bar) -->
         <div class="d-flex align-center justify-space-between mb-2">
           <div class="d-flex align-center" style="flex: 1; min-width: 0;">
-            <h3 class="text-h5 text-medium-emphasis mr-2 mb-0">{{ configuration.file_name.replace('.yaml', '') }}:</h3>
             <v-textarea
               v-model="configuration.description"
               placeholder="Enter configuration description..."
@@ -37,51 +36,63 @@
             />
           </div>
           
-          <div class="d-flex flex-column gap-2">
-            <div v-if="!isReadOnly" class="d-flex flex-column gap-2">
-              <v-btn
-                color="secondary"
-                @click="processAllVersions"
-                :loading="processing"
-                data-test="configure-collection-btn"
-              >
-                <v-icon start>mdi-cog</v-icon>
-                Configure Collection
-              </v-btn>
-              
-              <v-btn
-                color="red"
-                variant="outlined"
-                @click="showDeleteCollectionDialog = true"
-                data-test="delete-collection-btn"
-              >
-                <v-icon start>mdi-delete</v-icon>
-                Delete Configuration
-              </v-btn>
-            </div>
-            
-            <div class="d-flex gap-2">
-              <v-btn
-                color="primary"
-                variant="outlined"
-                size="small"
-                @click="downloadJsonSchema(activeVersion)"
-                data-test="json-schema-btn"
-              >
-                <v-icon start size="small">mdi-code-json</v-icon>
-                JSON Schema
-              </v-btn>
-              <v-btn
-                color="primary"
-                variant="outlined"
-                size="small"
-                @click="downloadBsonSchema(activeVersion)"
-                data-test="bson-schema-btn"
-              >
-                <v-icon start size="small">mdi-database</v-icon>
-                BSON Schema
-              </v-btn>
-            </div>
+          <div class="d-flex align-center gap-1">
+            <v-tooltip v-if="!isReadOnly" text="Configure Collection" location="bottom">
+              <template #activator="{ props }">
+                <v-btn
+                  v-bind="props"
+                  icon="mdi-cog"
+                  variant="text"
+                  size="small"
+                  @click="processAllVersions"
+                  :loading="processing"
+                  data-test="configure-collection-btn"
+                />
+              </template>
+            </v-tooltip>
+            <v-tooltip v-if="!isReadOnly" text="Delete Collection" location="bottom">
+              <template #activator="{ props }">
+                <v-btn
+                  v-bind="props"
+                  icon="mdi-delete"
+                  variant="text"
+                  size="small"
+                  color="error"
+                  @click="showDeleteCollectionDialog = true"
+                  data-test="delete-collection-btn"
+                />
+              </template>
+            </v-tooltip>
+            <v-tooltip text="Download JSON Schema" location="bottom">
+              <template #activator="{ props }">
+                <v-chip
+                  v-bind="props"
+                  variant="outlined"
+                  size="small"
+                  color="default"
+                  class="cursor-pointer"
+                  @click="downloadJsonSchema(activeVersion)"
+                  data-test="json-schema-btn"
+                >
+                  json
+                </v-chip>
+              </template>
+            </v-tooltip>
+            <v-tooltip text="Download BSON Schema" location="bottom">
+              <template #activator="{ props }">
+                <v-chip
+                  v-bind="props"
+                  variant="outlined"
+                  size="small"
+                  color="default"
+                  class="cursor-pointer"
+                  @click="downloadBsonSchema(activeVersion)"
+                  data-test="bson-schema-btn"
+                >
+                  bson
+                </v-chip>
+              </template>
+            </v-tooltip>
           </div>
         </div>
       </div>
@@ -135,31 +146,45 @@
           </template>
           
           <template #header-actions>
-            <div v-if="activeVersion && activeVersionData && !isReadOnly" class="d-flex flex-column gap-2">
-              <!-- Version action buttons -->
-              <div class="d-flex gap-2">
-                <v-btn
-                  :color="activeVersionData?._locked ? 'warning' : 'success'"
-                  variant="elevated"
-                  size="small"
-                  @click="toggleVersionLock"
-                  data-test="toggle-lock-btn"
-                >
-                  <v-icon start size="small" data-test="lock-icon">{{ activeVersionData?._locked ? 'mdi-lock' : 'mdi-lock-open' }}</v-icon>
-                  <span data-test="lock-btn-text">{{ activeVersionData?._locked ? 'Unlock' : 'Lock' }}</span>
-                </v-btn>
-                <v-btn
-                  v-if="!activeVersionData?._locked"
-                  color="error"
-                  variant="elevated"
-                  size="small"
-                  @click="handleDeleteVersion"
-                  data-test="delete-version-btn"
-                >
-                  <v-icon start size="small" data-test="delete-icon">mdi-delete</v-icon>
-                  <span data-test="delete-btn-text">Delete</span>
-                </v-btn>
-              </div>
+            <div v-if="activeVersion && activeVersionData && !isReadOnly" class="d-flex align-center gap-1">
+              <v-tooltip v-if="activeVersionData?._locked" text="Unlock" location="bottom">
+                <template #activator="{ props }">
+                  <v-btn
+                    v-bind="props"
+                    icon="mdi-lock-open"
+                    variant="text"
+                    size="small"
+                    color="warning"
+                    @click="toggleVersionLock"
+                    data-test="toggle-lock-btn"
+                  />
+                </template>
+              </v-tooltip>
+              <v-tooltip v-else text="Lock" location="bottom">
+                <template #activator="{ props }">
+                  <v-btn
+                    v-bind="props"
+                    icon="mdi-lock"
+                    variant="text"
+                    size="small"
+                    @click="toggleVersionLock"
+                    data-test="toggle-lock-btn"
+                  />
+                </template>
+              </v-tooltip>
+              <v-tooltip v-if="!activeVersionData?._locked" text="Delete Version" location="bottom">
+                <template #activator="{ props }">
+                  <v-btn
+                    v-bind="props"
+                    icon="mdi-delete"
+                    variant="text"
+                    size="small"
+                    color="error"
+                    @click="handleDeleteVersion"
+                    data-test="delete-version-btn"
+                  />
+                </template>
+              </v-tooltip>
             </div>
           </template>
           
@@ -204,6 +229,7 @@
                   size="small"
                   variant="elevated"
                   color="primary"
+                  :disabled="!newVersionDialogReady"
                   @click="incrementVersion('major')"
                   class="ml-2"
                   data-test="new-version-major-plus-btn"
@@ -225,6 +251,7 @@
                   size="small"
                   variant="elevated"
                   color="primary"
+                  :disabled="!newVersionDialogReady"
                   @click="incrementVersion('minor')"
                   class="ml-2"
                   data-test="new-version-minor-plus-btn"
@@ -246,6 +273,7 @@
                   size="small"
                   variant="elevated"
                   color="primary"
+                  :disabled="!newVersionDialogReady"
                   @click="incrementVersion('patch')"
                   class="ml-2"
                   data-test="new-version-patch-plus-btn"
@@ -267,6 +295,7 @@
                   size="small"
                   variant="elevated"
                   color="primary"
+                  :disabled="!newVersionDialogReady"
                   @click="incrementVersion('enumerators')"
                   class="ml-2"
                   data-test="new-version-enumerators-plus-btn"
@@ -393,7 +422,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed, watch } from 'vue'
+import { ref, onMounted, onBeforeUnmount, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useEventState } from '@/composables/useEventState'
 import { useNewVersion } from '@/composables/useNewVersion'
@@ -443,6 +472,7 @@ const newVersion = ref({
 })
 const versionButtonClicked = ref(false)
 const newestEnumeratorVersion = ref<number | null>(null)
+const newVersionDialogReady = ref(false)
 const enumeratorsWereBackLevel = ref(false)
 const enumeratorsWereIncremented = ref(false)
 const initialEnumeratorsVersion = ref<number>(0)
@@ -577,6 +607,14 @@ const autoSave = async () => {
 
 const handleDescriptionChange = () => {
   autoSave()
+}
+
+// Handle page unload - blur active inputs to trigger save handlers
+const handleBeforeUnload = () => {
+  const activeElement = document.activeElement
+  if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) {
+    ;(activeElement as HTMLElement).blur()
+  }
 }
 
 
@@ -792,6 +830,10 @@ const getNewestEnumeratorVersion = async () => {
 
 // Version management methods
 const initializeNewVersion = async () => {
+  // Prevent user interaction until initialization completes (avoids race where
+  // initializeNewVersion overwrites newVersion after user has clicked increment)
+  newVersionDialogReady.value = false
+  
   // Reset state
   versionButtonClicked.value = false
   newestEnumeratorVersion.value = null
@@ -832,6 +874,8 @@ const initializeNewVersion = async () => {
     newVersion.value.enumerators = newestEnumeratorVersion.value
     // Note: enumeratorsWereIncremented stays false because we're just setting to existing max
   }
+  
+  newVersionDialogReady.value = true
 }
 
 const incrementVersion = async (type: 'major' | 'minor' | 'patch' | 'enumerators') => {
@@ -1000,24 +1044,58 @@ const createNewVersion = async () => {
   }
 }
 
+const getDictionaryVersionFromConfigVersion = (version: string): string | null => {
+  const parts = version.split('.')
+  if (parts.length < 3) return null
+  return `${parts[0]}.${parts[1]}.${parts[2]}`
+}
+
+const getDictionaryFileNameForVersion = (config: Configuration, version: string): string | null => {
+  const dictVersion = getDictionaryVersionFromConfigVersion(version)
+  if (!dictVersion) return null
+  const baseName = config.file_name.replace('.yaml', '')
+  return `${baseName}.${dictVersion}.yaml`
+}
+
+const updateDictionaryLock = async (fileName: string, locked: boolean) => {
+  try {
+    const dictionary = await apiService.getDictionary(fileName)
+    const updated = { ...dictionary, _locked: locked }
+    await apiService.saveDictionary(fileName, updated)
+  } catch (err: any) {
+    console.error('Failed to update dictionary lock state:', err)
+  }
+}
+
 const toggleVersionLock = async () => {
   if (!configuration.value || !activeVersionData.value) return
   
-  // If unlocking, show confirmation dialog
   if (activeVersionData.value._locked) {
     showUnlockVersionDialog.value = true
     return
   }
   
-  // If locking, do it directly
   try {
-    // Find the version object in the configuration and toggle its lock status
-    const versionIndex = configuration.value.versions.findIndex(v => v.version === activeVersion.value)
-    if (versionIndex !== -1) {
-      configuration.value.versions[versionIndex]._locked = true
-      
-      // Save configuration
-      await autoSave()
+    const versionIndex = configuration.value.versions.findIndex(
+      (v) => v.version === activeVersion.value
+    )
+    if (versionIndex === -1) return
+
+    configuration.value.versions[versionIndex]._locked = true
+    await autoSave()
+
+    const dictFileName = getDictionaryFileNameForVersion(configuration.value, activeVersion.value)
+    const dictVersion = getDictionaryVersionFromConfigVersion(activeVersion.value)
+
+    if (dictFileName && dictVersion) {
+      const referencedByOtherVersion = configuration.value.versions.some((v) => {
+        if (v.version === activeVersion.value) return false
+        return getDictionaryVersionFromConfigVersion(v.version) === dictVersion
+      })
+
+      if (!referencedByOtherVersion) {
+        await updateDictionaryLock(dictFileName, true)
+      }
     }
   } catch (err: any) {
     error.value = err.message || 'Failed to lock version'
@@ -1029,16 +1107,19 @@ const confirmUnlockVersion = async () => {
   if (!configuration.value || !activeVersionData.value) return
   
   try {
-    // Find the version object in the configuration and unlock it
-    const versionIndex = configuration.value.versions.findIndex(v => v.version === activeVersion.value)
-    if (versionIndex !== -1) {
-      configuration.value.versions[versionIndex]._locked = false
-      
-      // Save configuration
-      await autoSave()
+    const versionIndex = configuration.value.versions.findIndex(
+      (v) => v.version === activeVersion.value
+    )
+    if (versionIndex === -1) return
+
+    configuration.value.versions[versionIndex]._locked = false
+    await autoSave()
+
+    const dictFileName = getDictionaryFileNameForVersion(configuration.value, activeVersion.value)
+    if (dictFileName) {
+      await updateDictionaryLock(dictFileName, false)
     }
     
-    // Close the dialog
     showUnlockVersionDialog.value = false
   } catch (err: any) {
     error.value = err.message || 'Failed to unlock version'
@@ -1109,8 +1190,8 @@ const confirmDeleteCollection = async () => {
     // Close the dialog
     showDeleteCollectionDialog.value = false
     
-    // Navigate back to configurations list
-    router.push('/configurations')
+    // Navigate back to dictionaries list
+    router.push('/dictionaries')
   } catch (err: any) {
     error.value = err.message || 'Failed to delete collection'
     console.error('Failed to delete collection:', err)
@@ -1166,12 +1247,19 @@ const navigateToNextVersion = () => {
 // Load configuration on mount
 onMounted(() => {
   loadConfiguration()
+  window.addEventListener('beforeunload', handleBeforeUnload)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('beforeunload', handleBeforeUnload)
 })
 
 // Watch for dialog opening to initialize new version
 watch(showNewVersionDialog, async (newValue) => {
   if (newValue) {
     await initializeNewVersion()
+  } else {
+    newVersionDialogReady.value = false
   }
 })
 </script>

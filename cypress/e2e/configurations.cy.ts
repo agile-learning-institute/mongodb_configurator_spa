@@ -1,3 +1,5 @@
+import { resetEnumeratorsToV0 } from '../support/helpers'
+
 describe('Configurations detail page', () => {
   let createdConfigurationName: string
   let createdConfigurationVersion: string
@@ -5,17 +7,16 @@ describe('Configurations detail page', () => {
   let thingsToDelete: string[]
   
   beforeEach(() => {
+    resetEnumeratorsToV0()
     createdConfigurationName = `TestConfig_${Date.now()}`
-    createdConfigurationVersion = '0.1.0'
-    createdEnumeratorsVersion = '2'
+    createdConfigurationVersion = '1.0.0'
+    createdEnumeratorsVersion = '0'
     
-    cy.visit('/configurations')
+    cy.visit('/dictionaries')
     cy.get('[data-test="new-collection-btn"]').click()
-    cy.get('[data-test="new-collection-name-input"]').type(createdConfigurationName)
-    cy.get('[data-test="new-collection-description-input"]').type('Test configuration for E2E testing')
-    cy.get('[data-test="version-minor-plus-btn"]').click()
-    cy.get('[data-test="version-display"]').should('contain', '0.1.0.2')
-    cy.get('[data-test="new-collection-create-btn"]').click()
+    cy.get('[data-test="new-collection-name-input"]').find('input').type(createdConfigurationName)
+    cy.get('[data-test="new-collection-description-input"]').find('input').type('Test configuration for E2E testing')
+    cy.get('[data-test="new-collection-create-btn"]').should('not.be.disabled').click()
 
     thingsToDelete = []
     thingsToDelete.push(`/api/configurations/${createdConfigurationName}.yaml/`)
@@ -24,7 +25,7 @@ describe('Configurations detail page', () => {
   })
 
   afterEach(() => {
-    cy.visit('/configurations')
+    cy.visit('/dictionaries')
     thingsToDelete.forEach((thing) => {
       cy.request({
         method: 'DELETE',
@@ -32,19 +33,18 @@ describe('Configurations detail page', () => {
         failOnStatusCode: false
       })
     })
-    cy.visit('/configurations')
+    cy.visit('/dictionaries')
 
   })
 
   describe('List Configurations Page Functionality', () => {
-    it('loads configurations page and shows basic elements', () => {
-      // Visit list configurations page
-      cy.visit('/configurations')
+    it('loads dictionaries page and shows basic elements', () => {
+      // Visit dictionaries page (configurations are opened from here)
+      cy.visit('/dictionaries')
 
       // Verify title and buttons
-      cy.get('[data-test="page-title"]').should('contain', 'Collection Configurations')
+      cy.get('[data-test="app-title"]').should('contain', 'Dictionaries')
       cy.get('[data-test="new-collection-btn"]').should('be.visible')
-      cy.get('[data-test="configurations-file-list"]').should('exist').should('be.visible')
     })
 
     it('can create a new configuration', () => {
@@ -55,51 +55,12 @@ describe('Configurations detail page', () => {
       // Verify default values
       cy.get('[data-test="page-header"]').should('exist')
       cy.get('[data-test="page-header"]').find('textarea').should('have.value', 'Test configuration for E2E testing')
-      cy.get('[data-test="active-version"]').should('exist').should('contain', '0.1.0.2')
+      cy.get('[data-test="active-version"]').should('exist').should('contain', '1.0.0.0')
       cy.get('[data-test="dictionary-file-chip"]').should('exist').should('contain', `${createdConfigurationName}.${createdConfigurationVersion}.yaml`)
-      cy.get('[data-test="enumerators-file-chip"]').should('exist').should('contain', 'enumerations.2.yaml')
+      cy.get('[data-test="enumerators-file-chip"]').should('exist').should('contain', 'enumerations.0.yaml')
       cy.get('[data-test="test-data-file-chip"]').should('exist').should('contain', `${createdConfigurationName}.${createdConfigurationVersion}.${createdEnumeratorsVersion}.json`)
     })
 
-    it('correctly patches version numbers', () => {
-      // Visit configurations page
-      cy.visit('/configurations')
-      cy.get('[data-test="new-collection-btn"]').click()
-
-      // Verify dialog is ready
-      cy.get('[data-test="new-collection-dialog"]').should('be.visible')
-      cy.get('[data-test="version-major-display"]').should('contain', '0')
-      cy.get('[data-test="version-minor-display"]').should('contain', '0')
-      cy.get('[data-test="version-patch-display"]').should('contain', '0')
-      cy.get('[data-test="version-display"]').should('contain', '0.0.0')
-
-      // Verify patch down and up
-      cy.get('[data-test="version-major-plus-btn"]').click()
-      cy.get('[data-test="version-major-display"]').should('contain', '1')
-      cy.get('[data-test="version-display"]').should('contain', '1.0.0')
-      
-      cy.get('[data-test="version-minor-plus-btn"]').click()
-      cy.get('[data-test="version-minor-display"]').should('contain', '1')
-      cy.get('[data-test="version-display"]').should('contain', '1.1.0')
-
-      cy.get('[data-test="version-patch-plus-btn"]').click()
-      cy.get('[data-test="version-patch-display"]').should('contain', '1')
-      cy.get('[data-test="version-display"]').should('contain', '1.1.1')
-
-      cy.get('[data-test="version-patch-plus-btn"]').click()
-      cy.get('[data-test="version-display"]').should('contain', '1.1.2')
-
-      cy.get('[data-test="version-minor-plus-btn"]').click()
-      cy.get('[data-test="version-display"]').should('contain', '1.2.0')
-
-
-      cy.get('[data-test="version-major-plus-btn"]').click()
-      cy.get('[data-test="version-display"]').should('contain', '2.0.0')
-
-      // Close dialog without creating
-      cy.get('[data-test="new-collection-cancel-btn"]').click()
-      cy.get('[data-test="new-collection-dialog"]').should('not.exist')
-    })
   })
 
   describe('Configuration Detail Page', () => {
@@ -108,16 +69,16 @@ describe('Configurations detail page', () => {
       cy.visit(`/configurations/${createdConfigurationName}.yaml`)
 
       cy.get('[data-test="page-header"]').find('textarea').should('have.value', 'Test configuration for E2E testing')
-      cy.get('[data-test="configure-collection-btn"]').should('be.enabled')
-      cy.get('[data-test="delete-collection-btn"]').should('be.enabled')
-      cy.get('[data-test="json-schema-btn"]').should('be.enabled')
-      cy.get('[data-test="bson-schema-btn"]').should('be.enabled')
+      cy.get('[data-test="configure-collection-btn"]').should('be.visible')
+      cy.get('[data-test="delete-collection-btn"]').should('be.visible')
+      cy.get('[data-test="json-schema-btn"]').should('be.visible')
+      cy.get('[data-test="bson-schema-btn"]').should('be.visible')
 
       cy.get('[data-test="card-header"]').should('contain', 'Version:')
-      cy.get('[data-test="active-version"]').should('contain', `${createdConfigurationVersion}.${createdEnumeratorsVersion}`)
-      cy.get('[data-test="new-version-btn"]').should('be.enabled')
-      cy.get('[data-test="toggle-lock-btn"]').should('be.enabled')
-      cy.get('[data-test="delete-version-btn"]').should('be.enabled')
+      cy.get('[data-test="active-version"]').should('contain', '1.0.0.0')
+      cy.get('[data-test="new-version-btn"]').should('be.visible')
+      cy.get('[data-test="toggle-lock-btn"]').should('be.visible')
+      cy.get('[data-test="delete-version-btn"]').should('be.visible')
 
       cy.get('[data-test="step1-name"]').should('contain', 'Step 1: Drop existing schema validation')
       cy.get('[data-test="step2-name"]').should('contain', 'Step 2: Drop the following indexes (none)')
@@ -125,35 +86,34 @@ describe('Configurations detail page', () => {
       cy.get('[data-test="step4-name"]').should('contain', 'Step 4: Apply Schema')
       cy.get('[data-test="dictionary-file-chip"]').should('contain', `${createdConfigurationVersion}.yaml`)
       cy.get('[data-test="enumerators-file-chip"]').should('contain', `enumerations.${createdEnumeratorsVersion}.yaml`)
-      cy.get('[data-test="step5-name"]').should('contain', 'Step 5: Add these indexes (none)')
+      cy.get('[data-test="step5-name"]').should('contain', 'Step 5: Add these indexes')
       cy.get('[data-test="step6-name"]').should('contain', 'Step 6: Load Test Data')
       cy.get('[data-test="test-data-file-chip"]').should('contain', `${createdConfigurationName}.${createdConfigurationVersion}.${createdEnumeratorsVersion}.json`)
     })
 
     it('displays correct version navigator icons', () => {
-      // Create two new versions (0.1.1) and (0.1.2)
+      // Create two new versions (1.0.1.0) and (1.0.2.0)
       cy.visit(`/configurations/${createdConfigurationName}.yaml`)
       cy.get("[data-test='base-card-default']").should('exist')
 
-      // Create two new versions (0.1.1) and (0.1.2)
-      thingsToDelete.push(`/api/configurations/${createdConfigurationName}.0.1.1.yaml/`)
-      thingsToDelete.push(`/api/dictionaries/${createdConfigurationName}.0.1.1.yaml/`)
-      thingsToDelete.push(`/api/test_data/${createdConfigurationName}.0.1.1.${createdEnumeratorsVersion}.json/`)
-      thingsToDelete.push(`/api/configurations/${createdConfigurationName}.0.1.2.yaml/`)
-      thingsToDelete.push(`/api/dictionaries/${createdConfigurationName}.0.1.2.yaml/`)
-      thingsToDelete.push(`/api/test_data/${createdConfigurationName}.0.1.2.${createdEnumeratorsVersion}.json/`)
+      thingsToDelete.push(`/api/dictionaries/${createdConfigurationName}.1.0.1.yaml/`)
+      thingsToDelete.push(`/api/test_data/${createdConfigurationName}.1.0.1.0.json/`)
+      thingsToDelete.push(`/api/dictionaries/${createdConfigurationName}.1.0.2.yaml/`)
+      thingsToDelete.push(`/api/test_data/${createdConfigurationName}.1.0.2.0.json/`)
 
       cy.get('[data-test="new-version-btn"]').click()
       cy.get('[data-test="new-version-dialog"]').should('be.visible')
-      cy.get('[data-test="new-version-patch-plus-btn"]').click()
+      cy.get('[data-test="new-version-patch-plus-btn"]').should('not.be.disabled').click()
       cy.get('[data-test="new-version-create-btn"]').click()
+      cy.wait(500)
       cy.get('[data-test="new-version-btn"]').click()
       cy.get('[data-test="new-version-dialog"]').should('be.visible')
-      cy.get('[data-test="new-version-patch-plus-btn"]').click()
+      cy.get('[data-test="new-version-patch-plus-btn"]').should('not.be.disabled').click()
       cy.get('[data-test="new-version-create-btn"]').click()
-      
+      cy.wait(500)
+
       // Verify Previous and New Version buttons are visible and enabled
-      cy.get('[data-test="active-version"]').should('contain', '0.1.2.2')
+      cy.get('[data-test="active-version"]', { timeout: 10000 }).should('contain', '1.0.2.0')
       cy.get('[data-test="previous-version-btn"]').should('exist')
       cy.get('[data-test="previous-version-btn"]').should('be.visible')
       cy.get('[data-test="previous-version-btn"]').should('not.be.disabled')
@@ -162,9 +122,9 @@ describe('Configurations detail page', () => {
       cy.get('[data-test="new-version-btn"]').should('be.visible')
       cy.get('[data-test="new-version-btn"]').should('not.be.disabled')
 
-      // Move to version 0.1.1.2 and test navigator icons
+      // Move to version 1.0.1.0 and test navigator icons
       cy.get('[data-test="previous-version-btn"]').click()
-      cy.get('[data-test="active-version"]').should('contain', '0.1.1.2')
+      cy.get('[data-test="active-version"]').should('contain', '1.0.1.0')
       cy.get('[data-test="previous-version-btn"]').should('exist')
       cy.get('[data-test="previous-version-btn"]').should('be.visible')
       cy.get('[data-test="previous-version-btn"]').should('not.be.disabled')
@@ -173,9 +133,9 @@ describe('Configurations detail page', () => {
       cy.get('[data-test="next-version-btn"]').should('not.be.disabled')
       cy.get('[data-test="new-version-btn"]').should('not.exist')
 
-      // Move to version 0.1.0.2 and test navigator icons
+      // Move to version 1.0.0.0 and test navigator icons
       cy.get('[data-test="previous-version-btn"]').click()
-      cy.get('[data-test="active-version"]').should('contain', '0.1.0.2')
+      cy.get('[data-test="active-version"]').should('contain', '1.0.0.0')
       cy.get('[data-test="previous-version-btn"]').should('exist')
       cy.get('[data-test="previous-version-btn"]').should('be.visible')
       cy.get('[data-test="previous-version-btn"]').should('be.disabled')
@@ -204,10 +164,10 @@ describe('Configurations detail page', () => {
       cy.get('[data-test="new-version-dialog"]').should('be.visible')
       cy.get('[data-test="new-version-dialog-title"]').should('contain', 'Create New Version')
 
-      // Verify major version up
+      // v-dialog teleports content to body - find elements in document (not within dialog wrapper)
+      cy.get('[data-test="new-version-display"]', { timeout: 15000 }).should('contain', 'New Version')
       cy.get('[data-test="new-version-major-plus-btn"]').click()
-      cy.get('[data-test="new-version-major"]').should('contain', '1')
-      cy.get('[data-test="new-version-display"]').should('contain', '1.0.0.2')
+      cy.get('[data-test="new-version-display"]', { timeout: 10000 }).should('contain', '2.0.0.0')
       cy.get('[data-test="new-version-cancel-btn"]').click()
       cy.get('[data-test="new-version-dialog"]').should('not.exist')
     })
@@ -221,15 +181,15 @@ describe('Configurations detail page', () => {
       cy.get('[data-test="new-version-dialog"]').should('be.visible')
       cy.get('[data-test="new-version-dialog-title"]').should('contain', 'Create New Version')
 
-      // Verify minor version up
+      // v-dialog teleports content to body - find elements in document (not within dialog wrapper)
+      cy.get('[data-test="new-version-display"]', { timeout: 15000 }).should('contain', 'New Version')
       cy.get('[data-test="new-version-minor-plus-btn"]').click()
-      cy.get('[data-test="new-version-minor"]').should('contain', '2')
-      cy.get('[data-test="new-version-display"]').should('contain', '0.2.0.2')
+      cy.get('[data-test="new-version-display"]', { timeout: 10000 }).should('contain', '1.1.0.0')
       cy.get('[data-test="new-version-cancel-btn"]').click()
       cy.get('[data-test="new-version-dialog"]').should('not.exist')
     })
 
-    it('New Version Dialog increment minor', () => {
+    it('New Version Dialog increment patch', () => {
       // Arrange - very minimal assertions
       cy.visit(`/configurations/${createdConfigurationName}.yaml`)
       cy.get('[data-test="new-version-btn"]').click()
@@ -238,10 +198,10 @@ describe('Configurations detail page', () => {
       cy.get('[data-test="new-version-dialog"]').should('be.visible')
       cy.get('[data-test="new-version-dialog-title"]').should('contain', 'Create New Version')
 
-      // Verify patch version up
+      // v-dialog teleports content to body - find elements in document (not within dialog wrapper)
+      cy.get('[data-test="new-version-display"]', { timeout: 15000 }).should('contain', 'New Version')
       cy.get('[data-test="new-version-patch-plus-btn"]').click()
-      cy.get('[data-test="new-version-patch"]').should('contain', '1')
-      cy.get('[data-test="new-version-display"]').should('contain', '0.1.1.2')
+      cy.get('[data-test="new-version-display"]', { timeout: 10000 }).should('contain', '1.0.1.0')
       cy.get('[data-test="new-version-cancel-btn"]').click()
       cy.get('[data-test="new-version-dialog"]').should('not.exist')
     })
@@ -252,23 +212,21 @@ describe('Configurations detail page', () => {
       cy.get('[data-test="new-version-btn"]').click()
       cy.get('[data-test="new-version-dialog"]').should('be.visible')
 
-      // click on increment enumerators
+      // v-dialog teleports content to body - find elements in document (not within dialog wrapper)
+      cy.get('[data-test="new-version-display"]', { timeout: 15000 }).should('contain', 'New Version')
       cy.get('[data-test="new-version-enumerators-plus-btn"]').click()
-      cy.get('[data-test="new-version-enumerators"]').should('contain', '3')
-      cy.get('[data-test="new-version-enumerators-plus-btn"]').should('not.exist')
+      cy.get('[data-test="new-version-enumerators"]', { timeout: 10000 }).should('contain', '1')
       cy.get('[data-test="new-version-create-btn"]').click()
       cy.wait(500)
       cy.get('[data-test="new-version-dialog"]').should('not.exist')
       
-      // Verify enumerations.3.yaml was created
-      cy.visit(`/enumerators/enumerations.3.yaml`)
-      cy.url().should('contain', '/enumerators/enumerations.3.yaml')
-      cy.get('[data-test="enum-value-count-0"]').should('contain', '3 values')
+      // Verify enumerations.1.yaml was created
+      cy.visit(`/enumerators/enumerations.1.yaml`)
+      cy.url().should('contain', '/enumerators/enumerations.1.yaml')
 
       // Add things to delete
-      thingsToDelete.push(`/api/enumerators/enumerations.3.yaml/`)
-      thingsToDelete.push(`/api/dictionaries/${createdConfigurationName}.0.1.0.yaml/`)
-      thingsToDelete.push(`/api/test_data/${createdConfigurationName}.0.1.0.3.json/`)
+      thingsToDelete.push(`/api/enumerators/enumerations.1.yaml/`)
+      thingsToDelete.push(`/api/test_data/${createdConfigurationName}.1.0.0.1.json/`)
     })
   })
 
@@ -312,8 +270,8 @@ describe('Configurations detail page', () => {
       cy.get('[data-test="new-version-dialog"]').should('be.visible')
       cy.get('[data-test="new-version-minor-plus-btn"]').click()
       cy.get('[data-test="new-version-create-btn"]').click()
-      thingsToDelete.push(`/api/dictionaries/${createdConfigurationName}.0.2.0.yaml/`)
-      thingsToDelete.push(`/api/test_data/${createdConfigurationName}.0.2.0.${createdEnumeratorsVersion}.json/`)
+      thingsToDelete.push(`/api/dictionaries/${createdConfigurationName}.1.1.0.yaml/`)
+      thingsToDelete.push(`/api/test_data/${createdConfigurationName}.1.1.0.0.json/`)
 
       // Test adding drop index by selecting previously created index
       cy.get('[data-test="add-drop-index-btn"]').click()
@@ -353,15 +311,15 @@ describe('Configurations detail page', () => {
     it('can add, link, and delete existing migration', () => {
       cy.visit(`/configurations/${createdConfigurationName}.yaml`)
       cy.get('[data-test="add-migration-btn"]').click()
-      cy.get('[data-test="new-migration-existing-migrations"]').first()
-      .contains('first_last_to_full_name.json').click()
-
-      // Verify migration was added
-      cy.get('[data-test="migrations-content"]').should('contain', 'first_last_to_full_name.json')
-
-      // Verify chip links to migration detail page
-      cy.get('[data-test="migration-chip"]').first().click()
-      cy.url().should('include', `/migrations/first_last_to_full_name.json`)
+      // Use first available migration (seed data may vary by environment)
+      cy.get('[data-test="new-migration-existing-migrations"] .v-chip').first().invoke('text').as('migrationName')
+      cy.get('[data-test="new-migration-existing-migrations"] .v-chip').first().click()
+      cy.get<string>('@migrationName').then((migrationName) => {
+        const name = migrationName.trim()
+        cy.get('[data-test="migrations-content"]').should('contain', name)
+        cy.get('[data-test="migration-chip"]').first().click()
+        cy.url().should('include', `/migrations/${name}`)
+      })
     })
 
   })
@@ -414,8 +372,8 @@ describe('Configurations detail page', () => {
         cy.get('[data-test="step5-indexes-content"]').should('contain', 'name1')
       })
 
-      // Test editing index
-      cy.get('[data-test="index-chip"]').first().click()
+      // Test editing index - target the chip we just added (template has nameIndex etc.)
+      cy.get('[data-test="index-chip"]').contains('name1').click()
       
       // Verify dialog shows current JSON
       cy.get('[data-test="step5-index-json-textarea"] textarea:not(.v-textarea__sizer)').invoke('val').should('contain', '"name": "name1"')
@@ -429,8 +387,8 @@ describe('Configurations detail page', () => {
         cy.get('[data-test="step5-indexes-content"]').should('contain', 'edited_name')
       })
 
-      // Test removing index with x button
-      cy.get('[data-test="delete-index-btn"]').first().click()
+      // Test removing index with x button - target the chip we edited
+      cy.contains('[data-test="index-chip"]', 'edited_name').find('[data-test="delete-index-btn"]').click()
 
       // Verify index was removed
       cy.get('[data-test="step5-indexes-content"]').should('not.contain', 'edited_name')

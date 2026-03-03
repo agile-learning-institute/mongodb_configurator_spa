@@ -1,11 +1,11 @@
 <template>
-  <div data-test="enum-picker">
+  <div class="enum-picker" data-test="enum-picker">
     <!-- Display chip that opens the picker -->
     <v-chip
       :color="getChipColor()"
-      :variant="getChipVariant()"
-      size="small"
-      class="cursor-pointer"
+      :variant="PICKER_STYLES.chipVariant"
+      :size="PICKER_STYLES.chipSize"
+      class="cursor-pointer picker-pill-chip"
       :disabled="disabled"
       @click="showPicker = true"
       data-test="enum-type-chip"
@@ -16,32 +16,67 @@
     </v-chip>
 
     <!-- Enum Picker Dialog -->
-    <v-dialog v-model="showPicker" max-width="600" data-test="enum-type-picker-dialog">
-      <v-card data-test="enum-type-picker-card">
+    <v-dialog v-model="showPicker" max-width="720" data-test="enum-type-picker-dialog">
+      <v-card class="enum-picker-card" data-test="enum-type-picker-card">
         <v-card-title class="d-flex justify-space-between align-center pa-4" data-test="enum-type-picker-title">
           <span data-test="enum-type-picker-title-text">Pick an Enumerator</span>
-          <v-btn icon size="small" @click="showPicker = false" data-test="enum-type-picker-close-btn">
-            <v-icon data-test="enum-type-picker-close-icon">mdi-close</v-icon>
-          </v-btn>
+          <div class="d-flex align-center gap-2">
+            <v-btn
+              v-if="latestEnumeratorFile"
+              variant="text"
+              size="small"
+              color="primary"
+              :to="`/enumerators/${latestEnumeratorFile}`"
+              @click="showPicker = false"
+              data-test="open-enumerators-link"
+            >
+              <v-icon start size="small">mdi-open-in-new</v-icon>
+              Open Enumerators
+            </v-btn>
+            <v-btn
+              icon
+              size="small"
+              variant="text"
+              color="white"
+              @click="showPicker = false"
+              data-test="enum-type-picker-close-btn"
+            >
+              <v-icon data-test="enum-type-picker-close-icon">mdi-close</v-icon>
+            </v-btn>
+          </div>
         </v-card-title>
         
         <v-card-text class="pa-4">
           <!-- Enum Values from Most Recent Version -->
           <div v-if="enumeratorNames.length > 0" class="mb-4" data-test="enum-type-picker-values">
             <h4 class="mb-3" data-test="enum-type-picker-values-title">Select Enumerator:</h4>
-            <div class="d-flex flex-wrap gap-2">
+            <div class="d-flex flex-wrap gap-3">
               <v-chip
                 v-for="enumeratorName in enumeratorNames"
                 :key="enumeratorName"
-                :color="modelValue === enumeratorName ? 'primary' : undefined"
-                variant="outlined"
-                size="default"
-                class="cursor-pointer pa-2"
+                :color="modelValue === enumeratorName ? PICKER_STYLES.optionColorSelected : PICKER_STYLES.optionColorUnselected"
+                :variant="PICKER_STYLES.optionVariant"
+                :size="PICKER_STYLES.optionSize"
+                class="cursor-pointer picker-pill-chip enum-chip-option"
                 @click="selectEnum(enumeratorName)"
                 :data-test="`enum-type-option-${enumeratorName}`"
               >
                 <v-icon start size="18" :data-test="`enum-type-option-icon-${enumeratorName}`">mdi-format-list-checks</v-icon>
                 <span :data-test="`enum-type-option-name-${enumeratorName}`">{{ enumeratorName }}</span>
+                <v-tooltip v-if="latestEnumeratorFile" text="Open enumeration" location="top">
+                  <template #activator="{ props }">
+                    <v-icon
+                      v-bind="props"
+                      end
+                      size="small"
+                      class="ml-1"
+                      @click.stop="openEnumeration(enumeratorName)"
+                      :data-test="`enum-type-open-${enumeratorName}`"
+                    >
+                      mdi-open-in-new
+                    </v-icon>
+                  </template>
+                </v-tooltip>
               </v-chip>
             </div>
           </div>
@@ -59,8 +94,10 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { apiService } from '@/utils/api'
 import type { EnumeratorFile, Enumerator } from '@/types/types'
+import { PICKER_STYLES } from '@/config/pickerStyles'
 
 interface Props {
   modelValue?: string
@@ -81,6 +118,7 @@ const emit = defineEmits<{
   'update:modelValue': [value: string]
 }>()
 
+const router = useRouter()
 const showPicker = ref(false)
 const availableEnumeratorFiles = ref<EnumeratorFile[]>([])
 const mostRecentEnumeratorData = ref<EnumeratorFile | null>(null)
@@ -90,6 +128,17 @@ const loading = ref(false)
 const enumeratorNames = computed(() => {
   if (!mostRecentEnumeratorData.value?.enumerators) return []
   return mostRecentEnumeratorData.value.enumerators.map((enumerator: Enumerator) => enumerator.name)
+})
+
+// Latest enumerator file for "Open Enumerators" link
+const latestEnumeratorFile = computed(() => {
+  if (availableEnumeratorFiles.value.length === 0) return ''
+  const latest = availableEnumeratorFiles.value.reduce((a: EnumeratorFile, b: EnumeratorFile) => {
+    const aVer = parseInt(a.file_name.match(/enumerations\.(\d+)\.yaml/)?.[1] || '0')
+    const bVer = parseInt(b.file_name.match(/enumerations\.(\d+)\.yaml/)?.[1] || '0')
+    return bVer > aVer ? b : a
+  })
+  return latest.file_name
 })
 
 // Load available enumerator files and get the most recent one
@@ -124,14 +173,17 @@ const selectEnum = (enumeratorName: string) => {
   showPicker.value = false
 }
 
-// Get chip color based on whether a value is selected
-const getChipColor = (): string => {
-  return props.modelValue ? 'primary' : 'default'
+const openEnumeration = (enumeratorName: string) => {
+  if (!latestEnumeratorFile.value || !mostRecentEnumeratorData.value?.enumerators) return
+  const idx = mostRecentEnumeratorData.value.enumerators.findIndex((e) => e.name === enumeratorName)
+  if (idx < 0) return
+  showPicker.value = false
+  router.push(`/enumerators/${latestEnumeratorFile.value}/${idx}`)
 }
 
-// Get chip variant
-const getChipVariant = (): "text" | "flat" | "elevated" | "tonal" | "outlined" | "plain" => {
-  return 'elevated'
+// Get chip color based on whether a value is selected
+const getChipColor = (): string => {
+  return props.modelValue ? PICKER_STYLES.chipColorSelected : PICKER_STYLES.chipColorUnselected
 }
 
 // Load enumerators on mount
@@ -143,6 +195,25 @@ onMounted(() => {
 <style scoped>
 .cursor-pointer {
   cursor: pointer;
+}
+
+/* Picker card styling to match type picker */
+.enum-picker-card {
+  max-height: 400px;
+  max-width: 720px;
+  overflow-y: auto;
+  background: #0d47a1 !important;
+  color: #ffffff !important;
+}
+
+.enum-picker-card * {
+  color: #ffffff !important;
+}
+
+.enum-chip-option {
+  min-height: 30px;
+  padding-inline: 12px;
+  margin: 3px 5px;
 }
 
 /* Ensure chip maintains full opacity even when disabled */

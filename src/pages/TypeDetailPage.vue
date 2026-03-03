@@ -15,42 +15,50 @@
 
     <!-- Content -->
     <div v-else-if="typeData">
-      <!-- Page Header -->
-      <header class="d-flex align-center justify-space-between mb-6">
-        <h2 class="text-h3 mb-0">Type: {{ typeData.file_name.replace('.yaml', '') }}</h2>
-        <div class="d-flex gap-2" v-if="!isReadOnly && !typeData._locked">
-          <v-btn
-            color="warning"
-            variant="elevated"
-            @click="lockType"
-            class="font-weight-bold"
-            data-test="lock-type-btn"
-          >
-            <v-icon start>mdi-lock</v-icon>
-            Lock
-          </v-btn>
-          <v-btn
-            color="error"
-            variant="elevated"
-            @click="handleDelete"
-            class="font-weight-bold"
-            data-test="delete-type-btn"
-          >
-            <v-icon start>mdi-delete</v-icon>
-            Delete
-          </v-btn>
-        </div>
-        <div v-else-if="!isReadOnly && typeData._locked" class="d-flex gap-2">
-          <v-btn
-            color="success"
-            variant="elevated"
-            @click="unlockType"
-            class="font-weight-bold"
-            data-test="unlock-type-btn"
-          >
-            <v-icon start>mdi-lock-open</v-icon>
-            Unlock
-          </v-btn>
+      <!-- Page Header: type name + actions (title in app bar) -->
+      <header class="d-flex align-center mb-6">
+        <h2 class="text-h5 font-weight-medium flex-grow-1 text-truncate mr-4 mb-0" data-test="type-header-name">
+          {{ typeData.file_name.replace('.yaml', '') }}
+        </h2>
+        <div v-if="!isReadOnly" class="d-flex align-center flex-shrink-0 gap-1">
+          <v-tooltip v-if="typeData._locked" text="Unlock Type" location="bottom">
+            <template #activator="{ props }">
+              <v-btn
+                v-bind="props"
+                icon="mdi-lock-open"
+                variant="text"
+                size="small"
+                color="warning"
+                @click="unlockType"
+                data-test="unlock-type-btn"
+              />
+            </template>
+          </v-tooltip>
+          <v-tooltip v-else text="Lock Type" location="bottom">
+            <template #activator="{ props }">
+              <v-btn
+                v-bind="props"
+                icon="mdi-lock"
+                variant="text"
+                size="small"
+                @click="lockType"
+                data-test="lock-type-btn"
+              />
+            </template>
+          </v-tooltip>
+          <v-tooltip v-if="!typeData._locked" text="Delete Type" location="bottom">
+            <template #activator="{ props }">
+              <v-btn
+                v-bind="props"
+                icon="mdi-delete"
+                variant="text"
+                size="small"
+                color="error"
+                @click="handleDelete"
+                data-test="delete-type-btn"
+              />
+            </template>
+          </v-tooltip>
         </div>
       </header>
       

@@ -1,0 +1,16 @@
+/* Shared wide-monitor card grid (8 columns on ultra-wide displays) */
+@media (min-width: 2560px) {
+  .card-grid--wide-8 {
+    display: grid !important;
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+    gap: 16px;
+    margin: 0 !important;
+  }
+
+  .card-grid--wide-8 > * {
+    flex: none !important;
+    max-width: none !important;
+    padding: 0 !important;
+  }
+}
+

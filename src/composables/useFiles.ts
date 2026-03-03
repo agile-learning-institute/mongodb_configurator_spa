@@ -1,4 +1,4 @@
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { apiService } from '@/utils/api'
 
 export interface FileInfo {
@@ -7,6 +7,7 @@ export interface FileInfo {
   updated_at: string
   size: number
   _locked?: boolean
+  description?: string
 }
 
 export interface FileList {
@@ -55,7 +56,8 @@ export function useFiles(fileType: 'configurations' | 'dictionaries' | 'types' |
         created_at: file.created_at,
         updated_at: file.updated_at,
         size: file.size,
-        _locked: file._locked || false
+        _locked: file._locked || false,
+        description: file.description || ''
       })).sort((a: FileInfo, b: FileInfo) => a.name.localeCompare(b.name))
     } catch (err: any) {
       error.value = err.message || `Failed to load ${fileType}`
@@ -145,6 +147,11 @@ export function useFiles(fileType: 'configurations' | 'dictionaries' | 'types' |
   const getFile = (fileName: string) => {
     return files.value.find(f => f.name === fileName)
   }
+
+  // Load on mount
+  onMounted(() => {
+    loadFiles()
+  })
 
   // Computed properties
   const lockedFiles = computed(() => files.value.filter(f => f._locked))

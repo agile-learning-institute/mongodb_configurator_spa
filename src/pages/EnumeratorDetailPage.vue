@@ -11,734 +11,376 @@
         <v-btn @click="loadEnumerator" class="mt-2">Retry</v-btn>
       </v-alert>
     </div>
-    <!-- Content -->
-    <div v-else-if="enumerator">
-      <!-- Title Area -->
-      <div class="d-flex align-center justify-space-between mb-2">
-        <div class="d-flex align-center">
-          <div class="d-flex align-center">
-            <span v-if="enumerator.title" class="text-h6 text-medium-emphasis mr-4">{{ enumerator.title }}</span>
-            <h1 class="text-h4 d-flex align-center">
-              <v-btn
-                icon="mdi-skip-previous"
-                variant="text"
-                size="default"
-                :disabled="!hasPreviousVersion"
-                @click="navigateToPreviousVersion"
-                class="mr-1"
-                data-test="previous-version-btn"
-              />
-              <span data-test="enumerator-version">Version: {{ enumerator.version }}</span>
-              <v-btn
-                icon="mdi-skip-next"
-                variant="text"
-                size="default"
-                :disabled="!hasNextVersion"
-                @click="navigateToNextVersion"
-                class="ml-1"
-                data-test="next-version-btn"
-              />
-              <v-btn
-                v-if="!hasNextVersion && !isReadOnly"
-                prepend-icon="mdi-plus"
-                variant="text"
-                size="small"
-                color="primary"
-                @click="createNewVersion"
-                class="ml-2"
-                title="Create new version"
-                data-test="add-version-btn"
-              >
-                Add Version
-              </v-btn>
-            </h1>
-          </div>
+    <!-- Not found -->
+    <div v-else-if="enumerator && !currentEnumeration" class="text-center pa-8">
+      <v-icon size="64" color="grey">mdi-alert-circle</v-icon>
+      <h3 class="text-h5 mt-4">Enumeration not found</h3>
+      <p class="text-body-1 text-medium-emphasis mt-2">Index {{ route.params.enumerationIndex }} is out of range.</p>
+    </div>
+    <!-- Content: single enumeration -->
+    <div v-else-if="enumerator && currentEnumeration">
+      <!-- Page Header: editable enumeration name + delete -->
+      <header class="d-flex align-center mb-6">
+        <v-text-field
+          ref="nameInputRef"
+          v-model="editableName"
+          variant="plain"
+          density="compact"
+          hide-details
+          :readonly="isDisabled"
+          :placeholder="isNewEnumeration ? 'Name' : undefined"
+          class="enumeration-header-name flex-grow-1 text-truncate mr-2"
+          data-test="enumeration-name-input"
+          @blur="finishNameEdit"
+          @keyup.enter="finishNameEdit"
+        />
+        <v-tooltip v-if="!isDisabled" text="Delete enumeration" location="bottom">
+          <template #activator="{ props }">
+            <v-btn
+              v-bind="props"
+              icon="mdi-delete"
+              variant="text"
+              size="small"
+              color="error"
+              @click="showDeleteDialog = true"
+              data-test="delete-enumeration-btn"
+            />
+          </template>
+        </v-tooltip>
+      </header>
 
+      <!-- Enumeration values -->
+      <BaseCard :title="`Values (${currentEnumeration.values.length})`" icon="mdi-format-list-checks">
+        <template #header-actions>
+          <v-chip
+            v-if="!isDisabled"
+            variant="outlined"
+            size="small"
+            color="default"
+            class="cursor-pointer"
+            :disabled="saving"
+            @click="addEnumValue"
+            data-test="add-enum-value-btn"
+          >
+            Add
+          </v-chip>
+        </template>
+        <div v-if="!currentEnumeration.values || currentEnumeration.values.length === 0" class="text-center pa-4">
+          <v-icon size="32" color="grey">mdi-format-list-numbered</v-icon>
+          <div class="text-body-2 text-medium-emphasis mt-2">No values defined</div>
+          <v-chip
+            v-if="!isDisabled"
+            variant="outlined"
+            size="small"
+            color="default"
+            class="cursor-pointer mt-2"
+            :disabled="saving"
+            @click="addEnumValue"
+            data-test="add-enum-value-empty-btn"
+          >
+            Add
+          </v-chip>
         </div>
-        <div class="d-flex align-center" v-if="!isReadOnly">
-          <div class="d-flex gap-2">
-            <v-btn
-              v-if="enumerator._locked && !isReadOnly"
-              color="warning"
-              variant="elevated"
-              @click="showUnlockDialog = true"
-              :loading="saving"
-              class="font-weight-bold"
-              data-test="unlock-btn"
-            >
-              <v-icon start data-test="unlock-icon">mdi-lock-open</v-icon>
-              <span data-test="unlock-btn-text">Unlock</span>
-            </v-btn>
-            <v-btn
-              v-else-if="!isReadOnly"
-              color="info"
-              variant="elevated"
-              @click="lockEnumerator"
-              :loading="saving"
-              class="font-weight-bold"
-              data-test="lock-btn"
-            >
-              <v-icon start data-test="lock-icon">mdi-lock</v-icon>
-              <span data-test="lock-btn-text">Lock</span>
-            </v-btn>
+        <div v-else class="enum-values-list">
+          <div
+            v-for="(_, valIdx) in currentEnumeration.values"
+            :key="valIdx"
+            class="enum-value-item d-flex align-center py-2"
+          >
+            <v-text-field
+              v-model="editableValues[valIdx]"
+              density="compact"
+              variant="outlined"
+              hide-details
+              :readonly="isDisabled"
+              class="mr-2"
+              style="max-width: 200px;"
+              :data-test="`enum-value-input-${valIdx}`"
+              @blur="finishValueEdit(valIdx)"
+              @keyup.enter="finishValueEdit(valIdx)"
+            />
+            <v-text-field
+              v-model="editableDescriptions[valIdx]"
+              density="compact"
+              variant="outlined"
+              hide-details
+              placeholder="Description"
+              :readonly="isDisabled"
+              class="mr-2 flex-grow-1"
+              :data-test="`enum-description-input-${valIdx}`"
+              @blur="finishDescriptionEdit(valIdx)"
+              @keyup.enter="finishDescriptionEdit(valIdx)"
+            />
             <v-btn
               v-if="!isDisabled"
+              icon
+              size="small"
+              variant="text"
               color="error"
-              variant="elevated"
-              @click="handleDelete"
-              class="font-weight-bold"
-              data-test="delete-enumerator-btn"
+              @click="deleteEnumValue(valIdx)"
+              :data-test="`delete-enum-value-btn-${valIdx}`"
             >
-              <v-icon start data-test="delete-enumerator-icon">mdi-delete</v-icon>
-              <span data-test="delete-enumerator-btn-text">Delete</span>
+              <v-icon size="16">mdi-delete</v-icon>
             </v-btn>
-          </div>
-        </div>
-      </div>
-
-      <!-- Enumerators List -->
-      <BaseCard title="Enumerators">
-        <template #header-actions>
-          <v-btn
-            v-if="!isDisabled"
-            prepend-icon="mdi-plus"
-            variant="elevated"
-            color="white"
-            size="small"
-            @click="addEnumeration"
-            :loading="saving"
-            data-test="add-enumeration-btn"
-          >
-            <span class="text-primary">Add Enumeration</span>
-          </v-btn>
-        </template>
-        <div v-if="!enumerator.enumerators || enumerator.enumerators.length === 0" class="text-center pa-1">
-          <v-icon size="20" color="grey">mdi-format-list-bulleted</v-icon>
-          <div class="text-body-2 text-medium-emphasis mt-1">No enumerators defined</div>
-        </div>
-        <div v-else class="enumerators-list">
-          <div
-            v-for="(enumItem, enumIdx) in enumerator.enumerators"
-            :key="enumIdx"
-            class="enumerator-item mb-2"
-          >
-            <div class="d-flex align-center enumerator-header mb-1">
-              <div class="enumerator-name-wrapper mr-3">
-                <v-text-field
-                  v-model="editableEnumNames[enumIdx]"
-                  :readonly="isDisabled"
-                  variant="plain"
-                  density="compact"
-                  hide-details
-                  class="enumerator-name-input"
-                  :style="{ minWidth: '200px', width: '100%' }"
-                  style="font-size: 1.5rem; font-weight: 500; line-height: 1.2;"
-                  :data-test="`enumerator-name-input-${enumIdx}`"
-                  :ref="(el) => { if (el) enumNameInputRefs[enumIdx] = el }"
-                  @blur="finishEnumNameEdit(enumIdx)"
-                  @keyup.enter="finishEnumNameEdit(enumIdx)"
-                />
-              </div>
-              <div style="flex-shrink: 0;">
-                <v-chip size="small" color="primary" class="mr-2" :data-test="`enum-value-count-${enumIdx}`">
-                  {{ enumItem.values.length }} values
-                </v-chip>
-                <v-btn
-                  v-if="!isDisabled"
-                  prepend-icon="mdi-plus"
-                  variant="elevated"
-                  size="small"
-                  color="white"
-                  @click="addEnumValue(enumIdx)"
-                  class="mr-2"
-                  :data-test="`add-enum-value-btn-${enumIdx}`"
-                >
-                  <span class="text-primary">Add Value</span>
-                </v-btn>
-                <v-btn
-                  v-if="!isDisabled"
-                  icon="mdi-delete"
-                  variant="text"
-                  color="error"
-                  @click.stop="deleteEnumeration(enumIdx)"
-                  class="mr-2"
-                  :data-test="`delete-enumeration-btn-${enumIdx}`"
-                >
-                  <v-icon size="16">mdi-delete</v-icon>
-                </v-btn>
-                <v-btn
-                  icon="mdi-chevron-down"
-                  variant="text"
-                  size="small"
-                  @click="toggleEnumeratorCollapse(enumIdx)"
-                  :class="{ 'rotate-icon': !isEnumeratorCollapsed(enumIdx) }"
-                  :data-test="`toggle-enumerator-btn-${enumIdx}`"
-                >
-                  <v-icon size="16">mdi-chevron-down</v-icon>
-                </v-btn>
-              </div>
-            </div>
-            <div v-show="!isEnumeratorCollapsed(enumIdx)" class="enum-values">
-              <div v-if="!enumItem.values || enumItem.values.length === 0" class="text-center pa-1">
-                <v-icon size="16" color="grey">mdi-format-list-numbered</v-icon>
-                <div class="text-body-2 text-medium-emphasis mt-1">No values defined</div>
-              </div>
-              <div v-else class="enum-values-list">
-                <div
-                  v-for="(_, valIdx) in enumItem.values"
-                  :key="valIdx"
-                  class="enum-value-item d-flex align-center"
-                >
-                  <v-text-field
-                    v-model="editableEnumValues[enumIdx][valIdx]"
-                    density="compact"
-                    variant="plain"
-                    hide-details
-                    :readonly="isDisabled"
-                    class="mr-2"
-                    style="max-width: 180px;"
-                    :data-test="`enum-value-input-${enumIdx}-${valIdx}`"
-                    :ref="(el) => { if (el && '$el' in el) valueInputRefs[`${enumIdx}-${valIdx}`] = (el as any).$el.querySelector('input') }"
-                    @input="handleEnumValueChange(enumIdx, valIdx, editableEnumValues[enumIdx][valIdx])"
-                    @blur="finishEnumValueEdit(enumIdx, valIdx)"
-                    @keyup.enter="finishEnumValueEdit(enumIdx, valIdx)"
-                  />
-                  <v-text-field
-                    v-model="editableEnumDescriptions[enumIdx][valIdx]"
-                    density="compact"
-                    variant="plain"
-                    hide-details
-                    :readonly="isDisabled"
-                    class="mr-2"
-                    style="min-width: 200px;"
-                    placeholder="Description"
-                    :data-test="`enum-description-input-${enumIdx}-${valIdx}`"
-                    @input="handleEnumDescriptionChange(enumIdx, valIdx, editableEnumDescriptions[enumIdx][valIdx])"
-                    @blur="finishEnumDescriptionEdit(enumIdx, valIdx)"
-                    @keyup.enter="finishEnumDescriptionEdit(enumIdx, valIdx)"
-                  />
-                  <v-btn
-                    v-if="!isDisabled"
-                    icon
-                    size="small"
-                    variant="text"
-                    color="error"
-                    @click="deleteEnumValue(enumIdx, valIdx)"
-                    :data-test="`delete-enum-value-btn-${enumIdx}-${valIdx}`"
-                  >
-                    <v-icon size="16">mdi-delete</v-icon>
-                  </v-btn>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </BaseCard>
     </div>
   </v-container>
 
-  <!-- Delete Warning Dialog -->
-  <v-dialog v-model="showDeleteDialog" max-width="600" data-test="delete-warning-dialog">
+  <v-dialog v-model="showDeleteDialog" max-width="500" data-test="delete-enumeration-dialog">
     <v-card>
-      <v-card-title class="text-h5" data-test="delete-warning-title">
-        ⚠️ Warning: Delete Enumerator
+      <v-card-title class="text-h5 d-flex align-center" data-test="delete-enumeration-dialog-title">
+        <v-icon color="error" class="mr-3">mdi-alert-circle</v-icon>
+        Delete Enumeration
       </v-card-title>
-      <v-card-text data-test="delete-warning-content">
-        <p class="mb-3">
-          <strong>Deleting enumerators that have already been deployed can have severe impacts on configuration validity.</strong>
+      <v-card-text data-test="delete-enumeration-dialog-content">
+        <p class="mb-0">
+          Are you sure you want to delete "{{ currentEnumeration?.name.startsWith('_new') ? 'New enumeration' : currentEnumeration?.name }}"?
+          This will remove the enumeration and all its values.
         </p>
-        <p class="mb-4">
-          Removing deployed enumerators may break existing configurations that depend on them.
-        </p>
-        <v-alert
-          type="error"
-          variant="tonal"
-          class="mb-4"
-          data-test="delete-warning-alert"
-        >
-          <strong>Warning:</strong> This is a destructive action that will permanently delete the file.
-        </v-alert>
       </v-card-text>
       <v-card-actions>
         <v-spacer />
-        <v-btn @click="cancelDelete" data-test="delete-dialog-cancel-btn">Cancel</v-btn>
-        <v-btn color="error" @click="confirmDelete" data-test="delete-dialog-delete-btn">Delete Enumerator</v-btn>
+        <v-btn @click="showDeleteDialog = false" data-test="delete-enumeration-dialog-cancel-btn">Cancel</v-btn>
+        <v-btn color="error" @click="confirmDeleteEnumeration" data-test="delete-enumeration-dialog-confirm-btn">Delete</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
-
-
-
-  <!-- Unlock Warning Dialog -->
-  <v-dialog v-model="showUnlockDialog" max-width="600" data-test="unlock-warning-dialog">
-    <v-card>
-      <v-card-title class="text-h5" data-test="unlock-warning-title">
-        ⚠️ Warning: Editing Deployed Enumerator
-      </v-card-title>
-      <v-card-text data-test="unlock-warning-content">
-        <p class="mb-3">
-          <strong>Editing enumerators that have already been deployed can have severe impacts on configuration validity.</strong>
-        </p>
-        <p class="mb-4">
-          Changes to deployed enumerators may break existing configurations that depend on them.
-        </p>
-        <v-alert
-          type="warning"
-          variant="tonal"
-          class="mb-4"
-          data-test="unlock-warning-alert"
-        >
-          <strong>Recommended:</strong> Create a new version instead of editing the current one.
-        </v-alert>
-      </v-card-text>
-      <v-card-actions>
-        <v-spacer />
-        <v-btn @click="cancelUnlock" data-test="unlock-dialog-cancel-btn">Cancel</v-btn>
-        <v-btn color="primary" @click="createNewVersion" data-test="unlock-dialog-create-version-btn">Create New Version</v-btn>
-        <v-btn 
-          v-if="showUnlockOption"
-          color="warning" 
-          @click="unlockEnumerator"
-          data-test="unlock-dialog-unlock-btn"
-        >
-          Unlock Current Version
-        </v-btn>
-      </v-card-actions>
-    </v-card>
-  </v-dialog>
-
-
 </template>
 
 <script setup lang="ts">
-import { ref, watch, computed, onMounted, nextTick } from 'vue'
-import BaseCard from '@/components/BaseCard.vue'
+import { ref, computed, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { useEnumeratorDetail } from '@/composables/useEnumeratorDetail'
-import { useNewVersion } from '@/composables/useNewVersion'
 import { useConfig } from '@/composables/useConfig'
 import { apiService } from '@/utils/api'
-import type { Enumerator, EnumeratorValue } from '@/types/types'
+import BaseCard from '@/components/BaseCard.vue'
+import type { EnumeratorValue } from '@/types/types'
 
-// Debounce utility function
-function debounce<T extends (...args: any[]) => any>(func: T, wait: number): T {
+function debounceWithFlush<T extends (...args: any[]) => any>(func: T, wait: number): T & { flush: () => void } {
   let timeout: ReturnType<typeof setTimeout> | null = null
-  return ((...args: any[]) => {
+  const debounced = ((...args: any[]) => {
     if (timeout) clearTimeout(timeout)
-    timeout = setTimeout(() => func(...args), wait)
-  }) as T
+    timeout = setTimeout(() => {
+      timeout = null
+      func(...args)
+    }, wait)
+  }) as T & { flush: () => void }
+  debounced.flush = () => {
+    if (timeout) {
+      clearTimeout(timeout)
+      timeout = null
+      func()
+    }
+  }
+  return debounced
 }
 
+const route = useRoute()
+const router = useRouter()
+const { isReadOnly } = useConfig()
+const { loading, saving, error, enumerator, loadEnumerator, saveEnumerator } = useEnumeratorDetail()
+
+const routeParam = computed(() => (route.params.enumerationIndex as string) || '')
+
+const enumerationIndex = computed(() => {
+  const idx = parseInt(routeParam.value, 10)
+  return Number.isNaN(idx) || idx < 0 ? -1 : idx
+})
+
+const currentEnumeration = computed(() => {
+  if (!enumerator.value?.enumerators || enumerationIndex.value < 0) return null
+  if (enumerationIndex.value >= enumerator.value.enumerators.length) return null
+  return enumerator.value.enumerators[enumerationIndex.value]
+})
+
+// Redirect legacy name-based URLs to index-based (e.g. /default_status -> /0)
+watch(
+  [() => enumerator.value, () => routeParam.value],
+  ([enumData, param]) => {
+    if (!enumData?.enumerators || !param) return
+    const idx = parseInt(param, 10)
+    if (!Number.isNaN(idx) && idx >= 0) return
+    const found = enumData.enumerators.findIndex((e) => e.name === decodeURIComponent(param))
+    if (found >= 0) router.replace(`/enumerators/${route.params.fileName}/${found}`)
+  },
+  { immediate: true }
+)
+
+const isDisabled = computed(() => isReadOnly.value || (enumerator.value?._locked || false))
+
+const isNewEnumeration = computed(() =>
+  !!currentEnumeration.value?.name?.startsWith('_new')
+)
+
 const showDeleteDialog = ref(false)
-const showUnlockDialog = ref(false)
-const enumeratorFiles = ref<any[]>([])
-const loadingFiles = ref(false)
-const collapsedEnumerators = ref<Set<number>>(new Set())
-const valueInputRefs = ref<Record<string, HTMLInputElement>>({})
-const enumNameInputRefs = ref<Record<number, any>>({})
+const nameInputRef = ref<{ $el?: HTMLElement; focus?: () => void } | null>(null)
+const editableName = ref('')
+const editableValues = ref<string[]>([])
+const editableDescriptions = ref<string[]>([])
 
-// Editable state for enum names and values (by index)
-const editableEnumNames = ref<string[]>([])
-const editableEnumValues = ref<Record<number, string[]>>({})
-const editableEnumDescriptions = ref<Record<number, string[]>>({})
-
-function initEditableStateFromEnumerator(val: any) {
-  if (val && val.enumerators) {
-    editableEnumNames.value = val.enumerators.map((e: Enumerator) => e.name)
-    editableEnumValues.value = {}
-    editableEnumDescriptions.value = {}
-    // Initialize with only the first enumerator expanded
-    collapsedEnumerators.value = new Set(val.enumerators.map((_: Enumerator, i: number) => i > 0 ? i : null).filter((i: number | null) => i !== null))
-    val.enumerators.forEach((e: Enumerator, i: number) => {
-      editableEnumValues.value[i] = e.values.map((v: EnumeratorValue) => v.value)
-      editableEnumDescriptions.value[i] = e.values.map((v: EnumeratorValue) => v.description)
+function syncEditableFromEnum() {
+  if (!currentEnumeration.value) return
+  editableName.value = isNewEnumeration.value ? '' : currentEnumeration.value.name
+  editableValues.value = currentEnumeration.value.values.map((v) => v.value)
+  editableDescriptions.value = currentEnumeration.value.values.map((v) => v.description)
+  if (isNewEnumeration.value) {
+    nextTick(() => {
+      setTimeout(() => {
+        const el = nameInputRef.value
+        if (typeof el?.focus === 'function') {
+          el.focus()
+        } else {
+          const input = (el as { $el?: HTMLElement })?.$el?.querySelector('input')
+          if (input) (input as HTMLInputElement).focus()
+        }
+      }, 0)
     })
   }
 }
 
-const {
-  loading,
-  saving,
-  error,
-  enumerator,
-  loadEnumerator,
-  saveEnumerator,
-} = useEnumeratorDetail()
+const finishNameEdit = () => {
+  if (!currentEnumeration.value || isDisabled.value) return
+  const newName = editableName.value?.trim()
+  if (!newName) {
+    if (isNewEnumeration.value) return
+    return
+  }
+  if (currentEnumeration.value.name === newName) return
+  if (enumerator.value!.enumerators.some((e) => e !== currentEnumeration.value && e.name === newName)) return
+  currentEnumeration.value.name = newName
+  debouncedSave()
+}
 
-// Get read-only state from config
-const { isReadOnly } = useConfig()
+watch(
+  () => currentEnumeration.value,
+  (val) => {
+    if (val) syncEditableFromEnum()
+  },
+  { immediate: true }
+)
 
-// Computed disabled state - read-only mode OR locked
-const isDisabled = computed(() => isReadOnly.value || (enumerator.value?._locked || false))
-
-// New version functionality
-const { createNewVersionAndNavigate } = useNewVersion()
-
-watch(enumerator, (val) => {
-  initEditableStateFromEnumerator(val)
-}, { immediate: true })
-
-const autoSaveLocal = async () => {
+const autoSave = async () => {
   if (!enumerator.value || isReadOnly.value) return
   await saveEnumerator()
 }
 
-// Create debounced save function (300ms delay)
-const debouncedSave = debounce(autoSaveLocal, 300)
+const debouncedSave = debounceWithFlush(autoSave, 300)
 
-
-
-const lockEnumerator = async () => {
-  if (!enumerator.value) return
-  enumerator.value._locked = true
-  await autoSaveLocal()
-}
-
-const addEnumeration = () => {
-  if (!enumerator.value) return
-  if (!enumerator.value.enumerators) {
-    enumerator.value.enumerators = []
-  }
-  const newEnum: Enumerator = { name: 'Enumerator Name', values: [] }
-  enumerator.value.enumerators.push(newEnum)
-  editableEnumNames.value.push(newEnum.name)
-  editableEnumValues.value[enumerator.value.enumerators.length - 1] = []
-  editableEnumDescriptions.value[enumerator.value.enumerators.length - 1] = []
-  
-  // Focus on the new enumerator name after the DOM updates
-  const newEnumIdx = enumerator.value.enumerators.length - 1
-  nextTick(() => {
-    const componentRef = enumNameInputRefs.value[newEnumIdx]
-    if (componentRef && '$el' in componentRef) {
-      const input = (componentRef as any).$el.querySelector('input')
-      if (input) {
-        input.focus()
-        input.select()
-      }
-    }
-  })
-  
-  autoSaveLocal()
-}
-
-const deleteEnumeration = (idx: number) => {
-  if (!enumerator.value?.enumerators) return
-  enumerator.value.enumerators.splice(idx, 1)
-  editableEnumNames.value.splice(idx, 1)
-  delete editableEnumValues.value[idx]
-  delete editableEnumDescriptions.value[idx]
-  autoSaveLocal()
-}
-
-const handleEnumNameChange = (idx: number, newName: string) => {
-  if (!enumerator.value?.enumerators) return
-  if (!newName || newName.trim() === '' || enumerator.value.enumerators.some((e, i) => i !== idx && e.name === newName)) return
-  enumerator.value.enumerators[idx].name = newName
-  editableEnumNames.value[idx] = newName
+const finishValueEdit = (valIdx: number) => {
+  if (!currentEnumeration.value || isDisabled.value) return
+  const newVal = editableValues.value[valIdx]?.trim()
+  if (!newVal || currentEnumeration.value.values[valIdx].value === newVal) return
+  if (currentEnumeration.value.values.some((v, i) => i !== valIdx && v.value === newVal)) return
+  currentEnumeration.value.values[valIdx].value = newVal
   debouncedSave()
 }
 
-const finishEnumNameEdit = (idx: number) => {
-  if (enumerator.value && editableEnumNames.value[idx] !== enumerator.value.enumerators[idx].name) {
-    handleEnumNameChange(idx, editableEnumNames.value[idx])
-  }
-}
-
-const addEnumValue = (enumIdx: number) => {
-  if (!enumerator.value?.enumerators?.[enumIdx]) return
-  const newValue: EnumeratorValue = { value: 'name', description: '' }
-  enumerator.value.enumerators[enumIdx].values.push(newValue)
-  if (!editableEnumValues.value[enumIdx]) editableEnumValues.value[enumIdx] = []
-  if (!editableEnumDescriptions.value[enumIdx]) editableEnumDescriptions.value[enumIdx] = []
-  editableEnumValues.value[enumIdx].push(newValue.value)
-  editableEnumDescriptions.value[enumIdx].push(newValue.description)
-  
-  // Expand the section if it's collapsed
-  if (isEnumeratorCollapsed(enumIdx)) {
-    collapsedEnumerators.value.delete(enumIdx)
-  }
-  
-  // Focus on the new value name after the DOM updates
-  const newValueIdx = enumerator.value.enumerators[enumIdx].values.length - 1
-  nextTick(() => {
-    const refKey = `${enumIdx}-${newValueIdx}`
-    const inputRef = valueInputRefs.value[refKey]
-    if (inputRef) {
-      inputRef.focus()
-      inputRef.select()
-    }
-  })
-  
-  autoSaveLocal()
-}
-
-const deleteEnumValue = (enumIdx: number, valIdx: number) => {
-  if (!enumerator.value?.enumerators?.[enumIdx]) return
-  enumerator.value.enumerators[enumIdx].values.splice(valIdx, 1)
-  editableEnumValues.value[enumIdx].splice(valIdx, 1)
-  editableEnumDescriptions.value[enumIdx].splice(valIdx, 1)
-  autoSaveLocal()
-}
-
-const handleEnumValueChange = (enumIdx: number, valIdx: number, newValue: string) => {
-  if (!enumerator.value?.enumerators?.[enumIdx]) return
-  if (!newValue || newValue.trim() === '' || enumerator.value.enumerators[enumIdx].values.some((v, i) => i !== valIdx && v.value === newValue)) return
-  enumerator.value.enumerators[enumIdx].values[valIdx].value = newValue
-  editableEnumValues.value[enumIdx][valIdx] = newValue
+const finishDescriptionEdit = (valIdx: number) => {
+  if (!currentEnumeration.value || isDisabled.value) return
+  const newDesc = editableDescriptions.value[valIdx] ?? ''
+  if (currentEnumeration.value.values[valIdx].description === newDesc) return
+  currentEnumeration.value.values[valIdx].description = newDesc
   debouncedSave()
 }
 
-const handleEnumDescriptionChange = (enumIdx: number, valIdx: number, newDesc: string) => {
-  if (!enumerator.value?.enumerators?.[enumIdx]) return
-  enumerator.value.enumerators[enumIdx].values[valIdx].description = newDesc
-  editableEnumDescriptions.value[enumIdx][valIdx] = newDesc
-  debouncedSave()
+const addEnumValue = () => {
+  if (!currentEnumeration.value || isDisabled.value) return
+  const newVal: EnumeratorValue = { value: 'name', description: '' }
+  currentEnumeration.value.values.push(newVal)
+  editableValues.value.push(newVal.value)
+  editableDescriptions.value.push(newVal.description)
+  autoSave()
 }
 
-const finishEnumValueEdit = (enumIdx: number, valIdx: number) => {
-  if (enumerator.value && editableEnumValues.value[enumIdx][valIdx] !== enumerator.value.enumerators[enumIdx].values[valIdx].value) {
-    handleEnumValueChange(enumIdx, valIdx, editableEnumValues.value[enumIdx][valIdx])
-  }
+const deleteEnumValue = (valIdx: number) => {
+  if (!currentEnumeration.value || isDisabled.value) return
+  currentEnumeration.value.values.splice(valIdx, 1)
+  editableValues.value.splice(valIdx, 1)
+  editableDescriptions.value.splice(valIdx, 1)
+  autoSave()
 }
 
-const finishEnumDescriptionEdit = (enumIdx: number, valIdx: number) => {
-  if (enumerator.value && editableEnumDescriptions.value[enumIdx][valIdx] !== enumerator.value.enumerators[enumIdx].values[valIdx].description) {
-    handleEnumDescriptionChange(enumIdx, valIdx, editableEnumDescriptions.value[enumIdx][valIdx])
-  }
-}
-
-const handleDelete = () => {
-  showDeleteDialog.value = true
-}
-
-const cancelDelete = () => {
+const confirmDeleteEnumeration = async () => {
+  if (!enumerator.value || !currentEnumeration.value || isDisabled.value) return
+  const idx = enumerationIndex.value
+  if (idx < 0) return
   showDeleteDialog.value = false
+  enumerator.value.enumerators.splice(idx, 1)
+  await saveEnumerator()
+  router.push(`/enumerators/${route.params.fileName}`)
 }
 
-const unlockEnumerator = async () => {
-  if (!enumerator.value) return
-  enumerator.value._locked = false
-  showUnlockDialog.value = false
-  await autoSaveLocal()
-}
+watch(
+  () => route.params.fileName,
+  () => loadEnumerator(),
+  { immediate: false }
+)
 
-const createNewVersion = async () => {
-  if (!enumerator.value) return
-  
-  // Close the dialog first
-  showUnlockDialog.value = false
-  
-  // Use the unified new version logic
-  await createNewVersionAndNavigate()
-}
-
-// Check if unlock option should be shown (only for newest version)
-const showUnlockOption = computed(() => {
-  return !hasNextVersion.value
-})
-
-const cancelUnlock = () => {
-  showUnlockDialog.value = false
-}
-
-const confirmDelete = async () => {
-  if (!enumerator.value) return
-  
-  try {
-    await apiService.deleteEnumerator(enumerator.value.file_name)
-    // Close the dialog
-    showDeleteDialog.value = false
-    // Navigate back to enumerators list
-    window.location.href = '/enumerators'
-  } catch (err: any) {
-    error.value = err.message || 'Failed to delete enumerator'
-    console.error('Failed to delete enumerator:', err)
+// Handle page unload / visibility change - blur active inputs, sync all editable state, then save with keepalive
+const handleUnloadOrHide = () => {
+  const activeElement = document.activeElement
+  if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) {
+    ;(activeElement as HTMLElement).blur()
+  }
+  // Sync all editable values/descriptions to model (blur only fires for focused element)
+  if (currentEnumeration.value && !isDisabled.value) {
+    for (let i = 0; i < editableValues.value.length; i++) {
+      finishValueEdit(i)
+      finishDescriptionEdit(i)
+    }
+  }
+  // Use keepalive fetch so save survives page unload (normal flush would be aborted)
+  if (enumerator.value && !isReadOnly.value) {
+    apiService.saveEnumeratorKeepalive(route.params.fileName as string, enumerator.value)
   }
 }
 
-
-
-// Load enumerator files for navigation
-const loadEnumeratorFiles = async () => {
-  loadingFiles.value = true
-  try {
-    const files = await apiService.getEnumerators()
-    enumeratorFiles.value = files
-  } catch (err: any) {
-    console.error('Failed to load enumerator files:', err)
-  } finally {
-    loadingFiles.value = false
-  }
+const handleVisibilityChange = () => {
+  if (document.hidden) handleUnloadOrHide()
 }
 
-// Extract version number from file name (e.g., "enumerations.5.yaml" -> 5)
-const extractVersionFromFileName = (fileName: string): number => {
-  const match = fileName.match(/enumerations\.(\d+)\.yaml/)
-  return match ? parseInt(match[1], 10) : 0
-}
-
-// Get current file's version
-const currentVersion = computed(() => {
-  if (!enumerator.value) return 0
-  return extractVersionFromFileName(enumerator.value.file_name)
-})
-
-// Check if previous version exists
-const hasPreviousVersion = computed(() => {
-  if (!enumerator.value) return false
-  const currentVer = currentVersion.value
-  return enumeratorFiles.value.some(file => {
-    const fileVersion = extractVersionFromFileName(file.file_name)
-    return fileVersion === currentVer - 1
-  })
-})
-
-// Check if next version exists
-const hasNextVersion = computed(() => {
-  if (!enumerator.value) return false
-  const currentVer = currentVersion.value
-  return enumeratorFiles.value.some(file => {
-    const fileVersion = extractVersionFromFileName(file.file_name)
-    return fileVersion === currentVer + 1
-  })
-})
-
-
-
-// Navigate to previous version
-const navigateToPreviousVersion = async () => {
-  if (!enumerator.value || !hasPreviousVersion.value) return
-  
-  const currentVer = currentVersion.value
-  const previousFile = enumeratorFiles.value.find(file => {
-    const fileVersion = extractVersionFromFileName(file.file_name)
-    return fileVersion === currentVer - 1
-  })
-  
-  if (previousFile) {
-    // Navigate to the previous file
-    window.location.href = `/enumerators/${previousFile.file_name}`
-  }
-}
-
-// Navigate to next version
-const navigateToNextVersion = async () => {
-  if (!enumerator.value || !hasNextVersion.value) return
-  
-  const currentVer = currentVersion.value
-  const nextFile = enumeratorFiles.value.find(file => {
-    const fileVersion = extractVersionFromFileName(file.file_name)
-    return fileVersion === currentVer + 1
-  })
-  
-  if (nextFile) {
-    // Navigate to the next file
-    window.location.href = `/enumerators/${nextFile.file_name}`
-  }
-}
-
-// Toggle enumerator collapse state - simple toggle without affecting others
-const toggleEnumeratorCollapse = (enumIdx: number) => {
-  if (collapsedEnumerators.value.has(enumIdx)) {
-    // Expanding this enumerator
-    collapsedEnumerators.value.delete(enumIdx)
-  } else {
-    // Collapsing this enumerator
-    collapsedEnumerators.value.add(enumIdx)
-  }
-}
-
-// Check if enumerator is collapsed
-const isEnumeratorCollapsed = (enumIdx: number) => {
-  return collapsedEnumerators.value.has(enumIdx)
-}
-
-// Load files when component mounts
 onMounted(() => {
-  loadEnumeratorFiles()
+  window.addEventListener('beforeunload', handleUnloadOrHide)
+  window.addEventListener('pagehide', handleUnloadOrHide)
+  // visibilitychange fires when tab is hidden (e.g. reload) - more reliable than beforeunload in some environments
+  document.addEventListener('visibilitychange', handleVisibilityChange)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('beforeunload', handleUnloadOrHide)
+  window.removeEventListener('pagehide', handleUnloadOrHide)
+  document.removeEventListener('visibilitychange', handleVisibilityChange)
 })
 </script>
 
 <style scoped>
-.enumerator-content {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.enumerators-header {
-  margin-bottom: 16px;
-}
-
-
-
-
-
-
-
 .enum-value-item {
-  border-bottom: 1px solid #e0e0e0;
-  padding-left: 15px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
 }
 
 .enum-value-item:last-child {
   border-bottom: none;
 }
-.title-edit-field {
-  font-size: 1.5rem;
-  font-weight: 500;
-}
-.h1-style {
-  font-size: 2.125rem !important;
-  font-weight: 300 !important;
-  line-height: 1.2 !important;
-  color: rgba(0, 0, 0, 0.87) !important;
-}
-.title-display {
+
+.cursor-pointer {
   cursor: pointer;
 }
-.title-text {
-  font-size: 2.125rem;
-  font-weight: 300;
-  line-height: 1.2;
-  color: rgba(0, 0, 0, 0.87);
-  margin: 0;
-  transition: color 0.2s ease;
-}
-.title-text:hover {
-  color: rgba(0, 0, 0, 0.6);
+
+/* Header typography for editable enumeration name - matches h2.text-h5 on other detail pages */
+.enumeration-header-name :deep(.v-field__input) {
+  font-size: 1.5rem !important;
+  font-weight: 500 !important;
+  line-height: 1.4 !important;
 }
 
-.rotate-icon {
-  transform: rotate(180deg);
-  transition: transform 0.2s ease;
+.enumeration-header-name :deep(.v-field) {
+  padding: 0 !important;
+  min-height: auto !important;
 }
 
-.enumerator-header {
-  width: 100%;
+.enumeration-header-name :deep(.v-field__outline) {
+  display: none !important;
 }
-
-.enumerator-name-wrapper {
-  flex: 1 1 0;
-  min-width: 0;
-  overflow: hidden;
-}
-
-.enumerator-name-input :deep(.v-input__control) {
-  width: 100% !important;
-}
-
-.enumerator-name-input :deep(.v-field) {
-  width: 100% !important;
-  max-width: 100% !important;
-}
-
-.enumerator-name-input :deep(.v-field__input) {
-  width: 100% !important;
-}
-
-.enumerator-name-input :deep(input) {
-  width: 100% !important;
-  max-width: 100% !important;
-}
-
-</style> 
+</style>

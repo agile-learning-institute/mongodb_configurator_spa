@@ -36,7 +36,10 @@ apiClient.interceptors.response.use(
 export const API_ENDPOINTS = {
   // Configuration
   CONFIG: '/config/',
-  
+
+  // Collections (collection-centric view)
+  COLLECTIONS: '/collections/',
+
   // Configurations
   CONFIGURATIONS: '/configurations/',
   CONFIGURATION: (fileName: string) => `/configurations/${fileName}/`,
@@ -84,6 +87,12 @@ export const apiService = {
     return response.data
   },
 
+  // Collections
+  async getCollections() {
+    const response = await apiClient.get(API_ENDPOINTS.COLLECTIONS)
+    return response.data
+  },
+
   // Configurations
   async getConfigurations() {
     const response = await apiClient.get(API_ENDPOINTS.CONFIGURATIONS)
@@ -115,8 +124,8 @@ export const apiService = {
     return response.data
   },
 
-  async createNewCollection(name: string) {
-    const response = await apiClient.post(API_ENDPOINTS.NEW_COLLECTION(name))
+  async createNewCollection(name: string, description: string = '') {
+    const response = await apiClient.post(API_ENDPOINTS.NEW_COLLECTION(name), { description })
     return response.data
   },
 
@@ -244,6 +253,17 @@ export const apiService = {
     return response.data
   },
 
+  /** Fire-and-forget save using fetch keepalive - survives page unload (beforeunload) */
+  saveEnumeratorKeepalive(fileName: string, data: any) {
+    const url = `${API_BASE_URL.replace(/\/$/, '')}${API_ENDPOINTS.ENUMERATOR(fileName)}`
+    fetch(url, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+      keepalive: true,
+    }).catch(() => {})
+  },
+
   async deleteEnumerator(fileName: string) {
     const response = await apiClient.delete(API_ENDPOINTS.ENUMERATOR(fileName))
     return response.data
@@ -275,7 +295,7 @@ export const apiService = {
 
 // Export specific API modules for tests
 export const collectionsApi = {
-  getCollections: apiService.getConfigurations,
+  getCollections: apiService.getCollections,
   getCollection: apiService.getConfiguration,
   processCollection: apiService.processConfiguration,
   processAllCollections: apiService.processAllConfigurations,

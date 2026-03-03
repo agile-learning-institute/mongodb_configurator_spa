@@ -31,15 +31,14 @@
                       v-if="slide.component"
                       :description="slide.description"
                       :detailed-content="slide.detailedContent"
-                      :is-welcome="slide.title === 'Welcome'"
-                      @create-new-collection="createNewCollection"
+                      :is-welcome="false"
                       @navigate-to-slide="navigateToSlide"
                     />
                     <HelpSlideContent
                       v-else
                       :description="slide.description"
                       :detailed-content="slide.detailedContent"
-                      :is-welcome="slide.title === 'Welcome'"
+                      :is-welcome="false"
                     />
                   </div>
                 </v-window-item>
@@ -78,13 +77,6 @@
       :content="currentHelp?.content || ''"
       data-test="help-dialog"
     />
-
-    <!-- New Collection Dialog -->
-    <NewCollectionDialog
-      v-model="showNewCollectionDialog"
-      @created="handleCollectionCreated"
-      data-test="new-collection-dialog"
-    />
   </v-container>
 </template>
 
@@ -93,9 +85,7 @@ import { ref, onMounted, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useHelp } from '@/composables/useHelp'
 import HelpDialog from '@/components/HelpDialog.vue'
-import NewCollectionDialog from '@/components/NewCollectionDialog.vue'
 import HelpSlideContent from '@/components/HelpSlides/HelpSlideContent.vue'
-import WelcomeSlide from '@/components/HelpSlides/WelcomeSlide.vue'
 import CollectionConfigurationSlide from '@/components/HelpSlides/CollectionConfigurationSlide.vue'
 
 const { showHelp, currentHelp } = useHelp()
@@ -103,9 +93,6 @@ const router = useRouter()
 
 const currentSlide = ref(0)
 const route = useRoute()
-
-// New collection dialog state
-const showNewCollectionDialog = ref(false)
 
 // Handle feature link clicks using event delegation
 const handleFeatureLinkClick = (event: Event) => {
@@ -144,41 +131,7 @@ onMounted(() => {
   }) as EventListener)
 })
 
-// Open new collection dialog
-const createNewCollection = () => {
-  showNewCollectionDialog.value = true
-}
-
-// Handle collection creation from NewCollectionDialog
-const handleCollectionCreated = (fileName: string) => {
-  router.push(`/configurations/${fileName}`)
-}
-
 const helpSlides = [
-  {
-    icon: 'mdi-information-outline',
-    title: 'Welcome',
-    component: WelcomeSlide,
-    description: 'As a data engineer working with MongoDB across multiple use cases—from backing APIs in various languages to automated data ingestion pipelines and change data capture solutions—you need centralized data quality constraints that go beyond domain-specific tools like ODMs. This Configurator helps you define data quality constraints using a simplified schema approach that configures MongoDB Schema Validation. Test your configurations locally, then package them for independent deployment. See the Configurator SRE Guide for deployment details.',
-    detailedContent: `
-      <h2 class="key-features-title">Key Features</h2>
-      <ul class="key-features-list">
-        <li><span class="key-feature-link"><a href="/" class="feature-link">Online Help</a></span> is available using <i class="mdi mdi-help-circle"></i> <i class="mdi mdi-arrow-top-right"></i> from any page.</li>
-        <li><span class="key-feature-link"><a href="/configurations" class="feature-link">Collection Configurations</a></span> control the configuration process.</li>
-        <li><span class="key-feature-link"><a href="/dictionaries" class="feature-link">Data Dictionaries</a></span> provide a human-friendly way to define data structures.</li>
-        <li><span class="key-feature-link"><a href="/types" class="feature-link">Custom Types</a></span> specify JSON/BSON schemas for Dictionary types.</li>
-        <li><span class="key-feature-link"><a href="/enumerators" class="feature-link">Enumerators</a></span> provide a versioned location for enumerator validation values.</li>
-        <li><span class="key-feature-link"><a href="/test_data" class="feature-link">Test Data</a></span> can be loaded into the database to support a robust developer experience.</li>
-        <li><span class="key-feature-link"><a href="/migrations" class="feature-link">Migrations</a></span> allow you to run migration pipelines to alter existing data when schema changes require it.</li>
-      </ul>
-    `
-  },
-  {
-    icon: 'mdi-database',
-    title: 'Collection Configuration',
-    component: CollectionConfigurationSlide,
-    description: '',
-  },
   {
     icon: 'mdi-book-open-variant',
     title: 'Dictionary',
@@ -239,7 +192,7 @@ const helpSlides = [
       </ul>
       
       <h2>Important Note</h2>
-      <p><strong>Custom types are not versioned.</strong> Once locked, they should be considered immutable assets used by your data dictionaries. If you need to change a custom type that has already been deployed to meaningful environments, you will need to create a new custom type with a slightly different name. See the <span class="text-link clickable" data-slide-index="9">Locking</span> panel for more information about what it means to <em>lock</em> a configuration.</p>
+      <p><strong>Custom types are not versioned.</strong> Once locked, they should be considered immutable assets used by your data dictionaries. If you need to change a custom type that has already been deployed to meaningful environments, you will need to create a new custom type with a slightly different name. See the <span class="text-link clickable" data-slide-index="5">Locking</span> panel for more information about what it means to <em>lock</em> a configuration.</p>
     `
   },
   {
@@ -248,7 +201,7 @@ const helpSlides = [
     description: 'Create sets of allowed values for Enum or Enum Array properties.',
     detailedContent: `
       <h2>Enum and Enum Array Type Support</h2>
-      <p>To support Dictionary <em>enum</em> and <em>enum_array</em> types simple schema leverages a list of valid enumerators, and the individual enumeration values with descriptions. Enumerators are loaded to a specified collection during configuration, making it easy to provide the information needed by a Javascript Web application to support choosers or drop downs. Enumerator versions are managed automatically, and only the latest enumerators should be unlocked. See the <span class="text-link clickable" @click="navigateToSlide(9)">Locking</span> panel for more information about what it means to <em>lock</em> a configuration.</p>
+      <p>To support Dictionary <em>enum</em> and <em>enum_array</em> types simple schema leverages a list of valid enumerators, and the individual enumeration values with descriptions. Enumerators are loaded to a specified collection during configuration, making it easy to provide the information needed by a Javascript Web application to support choosers or drop downs. Enumerator versions are managed automatically, and only the latest enumerators should be unlocked. See the <span class="text-link clickable" data-slide-index="5">Locking</span> panel for more information about what it means to <em>lock</em> a configuration.</p>
       
       <div class="mt-6 pa-4 bg-info-lighten-5 border-info border rounded">
         <p class="text-body-2 mb-0"><strong>Note:</strong> These enumerators are for use when the list of valid enumerations is relatively stable. The configurator makes it easy to add new values to a list, but the deployment of that change does require a new version of the database configuration to be deployed. Dynamic enumerator lists that allow real-time updates should be implemented as normal string primitives, with a custom data store for the valid values.</p>
@@ -256,39 +209,10 @@ const helpSlides = [
     `
   },
   {
-    icon: 'mdi-file-document',
-    title: 'Test Data',
-    description: 'Test data that can be loaded into the database during version processing.',
-    detailedContent: `
-      <h2>Test Data</h2>
-      <p>A list of JSON documents that can be automatically loaded into your database during configuration processing. This is useful for testing your schema validation and indexing configurations.</p>
-    `
-  },
-  {
-    icon: 'mdi-swap-horizontal',
-    title: 'Migration',
-    description: 'Create data transformation scripts for schema updates.',
-    detailedContent: `
-      <h2>MongoDB Pipeline</h2>
-      <p>A list of JSON steps that define how to transform existing data when schema changes are applied. These migration pipelines ensure your data is properly updated when new schema versions are deployed.</p>
-    `
-  },
-  {
-    icon: 'mdi-cog',
-    title: 'Admin',
-    description: 'View and manage API configuration settings.',
-    detailedContent: `
-      <h2>API Configuration</h2>
-      <p>The Admin page provides access to view the Configurator API settings. This includes database connection parameters, server settings, and other configuration options.</p>
-      
-      <h2>Configuration Sources</h2>
-      <p>Configuration values can come from different sources:</p>
-      <ul>
-        <li><strong>Configuration Files:</strong> Values loaded from configuration files (shown in blue) can not be overridden</li>
-        <li><strong>Environment Variables:</strong> Values set through environment variables (shown in green)</li>
-        <li><strong>Default Values:</strong> Built-in default values (shown in orange) if not specified elsewhere</li>
-      </ul>
-    `
+    icon: 'mdi-database',
+    title: 'Collection Configuration',
+    component: CollectionConfigurationSlide,
+    description: 'As a data engineer working with MongoDB across multiple use cases—from backing APIs in various languages to automated data ingestion pipelines and change data capture solutions—you need centralized data quality constraints that go beyond domain-specific tools like ODMs. This Configurator helps you define data quality constraints using a simplified schema approach that configures MongoDB Schema Validation. Test your configurations locally, then package them for independent deployment. See the Configurator SRE Guide for deployment details.',
   },
   {
     icon: 'mdi-calendar-clock',
@@ -360,6 +284,35 @@ const helpSlides = [
         <li><strong>Version Management:</strong> Use version numbers to track configuration evolution</li>
         <li><strong>Testing:</strong> Test configurations thoroughly before locking</li>
         <li><strong>Documentation:</strong> Document the purpose and scope of each locked configuration</li>
+      </ul>
+    `
+  },
+  {
+    icon: 'mdi-cog',
+    title: 'Admin',
+    description: 'View and manage API configuration settings.',
+    detailedContent: `
+      <h2>Configure Database</h2>
+      <p>The <strong>Configure Database</strong> button executes all collection configurations. It effectively runs "Configure Collection" for every collection in the system, applying schema validation, indexes, migrations, and test data loading for each.</p>
+      
+      <h2>Drop Database</h2>
+      <p>The <strong>Drop Database</strong> button drops the database. It includes safety mechanisms and only functions when:</p>
+      <ul>
+        <li>The database connection is configured via environment variables</li>
+        <li>The database server is localhost-based</li>
+        <li>Specific configuration values (such as TLS) are disabled</li>
+      </ul>
+      <p>These restrictions help prevent accidental data loss on remote or production databases.</p>
+      
+      <h2>API Configuration</h2>
+      <p>The Admin page provides access to view the Configurator API settings. This includes database connection parameters, server settings, and other configuration options.</p>
+      
+      <h2>Configuration Sources</h2>
+      <p>Configuration values can come from different sources:</p>
+      <ul>
+        <li><strong>Configuration Files:</strong> Values loaded from configuration files (shown in blue) can not be overridden</li>
+        <li><strong>Environment Variables:</strong> Values set through environment variables (shown in green)</li>
+        <li><strong>Default Values:</strong> Built-in default values (shown in orange) if not specified elsewhere</li>
       </ul>
     `
   }

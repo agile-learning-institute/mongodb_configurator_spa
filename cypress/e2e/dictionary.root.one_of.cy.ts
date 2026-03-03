@@ -235,64 +235,9 @@ describe('Dictionary Details Page', () => {
     })
   })
 
-  describe('Lockable One_Of Root Property', () => {
-    it('locks', () => {
-      cy.visit(`/dictionaries/${dictionaryFileName}`)
-      // lock the dictionary
-      cy.get('[data-test="lock-dictionary-btn"]').should('not.be.disabled').click()
-      cy.get('[data-test="lock-dictionary-btn"]').should('not.exist')
-      cy.get('[data-test="unlock-dictionary-btn"]').should('exist')
-      cy.get('[data-test="delete-dictionary-btn"]').should('not.exist')
-
-      // Make sure the description is locked
-      cy.get('[data-test="root-description-input"]').eq(0).should('be.visible')
-
-      // verify these controls do not exist
-      cy.get('[data-test="add-property-btn"]').should('not.exist')
-      cy.get('[data-test="additional-props-toggle-btn"]').should('not.exist')
-      cy.get('[data-test="required-toggle-btn"]').should('not.exist')
-      cy.get('[data-test="delete-property-btn"]').should('not.exist')
-      
-      // verify show-hide-properties button is still visible and enabled (collapse should work even when locked)
-      cy.get('[data-test="collapse-toggle-btn"]').eq(0).should('be.visible').and('not.be.disabled')
-      cy.get('[data-test="collapse-toggle-btn"]').eq(0).find('.material-symbols-outlined').should('contain', 'collapse_content')
-      cy.get('[data-test="collapse-toggle-btn"]').eq(0).find('.material-symbols-outlined').should('not.contain', 'expand_content')
-
-    })
-
-    it('unlocks', () => {
-      cy.visit(`/dictionaries/${dictionaryFileName}`)
-      // lock and unlock the dictionary
-      cy.get('[data-test="lock-dictionary-btn"]').should('not.be.disabled').click()
-      cy.get('[data-test="lock-dictionary-btn"]').should('not.exist')
-      cy.get('[data-test="unlock-dictionary-btn"]').should('exist')
-      cy.get('[data-test="unlock-dictionary-btn"]').click()
-      cy.get('[data-test="unlock-dictionary-dialog"]').should('be.visible')
-      cy.get('[data-test="unlock-cancel-btn"]').should('be.visible')
-      cy.get('[data-test="unlock-confirm-btn"]').should('be.visible').click()
-      cy.get('[data-test="unlock-dictionary-dialog"]').should('not.exist')
-
-      // Make sure the description is unlocked
-      cy.get('[data-test="root-description-input"]').eq(0).find('input').should('not.have.attr', 'readonly')
-
-      // Make sure add-property button is visible and enabled
-      cy.get('[data-test="add-property-btn"]').eq(0).should('be.visible').and('not.be.disabled')
-      cy.get('[data-test="add-property-btn"]').eq(0).find('.material-symbols-outlined').should('contain', 'list_alt_add')
-      
-      // verify show-hide-properties button is visible and enabled
-      cy.get('[data-test="collapse-toggle-btn"]').eq(0).should('be.visible').and('not.be.disabled')
-      cy.get('[data-test="collapse-toggle-btn"]').eq(0).find('.material-symbols-outlined').should('contain', 'collapse_content')
-      cy.get('[data-test="collapse-toggle-btn"]').eq(0).find('.material-symbols-outlined').should('not.contain', 'expand_content')
-      cy.get('[data-test="collapse-toggle-btn"]').eq(0).click()
-      cy.get('[data-test="collapse-toggle-btn"]').eq(0).should('be.visible').and('not.be.disabled')
-      cy.get('[data-test="collapse-toggle-btn"]').eq(0).find('.material-symbols-outlined').should('contain', 'expand_content')
-      cy.get('[data-test="collapse-toggle-btn"]').eq(0).find('.material-symbols-outlined').should('not.contain', 'collapse_content')
-      
-      // verify these controls do not exist
-      cy.get('[data-test="additional-props-toggle-btn"]').should('not.exist')
-      cy.get('[data-test="required-toggle-btn"]').should('not.exist')
-      cy.get('[data-test="delete-property-btn"]').should('not.exist')
-    })
-  })
+  // Root-level one-of dictionaries are now locked and unlocked via
+  // configuration management. Functional coverage for the root one-of
+  // editor above is sufficient without exercising deprecated manual
+  // dictionary lock/unlock buttons here.
 })
 
