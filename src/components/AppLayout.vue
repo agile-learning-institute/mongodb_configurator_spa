@@ -70,7 +70,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useEventState } from '@/composables/useEventState'
 import { useConfig } from '@/composables/useConfig'
@@ -168,7 +168,15 @@ const toggleHelp = () => {
   }
 }
 
-// Load drawer state from localStorage on mount
+// Global keyboard handler (F1 opens help)
+const handleKeydown = (event: KeyboardEvent) => {
+  if (event.key === 'F1') {
+    event.preventDefault()
+    toggleHelp()
+  }
+}
+
+// Load drawer state from localStorage and register keyboard handler on mount
 onMounted(() => {
   const savedDrawerState = localStorage.getItem('navigation-drawer-open')
   if (savedDrawerState !== null) {
@@ -177,6 +185,12 @@ onMounted(() => {
     // Default to hidden if no saved state
     drawer.value = false
   }
+
+  window.addEventListener('keydown', handleKeydown)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('keydown', handleKeydown)
 })
 
 // Toggle drawer and save state
