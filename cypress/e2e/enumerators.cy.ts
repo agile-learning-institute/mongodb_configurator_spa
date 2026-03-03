@@ -150,9 +150,9 @@ describe('Enumerators cards and detail pages', () => {
       cy.get('[data-test="enumerator-version-pill"]').should('contain', '3')
       cy.get('[data-test="lock-btn"]').should('exist')
       cy.get('[data-test="delete-enumerator-btn"]').should('exist')
-      cy.get('[data-test="previous-version-btn"]').should('exist')
-      cy.get('[data-test="next-version-btn"]').should('not.exist')
-      cy.get('[data-test="add-version-btn"]').should('exist')
+      cy.get('[data-test="enumerator-version-pill-prev-btn"]').should('exist')
+      cy.get('[data-test="enumerator-version-pill-next-btn"]').should('not.exist')
+      cy.get('[data-test="enumerator-version-pill-new-btn"]').should('exist')
     })
 
     it('displays correct first version navigator icons on cards page', () => {
@@ -160,8 +160,8 @@ describe('Enumerators cards and detail pages', () => {
       cy.get('[data-test="enumerator-version-pill"]').should('contain', '0')
       cy.get('[data-test="unlock-btn"]').should('exist')
       cy.get('[data-test="delete-enumerator-btn"]').should('not.exist')
-      cy.get('[data-test="previous-version-btn"]').should('not.exist')
-      cy.get('[data-test="next-version-btn"]').should('exist')
+      cy.get('[data-test="enumerator-version-pill-prev-btn"]').should('not.exist')
+      cy.get('[data-test="enumerator-version-pill-next-btn"]').should('exist')
     })
   })
 
@@ -224,7 +224,7 @@ describe('Enumerators cards and detail pages', () => {
 
     it('can create a new version from v3', () => {
       cy.visit('/enumerators/enumerations.3.yaml')
-      cy.get('[data-test="add-version-btn"]').should('exist').click()
+      cy.get('[data-test="enumerator-version-pill-new-btn"]').should('exist').click()
       cy.url().should('contain', '/enumerators/enumerations.4.yaml')
       cy.get('[data-test="enumeration-card-default_status"]').should('be.visible')
     })
@@ -239,7 +239,7 @@ describe('Enumerators cards and detail pages', () => {
 
     it('locks when new from add version button', () => {
       cy.visit('/enumerators/enumerations.3.yaml')
-      cy.get('[data-test="add-version-btn"]').click()
+      cy.get('[data-test="enumerator-version-pill-new-btn"]').click()
       cy.url().should('contain', '/enumerators/enumerations.4.yaml')
       cy.get('[data-test="lock-btn"]').should('exist')
 

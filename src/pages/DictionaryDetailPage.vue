@@ -21,26 +21,17 @@
           {{ displayName }}
         </h2>
         <div class="d-flex align-center flex-shrink-0 gap-1">
-          <!-- Version pill with prev/next (icons hide when no prev/next) -->
-          <div v-if="versionDisplay" class="d-flex align-center version-pill">
-            <v-btn
-              v-if="hasPreviousVersion"
-              icon="mdi-chevron-left"
-              variant="text"
-              size="small"
-              @click="navigateToPreviousVersion"
-              data-test="dictionary-prev-version-btn"
-            />
-            <span class="text-caption font-weight-medium px-2" data-test="dictionary-version-pill">{{ versionDisplay }}</span>
-            <v-btn
-              v-if="hasNextVersion"
-              icon="mdi-chevron-right"
-              variant="text"
-              size="small"
-              @click="navigateToNextVersion"
-              data-test="dictionary-next-version-btn"
-            />
-          </div>
+          <!-- Version pill: constant width, tooltips, v prefix, version links to config -->
+          <VersionPill
+            v-if="versionDisplay"
+            :version="versionDisplay"
+            :has-previous="hasPreviousVersion"
+            :has-next="hasNextVersion"
+            :link-to="configRoute"
+            data-test="dictionary-version-pill"
+            @previous="navigateToPreviousVersion"
+            @next="navigateToNextVersion"
+          />
           <!-- Icon-only actions -->
           <v-tooltip v-if="!isReadOnly && dictionary._locked" text="Unlock Dictionary" location="bottom">
             <template #activator="{ props }">
@@ -77,18 +68,6 @@
                 color="error"
                 @click="handleDelete"
                 data-test="delete-dictionary-btn"
-              />
-            </template>
-          </v-tooltip>
-          <v-tooltip text="Open Configuration" location="bottom">
-            <template #activator="{ props }">
-              <v-btn
-                v-bind="props"
-                icon="mdi-cog"
-                variant="text"
-                size="small"
-                :to="configRoute"
-                data-test="dictionary-config-link"
               />
             </template>
           </v-tooltip>
@@ -324,6 +303,7 @@ import ArrayOfRefExtension from '@/components/ArrayOfRefExtension.vue'
 import type { DictionaryData, TypeProperty } from '@/types/types'
 import { isArrayProperty, isObjectProperty, isOneOfProperty } from '@/types/types'
 import ArrayOfArrayExtension from '@/components/ArrayOfArrayExtension.vue'
+import VersionPill from '@/components/VersionPill.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -797,12 +777,6 @@ onBeforeUnmount(() => {
 
 .dictionary-name {
   min-width: 0;
-}
-
-.version-pill {
-  background: rgba(var(--v-theme-surface-variant), 0.5);
-  border-radius: 16px;
-  padding: 2px 4px;
 }
 
 .cursor-pointer {

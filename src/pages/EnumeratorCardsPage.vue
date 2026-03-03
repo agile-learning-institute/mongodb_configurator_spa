@@ -19,39 +19,17 @@
           {{ displayName }}
         </h2>
         <div class="d-flex align-center flex-shrink-0 gap-1">
-          <!-- Version pill with prev/next -->
-          <div class="d-flex align-center version-pill">
-            <v-btn
-              v-if="hasPreviousVersion"
-              icon="mdi-chevron-left"
-              variant="text"
-              size="small"
-              @click="navigateToPreviousVersion"
-              data-test="previous-version-btn"
-            />
-            <span class="text-caption font-weight-medium px-2" data-test="enumerator-version-pill">{{ enumerator.version }}</span>
-            <v-btn
-              v-if="hasNextVersion"
-              icon="mdi-chevron-right"
-              variant="text"
-              size="small"
-              @click="navigateToNextVersion"
-              data-test="next-version-btn"
-            />
-            <v-tooltip v-if="!hasNextVersion && !isReadOnly" text="Add version" location="bottom">
-              <template #activator="{ props }">
-                <v-btn
-                  v-bind="props"
-                  icon="mdi-plus"
-                  variant="text"
-                  size="small"
-                  color="primary"
-                  @click="createNewVersion"
-                  data-test="add-version-btn"
-                />
-              </template>
-            </v-tooltip>
-          </div>
+          <!-- Version pill: constant width, tooltips, v prefix -->
+          <VersionPill
+            :version="enumerator.version"
+            :has-previous="hasPreviousVersion"
+            :has-next="hasNextVersion"
+            :show-new-button="!hasNextVersion && !isReadOnly"
+            data-test="enumerator-version-pill"
+            @previous="navigateToPreviousVersion"
+            @next="navigateToNextVersion"
+            @new-version="createNewVersion"
+          />
           <!-- Icon-only actions -->
           <v-btn
             v-if="!isReadOnly && enumerator._locked"
@@ -181,6 +159,7 @@ import { useEnumeratorDetail } from '@/composables/useEnumeratorDetail'
 import { useNewVersion } from '@/composables/useNewVersion'
 import { useConfig } from '@/composables/useConfig'
 import EnumerationCard from '@/components/EnumerationCard.vue'
+import VersionPill from '@/components/VersionPill.vue'
 import type { Enumerator } from '@/types/types'
 
 const route = useRoute()
@@ -308,9 +287,4 @@ onMounted(() => {
   min-width: 0;
 }
 
-.version-pill {
-  background: rgba(var(--v-theme-surface-variant), 0.5);
-  border-radius: 16px;
-  padding: 2px 4px;
-}
 </style>
