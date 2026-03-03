@@ -19,48 +19,20 @@
           {{ displayName }}
         </h2>
         <div class="d-flex align-center flex-shrink-0 gap-1">
-          <!-- Version pill: constant width, tooltips, v prefix -->
-          <VersionPill
-            :version="enumerator.version"
-            :has-previous="hasPreviousVersion"
-            :has-next="hasNextVersion"
-            :show-new-button="!hasNextVersion && !isReadOnly"
-            data-test="enumerator-version-pill"
-            @previous="navigateToPreviousVersion"
-            @next="navigateToNextVersion"
-            @new-version="createNewVersion"
-          />
-          <!-- Icon-only actions -->
-          <v-btn
-            v-if="!isReadOnly && enumerator._locked"
-            icon="mdi-lock-open"
-            variant="text"
-            size="small"
-            color="warning"
-            @click="showUnlockDialog = true"
-            title="Unlock"
-            data-test="unlock-btn"
-          />
-          <v-btn
-            v-else-if="!isReadOnly"
-            icon="mdi-lock"
-            variant="text"
-            size="small"
-            @click="lockEnumerator"
-            :loading="saving"
-            title="Lock"
-            data-test="lock-btn"
-          />
-          <v-btn
-            v-if="!isDisabled"
-            icon="mdi-delete"
-            variant="text"
-            size="small"
-            color="error"
-            @click="handleDelete"
-            title="Delete"
-            data-test="delete-enumerator-btn"
-          />
+          <!-- Delete and Add (left of version pill) -->
+          <v-tooltip v-if="!isDisabled && currentVersion !== 0" text="Delete Version" location="bottom">
+            <template #activator="{ props }">
+              <v-btn
+                v-bind="props"
+                icon="mdi-delete"
+                variant="text"
+                size="small"
+                color="error"
+                @click="handleDelete"
+                data-test="delete-enumerator-btn"
+              />
+            </template>
+          </v-tooltip>
           <v-tooltip v-if="!isDisabled" text="Add enumeration" location="bottom">
             <template #activator="{ props }">
               <v-btn
@@ -71,6 +43,44 @@
                 @click="addEnumeration"
                 :loading="saving"
                 data-test="add-enumeration-btn"
+              />
+            </template>
+          </v-tooltip>
+          <!-- Version pill: constant width, tooltips, v prefix -->
+          <VersionPill
+            :version="enumerator.version"
+            :has-previous="hasPreviousVersion"
+            :has-next="hasNextVersion"
+            :show-new-button="!hasNextVersion && !isReadOnly"
+            data-test="enumerator-version-pill"
+            @previous="navigateToPreviousVersion"
+            @next="navigateToNextVersion"
+            @new-version="showNewVersionDialog = true"
+          />
+          <!-- Lock/Unlock (right of version pill) -->
+          <v-tooltip v-if="!isReadOnly && enumerator._locked" text="Unlock Enumerator" location="bottom">
+            <template #activator="{ props }">
+              <v-btn
+                v-bind="props"
+                icon="mdi-lock-open"
+                variant="text"
+                size="small"
+                color="warning"
+                @click="showUnlockDialog = true"
+                data-test="unlock-btn"
+              />
+            </template>
+          </v-tooltip>
+          <v-tooltip v-else-if="!isReadOnly" text="Lock Enumerator" location="bottom">
+            <template #activator="{ props }">
+              <v-btn
+                v-bind="props"
+                icon="mdi-lock"
+                variant="text"
+                size="small"
+                @click="lockEnumerator"
+                :loading="saving"
+                data-test="lock-btn"
               />
             </template>
           </v-tooltip>
@@ -96,7 +106,7 @@
       </div>
       <v-row v-else data-test="enumerations-grid">
         <v-col
-          v-for="enumItem in enumerator.enumerators"
+          v-for="(enumItem, i) in enumerator.enumerators"
           :key="enumItem.name"
           cols="12"
           sm="6"
@@ -105,6 +115,7 @@
         >
           <EnumerationCard
             :enumeration="enumItem"
+            :index="i"
             @open="handleOpenEnumeration"
           />
         </v-col>
@@ -127,6 +138,25 @@
         <v-spacer />
         <v-btn @click="cancelDelete" data-test="delete-dialog-cancel-btn">Cancel</v-btn>
         <v-btn color="error" @click="confirmDelete" data-test="delete-dialog-delete-btn">Delete Enumerator</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+
+  <v-dialog v-model="showNewVersionDialog" max-width="500" data-test="new-version-dialog">
+    <v-card>
+      <v-card-title class="text-h5 d-flex align-center" data-test="new-version-dialog-title">
+        <v-icon color="primary" class="mr-3">mdi-plus-circle</v-icon>
+        Create New Enumerator Version
+      </v-card-title>
+      <v-card-text data-test="new-version-dialog-content">
+        <p class="mb-0">
+          This will create a new version (v{{ nextVersionNumber }}) based on the current one. The current version will be locked.
+        </p>
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer />
+        <v-btn @click="showNewVersionDialog = false" data-test="new-version-dialog-cancel-btn">Cancel</v-btn>
+        <v-btn color="primary" @click="confirmNewVersion" :loading="creating" data-test="new-version-dialog-confirm-btn">Create</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -166,10 +196,11 @@ const route = useRoute()
 const router = useRouter()
 const { isReadOnly } = useConfig()
 const { loading, saving, error, enumerator, loadEnumerator, saveEnumerator } = useEnumeratorDetail()
-const { createNewVersionAndNavigate } = useNewVersion()
+const { creating, createNewVersionAndNavigate } = useNewVersion()
 
 const showDeleteDialog = ref(false)
 const showUnlockDialog = ref(false)
+const showNewVersionDialog = ref(false)
 const enumeratorFiles = ref<any[]>([])
 
 const isDisabled = computed(() => isReadOnly.value || (enumerator.value?._locked || false))
@@ -202,6 +233,8 @@ const hasNextVersion = computed(() => {
   const currentVer = currentVersion.value
   return enumeratorFiles.value.some((file: any) => extractVersionFromFileName(file.file_name) === currentVer + 1)
 })
+
+const nextVersionNumber = computed(() => (currentVersion.value ?? 0) + 1)
 
 const loadEnumeratorFiles = async () => {
   try {
@@ -244,17 +277,23 @@ const createNewVersion = async () => {
   await createNewVersionAndNavigate()
 }
 
+const confirmNewVersion = async () => {
+  showNewVersionDialog.value = false
+  await createNewVersionAndNavigate()
+}
+
 const addEnumeration = async () => {
   if (!enumerator.value) return
   if (!enumerator.value.enumerators) enumerator.value.enumerators = []
-  const newEnum: Enumerator = { name: `enum_${Date.now()}`, values: [] }
+  const newEnum: Enumerator = { name: `_new_${Date.now()}`, values: [] }
   enumerator.value.enumerators.push(newEnum)
   await saveEnumerator()
-  router.push(`/enumerators/${enumerator.value.file_name}/${encodeURIComponent(newEnum.name)}`)
+  const newIndex = enumerator.value.enumerators.length - 1
+  router.push(`/enumerators/${enumerator.value.file_name}/${newIndex}`)
 }
 
-const handleOpenEnumeration = (enumerationName: string) => {
-  router.push(`/enumerators/${enumerator.value!.file_name}/${encodeURIComponent(enumerationName)}`)
+const handleOpenEnumeration = (index: number) => {
+  router.push(`/enumerators/${enumerator.value!.file_name}/${index}`)
 }
 
 const handleDelete = () => showDeleteDialog.value = true
@@ -266,7 +305,16 @@ const confirmDelete = async () => {
   try {
     await apiService.deleteEnumerator(enumerator.value.file_name)
     showDeleteDialog.value = false
-    router.push('/dictionaries')
+    const files = await apiService.getEnumerators()
+    enumeratorFiles.value = files
+    const newest = files.length > 0
+      ? files.reduce((a: { file_name: string }, b: { file_name: string }) => {
+          const aVer = parseInt(a.file_name.match(/enumerations\.(\d+)\.yaml/)?.[1] || '0')
+          const bVer = parseInt(b.file_name.match(/enumerations\.(\d+)\.yaml/)?.[1] || '0')
+          return bVer > aVer ? b : a
+        })
+      : null
+    router.push(newest ? `/enumerators/${newest.file_name}` : '/enumerators')
   } catch (err: any) {
     error.value = err.message || 'Failed to delete enumerator'
   }

@@ -3,11 +3,11 @@
     class="enumeration-card"
     variant="elevated"
     :data-test="`enumeration-card-${enumeration.name}`"
-    @click="$emit('open', enumeration.name)"
+    @click="$emit('open', index)"
   >
     <v-card-text class="pa-4 d-flex flex-column card-content">
       <v-card-title class="text-h6 pa-0 mb-2 flex-shrink-0" :data-test="`enumeration-card-name-${enumeration.name}`">
-        {{ enumeration.name }}
+        {{ enumeration.name.startsWith('_new') ? 'New enumeration' : enumeration.name }}
       </v-card-title>
       <div class="flex-grow-1" />
       <div class="d-flex align-center mt-2 flex-shrink-0">
@@ -31,10 +31,11 @@ import type { Enumerator } from '@/types/types'
 
 defineProps<{
   enumeration: Enumerator
+  index: number
 }>()
 
 defineEmits<{
-  'open': [enumerationName: string]
+  'open': [index: number]
 }>()
 </script>
 

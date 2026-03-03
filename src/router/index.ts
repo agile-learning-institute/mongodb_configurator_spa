@@ -9,6 +9,7 @@ const DictionariesPage = () => import('@/pages/DictionariesPage.vue')
 const DictionaryDetailPage = () => import('@/pages/DictionaryDetailPage.vue')
 const TypesPage = () => import('@/pages/TypesPage.vue')
 const TypeDetailPage = () => import('@/pages/TypeDetailPage.vue')
+const EnumeratorsRedirectPage = () => import('@/pages/EnumeratorsRedirectPage.vue')
 const EnumeratorCardsPage = () => import('@/pages/EnumeratorCardsPage.vue')
 const EnumeratorDetailPage = () => import('@/pages/EnumeratorDetailPage.vue')
 const TestDataDetailPage = () => import('@/pages/TestDataDetailPage.vue')
@@ -68,7 +69,9 @@ const routes = [
   },
   {
     path: '/enumerators',
-    redirect: '/enumerators/enumerations.0.yaml'
+    name: 'EnumeratorsRedirect',
+    component: EnumeratorsRedirectPage,
+    meta: { title: 'Enumerators' }
   },
   {
     path: '/enumerators/:fileName',
@@ -77,7 +80,7 @@ const routes = [
     meta: { title: 'Enumerators' }
   },
   {
-    path: '/enumerators/:fileName/:enumerationName',
+    path: '/enumerators/:fileName/:enumerationIndex',
     name: 'EnumeratorDetail',
     component: EnumeratorDetailPage,
     meta: { title: 'Enumerator Detail' }

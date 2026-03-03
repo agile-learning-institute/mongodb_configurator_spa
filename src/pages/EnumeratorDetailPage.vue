@@ -12,26 +12,41 @@
       </v-alert>
     </div>
     <!-- Not found -->
-    <div v-else-if="enumerator && enumerationIndex === -1" class="text-center pa-8">
+    <div v-else-if="enumerator && !currentEnumeration" class="text-center pa-8">
       <v-icon size="64" color="grey">mdi-alert-circle</v-icon>
       <h3 class="text-h5 mt-4">Enumeration not found</h3>
-      <p class="text-body-1 text-medium-emphasis mt-2">"{{ enumerationName }}" was not found in this enumerator file.</p>
+      <p class="text-body-1 text-medium-emphasis mt-2">Index {{ route.params.enumerationIndex }} is out of range.</p>
     </div>
     <!-- Content: single enumeration -->
     <div v-else-if="enumerator && currentEnumeration">
-      <!-- Page Header: editable enumeration name -->
+      <!-- Page Header: editable enumeration name + delete -->
       <header class="d-flex align-center mb-6">
         <v-text-field
+          ref="nameInputRef"
           v-model="editableName"
           variant="plain"
           density="compact"
           hide-details
           :readonly="isDisabled"
-          class="enumeration-header-name flex-grow-1 text-truncate"
+          :placeholder="isNewEnumeration ? 'Name' : undefined"
+          class="enumeration-header-name flex-grow-1 text-truncate mr-2"
           data-test="enumeration-name-input"
           @blur="finishNameEdit"
           @keyup.enter="finishNameEdit"
         />
+        <v-tooltip v-if="!isDisabled" text="Delete enumeration" location="bottom">
+          <template #activator="{ props }">
+            <v-btn
+              v-bind="props"
+              icon="mdi-delete"
+              variant="text"
+              size="small"
+              color="error"
+              @click="showDeleteDialog = true"
+              data-test="delete-enumeration-btn"
+            />
+          </template>
+        </v-tooltip>
       </header>
 
       <!-- Enumeration values -->
@@ -112,10 +127,30 @@
       </BaseCard>
     </div>
   </v-container>
+
+  <v-dialog v-model="showDeleteDialog" max-width="500" data-test="delete-enumeration-dialog">
+    <v-card>
+      <v-card-title class="text-h5 d-flex align-center" data-test="delete-enumeration-dialog-title">
+        <v-icon color="error" class="mr-3">mdi-alert-circle</v-icon>
+        Delete Enumeration
+      </v-card-title>
+      <v-card-text data-test="delete-enumeration-dialog-content">
+        <p class="mb-0">
+          Are you sure you want to delete "{{ currentEnumeration?.name.startsWith('_new') ? 'New enumeration' : currentEnumeration?.name }}"?
+          This will remove the enumeration and all its values.
+        </p>
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer />
+        <v-btn @click="showDeleteDialog = false" data-test="delete-enumeration-dialog-cancel-btn">Cancel</v-btn>
+        <v-btn color="error" @click="confirmDeleteEnumeration" data-test="delete-enumeration-dialog-confirm-btn">Delete</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useEnumeratorDetail } from '@/composables/useEnumeratorDetail'
 import { useConfig } from '@/composables/useConfig'
@@ -147,40 +182,75 @@ const router = useRouter()
 const { isReadOnly } = useConfig()
 const { loading, saving, error, enumerator, loadEnumerator, saveEnumerator } = useEnumeratorDetail()
 
-const enumerationName = computed(() => decodeURIComponent((route.params.enumerationName as string) || ''))
+const routeParam = computed(() => (route.params.enumerationIndex as string) || '')
 
 const enumerationIndex = computed(() => {
-  if (!enumerator.value?.enumerators) return -1
-  const idx = enumerator.value.enumerators.findIndex((e) => e.name === enumerationName.value)
-  return idx
+  const idx = parseInt(routeParam.value, 10)
+  return Number.isNaN(idx) || idx < 0 ? -1 : idx
 })
 
 const currentEnumeration = computed(() => {
   if (!enumerator.value?.enumerators || enumerationIndex.value < 0) return null
+  if (enumerationIndex.value >= enumerator.value.enumerators.length) return null
   return enumerator.value.enumerators[enumerationIndex.value]
 })
 
+// Redirect legacy name-based URLs to index-based (e.g. /default_status -> /0)
+watch(
+  [() => enumerator.value, () => routeParam.value],
+  ([enumData, param]) => {
+    if (!enumData?.enumerators || !param) return
+    const idx = parseInt(param, 10)
+    if (!Number.isNaN(idx) && idx >= 0) return
+    const found = enumData.enumerators.findIndex((e) => e.name === decodeURIComponent(param))
+    if (found >= 0) router.replace(`/enumerators/${route.params.fileName}/${found}`)
+  },
+  { immediate: true }
+)
+
 const isDisabled = computed(() => isReadOnly.value || (enumerator.value?._locked || false))
 
+const isNewEnumeration = computed(() =>
+  !!currentEnumeration.value?.name?.startsWith('_new')
+)
+
+const showDeleteDialog = ref(false)
+const nameInputRef = ref<{ $el?: HTMLElement; focus?: () => void } | null>(null)
 const editableName = ref('')
 const editableValues = ref<string[]>([])
 const editableDescriptions = ref<string[]>([])
 
 function syncEditableFromEnum() {
   if (!currentEnumeration.value) return
-  editableName.value = currentEnumeration.value.name
+  editableName.value = isNewEnumeration.value ? '' : currentEnumeration.value.name
   editableValues.value = currentEnumeration.value.values.map((v) => v.value)
   editableDescriptions.value = currentEnumeration.value.values.map((v) => v.description)
+  if (isNewEnumeration.value) {
+    nextTick(() => {
+      setTimeout(() => {
+        const el = nameInputRef.value
+        if (typeof el?.focus === 'function') {
+          el.focus()
+        } else {
+          const input = (el as { $el?: HTMLElement })?.$el?.querySelector('input')
+          if (input) (input as HTMLInputElement).focus()
+        }
+      }, 0)
+    })
+  }
 }
 
 const finishNameEdit = () => {
   if (!currentEnumeration.value || isDisabled.value) return
   const newName = editableName.value?.trim()
-  if (!newName || currentEnumeration.value.name === newName) return
+  if (!newName) {
+    if (isNewEnumeration.value) return
+    return
+  }
+  if (currentEnumeration.value.name === newName) return
   if (enumerator.value!.enumerators.some((e) => e !== currentEnumeration.value && e.name === newName)) return
   currentEnumeration.value.name = newName
   debouncedSave()
-  router.replace(`/enumerators/${route.params.fileName}/${encodeURIComponent(newName)}`)
 }
 
 watch(
@@ -232,8 +302,18 @@ const deleteEnumValue = (valIdx: number) => {
   autoSave()
 }
 
+const confirmDeleteEnumeration = async () => {
+  if (!enumerator.value || !currentEnumeration.value || isDisabled.value) return
+  const idx = enumerationIndex.value
+  if (idx < 0) return
+  showDeleteDialog.value = false
+  enumerator.value.enumerators.splice(idx, 1)
+  await saveEnumerator()
+  router.push(`/enumerators/${route.params.fileName}`)
+}
+
 watch(
-  () => [route.params.fileName, route.params.enumerationName],
+  () => route.params.fileName,
   () => loadEnumerator(),
   { immediate: false }
 )

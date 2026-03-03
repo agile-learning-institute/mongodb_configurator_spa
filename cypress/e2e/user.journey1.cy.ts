@@ -149,7 +149,7 @@ describe('User Journey - Create, configure, revise, and re-configure a new colle
       // Open default_status enumeration (cards page -> detail page)
       cy.get('[data-test="enumeration-card-default_status"]').should('be.visible').click()
       cy.url().should('include', '/enumerators/')
-      cy.url().should('include', '/default_status')
+      cy.url().should('match', /\/enumerators\/[^/]+\/\d+$/)
 
       // Add a new value (enumerations.0 default_status has active, archived; we add draft at index 2)
       cy.get('[data-test="add-enum-value-btn"], [data-test="add-enum-value-empty-btn"]').first().click()
@@ -374,7 +374,7 @@ describe('User Journey - Create, configure, revise, and re-configure a new colle
       // Open default_status enumeration (enumerations.1 has active, archived, draft from copy; we add suspended at index 3)
       cy.get('[data-test="enumeration-card-default_status"]').should('be.visible').click()
       cy.url().should('include', '/enumerators/')
-      cy.url().should('include', '/default_status')
+      cy.url().should('match', /\/enumerators\/[^/]+\/\d+$/)
 
       cy.get('[data-test="add-enum-value-btn"], [data-test="add-enum-value-empty-btn"]').first().click()
       cy.get('[data-test="enum-value-input-3"]').should('exist').should('be.visible')

@@ -165,8 +165,10 @@ const selectEnum = (enumeratorName: string) => {
 }
 
 const openEnumeration = (enumeratorName: string) => {
-  if (!latestEnumeratorFile.value) return
-  window.open(`/enumerators/${latestEnumeratorFile.value}/${encodeURIComponent(enumeratorName)}`, '_blank')
+  if (!latestEnumeratorFile.value || !mostRecentEnumeratorData.value?.enumerators) return
+  const idx = mostRecentEnumeratorData.value.enumerators.findIndex((e) => e.name === enumeratorName)
+  if (idx < 0) return
+  window.open(`/enumerators/${latestEnumeratorFile.value}/${idx}`, '_blank')
 }
 
 // Get chip color based on whether a value is selected

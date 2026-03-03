@@ -55,7 +55,7 @@ describe('Enumerators cards and detail pages', () => {
     it('navigates to detail when clicking a card', () => {
       cy.visit(`/enumerators/${testFileName}`)
       cy.get('[data-test="enumeration-card-default_status"]').click()
-      cy.url().should('include', '/default_status')
+      cy.url().should('match', /\/enumerators\/[^/]+\/0$/)
       cy.get('[data-test="enumeration-name-input"]').find('input').should('have.value', 'default_status')
       cy.get('[data-test="enum-value-input-0"]').find('input').should('have.value', 'draft')
       cy.get('[data-test="enum-value-input-1"]').find('input').should('have.value', 'active')
@@ -90,7 +90,7 @@ describe('Enumerators cards and detail pages', () => {
     })
 
     it('can add and edit values in default_status enumeration', () => {
-      cy.visit(`/enumerators/${testFileName}/default_status`)
+      cy.visit(`/enumerators/${testFileName}/0`)
       cy.get('[data-test="enum-value-input-0"]').find('input').should('have.value', 'draft')
       cy.get('[data-test="enum-value-input-1"]').find('input').should('have.value', 'active')
       cy.get('[data-test="enum-value-input-2"]').find('input').should('have.value', 'archived')
@@ -110,7 +110,7 @@ describe('Enumerators cards and detail pages', () => {
     })
 
     it('persists value and description edits on reload (beforeunload saves on real reload)', () => {
-      cy.visit(`/enumerators/${testFileName}/default_status`)
+      cy.visit(`/enumerators/${testFileName}/0`)
       cy.get('[data-test="enum-value-input-0"]').find('input').should('have.value', 'draft')
       cy.get('[data-test="enum-description-input-0"]').find('input').should('have.value', 'Draft')
 
@@ -225,6 +225,8 @@ describe('Enumerators cards and detail pages', () => {
     it('can create a new version from v3', () => {
       cy.visit('/enumerators/enumerations.3.yaml')
       cy.get('[data-test="enumerator-version-pill-new-btn"]').should('exist').click()
+      cy.get('[data-test="new-version-dialog"]').should('be.visible')
+      cy.get('[data-test="new-version-dialog-confirm-btn"]').click()
       cy.url().should('contain', '/enumerators/enumerations.4.yaml')
       cy.get('[data-test="enumeration-card-default_status"]').should('be.visible')
     })
@@ -240,6 +242,7 @@ describe('Enumerators cards and detail pages', () => {
     it('locks when new from add version button', () => {
       cy.visit('/enumerators/enumerations.3.yaml')
       cy.get('[data-test="enumerator-version-pill-new-btn"]').click()
+      cy.get('[data-test="new-version-dialog-confirm-btn"]').click()
       cy.url().should('contain', '/enumerators/enumerations.4.yaml')
       cy.get('[data-test="lock-btn"]').should('exist')
 
@@ -278,7 +281,7 @@ describe('Enumerators cards and detail pages', () => {
       cy.get('[data-test="delete-warning-title"]').should('contain', 'Warning: Delete Enumerator')
       cy.get('[data-test="delete-dialog-cancel-btn"]').should('be.visible')
       cy.get('[data-test="delete-dialog-delete-btn"]').should('be.visible').click()
-      cy.url().should('include', '/dictionaries')
+      cy.url().should('include', '/enumerators/enumerations.0.yaml')
     })
   })
 })
