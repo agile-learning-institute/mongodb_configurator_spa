@@ -422,7 +422,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed, watch } from 'vue'
+import { ref, onMounted, onBeforeUnmount, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useEventState } from '@/composables/useEventState'
 import { useNewVersion } from '@/composables/useNewVersion'
@@ -607,6 +607,14 @@ const autoSave = async () => {
 
 const handleDescriptionChange = () => {
   autoSave()
+}
+
+// Handle page unload - blur active inputs to trigger save handlers
+const handleBeforeUnload = () => {
+  const activeElement = document.activeElement
+  if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) {
+    ;(activeElement as HTMLElement).blur()
+  }
 }
 
 
@@ -1202,6 +1210,11 @@ const navigateToNextVersion = () => {
 // Load configuration on mount
 onMounted(() => {
   loadConfiguration()
+  window.addEventListener('beforeunload', handleBeforeUnload)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('beforeunload', handleBeforeUnload)
 })
 
 // Watch for dialog opening to initialize new version

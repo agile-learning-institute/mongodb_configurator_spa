@@ -253,6 +253,17 @@ export const apiService = {
     return response.data
   },
 
+  /** Fire-and-forget save using fetch keepalive - survives page unload (beforeunload) */
+  saveEnumeratorKeepalive(fileName: string, data: any) {
+    const url = `${API_BASE_URL.replace(/\/$/, '')}${API_ENDPOINTS.ENUMERATOR(fileName)}`
+    fetch(url, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+      keepalive: true,
+    }).catch(() => {})
+  },
+
   async deleteEnumerator(fileName: string) {
     const response = await apiClient.delete(API_ENDPOINTS.ENUMERATOR(fileName))
     return response.data

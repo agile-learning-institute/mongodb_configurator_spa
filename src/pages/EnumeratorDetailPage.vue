@@ -126,19 +126,31 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useEnumeratorDetail } from '@/composables/useEnumeratorDetail'
 import { useConfig } from '@/composables/useConfig'
+import { apiService } from '@/utils/api'
 import BaseCard from '@/components/BaseCard.vue'
 import type { EnumeratorValue } from '@/types/types'
 
-function debounce<T extends (...args: any[]) => any>(func: T, wait: number): T {
+function debounceWithFlush<T extends (...args: any[]) => any>(func: T, wait: number): T & { flush: () => void } {
   let timeout: ReturnType<typeof setTimeout> | null = null
-  return ((...args: any[]) => {
+  const debounced = ((...args: any[]) => {
     if (timeout) clearTimeout(timeout)
-    timeout = setTimeout(() => func(...args), wait)
-  }) as T
+    timeout = setTimeout(() => {
+      timeout = null
+      func(...args)
+    }, wait)
+  }) as T & { flush: () => void }
+  debounced.flush = () => {
+    if (timeout) {
+      clearTimeout(timeout)
+      timeout = null
+      func()
+    }
+  }
+  return debounced
 }
 
 const route = useRoute()
@@ -196,7 +208,7 @@ const autoSave = async () => {
   await saveEnumerator()
 }
 
-const debouncedSave = debounce(autoSave, 300)
+const debouncedSave = debounceWithFlush(autoSave, 300)
 
 const finishValueEdit = (valIdx: number) => {
   if (!currentEnumeration.value || isDisabled.value) return
@@ -237,6 +249,42 @@ watch(
   () => loadEnumerator(),
   { immediate: false }
 )
+
+// Handle page unload / visibility change - blur active inputs, sync all editable state, then save with keepalive
+const handleUnloadOrHide = () => {
+  const activeElement = document.activeElement
+  if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) {
+    ;(activeElement as HTMLElement).blur()
+  }
+  // Sync all editable values/descriptions to model (blur only fires for focused element)
+  if (currentEnumeration.value && !isDisabled.value) {
+    for (let i = 0; i < editableValues.value.length; i++) {
+      finishValueEdit(i)
+      finishDescriptionEdit(i)
+    }
+  }
+  // Use keepalive fetch so save survives page unload (normal flush would be aborted)
+  if (enumerator.value && !isReadOnly.value) {
+    apiService.saveEnumeratorKeepalive(route.params.fileName as string, enumerator.value)
+  }
+}
+
+const handleVisibilityChange = () => {
+  if (document.hidden) handleUnloadOrHide()
+}
+
+onMounted(() => {
+  window.addEventListener('beforeunload', handleUnloadOrHide)
+  window.addEventListener('pagehide', handleUnloadOrHide)
+  // visibilitychange fires when tab is hidden (e.g. reload) - more reliable than beforeunload in some environments
+  document.addEventListener('visibilitychange', handleVisibilityChange)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('beforeunload', handleUnloadOrHide)
+  window.removeEventListener('pagehide', handleUnloadOrHide)
+  document.removeEventListener('visibilitychange', handleVisibilityChange)
+})
 </script>
 
 <style scoped>

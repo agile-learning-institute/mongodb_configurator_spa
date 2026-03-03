@@ -103,10 +103,28 @@ describe('Enumerators cards and detail pages', () => {
       cy.wait(500)
       cy.reload()
       cy.get('[data-test="enum-value-input-3"]').find('input').should('have.value', 'TestValue1')
-      cy.get('[data-test="enum-description-input-3"]').find('input').invoke('val').should('equal', 'Test Description')
+      cy.get('[data-test="enum-description-input-3"]').find('input').should('have.value', 'Test Description')
 
       cy.get('[data-test="delete-enum-value-btn-3"]').click()
       cy.get('[data-test="enum-value-input-3"]').should('not.exist')
+    })
+
+    it('persists value and description edits on reload (beforeunload saves on real reload)', () => {
+      cy.visit(`/enumerators/${testFileName}/default_status`)
+      cy.get('[data-test="enum-value-input-0"]').find('input').should('have.value', 'draft')
+      cy.get('[data-test="enum-description-input-0"]').find('input').should('have.value', 'Draft')
+
+      // Edit value and description
+      cy.get('[data-test="enum-value-input-0"]').find('input').clear().type('draft_value')
+      cy.get('[data-test="enum-description-input-0"]').find('input').clear().type('Draft status')
+
+      // Click elsewhere to blur (triggers save) - beforeunload does the same on real reload
+      cy.get('[data-test="enum-value-input-0"]').click()
+      cy.wait(400) // debounce
+      cy.reload()
+
+      cy.get('[data-test="enum-value-input-0"]').find('input').should('have.value', 'draft_value')
+      cy.get('[data-test="enum-description-input-0"]').find('input').should('have.value', 'Draft status')
     })
   })
 
