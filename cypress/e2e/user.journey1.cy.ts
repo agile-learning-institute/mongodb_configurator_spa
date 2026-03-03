@@ -1,4 +1,4 @@
-import { resetEnumeratorsToV0 } from '../support/helpers'
+import { resetEnumeratorsToV0, setEnumeratorsV0ToActiveArchived } from '../support/helpers'
 
 describe('User Journey - Create, configure, revise, and re-configure a new collection', () => {
   let collectionName: string
@@ -7,15 +7,13 @@ describe('User Journey - Create, configure, revise, and re-configure a new colle
   let Version2: string
   let EnumeratorsVersion2: string
 
-  // Reset enumerators to v0 and remove Journey1 if it exists (allows re-run; assumes API is already running)
+  // Drop database, clear enumerators to v0, ensure default_status has exactly active+archived
   before(() => {
+    cy.request({ method: 'DELETE', url: '/api/database/' })
     resetEnumeratorsToV0()
-    // Remove Journey1 from a previous run so create can succeed
+    setEnumeratorsV0ToActiveArchived()
+    // Remove Journey1 from a previous run so create can succeed (delete config also removes orphaned dictionaries/test_data)
     cy.request({ method: 'DELETE', url: '/api/configurations/Journey1.yaml/', failOnStatusCode: false })
-    cy.request({ method: 'DELETE', url: '/api/dictionaries/Journey1.1.0.0.yaml/', failOnStatusCode: false })
-    cy.request({ method: 'DELETE', url: '/api/test_data/Journey1.1.0.0.0.json/', failOnStatusCode: false })
-    cy.request({ method: 'DELETE', url: '/api/dictionaries/Journey1.2.0.0.yaml/', failOnStatusCode: false })
-    cy.request({ method: 'DELETE', url: '/api/test_data/Journey1.2.0.0.1.json/', failOnStatusCode: false })
     cy.request({ method: 'DELETE', url: '/api/migrations/names_to_full_name.json/', failOnStatusCode: false })
   })
 
@@ -52,9 +50,11 @@ describe('User Journey - Create, configure, revise, and re-configure a new colle
 
       // 0: _id (identifier)
       cy.get('[data-test="property-name-input"]').eq(0).should('be.visible').click()
-      cy.get('[data-test="property-name-input"]').eq(0).find('input').clear().type('_id')
+      cy.get('[data-test="property-name-input"]').eq(0).find('input').clear()
+      cy.get('[data-test="property-name-input"]').eq(0).find('input').type('_id')
       cy.get('[data-test="description-input"]').eq(0).should('be.visible').click()
-      cy.get('[data-test="description-input"]').eq(0).find('input').clear().type('Unique identifier for the document')
+      cy.get('[data-test="description-input"]').eq(0).find('input').clear()
+      cy.get('[data-test="description-input"]').eq(0).find('input').type('Unique identifier for the document')
       cy.get('[data-test="type-chip"]').eq(1).should('be.visible').click()
       cy.get('[data-test="custom-type-name-identifier.yaml"]').should('be.visible').click()
       cy.get('[data-test="type-chip"]').eq(1).should('contain', 'identifier')
@@ -65,18 +65,22 @@ describe('User Journey - Create, configure, revise, and re-configure a new colle
 
       // 1: name -> first_name (template has name/word)
       cy.get('[data-test="property-name-input"]').eq(1).should('be.visible').click()
-      cy.get('[data-test="property-name-input"]').eq(1).find('input').clear().type('first_name')
+      cy.get('[data-test="property-name-input"]').eq(1).find('input').clear()
+      cy.get('[data-test="property-name-input"]').eq(1).find('input').type('first_name')
       cy.get('[data-test="description-input"]').eq(1).should('be.visible').click()
-      cy.get('[data-test="description-input"]').eq(1).find('input').clear().type('First Name of the person')
+      cy.get('[data-test="description-input"]').eq(1).find('input').clear()
+      cy.get('[data-test="description-input"]').eq(1).find('input').type('First Name of the person')
 
       // 2: description (template has sentence) - keep
       cy.get('[data-test="property-name-input"]').eq(2).find('input').should('have.value', 'description')
 
       // 3: status (template has enum default_status)
       cy.get('[data-test="property-name-input"]').eq(3).should('be.visible').click()
-      cy.get('[data-test="property-name-input"]').eq(3).find('input').clear().type('status')
+      cy.get('[data-test="property-name-input"]').eq(3).find('input').clear()
+      cy.get('[data-test="property-name-input"]').eq(3).find('input').type('status')
       cy.get('[data-test="description-input"]').eq(3).should('be.visible').click()
-      cy.get('[data-test="description-input"]').eq(3).find('input').clear().type('Status of the person')
+      cy.get('[data-test="description-input"]').eq(3).find('input').clear()
+      cy.get('[data-test="description-input"]').eq(3).find('input').type('Status of the person')
       cy.get('[data-test="type-chip"]').eq(4).should('be.visible').click()
       cy.get('[data-test="built-in-type-enum"]').should('be.visible').click()
       cy.get('[data-test="type-chip"]').eq(4).should('contain', 'Enum')
@@ -89,9 +93,11 @@ describe('User Journey - Create, configure, revise, and re-configure a new colle
 
       // 5: last_saved (template has breadcrumb)
       cy.get('[data-test="property-name-input"]').eq(5).should('be.visible').click()
-      cy.get('[data-test="property-name-input"]').eq(5).find('input').clear().type('last_saved')
+      cy.get('[data-test="property-name-input"]').eq(5).find('input').clear()
+      cy.get('[data-test="property-name-input"]').eq(5).find('input').type('last_saved')
       cy.get('[data-test="description-input"]').eq(5).should('be.visible').click()
-      cy.get('[data-test="description-input"]').eq(5).find('input').clear().type('Last Saved Breadcrumb')
+      cy.get('[data-test="description-input"]').eq(5).find('input').clear()
+      cy.get('[data-test="description-input"]').eq(5).find('input').type('Last Saved Breadcrumb')
       cy.get('[data-test="type-chip"]').eq(6).should('be.visible').click()
       cy.get('[data-test="custom-type-name-breadcrumb.yaml"]').should('be.visible').click()
       cy.get('[data-test="type-picker-card"]').should('not.exist')
@@ -99,9 +105,11 @@ describe('User Journey - Create, configure, revise, and re-configure a new colle
 
       // 6: last_name (new property)
       cy.get('[data-test="property-name-input"]').eq(6).should('be.visible').click()
-      cy.get('[data-test="property-name-input"]').eq(6).find('input').clear().type('last_name')
+      cy.get('[data-test="property-name-input"]').eq(6).find('input').clear()
+      cy.get('[data-test="property-name-input"]').eq(6).find('input').type('last_name')
       cy.get('[data-test="description-input"]').eq(6).should('be.visible').click()
-      cy.get('[data-test="description-input"]').eq(6).find('input').clear().type('Last Name of the person')
+      cy.get('[data-test="description-input"]').eq(6).find('input').clear()
+      cy.get('[data-test="description-input"]').eq(6).find('input').type('Last Name of the person')
       cy.get('[data-test="type-chip"]').eq(7).should('be.visible').click()
       cy.get('[data-test="custom-type-name-word.yaml"]').should('be.visible').click()
       cy.get('[data-test="type-chip"]').eq(7).should('contain', 'word')
@@ -145,15 +153,22 @@ describe('User Journey - Create, configure, revise, and re-configure a new colle
 
       // Add a new value (enumerations.0 default_status has active, archived; we add draft at index 2)
       cy.get('[data-test="add-enum-value-btn"], [data-test="add-enum-value-empty-btn"]').first().click()
-      cy.get('[data-test="enum-value-input-2"]').should('be.visible').find('input').clear().type('draft')
+      cy.get('[data-test="enum-value-input-2"]').should('exist').should('be.visible')
+      cy.get('[data-test="enum-value-input-2"]').find('input').should('exist').clear()
+      cy.get('[data-test="enum-value-input-2"]').find('input').type('draft')
       cy.get('[data-test="enum-value-input-2"] input').should('have.value', 'draft')
-      cy.get('[data-test="enum-description-input-2"]').should('be.visible').find('input').clear().type('A Draft Status')
+      cy.get('[data-test="enum-description-input-2"]').should('exist').should('be.visible')
+      cy.get('[data-test="enum-description-input-2"]').find('input').should('exist').clear()
+      cy.get('[data-test="enum-description-input-2"]').find('input').type('A Draft Status')
       cy.get('[data-test="enum-description-input-2"] input').should('have.value', 'A Draft Status')
 
-      // Verify persistence
-      cy.wait(250)
+      // Blur to trigger save before reload (debounce 300ms)
+      cy.get('[data-test="enum-value-input-0"]').should('exist').click()
+      cy.wait(500)
       cy.reload()
+      cy.get('[data-test="enum-value-input-2"]').should('exist')
       cy.get('[data-test="enum-value-input-2"] input').should('have.value', 'draft')
+      cy.get('[data-test="enum-description-input-2"]').should('exist')
       cy.get('[data-test="enum-description-input-2"] input').should('have.value', 'A Draft Status')
     })
 
@@ -328,9 +343,11 @@ describe('User Journey - Create, configure, revise, and re-configure a new colle
 
       // Change first_name to full_name (index 1: _id, first_name, description, status, created, last_saved, last_name)
       cy.get('[data-test="property-name-input"]').eq(1).should('be.visible').click()
-      cy.get('[data-test="property-name-input"]').eq(1).find('input').clear().type('full_name')
+      cy.get('[data-test="property-name-input"]').eq(1).find('input').clear()
+      cy.get('[data-test="property-name-input"]').eq(1).find('input').type('full_name')
       cy.get('[data-test="description-input"]').eq(1).should('be.visible').click()
-      cy.get('[data-test="description-input"]').eq(1).find('input').clear().type('A User Full Name')
+      cy.get('[data-test="description-input"]').eq(1).find('input').clear()
+      cy.get('[data-test="description-input"]').eq(1).find('input').type('A User Full Name')
       cy.get('[data-test="type-chip"]').eq(2).should('be.visible').click()
       cy.get('[data-test="custom-type-name-sentence.yaml"]').should('be.visible').click()
       cy.get('[data-test="type-chip"]').eq(2).should('contain', 'sentence')
@@ -360,15 +377,22 @@ describe('User Journey - Create, configure, revise, and re-configure a new colle
       cy.url().should('include', '/default_status')
 
       cy.get('[data-test="add-enum-value-btn"], [data-test="add-enum-value-empty-btn"]').first().click()
-      cy.get('[data-test="enum-value-input-3"]').should('be.visible').find('input').clear().type('suspended')
+      cy.get('[data-test="enum-value-input-3"]').should('exist').should('be.visible')
+      cy.get('[data-test="enum-value-input-3"]').find('input').should('exist').clear()
+      cy.get('[data-test="enum-value-input-3"]').find('input').type('suspended')
       cy.get('[data-test="enum-value-input-3"] input').should('have.value', 'suspended')
-      cy.get('[data-test="enum-description-input-3"]').should('be.visible').find('input').clear().type('A Suspended Account')
+      cy.get('[data-test="enum-description-input-3"]').should('exist').should('be.visible')
+      cy.get('[data-test="enum-description-input-3"]').find('input').should('exist').clear()
+      cy.get('[data-test="enum-description-input-3"]').find('input').type('A Suspended Account')
       cy.get('[data-test="enum-description-input-3"] input').should('have.value', 'A Suspended Account')
 
-      // Verify persistence
-      cy.wait(250)
+      // Blur to trigger save before reload (debounce 300ms)
+      cy.get('[data-test="enum-value-input-0"]').should('exist').click()
+      cy.wait(500)
       cy.reload()
+      cy.get('[data-test="enum-value-input-3"]').should('exist')
       cy.get('[data-test="enum-value-input-3"] input').should('have.value', 'suspended')
+      cy.get('[data-test="enum-description-input-3"]').should('exist')
       cy.get('[data-test="enum-description-input-3"] input').should('have.value', 'A Suspended Account')
     })
 
@@ -517,12 +541,20 @@ describe('User Journey - Create, configure, revise, and re-configure a new colle
           cy.wrap($card).find('[data-test="expand-collapse-icon"]').click()
         }
       })
-      cy.get('[data-test="sub-event-card-PRO-06-LOAD_TEST_DATA"]').eq(1).within(() => {
-        cy.get('[data-test="expand-collapse-icon"]').click()
-      })
-      cy.get('[data-test="sub-event-card-MON-11"]').eq(1).should('be.visible').within(() => {
-        cy.get('[data-test="event-data-json"]').should('be.visible').should('contain', '"documents_loaded": 1')
-      })
+      // LOAD_TEST_DATA for version 2.0.0.1 - scope to within expanded PROCESS_VERSION card
+      cy.get('[data-test="sub-event-card-PROCESS_VERSION-2.0.0.1"]')
+        .find('[data-test="sub-event-card-PRO-06-LOAD_TEST_DATA"]')
+        .first()
+        .within(() => {
+          cy.get('[data-test="expand-collapse-icon"]').click()
+        })
+      cy.get('[data-test="sub-event-card-PROCESS_VERSION-2.0.0.1"]')
+        .find('[data-test="sub-event-card-MON-11"]')
+        .first()
+        .should('be.visible')
+        .within(() => {
+          cy.get('[data-test="event-data-json"]').should('be.visible').should('contain', '"documents_loaded": 1')
+        })
     })
   })
 })

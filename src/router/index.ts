@@ -22,7 +22,7 @@ const routes = [
   },
   {
     path: '/help',
-    name: 'Welcome',
+    name: 'Help',
     component: WelcomePage,
     meta: { title: 'Help' }
   },

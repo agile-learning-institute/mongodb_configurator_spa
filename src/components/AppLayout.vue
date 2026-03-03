@@ -112,26 +112,25 @@ const router = useRouter()
 const isOnHelpPage = computed(() => route.path === '/help')
 const previousPage = ref('')
 
-// Help route with context
+// Help route with context (carousel: 0=Dictionary, 1=Type, 2=Enumerator, 3=Collection Config, 4=Events, 5=Locking, 6=Admin)
 const helpRoute = computed(() => {
   const currentPath = route.path
-  let slideIndex = 0 // Default to overview
+  let slideIndex = 0 // Default to Dictionary
   
-  // Map current page to appropriate carousel slide
-  if (currentPath.includes('/configurations')) {
-    slideIndex = 1 // Configuration
-  } else if (currentPath.includes('/dictionaries')) {
-    slideIndex = 2 // Dictionary
+  if (currentPath.includes('/dictionaries')) {
+    slideIndex = 0 // Dictionary
   } else if (currentPath.includes('/types')) {
-    slideIndex = 3 // Type
+    slideIndex = 1 // Type
   } else if (currentPath.includes('/enumerators')) {
-    slideIndex = 4 // Enumerator
-  } else if (currentPath.includes('/test_data')) {
-    slideIndex = 5 // Test Data
-  } else if (currentPath.includes('/migrations')) {
-    slideIndex = 6 // Migration
+    slideIndex = 2 // Enumerator
+  } else if (currentPath.includes('/configurations')) {
+    slideIndex = 3 // Collection Configuration
+  } else if (currentPath.includes('/test_data') || currentPath.includes('/migrations')) {
+    slideIndex = 3 // Collection Configuration (test data & migrations content moved there)
+  } else if (currentPath === '/event-viewer') {
+    slideIndex = 4 // Configuration Processing Events
   } else if (currentPath.includes('/admin')) {
-    slideIndex = 7 // Admin
+    slideIndex = 6 // Admin
   }
   
   return `/help?slide=${slideIndex}`
@@ -158,10 +157,10 @@ const toggleHelp = () => {
       if (hasEventData()) {
         // If we have event data, store it temporarily and navigate to help
         // The event state will be preserved in the composable
-        router.push('/help?slide=8') // Events panel is at index 8 (slide 9)
+        router.push('/help?slide=4') // Configuration Processing Events
       } else {
         // No event data, just go to help
-        router.push('/help?slide=8')
+        router.push('/help?slide=4')
       }
     } else {
       router.push(helpRoute.value)

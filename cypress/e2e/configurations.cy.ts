@@ -86,7 +86,7 @@ describe('Configurations detail page', () => {
       cy.get('[data-test="step4-name"]').should('contain', 'Step 4: Apply Schema')
       cy.get('[data-test="dictionary-file-chip"]').should('contain', `${createdConfigurationVersion}.yaml`)
       cy.get('[data-test="enumerators-file-chip"]').should('contain', `enumerations.${createdEnumeratorsVersion}.yaml`)
-      cy.get('[data-test="step5-name"]').should('contain', 'Step 5: Add these indexes (none)')
+      cy.get('[data-test="step5-name"]').should('contain', 'Step 5: Add these indexes')
       cy.get('[data-test="step6-name"]').should('contain', 'Step 6: Load Test Data')
       cy.get('[data-test="test-data-file-chip"]').should('contain', `${createdConfigurationName}.${createdConfigurationVersion}.${createdEnumeratorsVersion}.json`)
     })
@@ -372,8 +372,8 @@ describe('Configurations detail page', () => {
         cy.get('[data-test="step5-indexes-content"]').should('contain', 'name1')
       })
 
-      // Test editing index
-      cy.get('[data-test="index-chip"]').first().click()
+      // Test editing index - target the chip we just added (template has nameIndex etc.)
+      cy.get('[data-test="index-chip"]').contains('name1').click()
       
       // Verify dialog shows current JSON
       cy.get('[data-test="step5-index-json-textarea"] textarea:not(.v-textarea__sizer)').invoke('val').should('contain', '"name": "name1"')
@@ -387,8 +387,8 @@ describe('Configurations detail page', () => {
         cy.get('[data-test="step5-indexes-content"]').should('contain', 'edited_name')
       })
 
-      // Test removing index with x button
-      cy.get('[data-test="delete-index-btn"]').first().click()
+      // Test removing index with x button - target the chip we edited
+      cy.contains('[data-test="index-chip"]', 'edited_name').find('[data-test="delete-index-btn"]').click()
 
       // Verify index was removed
       cy.get('[data-test="step5-indexes-content"]').should('not.contain', 'edited_name')

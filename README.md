@@ -20,7 +20,7 @@ npm run e2e
 npm run e2e:chrome
 
 # Run a specific test (headless)
-npm run cy:run -- --spec "cypress/e2e/types.array.cy.ts"
+npm run cy:run -- --spec "cypress/e2e/dictionary.array.cy.ts"
 
 # Interactive test runner
 npm run cy:open
@@ -82,80 +82,84 @@ src/
 │   ├── PropertyEditor.vue         # Main property editor orchestrator
 │   ├── BasePropertyEditor.vue     # Common header (name, description, type, actions)
 │   ├── property-types/            # Individual property type editors
-│ │   ├── SimplePropertyEditor.vue      # JSON schema editing
-│ │   ├── ComplexPropertyEditor.vue     # JSON/BSON schema editing
-│ │   ├── EnumPropertyEditor.vue        # Enum type configuration
-│ │   ├── EnumArrayPropertyEditor.vue   # Enum array configuration
-│ │   ├── RefPropertyEditor.vue         # Reference type configuration
-│ │   ├── ConstantPropertyEditor.vue    # Constant value configuration
-│ │   ├── CustomPropertyEditor.vue      # Custom type configuration
-│ │   ├── ObjectPropertyEditor.vue      # Object properties management
-│ │   ├── OneOfPropertyEditor.vue       # OneOf property management
-│ │   └── ArrayPropertyEditor.vue       # Array configuration
-│   ├── Extensions/                # Type-specific extension components
-│ │   ├── ArrayPropertyExtension.vue    # Array items type picker
-│ │   ├── ArrayOfObjectExtension.vue    # Array of objects functionality
-│ │   ├── ArrayOfArrayExtension.vue     # Nested array handling
-│ │   ├── ObjectPropertyExtension.vue   # Add/remove properties, collapse
-│ │   ├── EnumPropertyExtension.vue     # Enum picker integration
-│ │   ├── RefPropertyExtension.vue      # Dictionary picker integration
-│ │   └── ConstantPropertyExtension.vue # Constant value input
-│   ├── Pickers/                   # Selection components
-│ │   ├── TypeChipPicker.vue     # Property type selection
-│ │   ├── EnumPicker.vue         # Enumerator selection dialog
-│ │   ├── RefPicker.vue          # Dictionary selection dialog
-│ │   └── ItemTypePicker.vue     # Array item type selection
-│   ├── Layout/                    # Page layout components
-│ │   ├── AppLayout.vue          # Main application layout
-│ │   ├── DetailPageLayout.vue   # Detail page template
-│ │   ├── FileListLayout.vue     # File list template
-│ │   └── ActionBar.vue          # Page action buttons
-│   ├── Cards/                     # Display components
-│ │   ├── BaseCard.vue           # Base card component
-│ │   ├── PropertyCard.vue       # Property display card
-│ │   ├── FileCard.vue           # File display card
-│ │   ├── StatusCard.vue         # Status display card
-│ │   └── EventCard.vue          # Event display card
-│   ├── Dialogs/                   # Modal dialogs
-│ │   ├── HelpDialog.vue         # Help information dialog
-│ │   ├── EventDialog.vue        # Event details dialog
-│ │   └── NewCollectionDialog.vue # Create new collection dialog
-│   ├── Editors/                   # Specialized editors
-│ │   ├── JsonDocumentEditor.vue # JSON document editing
-│ │   ├── JsonArrayEditor.vue    # JSON array editing
-│ │   └── InLineEditor.vue       # Inline editing component
-│   └── Other/                     # Utility components
-│       ├── FileHeader.vue         # File header with actions
-│       ├── FileList.vue           # File list display
-│       ├── EventNotifications.vue # Event notification system
-│       ├── VersionConfiguration.vue # Version management
-│       └── VersionInformationCards.vue # Version display
+│   │   ├── SimplePropertyEditor.vue      # JSON schema editing
+│   │   ├── ComplexPropertyEditor.vue     # JSON/BSON schema editing
+│   │   ├── EnumPropertyEditor.vue        # Enum type configuration
+│   │   ├── EnumArrayPropertyEditor.vue   # Enum array configuration
+│   │   ├── RefPropertyEditor.vue         # Reference type configuration
+│   │   ├── ConstantPropertyEditor.vue    # Constant value configuration
+│   │   ├── CustomPropertyEditor.vue      # Custom type configuration
+│   │   ├── ObjectPropertyEditor.vue      # Object properties management
+│   │   ├── OneOfPropertyEditor.vue       # OneOf property management
+│   │   └── ArrayPropertyEditor.vue       # Array configuration
+│   ├── ArrayPropertyExtension.vue       # Array items type picker
+│   ├── ArrayOfObjectExtension.vue       # Array of objects functionality
+│   ├── ArrayOfArrayExtension.vue        # Nested array handling
+│   ├── ArrayOfRefExtension.vue           # Array of ref handling
+│   ├── ArrayOfOneOfExtension.vue         # Array of oneOf handling
+│   ├── ObjectPropertyExtension.vue       # Add/remove properties, collapse
+│   ├── EnumPropertyExtension.vue         # Enum picker integration
+│   ├── RefPropertyExtension.vue         # Dictionary picker integration
+│   ├── ConstantPropertyExtension.vue    # Constant value input
+│   ├── OneOfPropertyExtension.vue       # OneOf property management
+│   ├── TypeChipPicker.vue         # Property type selection
+│   ├── EnumPicker.vue             # Enumerator selection dialog
+│   ├── RefPicker.vue              # Dictionary selection dialog
+│   ├── ItemTypePicker.vue         # Array item type selection
+│   ├── AppLayout.vue              # Main application layout
+│   ├── DetailPageLayout.vue       # Detail page template
+│   ├── ListCardPageLayout.vue     # List/card layout (Dictionaries, Types)
+│   ├── FileListLayout.vue         # File list template
+│   ├── ActionBar.vue              # Page action buttons
+│   ├── BaseCard.vue               # Base card component
+│   ├── PropertyCard.vue           # Property display card
+│   ├── FileCard.vue               # File display card
+│   ├── StatusCard.vue             # Status display card
+│   ├── EventCard.vue              # Event display card
+│   ├── CollectionCard.vue         # Collection card (Dictionaries list)
+│   ├── TypeCard.vue               # Type card (Types list)
+│   ├── EnumerationCard.vue        # Enumeration card (Enumerators)
+│   ├── HelpDialog.vue             # Help information dialog
+│   ├── EventDialog.vue            # Event details dialog
+│   ├── NewCollectionDialog.vue    # Create new collection dialog
+│   ├── HelpSlides/                # Help slide content
+│   │   ├── HelpSlideContent.vue
+│   │   └── CollectionConfigurationSlide.vue
+│   ├── JsonDocumentEditor.vue    # JSON document editing
+│   ├── JsonArrayEditor.vue        # JSON array editing
+│   ├── FileHeader.vue             # File header with actions
+│   ├── FileList.vue               # File list display
+│   ├── EventNotifications.vue    # Event notification system
+│   ├── VersionConfiguration.vue  # Version management
+│   └── VersionInformationCards.vue # Version display
 ├── composables/                   # Vue composables (shared logic)
 │   ├── usePropertyTypeEditor.ts   # Property editing logic
 │   ├── useDetailPage.ts           # Detail page functionality
 │   ├── useFiles.ts                # File management
 │   ├── useEvents.ts               # Event handling
 │   ├── useValidationErrors.ts     # Validation error management
-│   ├── useEnumeratorDetail.ts     # Enumerator-specific logic
+│   ├── useEnumeratorDetail.ts    # Enumerator-specific logic
 │   ├── useConfig.ts               # Configuration management
 │   ├── useNewVersion.ts           # Version creation
-│   └── useEventState.ts           # Event viewer state
+│   ├── useEventState.ts           # Event viewer state
+│   ├── useCollections.ts          # Collection list logic
+│   ├── useLatestEnumerator.ts     # Latest enumerator resolution
+│   └── useHelp.ts                 # Help dialog state
 ├── pages/                         # Page components
-│   ├── WelcomePage.vue            # Landing page
-│   ├── ConfigurationsPage.vue     # Configurations list
-│   ├── DictionariesPage.vue       # Dictionaries list
+│   ├── WelcomePage.vue            # Help/landing page
+│   ├── AdminPage.vue              # Admin panel
+│   ├── DictionariesPage.vue       # Collections list (main entry)
 │   ├── TypesPage.vue              # Types list
-│   ├── EnumeratorsPage.vue        # Enumerators list
-│   ├── TestDataPage.vue           # Test data list
-│   ├── MigrationsPage.vue         # Migrations list
 │   ├── ConfigurationDetailPage.vue # Configuration editor
 │   ├── DictionaryDetailPage.vue   # Dictionary editor
 │   ├── TypeDetailPage.vue         # Type editor
+│   ├── EnumeratorCardsPage.vue     # Enumerator cards list
 │   ├── EnumeratorDetailPage.vue   # Enumerator editor
 │   ├── TestDataDetailPage.vue     # Test data editor
-│   ├── MigrationsDetailPage.vue   # Migration editor
-│   ├── EventViewerPage.vue        # Event viewer
-│   └── AdminPage.vue              # Admin panel
+│   ├── MigrationsDetailPage.vue    # Migration editor
+│   └── EventViewerPage.vue        # Event viewer
+├── config/                        # Configuration
+│   └── pickerStyles.ts            # Picker styling
 ├── types/                         # TypeScript type definitions
 │   ├── types.ts                   # Property and data types
 │   └── events.ts                  # Event types
@@ -182,6 +186,8 @@ PropertyEditor (main orchestrator)
 │   ├── ArrayPropertyExtension (items type picker)
 │   ├── ArrayOfObjectExtension (array + object functionality)
 │   ├── ArrayOfArrayExtension (nested array handling)
+│   ├── ArrayOfRefExtension (array of ref handling)
+│   ├── ArrayOfOneOfExtension (array of oneOf handling)
 │   ├── ObjectPropertyExtension (add property, additional props, show/hide)
 │   ├── EnumPropertyExtension (enum picker integration)
 │   ├── RefPropertyExtension (dictionary picker integration)
@@ -219,7 +225,8 @@ PropertyEditor (main orchestrator)
 ```bash
 cypress/
 ├── e2e/                           # Test specifications
-│   ├── app.help.cy.ts            # Help system functionality
+│   ├── admin.cy.ts                # Admin panel
+│   ├── app.help.cy.ts             # Help system functionality
 │   ├── configurations.cy.ts       # Configuration management
 │   ├── dictionaries.cy.ts         # Dictionary operations
 │   ├── dictionary.array.cy.ts     # Array property editing
@@ -243,8 +250,9 @@ cypress/
 │   ├── type.simple.cy.ts          # Simple type editing
 │   └── user.journey1.cy.ts        # End-to-end user journey
 ├── support/                       # Custom commands and utilities
-│   ├── commands.ts                # cy.getByTest, cy.resetApp, etc.
-│   └── e2e.ts                    # Global configuration
+│   ├── commands.ts                # cy.getByTest, cy.resetApp, unlockAndDeleteFile, etc.
+│   ├── helpers.ts                 # resetEnumeratorsToV0, setEnumeratorsV0ToActiveArchived
+│   └── e2e.ts                     # Global configuration
 ├── downloads/                     # Test artifact storage
 ├── screenshots/                   # Test failure screenshots
 ├── videos/                        # Test execution videos
@@ -254,29 +262,30 @@ cypress/
 ## Cypress Test Status
 
 ```bash
-     Spec                                              Tests  Passing
-✔  app.help.cy.ts                           00:06        9        9
-✔  configurations.cy.ts                     00:41       18       18
-✔  dictionaries.cy.ts                       00:12        7        7
-✔  dictionary.array.cy.ts                   02:18       38       38
-✔  dictionary.constant.cy.ts                00:26        8        8
-✔  dictionary.enum.cy.ts                    00:30        9        9
-✔  dictionary.enum_array.cy.ts              00:30        9        9
-✔  dictionary.object.cy.ts                  00:55       14       14
-✔  dictionary.one_of.cy.ts                  00:49       13       13
-✔  dictionary.ref.cy.ts                     00:31        9        9
-✔  dictionary.root.array.cy.ts              01:43       36       36
-✔  dictionary.root.object.cy.ts             00:29       10       10
-✔  dictionary.root.one_of.cy.ts             00:29       11       11
-✔  enumerators.cy.ts                        00:17       19       19
-✔  event-viewer.cy.ts                       00:01        2        2
-✔  migrations.cy.ts                         00:21        7        7
-✔  test_data.cy.ts                          00:23        7        7
-✔  type.basic.cy.ts                         00:09        5        5
-✔  type.complex.cy.ts                       00:22        8        8
-✔  type.root.array.cy.ts                    00:42       12       12
-✔  type.root.object.cy.ts                   01:00       16       16
-✔  type.simple.cy.ts                        00:14        5        5
-✔  user.journey1.cy.ts                      00:51       15       15
-───────────────────────────────────────────────────────────────────
-✔  All specs passed!                        14:09      287      287
+       Spec                                           Tests  Passing  
+ ✔  admin.cy.ts                              583ms        2        2
+ ✔  app.help.cy.ts                           00:05        9        9
+ ✔  configurations.cy.ts                     00:39       17       17
+ ✔  dictionaries.cy.ts                       00:04        6        6
+ ✔  dictionary.array.cy.ts                   01:38       38       38
+ ✔  dictionary.constant.cy.ts                00:18        8        8
+ ✔  dictionary.enum.cy.ts                    00:21        9        9
+ ✔  dictionary.enum_array.cy.ts              00:21        9        9
+ ✔  dictionary.object.cy.ts                  00:41       14       14
+ ✔  dictionary.one_of.cy.ts                  00:36       13       13
+ ✔  dictionary.ref.cy.ts                     00:21        9        9
+ ✔  dictionary.root.array.cy.ts              01:04       36       36
+ ✔  dictionary.root.object.cy.ts             00:18       10       10
+ ✔  dictionary.root.one_of.cy.ts             00:17       11       11
+ ✔  enumerators.cy.ts                        00:07       14       14
+ ✔  event-viewer.cy.ts                       00:01        2        2
+ ✔  migrations.cy.ts                         00:14        7        7
+ ✔  test_data.cy.ts                          00:18        7        7
+ ✔  type.basic.cy.ts                         00:09        5        5
+ ✔  type.complex.cy.ts                       00:21        8        8
+ ✔  type.root.array.cy.ts                    00:42       12       12
+ ✔  type.root.object.cy.ts                   01:00       16       16
+ ✔  type.simple.cy.ts                        00:14        5        5
+ ✔  user.journey1.cy.ts                      00:47       14       14
+ -------------------------------------------------------------------
+ ✔  All specs passed!                        10:45      281      281

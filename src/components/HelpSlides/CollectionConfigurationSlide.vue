@@ -1,7 +1,6 @@
 <template>
   <div class="overview-content" style="width: 100%; min-width: 0;">
-    <p class="slide-description" v-if="description" v-html="description"></p>
-    <p class="slide-description" v-else>Collection Configurations define how a MongoDB collection is set up, including schema validation, indexes, and data migrations. Each configuration file controls the complete setup process for one collection.</p>
+    <p class="slide-description" v-html="description"></p>
     <h2>Configuration Processing</h2>
     <p>When you process a collection configuration, the system follows a six-step process to ensure your database is properly configured:</p>
     <ol>
@@ -13,7 +12,13 @@
       <li><strong>Load Test Data</strong> - Optionally loads test documents when enabled</li>
     </ol>
     <h2>Schema Versioning</h2>
-    <p>Collection Configurations use a 3-part semantic version number (e.g., 1.2.3) plus an Enumerators version. When processing configurations, the system applies versions one at a time, starting from the currently active version and progressing through each newer version until reaching the most recent version. This incremental approach ensures that migrations and schema changes are applied in the correct order. Creating a new version automatically locks the previous version to prevent changes to deployed configurations. See <span class="text-link clickable" @click="navigateToSlide(9)">configuration locking</span> for more information about how locking protects your production deployments.</p>
+    <p>Collection Configurations use a 3-part semantic version number (e.g., 1.2.3) plus an Enumerators version. When processing configurations, the system applies versions one at a time, starting from the currently active version and progressing through each newer version until reaching the most recent version. This incremental approach ensures that migrations and schema changes are applied in the correct order. Creating a new version automatically locks the previous version to prevent changes to deployed configurations. See <span class="text-link clickable" @click="navigateToSlide(5)">configuration locking</span> for more information about how locking protects your production deployments.</p>
+
+    <h2>Test Data</h2>
+    <p>Test data provides sample documents for testing your MongoDB collections. Test data files contain JSON arrays of sample documents that match your schema definitions. They support MongoDB Extended JSON format including <code>$oid</code>, <code>$date</code>, <code>$numberLong</code>, and <code>$numberDecimal</code>. Test data is managed from the Configuration detail page and can be loaded during configuration processing.</p>
+
+    <h2>Migrations</h2>
+    <p>Migrations are MongoDB aggregation pipelines that transform data between schema versions. Migration files contain JSON arrays of aggregation pipeline stages that transform existing data to match new schemas, add or remove fields, change data types, or update nested structures. Migrations are automatically applied when processing collection configurations and updating to new schema versions. Migrations are managed from the Configuration detail page.</p>
   </div>
 </template>
 
@@ -85,6 +90,13 @@ li {
 li strong {
   font-weight: 600;
   color: #2c3e50;
+}
+
+code {
+  background-color: #f5f5f5;
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
 }
 
 .text-link.clickable {

@@ -1,5 +1,29 @@
 /// <reference types="cypress" />
 
+/** Canonical enumerations.0 content: default_status with exactly active and archived (unlocked for editing) */
+const ENUMERATIONS_V0_ACTIVE_ARCHIVED = {
+  version: 0,
+  file_name: 'enumerations.0.yaml',
+  _locked: false,
+  enumerators: [
+    {
+      name: 'default_status',
+      values: [
+        { value: 'active', description: 'Not Deleted' },
+        { value: 'archived', description: 'Soft Delete Indicator' }
+      ]
+    }
+  ]
+}
+
+/**
+ * Sets enumerations.0.yaml to have exactly default_status with active and archived (no extra values).
+ * Call after resetEnumeratorsToV0 for tests that need a known baseline.
+ */
+export function setEnumeratorsV0ToActiveArchived(): void {
+  cy.request('PUT', '/api/enumerators/enumerations.0.yaml/', ENUMERATIONS_V0_ACTIVE_ARCHIVED)
+}
+
 /**
  * Resets enumerators to v0 only. Deletes enumerations.1.yaml, enumerations.2.yaml, etc.
  * Never deletes enumerations.0.yaml. Works down from the latest version: unlock, then delete.

@@ -5,21 +5,15 @@ describe('App Help Pages', () => {
     cy.wait(1000)
   })
 
-  it('loads the welcome carousel and navigation', () => {
+  it('loads the help carousel with Dictionary as default', () => {
     cy.visit('/help')
     cy.getByTest('help-carousel').should('be.visible')
-    cy.getByTest('carousel-title-text').should('contain.text', 'Welcome')
+    cy.getByTest('carousel-title-text').should('contain.text', 'Dictionary')
   })
 
-  it('has help content for each page', () => {
+  it('has help content for each carousel slide', () => {
     cy.visit('/help')
     cy.getByTest('help-carousel').should('be.visible')
-    cy.getByTest('carousel-title-text').should('contain.text', 'Welcome')
-
-    cy.get('[data-test="carousel-next-btn"]').should('be.visible').click()
-    cy.getByTest('carousel-title-text').should('contain.text', 'Collection Configuration')
-
-    cy.get('[data-test="carousel-next-btn"]').should('be.visible').click()
     cy.getByTest('carousel-title-text').should('contain.text', 'Dictionary')
 
     cy.get('[data-test="carousel-next-btn"]').should('be.visible').click()
@@ -29,13 +23,7 @@ describe('App Help Pages', () => {
     cy.getByTest('carousel-title-text').should('contain.text', 'Enumerator')
 
     cy.get('[data-test="carousel-next-btn"]').should('be.visible').click()
-    cy.getByTest('carousel-title-text').should('contain.text', 'Test Data')
-
-    cy.get('[data-test="carousel-next-btn"]').should('be.visible').click()
-    cy.getByTest('carousel-title-text').should('contain.text', 'Migration')
-
-    cy.get('[data-test="carousel-next-btn"]').should('be.visible').click()
-    cy.getByTest('carousel-title-text').should('contain.text', 'Admin')
+    cy.getByTest('carousel-title-text').should('contain.text', 'Collection Configuration')
 
     cy.get('[data-test="carousel-next-btn"]').should('be.visible').click()
     cy.getByTest('carousel-title-text').should('contain.text', 'Configuration Processing Events')
@@ -44,7 +32,10 @@ describe('App Help Pages', () => {
     cy.getByTest('carousel-title-text').should('contain.text', 'Locking')
 
     cy.get('[data-test="carousel-next-btn"]').should('be.visible').click()
-    cy.getByTest('carousel-title-text').should('contain.text', 'Welcome')
+    cy.getByTest('carousel-title-text').should('contain.text', 'Admin')
+
+    cy.get('[data-test="carousel-next-btn"]').should('be.visible').click()
+    cy.getByTest('carousel-title-text').should('contain.text', 'Dictionary')
   })
 
   it('can navigate to the help page from configuration pages', () => {
@@ -118,7 +109,7 @@ describe('App Help Pages', () => {
     cy.wait(100)
     cy.get('[data-test="array-editor-title"]').should('contain.text', 'Test Data')
     cy.get('[data-test="help-btn"]').should('be.visible').click()
-    cy.get('[data-test="carousel-title-text"]').should('contain.text', 'Test Data')
+    cy.get('[data-test="carousel-title-text"]').should('contain.text', 'Collection Configuration')
     cy.get('[data-test="help-btn"]').should('be.visible').click()
     cy.get('[data-test="array-editor-title"]').should('contain.text', 'Test Data')
   })
@@ -128,7 +119,7 @@ describe('App Help Pages', () => {
     cy.wait(100)
     cy.get('[data-test="array-editor-title"]').should('contain.text', 'Migrations')
     cy.get('[data-test="help-btn"]').should('be.visible').click()
-    cy.get('[data-test="carousel-title-text"]').should('contain.text', 'Migration')
+    cy.get('[data-test="carousel-title-text"]').should('contain.text', 'Collection Configuration')
     cy.get('[data-test="help-btn"]').should('be.visible').click()
     cy.get('[data-test="array-editor-title"]').should('contain.text', 'Migrations')
   })
