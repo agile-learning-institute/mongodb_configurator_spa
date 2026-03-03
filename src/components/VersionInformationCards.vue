@@ -861,18 +861,18 @@ onMounted(() => {
   opacity: 1;
 }
 
-/* Version Navigation Styles */
+/* Version Navigation Styles - solid primary to match dictionary detail page */
 .new-version-btn {
-  background: linear-gradient(135deg, #1976d2, #1565c0) !important;
+  background-color: rgb(var(--v-theme-primary)) !important;
   color: white !important;
   font-weight: 600 !important;
-  box-shadow: 0 4px 12px rgba(25, 118, 210, 0.3) !important;
-  transition: all 0.3s ease !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+  transition: all 0.2s ease !important;
 }
 
 .new-version-btn:hover {
-  transform: translateY(-2px) !important;
-  box-shadow: 0 6px 20px rgba(25, 118, 210, 0.4) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
 }
 
 /* Version Components Styles */

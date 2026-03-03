@@ -18,7 +18,7 @@
       :class="{ 'compact-header': compact }"
       data-test="card-header"
     >
-      <div class="d-flex align-center flex-grow-1 min-width-0 mr-2">
+      <div class="d-flex align-center flex-grow-1 min-width-0 mr-2 title-area">
         <v-icon 
           v-if="icon" 
           class="mr-3 flex-shrink-0" 
@@ -82,7 +82,7 @@ const iconColor = computed(() => {
 })
 
 const titleClass = computed(() => {
-  const baseClass = props.compact ? 'text-body-2' : props.isSecondary ? 'text-body-1' : 'text-h6'
+  const baseClass = props.compact ? 'text-body-2' : props.isSecondary ? 'text-subtitle-1' : 'text-h6'
   const colorClass = props.isSecondary ? 'text-dark' : 'text-white'
   return `${baseClass} ${colorClass}`
 })
@@ -98,6 +98,7 @@ const titleClass = computed(() => {
 
 .base-card.secondary {
   border-radius: 8px !important;
+  border: 1px solid rgba(0, 0, 0, 0.87);
 }
 
 .base-card.compact {
@@ -160,8 +161,30 @@ const titleClass = computed(() => {
 }
 
 .base-card.secondary .header-section {
-  background: linear-gradient(135deg, rgba(var(--v-theme-primary), 0.08) 0%, rgba(var(--v-theme-primary), 0.04) 100%);
+  background: rgb(var(--v-theme-surface-variant));
   border-radius: 8px 8px 0 0;
+  color: rgba(0, 0, 0, 0.87);
+}
+
+.base-card.secondary .header-section :deep(.v-icon) {
+  color: rgba(0, 0, 0, 0.87) !important;
+}
+
+.base-card.secondary .header-section .title-area,
+.base-card.secondary .header-section .title-area * {
+  color: rgba(0, 0, 0, 0.87) !important;
+  font-weight: 600;
+}
+
+/* Add button in secondary cards: solid primary, white text */
+.base-card.secondary .header-section :deep(.v-btn.v-btn--variant-outlined) {
+  background: rgb(var(--v-theme-primary)) !important;
+  color: white !important;
+  border-color: rgb(var(--v-theme-primary)) !important;
+}
+
+.base-card.secondary .header-section :deep(.v-btn.v-btn--variant-outlined .v-icon) {
+  color: white !important;
 }
 
 .base-card.compact .header-section {
@@ -171,8 +194,9 @@ const titleClass = computed(() => {
 }
 
 .base-card.compact.secondary .header-section {
-  background: linear-gradient(135deg, rgba(var(--v-theme-primary), 0.08) 0%, rgba(var(--v-theme-primary), 0.04) 100%);
+  background: rgb(var(--v-theme-surface-variant));
   border-radius: 6px 6px 0 0;
+  color: rgba(0, 0, 0, 0.87);
 }
 
 .content-section {
