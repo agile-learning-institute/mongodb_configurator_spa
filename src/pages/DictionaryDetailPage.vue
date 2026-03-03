@@ -42,43 +42,56 @@
             />
           </div>
           <!-- Icon-only actions -->
-          <v-btn
-            v-if="!isReadOnly && dictionary._locked"
-            icon="mdi-lock-open"
-            variant="text"
-            size="small"
-            color="warning"
-            @click="unlockType"
-            title="Unlock"
-            data-test="unlock-dictionary-btn"
-          />
-          <v-btn
-            v-else-if="!isReadOnly"
-            icon="mdi-lock"
-            variant="text"
-            size="small"
-            @click="lockDictionary"
-            title="Lock"
-            data-test="lock-dictionary-btn"
-          />
-          <v-btn
-            v-if="!isReadOnly && !dictionary._locked"
-            icon="mdi-delete"
-            variant="text"
-            size="small"
-            color="error"
-            @click="handleDelete"
-            title="Delete"
-            data-test="delete-dictionary-btn"
-          />
-          <v-btn
-            icon="mdi-cog"
-            variant="text"
-            size="small"
-            :to="configRoute"
-            title="Configuration"
-            data-test="dictionary-config-link"
-          />
+          <v-tooltip v-if="!isReadOnly && dictionary._locked" text="Unlock Dictionary" location="bottom">
+            <template #activator="{ props }">
+              <v-btn
+                v-bind="props"
+                icon="mdi-lock-open"
+                variant="text"
+                size="small"
+                color="warning"
+                @click="unlockType"
+                data-test="unlock-dictionary-btn"
+              />
+            </template>
+          </v-tooltip>
+          <v-tooltip v-else-if="!isReadOnly" text="Lock Dictionary" location="bottom">
+            <template #activator="{ props }">
+              <v-btn
+                v-bind="props"
+                icon="mdi-lock"
+                variant="text"
+                size="small"
+                @click="lockDictionary"
+                data-test="lock-dictionary-btn"
+              />
+            </template>
+          </v-tooltip>
+          <v-tooltip v-if="!isReadOnly && !dictionary._locked" text="Delete Dictionary" location="bottom">
+            <template #activator="{ props }">
+              <v-btn
+                v-bind="props"
+                icon="mdi-delete"
+                variant="text"
+                size="small"
+                color="error"
+                @click="handleDelete"
+                data-test="delete-dictionary-btn"
+              />
+            </template>
+          </v-tooltip>
+          <v-tooltip text="Open Configuration" location="bottom">
+            <template #activator="{ props }">
+              <v-btn
+                v-bind="props"
+                icon="mdi-cog"
+                variant="text"
+                size="small"
+                :to="configRoute"
+                data-test="dictionary-config-link"
+              />
+            </template>
+          </v-tooltip>
           <v-tooltip v-if="configFileName" text="Download JSON Schema" location="bottom">
             <template #activator="{ props }">
               <v-chip

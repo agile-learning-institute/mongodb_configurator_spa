@@ -113,9 +113,50 @@ const titleClass = computed(() => {
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
 }
 
+/* Primary card header: solid color, white text/icons */
 .header-section {
-  background: linear-gradient(135deg, rgb(var(--v-theme-primary)) 0%, rgb(var(--v-theme-secondary)) 100%);
+  background: rgb(var(--v-theme-primary));
   border-radius: 12px 12px 0 0;
+  color: white;
+}
+
+.base-card:not(.secondary) .header-section :deep(.v-btn),
+.base-card:not(.secondary) .header-section :deep(.v-icon),
+.base-card:not(.secondary) .header-section :deep(.v-chip),
+.base-card:not(.secondary) .header-section :deep(.material-symbols-outlined) {
+  color: white !important;
+}
+
+.base-card:not(.secondary) .header-section :deep(.v-chip.v-chip--variant-outlined) {
+  border-color: rgba(255, 255, 255, 0.7) !important;
+}
+
+/* Picker pills: light blue background, black text (matches nav drawer) */
+.base-card:not(.secondary) .header-section :deep(.type-chip-picker .v-chip),
+.base-card:not(.secondary) .header-section :deep(.enum-picker .v-chip),
+.base-card:not(.secondary) .header-section :deep(.ref-picker .v-chip) {
+  color: black !important;
+  background: rgb(var(--v-theme-surface)) !important;
+}
+
+.base-card:not(.secondary) .header-section :deep(.type-chip-picker .v-chip .v-icon),
+.base-card:not(.secondary) .header-section :deep(.enum-picker .v-chip .v-icon),
+.base-card:not(.secondary) .header-section :deep(.ref-picker .v-chip .v-icon) {
+  color: black !important;
+}
+
+.base-card:not(.secondary) .header-section :deep(.v-field__input),
+.base-card:not(.secondary) .header-section :deep(input) {
+  color: white !important;
+  caret-color: white;
+}
+
+.base-card:not(.secondary) .header-section :deep(.v-field__input::placeholder) {
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+
+.base-card:not(.secondary) .header-section :deep(.v-field--variant-plain .v-field__outline) {
+  --v-field-border-opacity: 0.3;
 }
 
 .base-card.secondary .header-section {
@@ -124,7 +165,7 @@ const titleClass = computed(() => {
 }
 
 .base-card.compact .header-section {
-  background: linear-gradient(135deg, rgb(var(--v-theme-primary)) 0%, rgb(var(--v-theme-secondary)) 100%);
+  background: rgb(var(--v-theme-primary));
   border-radius: 6px 6px 0 0;
   padding: 8px 12px !important;
 }

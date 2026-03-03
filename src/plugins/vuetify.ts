@@ -25,8 +25,10 @@ export default createVuetify({
           info: '#1976D2', // Blue
           success: '#2E7D32', // Green
           warning: '#F57C00', // Orange
-          surface: '#E3F2FD', // Very light blue background
+          surface: '#E3F2FD', // Very light blue background (nav drawer)
           'surface-variant': '#BBDEFB', // Light blue variant
+          'picker-pill': '#E3F2FD', // Light blue for picker chips (matches nav drawer)
+          'on-picker-pill': '#000000', // Black text on picker pills
         },
       },
     },

@@ -1,11 +1,11 @@
 <template>
-  <div data-test="enum-picker">
+  <div class="enum-picker" data-test="enum-picker">
     <!-- Display chip that opens the picker -->
     <v-chip
       :color="getChipColor()"
       :variant="PICKER_STYLES.chipVariant"
       :size="PICKER_STYLES.chipSize"
-      class="cursor-pointer"
+      class="cursor-pointer picker-pill-chip"
       :disabled="disabled"
       @click="showPicker = true"
       data-test="enum-type-chip"
@@ -50,7 +50,7 @@
                 :color="modelValue === enumeratorName ? PICKER_STYLES.optionColorSelected : PICKER_STYLES.optionColorUnselected"
                 :variant="PICKER_STYLES.optionVariant"
                 :size="PICKER_STYLES.optionSize"
-                class="cursor-pointer pa-2"
+                class="cursor-pointer picker-pill-chip pa-2"
                 @click="selectEnum(enumeratorName)"
                 :data-test="`enum-type-option-${enumeratorName}`"
               >

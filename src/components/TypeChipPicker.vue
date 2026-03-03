@@ -11,6 +11,7 @@
           :color="getChipColor()"
           :variant="PICKER_STYLES.chipVariant"
           :size="PICKER_STYLES.chipSize"
+          class="picker-pill-chip"
           v-bind="disabled ? {} : props"
           @click="!disabled && (menuOpen = true)"
           data-test="type-chip"
@@ -49,6 +50,7 @@
                   :color="type.value === modelValue ? PICKER_STYLES.optionColorSelected : PICKER_STYLES.optionColorUnselected"
                   :variant="PICKER_STYLES.optionVariant"
                   :size="PICKER_STYLES.optionSize"
+                  class="picker-pill-chip"
                   @click="selectType(type.value)"
                   :data-test="`built-in-type-${type.value}`"
                 >
@@ -68,6 +70,7 @@
                   :color="isCustomTypeSelected(type) ? PICKER_STYLES.optionColorSelected : PICKER_STYLES.optionColorUnselected"
                   :variant="PICKER_STYLES.optionVariant"
                   :size="PICKER_STYLES.optionSize"
+                  class="picker-pill-chip"
                   @click="selectCustomType(type)"
                   :data-test="`custom-type-${type.file_name}`"
                 >

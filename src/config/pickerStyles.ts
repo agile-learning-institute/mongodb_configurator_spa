@@ -9,16 +9,16 @@
  * 2. Or add custom theme variants and reference them here
  */
 export const PICKER_STYLES = {
-  /** Display chip (activator) - when a value is selected */
-  chipColorSelected: 'primary',
+  /** Display chip (activator) - light blue with black text (matches nav drawer) */
+  chipColorSelected: 'picker-pill',
   /** Display chip (activator) - when no value selected */
-  chipColorUnselected: 'default',
+  chipColorUnselected: 'picker-pill',
   /** Display chip variant */
   chipVariant: 'elevated' as const,
   /** Option chips inside picker dialog - when selected */
-  optionColorSelected: 'primary',
+  optionColorSelected: 'picker-pill',
   /** Option chips inside picker dialog - when not selected */
-  optionColorUnselected: 'default',
+  optionColorUnselected: 'picker-pill',
   /** Option chip variant */
   optionVariant: 'outlined' as const,
   /** Display chip size */
