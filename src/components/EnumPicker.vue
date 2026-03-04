@@ -12,6 +12,16 @@
     >
       <v-icon start size="small" data-test="enum-type-icon">mdi-format-list-checks</v-icon>
       <span data-test="enum-type-value">{{ modelValue || 'Pick an enum' }}</span>
+      <v-icon
+        v-if="modelValue && latestEnumeratorFile && !disabled"
+        end
+        size="16"
+        class="ml-1"
+        @click.stop="openEnumeration(modelValue)"
+        data-test="enum-type-open-selected"
+      >
+        mdi-open-in-new
+      </v-icon>
       <v-icon end size="small" v-if="!disabled" data-test="dropdown-icon">mdi-chevron-down</v-icon>
     </v-chip>
 

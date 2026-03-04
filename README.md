@@ -13,18 +13,8 @@ npm run service
 # Start API and SPA first (in a separate terminal)
 npm run service
 
-# Run all cypress tests (headless; assumes API and SPA are running)
-npm run e2e
-
-# Run all cypress tests in Chrome
-npm run e2e:chrome
-
-# Run a specific test (headless)
-npm run cy:run -- --spec "cypress/e2e/dictionary.array.cy.ts"
-
-# Interactive test runner
-npm run cy:open
-
+## Open the app in Chrome
+npm run open 
 ```
 
 ## Developer Commands

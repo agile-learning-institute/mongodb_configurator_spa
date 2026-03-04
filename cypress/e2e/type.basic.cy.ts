@@ -19,7 +19,7 @@ describe('Types Detail Page', () => {
     it('loads types page and shows basic elements', () => {
       cy.visit('/types')
       cy.get('[data-test="app-title"]').should('contain', 'Types')
-      cy.get('[data-test="lock-all-btn"]').should('be.visible').and('to.be.enabled')
+      cy.get('[data-test="lock-all-btn"]').should('not.exist')
       cy.get('[data-test="new-type-btn"]').should('be.visible').and('to.be.enabled')
       cy.get('[data-test^="type-card-"]').should('have.length.above', 10)
     })

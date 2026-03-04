@@ -12,6 +12,16 @@
     >
       <v-icon start size="small" data-test="ref-dictionary-icon">mdi-link</v-icon>
       <span data-test="ref-dictionary-value">{{ modelValue || 'Pick a dictionary' }}</span>
+      <v-icon
+        v-if="modelValue && referencedDictionaryFiles.length && !disabled"
+        end
+        size="16"
+        class="ml-1"
+        @click.stop="openDictionaryForName(modelValue)"
+        data-test="ref-dictionary-open-selected"
+      >
+        mdi-open-in-new
+      </v-icon>
       <v-icon end size="small" v-if="!disabled" data-test="dropdown-icon">mdi-chevron-down</v-icon>
     </v-chip>
 
@@ -209,6 +219,14 @@ const getDictionaryDisplayName = (file: DictionaryFile): string => {
 const openDictionary = (fileName: string) => {
   showPicker.value = false
   router.push(`/dictionaries/${fileName}`)
+}
+
+const openDictionaryForName = (dictionaryName: string) => {
+  const file = referencedDictionaryFiles.value.find(
+    (f) => getDictionaryDisplayName(f) === dictionaryName
+  )
+  if (!file) return
+  openDictionary(file.file_name)
 }
 
 const getChipColor = (): string => {

@@ -18,6 +18,16 @@
         >
           <v-icon start size="small" data-test="type-icon">{{ getTypeIcon() }}</v-icon>
           <span data-test="type-display-name">{{ getDisplayName() }}</span>
+          <v-icon
+            v-if="isSelectedCustomType && !disabled"
+            end
+            size="16"
+            class="ml-1"
+            @click.stop="openSelectedCustomType"
+            data-test="type-open-selected"
+          >
+            mdi-open-in-new
+          </v-icon>
           <v-icon end size="small" v-if="!disabled" data-test="dropdown-icon">mdi-chevron-down</v-icon>
         </v-chip>
       </template>
@@ -263,6 +273,10 @@ const isCustomTypeSelected = (customType: CustomType): boolean => {
   return props.modelValue === customType.name
 }
 
+const isSelectedCustomType = computed(() => {
+  return !!customTypes.value.find((t) => t.name === props.modelValue)
+})
+
 // Select a built-in type
 const selectType = (typeValue: string) => {
   emit('update:modelValue', typeValue)
@@ -278,6 +292,12 @@ const selectCustomType = (customType: CustomType) => {
 // Open the selected custom type in the Type Detail page
 const openCustomType = (customType: CustomType) => {
   router.push(`/types/${customType.file_name}`)
+}
+
+const openSelectedCustomType = () => {
+  const selected = customTypes.value.find((t) => t.name === props.modelValue)
+  if (!selected) return
+  openCustomType(selected)
 }
 
 // Load custom types on mount

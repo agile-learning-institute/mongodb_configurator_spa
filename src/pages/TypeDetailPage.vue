@@ -94,7 +94,7 @@
                 v-model="editableType"
                 :is-root="true"
                 :is-type="true"
-                :disabled="typeData._locked"
+                :disabled="isDisabled"
                 @update:model-value="handleTypeChange"
                 data-test="root-type-chip-picker"
               />

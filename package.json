@@ -21,9 +21,7 @@
     "container": "docker build -t ghcr.io/agile-learning-institute/mongodb_configurator_spa:latest .",
 
     "cy:open": "cypress open",
-    "cy:run": "cypress run",
-    "e2e": "cypress run",
-    "e2e:chrome": "cypress run --browser chrome"
+    "cy:run": "cypress run"
   },
   "repository": {
     "type": "git",

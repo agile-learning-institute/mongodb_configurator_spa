@@ -13,19 +13,6 @@
   >
     <template #header-actions>
       <template v-if="!isReadOnly">
-        <v-tooltip v-if="canLockAll" text="Lock all types" location="bottom">
-          <template #activator="{ props }">
-            <v-btn
-              v-bind="props"
-              icon="mdi-lock"
-              variant="text"
-              size="small"
-              :loading="locking"
-              @click="handleLockAll"
-              data-test="lock-all-btn"
-            />
-          </template>
-        </v-tooltip>
         <v-tooltip text="New type" location="bottom">
           <template #activator="{ props }">
             <v-btn
@@ -114,24 +101,13 @@ import TypeCard from '@/components/TypeCard.vue'
 
 const router = useRouter()
 const { isReadOnly } = useConfig()
-const { files, loading, error, loadFiles, canLockAll, lockAllFiles } = useFiles('types')
+const { files, loading, error, loadFiles } = useFiles('types')
 
-const locking = ref(false)
 const showNewDialog = ref(false)
 const newTypeName = ref('')
 
 const handleOpen = (fileName: string) => {
   router.push(`/types/${fileName}`)
-}
-
-const handleLockAll = async () => {
-  locking.value = true
-  error.value = null
-  try {
-    await lockAllFiles()
-  } finally {
-    locking.value = false
-  }
 }
 
 const createNewType = async () => {
