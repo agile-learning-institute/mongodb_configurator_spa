@@ -23,7 +23,7 @@
         <div class="d-flex align-center flex-shrink-0 gap-1">
           <!-- Version pill: constant width, tooltips, v prefix, version links to config -->
           <VersionPill
-            v-if="versionDisplay"
+            v-if="versionDisplay && !isReadOnly"
             :version="versionDisplay"
             :has-previous="hasPreviousVersion"
             :has-next="hasNextVersion"

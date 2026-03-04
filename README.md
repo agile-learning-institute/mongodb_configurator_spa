@@ -13,18 +13,8 @@ npm run service
 # Start API and SPA first (in a separate terminal)
 npm run service
 
-# Run all cypress tests (headless; assumes API and SPA are running)
-npm run e2e
-
-# Run all cypress tests in Chrome
-npm run e2e:chrome
-
-# Run a specific test (headless)
-npm run cy:run -- --spec "cypress/e2e/dictionary.array.cy.ts"
-
-# Interactive test runner
-npm run cy:open
-
+## Open the app in Chrome
+npm run open 
 ```
 
 ## Developer Commands
@@ -35,6 +25,7 @@ npm install
 
 # start the API and a testing database in containers. 
 npm run api
+npm run api:read-only
 
 # Start development server (requires API on localhost:8081)
 npm run dev
@@ -50,6 +41,7 @@ npm run container
 
 # run the SPA as well as the backing services in local containers
 npm run service
+npm run service:read-only
 
 # pull the latest published containers
 npm run pull
@@ -265,6 +257,19 @@ cypress/
 ├── videos/                        # Test execution videos
 └── tsconfig.json                  # TypeScript configuration
 ```
+
+## Locked and Read-Only Features
+
+The web app can operate in two modes - a Dev mode where the user is editing and testing configurations, and a Read-Only mode where the user can only view the deployed configurations. When in Dev mode, objects can be locked, which should disable editable features but leave navigation features in place. These are three distinct operating modes as outlined below:
+
+| **Feature**                                   | **Read-Only** | **Dev-Locked** | **Dev-Unlocked** |
+|-----------------------------------------------|---------------|----------------|------------------|
+| Picker pill – opens dialog (type/ref/enum)    | Disabled      | Disabled       | Enabled          |
+| Picker pill – links to object (type/ref/enum) | Enabled       | Enabled        | Enabled          |
+| Version pills                                 | Hidden        | Visible        | Visible          |
+| Edit controls (name, description)             | Disabled      | Disabled       | Enabled          |
+| Edit icons (delete, add, etc.)                | Hidden        | Visible        | Visible          |
+| Non-edit icons (expand/collapse, link-out)    | Enabled       | Enabled        | Enabled          |
 
 ## Cypress Test Status
 

@@ -6,6 +6,7 @@ describe('Admin page', () => {
     // Wait for page to load (buttons appear when config is loaded)
     cy.get('[data-test="configure-database-btn"]').should('be.visible').should('contain', 'Configure Database')
     cy.get('[data-test="drop-database-btn"]').should('be.visible').should('contain', 'Drop Database')
+    cy.get('[data-test="lock-everything-btn"]').should('be.visible').should('contain', 'Lock Everything')
   })
 
   it('shows the config items list with more than a few lines', () => {

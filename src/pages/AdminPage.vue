@@ -29,6 +29,20 @@
           </v-btn>
         </template>
       </v-tooltip>
+      <v-tooltip v-if="!isReadOnly" text="Lock all configurations, dictionaries, types, and enumerators" location="bottom">
+        <template #activator="{ props }">
+          <v-btn
+            v-bind="props"
+            color="secondary"
+            variant="elevated"
+            @click="lockEverything"
+            :loading="lockingAll"
+            data-test="lock-everything-btn"
+          >
+            Lock Everything
+          </v-btn>
+        </template>
+      </v-tooltip>
     </div>
 
     <!-- Loading state -->
@@ -121,6 +135,7 @@ const { isReadOnly } = useConfig()
 const loading = ref(false)
 const error = ref<string | null>(null)
 const processing = ref(false)
+const lockingAll = ref(false)
 const showDropDatabaseDialog = ref(false)
 const configItems = ref<ConfigItem[]>([])
 
@@ -199,6 +214,24 @@ const confirmDropDatabase = async () => {
     } else {
       error.value = err.message || 'Failed to drop database'
     }
+  }
+}
+
+// Lock all configurations, dictionaries, types, and enumerators
+const lockEverything = async () => {
+  lockingAll.value = true
+  try {
+    await Promise.all([
+      apiService.lockAllConfigurations(),
+      apiService.lockAllDictionaries(),
+      apiService.lockAllTypes(),
+      apiService.lockAllEnumerators(),
+    ])
+  } catch (err: any) {
+    // Reuse the existing error alert mechanism
+    error.value = err.message || 'Failed to lock all configurations, dictionaries, types, and enumerators'
+  } finally {
+    lockingAll.value = false
   }
 }
 

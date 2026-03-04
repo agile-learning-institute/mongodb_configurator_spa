@@ -94,7 +94,7 @@
                 v-model="editableType"
                 :is-root="true"
                 :is-type="true"
-                :disabled="typeData._locked"
+                :disabled="isDisabled"
                 @update:model-value="handleTypeChange"
                 data-test="root-type-chip-picker"
               />
@@ -209,7 +209,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount, computed } from 'vue'
+import { ref, onMounted, onBeforeUnmount, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { apiService } from '@/utils/api'
 import { useConfig } from '@/composables/useConfig'
@@ -452,11 +452,20 @@ const handleBeforeUnload = () => {
   }
 }
 
-// Load type on mount
+// Load type on mount and when route changes
 onMounted(() => {
   loadType()
   window.addEventListener('beforeunload', handleBeforeUnload)
 })
+
+watch(
+  () => route.params.fileName,
+  (newFileName) => {
+    if (newFileName) {
+      loadType()
+    }
+  }
+)
 
 onBeforeUnmount(() => {
   window.removeEventListener('beforeunload', handleBeforeUnload)

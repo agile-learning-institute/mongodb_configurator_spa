@@ -23,7 +23,7 @@ describe('VersionConfiguration', () => {
     ]
   }
 
-  it('should render version information', () => {
+  it('should render version information with details when provided', () => {
     const wrapper = mount(VersionConfiguration, {
       props: {
         version: mockVersion,
@@ -37,16 +37,15 @@ describe('VersionConfiguration', () => {
     expect(wrapper.text()).toContain('test.json')
   })
 
-  it('should render render buttons', () => {
+  it('should render compact header when only version is provided', () => {
     const wrapper = mount(VersionConfiguration, {
       props: {
-        version: { version: '1.0.0' },
+        version: { version: '1.0.0' } as VersionConfig,
         collectionName: 'test_collection'
       }
     })
 
-    expect(wrapper.text()).toContain('Render JSON Schema')
-    expect(wrapper.text()).toContain('Render BSON Schema')
-    expect(wrapper.text()).toContain('Render OpenAPI Spec')
+    expect(wrapper.text()).toContain('Version Information')
+    expect(wrapper.text()).toContain('1.0.0')
   })
-}) 
+})

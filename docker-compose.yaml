@@ -21,6 +21,8 @@ services:
       - mongodb
       - configurator
       - configurator-api
+      - read-only
+      - read-only-api
 
   ##################################
   # MongoDB configuration Service
@@ -55,3 +57,39 @@ services:
       - configurator_api
     profiles:
       - configurator
+
+  ##################################
+  # MongoDB configuration Service
+  ##################################
+  configurator_api_read_only:
+    image: ghcr.io/agile-learning-institute/mongodb_configurator_api:latest
+    restart: no
+    ports:
+      - "127.0.0.1:8081:8081"
+    environment:
+      ENABLE_DROP_DATABASE: True
+      API_PORT: 8081
+      SPA_PORT: 8082
+      MONGODB_REQUIRE_TLS: False
+      UI_HEADER: "MongoDB Configurator Local Development"
+    volumes:
+      - ./tests/configurator:/input
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    profiles:
+      - read-only-api
+      - read-only
+
+  configurator_spa_read_only:
+    image: ghcr.io/agile-learning-institute/mongodb_configurator_spa:latest
+    ports:
+      - "127.0.0.1:8082:8082"
+    environment:
+      API_HOST: configurator_api_read_only
+      API_PORT: 8081
+      SPA_PORT: 8082
+    depends_on:
+      - configurator_api_read_only
+    profiles:
+      - read-only

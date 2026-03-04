@@ -21,24 +21,26 @@
       <div v-else class="flex-grow-1" />
       <!-- Bottom row: version pill left, gear icon right - anchored to bottom -->
       <div class="d-flex align-center justify-space-between mt-2 flex-shrink-0">
-        <v-chip
-          size="small"
-          color="primary"
-          variant="tonal"
-          density="compact"
-          class="collection-version-chip"
-          :data-test="`collection-card-version-${collection.collection_name}`"
-        >
-          {{ collection._locked ? 'locked' : `v${collection.latest_version}` }}
-        </v-chip>
-        <v-icon
-          size="small"
-          class="collection-config-icon"
-          :data-test="`collection-card-open-configuration-${collection.collection_name}`"
-          @click.stop="$emit('open-configuration', collection.configuration_file)"
-        >
-          mdi-cog
-        </v-icon>
+        <template v-if="!isReadOnly">
+          <v-chip
+            size="small"
+            color="primary"
+            variant="tonal"
+            density="compact"
+            class="collection-version-chip"
+            :data-test="`collection-card-version-${collection.collection_name}`"
+          >
+            {{ `v${collection.latest_version}` }}
+          </v-chip>
+          <v-icon
+            size="small"
+            class="collection-config-icon"
+            :data-test="`collection-card-open-configuration-${collection.collection_name}`"
+            @click.stop="$emit('open-configuration', collection.configuration_file)"
+          >
+            mdi-cog
+          </v-icon>
+        </template>
       </div>
     </v-card-text>
   </v-card>
@@ -46,6 +48,9 @@
 
 <script setup lang="ts">
 import type { CollectionSummary } from '@/composables/useCollections'
+import { useConfig } from '@/composables/useConfig'
+
+const { isReadOnly } = useConfig()
 
 defineProps<{
   collection: CollectionSummary
