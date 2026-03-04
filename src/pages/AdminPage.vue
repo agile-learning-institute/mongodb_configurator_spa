@@ -1,48 +1,59 @@
 <template>
   <v-container>
-    <!-- Configure Database and Drop Database buttons at top -->
-    <div v-if="!loading && !error" class="d-flex align-center gap-2 mb-4">
-      <v-tooltip v-if="!isReadOnly" text="Configure Database" location="bottom">
-        <template #activator="{ props }">
-          <v-btn
-            v-bind="props"
-            color="primary"
-            variant="elevated"
-            @click="processAllConfigurations"
-            :loading="processing"
-            data-test="configure-database-btn"
-          >
-            Configure Database
-          </v-btn>
-        </template>
-      </v-tooltip>
-      <v-tooltip v-if="!isReadOnly" text="Drop Database" location="bottom">
-        <template #activator="{ props }">
-          <v-btn
-            v-bind="props"
-            color="error"
-            variant="elevated"
-            @click="showDropDatabaseDialog = true"
-            data-test="drop-database-btn"
-          >
-            Drop Database
-          </v-btn>
-        </template>
-      </v-tooltip>
-      <v-tooltip v-if="!isReadOnly" text="Lock all configurations, dictionaries, types, and enumerators" location="bottom">
-        <template #activator="{ props }">
-          <v-btn
-            v-bind="props"
-            color="secondary"
-            variant="elevated"
-            @click="lockEverything"
-            :loading="lockingAll"
-            data-test="lock-everything-btn"
-          >
-            Lock Everything
-          </v-btn>
-        </template>
-      </v-tooltip>
+    <!-- Configure / Drop / Lock buttons, or read-only banner -->
+    <div v-if="!loading && !error" class="mb-4">
+      <div v-if="!isReadOnly" class="d-flex align-center gap-2">
+        <v-tooltip text="Configure Database" location="bottom">
+          <template #activator="{ props }">
+            <v-btn
+              v-bind="props"
+              color="primary"
+              variant="elevated"
+              @click="processAllConfigurations"
+              :loading="processing"
+              data-test="configure-database-btn"
+            >
+              Configure Database
+            </v-btn>
+          </template>
+        </v-tooltip>
+        <v-tooltip text="Drop Database" location="bottom">
+          <template #activator="{ props }">
+            <v-btn
+              v-bind="props"
+              color="error"
+              variant="elevated"
+              @click="showDropDatabaseDialog = true"
+              data-test="drop-database-btn"
+            >
+              Drop Database
+            </v-btn>
+          </template>
+        </v-tooltip>
+        <v-tooltip text="Lock all configurations, dictionaries, types, and enumerators" location="bottom">
+          <template #activator="{ props }">
+            <v-btn
+              v-bind="props"
+              color="secondary"
+              variant="elevated"
+              @click="lockEverything"
+              :loading="lockingAll"
+              data-test="lock-everything-btn"
+            >
+              Lock Everything
+            </v-btn>
+          </template>
+        </v-tooltip>
+      </div>
+      <div
+        v-else
+        class="text-warning mt-2"
+        data-test="read-only-banner"
+      >
+        <div class="text-h5 font-weight-bold">
+          Currently in read only mode. Use <code>make dev</code> to open in edit mode.
+        </div>
+      </div>
     </div>
 
     <!-- Loading state -->
@@ -244,6 +255,14 @@ onMounted(() => {
 <style scoped>
 .config-items-content {
   padding: 8px 16px !important;
+}
+
+[data-test="read-only-banner"] code {
+  background-color: #000000;
+  color: #00ff00;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-family: "Courier New", Courier, monospace;
 }
 
 /* Override Vuetify table padding for compact display - use very specific selectors */
