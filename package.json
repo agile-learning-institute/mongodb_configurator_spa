@@ -15,6 +15,7 @@
     "open": "open -a 'Google Chrome' 'http://localhost:8082/configurations' || google-chrome 'http://localhost:8082/configurations' || exg-open 'localhost:8082'",
 
     "api": "npm run down && docker compose --profile configurator-api up -d",
+    "api:read-only": "npm run down && docker compose --profile read-only-api up -d",
     "service": "npm run down && docker compose --profile configurator up -d",
     "service:read-only": "npm run down && docker compose --profile read-only up -d",
     "down": "docker compose down configurator_spa configurator_api mongodb configurator_api_read_only configurator_spa_read_only",

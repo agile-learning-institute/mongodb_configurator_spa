@@ -6,7 +6,6 @@
       :variant="PICKER_STYLES.chipVariant"
       :size="PICKER_STYLES.chipSize"
       class="cursor-pointer picker-pill-chip"
-      :disabled="disabled"
       @click="!disabled && (showPicker = true)"
       data-test="ref-dictionary-chip"
     >
