@@ -256,6 +256,19 @@ cypress/
 └── tsconfig.json                  # TypeScript configuration
 ```
 
+## Locked and Read-Only Features
+
+The web app can operate in two modes - a Dev mode where the user is editing and testing configurations, and a Read-Only mode where the user can only view the deployed configurations. When in Dev mode, objects can be locked, which should disable editable features but leave navigation features in place. These are three distinct operating modes as outlined below:
+
+| **Feature**                              | **Read-Only** | **Dev-Locked** | **Dev-Unlocked** |
+|------------------------------------------|---------------|----------------|------------------|
+| Picker pill – opens dialog (type/ref/enum) | Disabled      | Disabled       | Enabled          |
+| Picker pill – links to object (type/ref/enum) | Enabled   | Enabled        | Enabled          |
+| Version pills                            | Hidden        | Visible        | Visible          |
+| Edit controls (name, description)        | Disabled      | Disabled       | Enabled          |
+| Edit icons (delete, add, etc.)           | Hidden        | Visible        | Visible          |
+| Non-edit icons (expand/collapse, link-out) | Enabled     | Enabled        | Enabled          |
+
 ## Cypress Test Status
 
 ```bash

@@ -7,13 +7,13 @@
       :size="PICKER_STYLES.chipSize"
       class="cursor-pointer picker-pill-chip"
       :disabled="disabled"
-      @click="showPicker = true"
+      @click="!disabled && (showPicker = true)"
       data-test="ref-dictionary-chip"
     >
       <v-icon start size="small" data-test="ref-dictionary-icon">mdi-link</v-icon>
       <span data-test="ref-dictionary-value">{{ modelValue || 'Pick a dictionary' }}</span>
       <v-icon
-        v-if="modelValue && referencedDictionaryFiles.length && !disabled"
+        v-if="modelValue && referencedDictionaryFiles.length"
         end
         size="16"
         class="ml-1"
@@ -22,7 +22,14 @@
       >
         mdi-open-in-new
       </v-icon>
-      <v-icon end size="small" v-if="!disabled" data-test="dropdown-icon">mdi-chevron-down</v-icon>
+      <v-icon
+        v-if="!disabled"
+        end
+        size="small"
+        data-test="dropdown-icon"
+      >
+        mdi-chevron-down
+      </v-icon>
     </v-chip>
 
     <!-- Ref Picker Dialog -->

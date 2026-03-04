@@ -19,7 +19,7 @@
           <v-icon start size="small" data-test="type-icon">{{ getTypeIcon() }}</v-icon>
           <span data-test="type-display-name">{{ getDisplayName() }}</span>
           <v-icon
-            v-if="isSelectedCustomType && !disabled"
+            v-if="isSelectedCustomType"
             end
             size="16"
             class="ml-1"
@@ -28,7 +28,14 @@
           >
             mdi-open-in-new
           </v-icon>
-          <v-icon end size="small" v-if="!disabled" data-test="dropdown-icon">mdi-chevron-down</v-icon>
+          <v-icon
+            v-if="!disabled"
+            end
+            size="small"
+            data-test="dropdown-icon"
+          >
+            mdi-chevron-down
+          </v-icon>
         </v-chip>
       </template>
       

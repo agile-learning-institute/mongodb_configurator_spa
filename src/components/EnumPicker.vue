@@ -7,13 +7,13 @@
       :size="PICKER_STYLES.chipSize"
       class="cursor-pointer picker-pill-chip"
       :disabled="disabled"
-      @click="showPicker = true"
+      @click="!disabled && (showPicker = true)"
       data-test="enum-type-chip"
     >
       <v-icon start size="small" data-test="enum-type-icon">mdi-format-list-checks</v-icon>
       <span data-test="enum-type-value">{{ modelValue || 'Pick an enum' }}</span>
       <v-icon
-        v-if="modelValue && latestEnumeratorFile && !disabled"
+        v-if="modelValue && latestEnumeratorFile"
         end
         size="16"
         class="ml-1"
@@ -22,7 +22,14 @@
       >
         mdi-open-in-new
       </v-icon>
-      <v-icon end size="small" v-if="!disabled" data-test="dropdown-icon">mdi-chevron-down</v-icon>
+      <v-icon
+        v-if="!disabled"
+        end
+        size="small"
+        data-test="dropdown-icon"
+      >
+        mdi-chevron-down
+      </v-icon>
     </v-chip>
 
     <!-- Enum Picker Dialog -->

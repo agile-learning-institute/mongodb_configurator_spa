@@ -16,7 +16,8 @@
 
     "api": "npm run down && docker compose --profile configurator-api up -d",
     "service": "npm run down && docker compose --profile configurator up -d",
-    "down": "docker compose down configurator_spa configurator_api mongodb",
+    "service:read-only": "npm run down && docker compose --profile read-only up -d",
+    "down": "docker compose down configurator_spa configurator_api mongodb configurator_api_read_only configurator_spa_read_only",
     "pull": "docker compose --profile configurator pull",
     "container": "docker build -t ghcr.io/agile-learning-institute/mongodb_configurator_spa:latest .",
 

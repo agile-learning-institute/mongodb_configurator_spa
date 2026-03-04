@@ -21,7 +21,7 @@
       <div v-else class="flex-grow-1" />
       <!-- Bottom row: version pill left, gear icon right - anchored to bottom -->
       <div class="d-flex align-center justify-space-between mt-2 flex-shrink-0">
-        <template v-if="!collection._locked">
+        <template v-if="!isReadOnly">
           <v-chip
             size="small"
             color="primary"
@@ -48,6 +48,9 @@
 
 <script setup lang="ts">
 import type { CollectionSummary } from '@/composables/useCollections'
+import { useConfig } from '@/composables/useConfig'
+
+const { isReadOnly } = useConfig()
 
 defineProps<{
   collection: CollectionSummary
