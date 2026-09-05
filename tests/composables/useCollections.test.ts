@@ -25,10 +25,11 @@ describe('useCollections', () => {
     error.value = null
   })
 
-  it('should fetch collections successfully', async () => {
+  it('should fetch and sort collections successfully', async () => {
     const mockCollections = [
-      { collection_name: 'test1', configuration_file: 'test1.yaml', latest_dictionary_file: 'test1.1.0.0.yaml', latest_version: '1.0.0' },
-      { collection_name: 'test2', configuration_file: 'test2.yaml', latest_dictionary_file: 'test2.2.0.0.yaml', latest_version: '2.0.0' }
+      { collection_name: 'zebra', configuration_file: 'zebra.yaml', latest_dictionary_file: 'zebra.1.0.0.yaml', latest_version: '1.0.0' },
+      { collection_name: 'apple', configuration_file: 'apple.yaml', latest_dictionary_file: 'apple.1.0.0.yaml', latest_version: '1.0.0' },
+      { collection_name: 'Banana', configuration_file: 'banana.yaml', latest_dictionary_file: 'banana.2.0.0.yaml', latest_version: '2.0.0' }
     ]
 
     mockGetCollections.mockResolvedValue(mockCollections)
@@ -42,7 +43,7 @@ describe('useCollections', () => {
 
     expect(mockGetCollections).toHaveBeenCalledOnce()
     expect(loading.value).toBe(false)
-    expect(collections.value).toEqual(mockCollections)
+    expect(collections.value.map(c => c.collection_name)).toEqual(['apple', 'Banana', 'zebra'])
   })
 
   it('should handle API errors', async () => {

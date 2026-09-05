@@ -106,7 +106,7 @@
       </div>
       <v-row v-else data-test="enumerations-grid" class="card-grid--wide-8">
         <v-col
-          v-for="(enumItem, i) in enumerator.enumerators"
+          v-for="{ enumItem, originalIndex } in sortedEnumerators"
           :key="enumItem.name"
           cols="12"
           sm="6"
@@ -115,7 +115,7 @@
         >
           <EnumerationCard
             :enumeration="enumItem"
-            :index="i"
+            :index="originalIndex"
             @open="handleOpenEnumeration"
           />
         </v-col>
@@ -202,6 +202,20 @@ const showDeleteDialog = ref(false)
 const showUnlockDialog = ref(false)
 const showNewVersionDialog = ref(false)
 const enumeratorFiles = ref<any[]>([])
+
+const getEnumDisplayName = (item: Enumerator) =>
+  item.name.startsWith('_new') ? 'New enumeration' : item.name
+
+const sortedEnumerators = computed(() => {
+  if (!enumerator.value?.enumerators) return []
+  return enumerator.value.enumerators
+    .map((enumItem, originalIndex) => ({ enumItem, originalIndex }))
+    .sort((a, b) => {
+      const nameA = getEnumDisplayName(a.enumItem)
+      const nameB = getEnumDisplayName(b.enumItem)
+      return nameA.localeCompare(nameB, undefined, { sensitivity: 'base' })
+    })
+})
 
 const isDisabled = computed(() => isReadOnly.value || (enumerator.value?._locked || false))
 const showUnlockOption = computed(() => !hasNextVersion.value)

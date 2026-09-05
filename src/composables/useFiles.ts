@@ -58,7 +58,7 @@ export function useFiles(fileType: 'configurations' | 'dictionaries' | 'types' |
         size: file.size,
         _locked: file._locked || false,
         description: file.description || ''
-      })).sort((a: FileInfo, b: FileInfo) => a.name.localeCompare(b.name))
+      })).sort((a: FileInfo, b: FileInfo) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }))
     } catch (err: any) {
       error.value = err.message || `Failed to load ${fileType}`
       console.error(`Failed to load ${fileType}:`, err)
