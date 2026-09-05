@@ -3,7 +3,7 @@
     title="Types"
     :loading="loading"
     :error="error"
-    :items="files"
+    :items="sortedFiles"
     page-key="types"
     grid-class="card-grid--wide-8"
     empty-icon="mdi-code-braces"
@@ -41,7 +41,7 @@
     </template>
     <template #default>
       <v-col
-        v-for="typeFile in files"
+        v-for="typeFile in sortedFiles"
         :key="typeFile.name"
         cols="12"
         sm="6"
@@ -91,7 +91,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useConfig } from '@/composables/useConfig'
 import { useFiles } from '@/composables/useFiles'
@@ -102,6 +102,12 @@ import TypeCard from '@/components/TypeCard.vue'
 const router = useRouter()
 const { isReadOnly } = useConfig()
 const { files, loading, error, loadFiles } = useFiles('types')
+
+const sortedFiles = computed(() =>
+  [...files.value].sort((a, b) =>
+    a.name.localeCompare(b.name, undefined, { sensitivity: 'base' })
+  )
+)
 
 const showNewDialog = ref(false)
 const newTypeName = ref('')

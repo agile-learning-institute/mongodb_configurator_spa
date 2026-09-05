@@ -19,7 +19,10 @@ export function useCollections() {
     loading.value = true
     error.value = null
     try {
-      collections.value = await apiService.getCollections()
+      const data = await apiService.getCollections()
+      collections.value = (data || []).sort((a: CollectionSummary, b: CollectionSummary) =>
+        a.collection_name.localeCompare(b.collection_name, undefined, { sensitivity: 'base' })
+      )
     } catch (err: any) {
       error.value = err.message || 'Failed to load collections'
       collections.value = []
